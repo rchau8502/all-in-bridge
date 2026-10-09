@@ -1,7 +1,8 @@
 # All-In Bridge / 全民桥牌
 
-Full contract bridge with the energy of 全民斗地主 — western cartoon arcade
-presentation, PVP-only, no bots. Bilingual EN/中文 from the ground up:
+Full contract bridge with arcade energy — dramatic banners, card slams,
+character reactions, flying-coin results, music and punchy SFX.
+Western cartoon presentation, PVP-only, no bots. Bilingual EN/中文 from the ground up:
 the server speaks language-neutral event codes, and every client renders
 in its own language, so English and Chinese players can sit at the same table.
 
