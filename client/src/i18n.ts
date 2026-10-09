@@ -20,6 +20,7 @@ const en = {
   'home.followPh': 'Competition code',
   'home.follow': 'Follow',
   'home.howto': 'One share code = one table. First 4 in play N/E/S/W — everyone else watches.',
+  'home.demo': 'Demo build — the tutorial is fully playable offline. Live multiplayer needs the game server (see README).',
   'home.music': 'Music',
   'home.sound': 'Sound',
 
@@ -116,6 +117,7 @@ const zh: typeof en = {
   'home.followPh': '比赛编号',
   'home.follow': '观战',
   'home.howto': '一个分享码 = 一桌。前4人按 N/E/S/W 入座，其余为观众。',
+  'home.demo': '演示版本 —— 新手教程可离线完整游玩。多人对战需要游戏服务器（见 README）。',
   'home.music': '音乐',
   'home.sound': '音效',
 

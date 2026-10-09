@@ -108,6 +108,18 @@ body {
   box-shadow: 0 0 30px rgba(255, 213, 74, 0.25);
 }
 .room-code-label { font-size: 13px; color: var(--dim); text-transform: uppercase; letter-spacing: 2px; }
+.demo-banner {
+  margin: 0 auto 12px;
+  max-width: 560px;
+  padding: 8px 14px;
+  border-radius: 10px;
+  background: rgba(255, 213, 79, 0.14);
+  border: 1px solid rgba(255, 213, 79, 0.5);
+  color: var(--gold);
+  font-size: 0.85rem;
+  text-align: center;
+}
+
 .room-code { font-size: 46px; font-weight: 900; letter-spacing: 8px; color: var(--gold); }
 .room-code-hint { font-size: 12px; color: var(--dim); }
 .seats-grid { display: grid; grid-template-columns: repeat(2, minmax(150px, 210px)); gap: 12px; }

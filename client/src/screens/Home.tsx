@@ -92,6 +92,9 @@ export function Home() {
         <div className="hero-title">{t(lang, 'app.title')}</div>
         <div className="hero-sub">{t(lang, 'app.subtitle')}</div>
       </div>
+      {import.meta.env.VITE_DEMO === '1' && (
+        <div className="demo-banner">{t(lang, 'home.demo')}</div>
+      )}
 
       <input
         className="input name-input"
