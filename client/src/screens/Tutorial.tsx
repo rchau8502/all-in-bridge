@@ -4,7 +4,7 @@ import { t, bidLabelL } from '../i18n.js';
 import { CardView } from '../components/ui.js';
 import { audio } from '../audio.js';
 import { TutorialRunner } from '../../../shared/tutorial.js';
-import { LESSONS } from '../../../shared/lessons.js';
+import { getLessons } from '../../../shared/lessons.js';
 import type { Bid } from '../../../shared/bidding.js';
 import { cardLabel } from '../../../shared/deck.js';
 import type { Card } from '../../../shared/deck.js';
@@ -25,11 +25,13 @@ export function Tutorial() {
   const [feedback, setFeedback] = useState('');
   const runnerRef = useRef<TutorialRunner | null>(null);
 
-  const lesson = LESSONS[lessonIdx]!;
-  const runnerLessonIdx = useRef(-1);
-  if (!runnerRef.current || runnerLessonIdx.current !== lessonIdx) {
+  const lessons = useMemo(() => getLessons(lang), [lang]);
+  const lesson = lessons[lessonIdx]!;
+  const runnerKey = `${lang}:${lesson.id}`;
+  const runnerKeyRef = useRef('');
+  if (!runnerRef.current || runnerKeyRef.current !== runnerKey) {
     runnerRef.current = new TutorialRunner(lesson);
-    runnerLessonIdx.current = lessonIdx;
+    runnerKeyRef.current = runnerKey;
   }
   const runner = runnerRef.current;
   const step = useMemo(() => runner.currentStep(), [runner, tick]);
@@ -37,7 +39,7 @@ export function Tutorial() {
 
   const startLesson = (i: number) => {
     setLessonIdx(i);
-    runnerRef.current = new TutorialRunner(LESSONS[i]!);
+    runnerRef.current = new TutorialRunner(lessons[i]!);
     setFeedback('');
     audio.sfx('click');
     refresh();
@@ -98,12 +100,12 @@ export function Tutorial() {
         <button className="btn ghost" onClick={() => go('home')}>{t(lang, 'tut.back')}</button>
         <div className="tut-title">🎓 {t(lang, 'tut.title')}</div>
         <div className="tut-progress">
-          {t(lang, 'tut.lesson')}{lessonIdx + 1}{t(lang, 'tut.of')}{LESSONS.length}
+          {t(lang, 'tut.lesson')}{lessonIdx + 1}{t(lang, 'tut.of')}{lessons.length}
         </div>
       </div>
 
       <div className="tut-lessons">
-        {LESSONS.map((l, i) => (
+        {lessons.map((l, i) => (
           <button
             key={l.id}
             className={`chip ${i === lessonIdx ? 'active' : ''}`}
@@ -192,9 +194,9 @@ export function Tutorial() {
         {done && (
           <div className="tut-card">
             <p className="tut-text">🏁 {t(lang, 'tut.done')}</p>
-            {lessonIdx + 1 < LESSONS.length ? (
+            {lessonIdx + 1 < lessons.length ? (
               <button className="btn primary" onClick={() => startLesson(lessonIdx + 1)}>
-                {t(lang, 'tut.next')}: {LESSONS[lessonIdx + 1]!.title}
+                {t(lang, 'tut.next')}: {lessons[lessonIdx + 1]!.title}
               </button>
             ) : (
               <button className="btn primary" onClick={() => go('home')}>🃏 {t(lang, 'app.title')}</button>

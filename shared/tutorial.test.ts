@@ -1,7 +1,7 @@
 import { describe, it, expect } from 'vitest';
 import { TutorialRunner } from './tutorial.js';
 import type { Lesson, Step } from './tutorial.js';
-import { LESSONS } from './lessons.js';
+import { LESSONS, getLessons } from './lessons.js';
 
 /** Walk a whole lesson taking every correct action. */
 function walkLesson(lesson: Lesson): TutorialRunner {
@@ -130,5 +130,34 @@ describe('lesson script self-consistency', () => {
       );
       expect(interactive).toBe(true);
     }
+  });
+});
+
+describe('chinese lessons', () => {
+  it('every zh lesson completes end-to-end with correct actions', () => {
+    const zh = getLessons('zh');
+    expect(zh).toHaveLength(LESSONS.length);
+    for (const lesson of zh) {
+      const r = walkLesson(lesson);
+      expect(r.finished).toBe(true);
+    }
+  });
+
+  it('zh text is translated (not english), same scripts', () => {
+    const zh = getLessons('zh');
+    expect(zh[0]!.title).toBe('赢墩');
+    expect(zh[1]!.title).toBe('叫牌基础');
+    expect(zh[2]!.title).toBe('定约与计分');
+    expect(zh[3]!.title).toBe('打一整副牌');
+    // Same step structure, same scripts — only text differs.
+    for (let i = 0; i < LESSONS.length; i++) {
+      const en = LESSONS[i]!;
+      const z = zh[i]!;
+      expect(z.steps.length).toBe(en.steps.length);
+      expect(z.id).toBe(en.id);
+    }
+    // The full-hand zh lesson scores the same 230.
+    const r = walkLesson(zh[3]!);
+    expect(r.getResult()!.total).toBe(230);
   });
 });
