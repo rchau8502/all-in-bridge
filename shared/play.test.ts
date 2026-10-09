@@ -81,7 +81,7 @@ describe('PlayState', () => {
     for (const b of ['1NT', 'P', 'P', 'P']) auction.apply(parseBid(b));
     const ps = new PlayState(hands, auction.contract()!);
     const leader = ps.turn;
-    const ledCard = ps.hands[leader][0];
+    const ledCard = ps.hands[leader][0]!;
     ps.play(ledCard);
     const next = ps.turn;
     const hand = ps.hands[next];
@@ -107,7 +107,7 @@ describe('PlayState', () => {
     while (!ps.isComplete() && guard++ < 60) {
       const plays = ps.legalPlays();
       expect(plays.length).toBeGreaterThan(0);
-      ps.play(plays[0]);
+      ps.play(plays[0]!);
     }
     expect(ps.isComplete()).toBe(true);
     expect(ps.tricksWon.NS + ps.tricksWon.EW).toBe(13);
@@ -117,8 +117,8 @@ describe('PlayState', () => {
   it('trick winner leads the next trick', () => {
     const ps = setup();
     // Play one full trick, then check turn == winner of that trick.
-    for (let i = 0; i < 4; i++) ps.play(ps.legalPlays()[0]);
-    const lastTrick = ps.completedTricks[0];
+    for (let i = 0; i < 4; i++) ps.play(ps.legalPlays()[0]!);
+    const lastTrick = ps.completedTricks[0]!;
     const winner = trickWinner(lastTrick, ps.contract.denom === 'NT' ? null : ps.contract.denom);
     expect(ps.turn).toBe(winner);
   });
@@ -129,7 +129,7 @@ describe('PlayState', () => {
     const auction = new Auction('N');
     for (const b of ['1NT', 'P', 'P', 'P']) auction.apply(parseBid(b));
     const ps = new PlayState(hands, auction.contract()!);
-    ps.play(ps.legalPlays()[0]);
+    ps.play(ps.legalPlays()[0]!);
     expect(JSON.stringify(hands)).toBe(before);
   });
 });

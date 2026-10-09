@@ -61,7 +61,9 @@ export function shuffle(deck: Card[], rng: () => number = Math.random): Card[] {
   const d = deck.slice();
   for (let i = d.length - 1; i > 0; i--) {
     const j = Math.floor(rng() * (i + 1));
-    [d[i], d[j]] = [d[j], d[i]];
+    const tmp = d[i]!;
+    d[i] = d[j]!;
+    d[j] = tmp;
   }
   return d;
 }
