@@ -10,14 +10,14 @@
   --blood: #d42a1e;
   --blood-deep: #7a130c;
   --hall1: #3a1f0e;
-  --hall2: #1d0e06;
+  --hall2: #0a1c40;
   --panel: #2a160b;
   --cream: #fff6e3;
-  --tan: #d8b98a;
+  --tan: #cfe6ff;
   --ink-btn: #4a2600;
-  --felt1: #1e8f47;
-  --felt2: #0d5a2a;
-  --felt3: #063a1d;
+  --felt1: #17c3d9;
+  --felt2: #0a93a8;
+  --felt3: #066e80;
   --wood: #5a3413;
   --card-w: 76px;
   --card-h: 108px;
@@ -27,12 +27,13 @@
 body {
   margin: 0;
   font-family: "Baloo 2", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", system-ui, sans-serif;
-  /* a card hall at night: warm dark walls, gold light spilling from above */
+  /* vivid game sky — saturated, not pastel */
   background:
-    radial-gradient(900px 420px at 50% -8%, rgba(255, 176, 60, 0.22), transparent 62%),
-    radial-gradient(700px 500px at 10% 108%, rgba(150, 44, 16, 0.35), transparent 60%),
-    radial-gradient(700px 500px at 90% 108%, rgba(150, 44, 16, 0.35), transparent 60%),
-    linear-gradient(180deg, var(--hall1) 0%, #241008 52%, #0e0602 100%);
+    radial-gradient(220px 90px at 12% 12%, rgba(255,255,255,0.75), transparent 70%),
+    radial-gradient(300px 110px at 78% 8%, rgba(255,255,255,0.6), transparent 70%),
+    radial-gradient(180px 70px at 55% 22%, rgba(255,255,255,0.45), transparent 70%),
+    radial-gradient(800px 420px at 85% 15%, rgba(255, 236, 170, 0.35), transparent 60%),
+    linear-gradient(180deg, #38a6f5 0%, #1f7fe0 45%, #0f53b8 100%);
   background-attachment: fixed;
   color: var(--cream);
   min-height: 100vh;
@@ -71,7 +72,7 @@ body {
   vertical-align: -6px; margin-right: 6px;
 }
 .topbar-right { display: flex; gap: 8px; }
-.footer { margin-top: auto; padding-top: 24px; text-align: center; color: #b98f5e; font-size: 12px; font-weight: 700; text-shadow: 0 1px 3px rgba(0,0,0,0.6); }
+.footer { margin-top: auto; padding-top: 24px; text-align: center; color: #d8ecff; font-size: 12px; font-weight: 700; text-shadow: 0 1px 3px rgba(0,0,0,0.6); }
 
 /* ---------- generic ---------- */
 .btn {
@@ -89,16 +90,16 @@ body {
 .btn.primary { font-size: 18px; }
 .btn.big { padding: 14px 34px; font-size: 20px; }
 .btn.ghost {
-  background: linear-gradient(180deg, #3a2110, #201006); color: var(--gold);
+  background: linear-gradient(180deg, #15356d, #0a1f4d); color: var(--gold);
   border-color: var(--gold2); text-shadow: 0 2px 3px rgba(0,0,0,0.6);
-  box-shadow: 0 4px 0 #0e0602, 0 8px 18px rgba(0,0,0,0.5);
+  box-shadow: 0 4px 0 #081a3d, 0 8px 18px rgba(0,0,0,0.5);
 }
 .chip {
   font: inherit; font-size: 13px; font-weight: 800; color: var(--gold);
-  background: linear-gradient(180deg, #3a2110, #201006);
+  background: linear-gradient(180deg, #15356d, #0a1f4d);
   border: 2px solid var(--gold-dim); border-radius: 999px;
   padding: 6px 14px; cursor: pointer;
-  box-shadow: 0 3px 0 #0e0602;
+  box-shadow: 0 3px 0 #081a3d;
   text-shadow: 0 1px 2px rgba(0,0,0,0.6);
 }
 .chip.active {
@@ -108,7 +109,7 @@ body {
 .chip.big { font-size: 15px; padding: 8px 16px; }
 .input {
   font: inherit; font-size: 16px; color: var(--cream);
-  background: #1d0e06; border: 2px solid var(--gold-dim); border-radius: 14px;
+  background: #0a1c40; border: 2px solid var(--gold-dim); border-radius: 14px;
   padding: 10px 14px; outline: none;
   box-shadow: inset 0 2px 8px rgba(0, 0, 0, 0.6);
 }
@@ -143,7 +144,7 @@ body {
 .home > * { position: relative; z-index: 1; }
 .profile-plate {
   display: flex; align-items: center; gap: 12px; margin-top: 4px;
-  background: linear-gradient(180deg, #3a2110, #201006);
+  background: linear-gradient(180deg, #15356d, #0a1f4d);
   border: 2px solid var(--gold2); border-radius: 999px;
   padding: 6px 20px 6px 6px;
   box-shadow: 0 8px 20px rgba(0, 0, 0, 0.5), inset 0 1px 0 rgba(255,216,61,0.15);
@@ -176,7 +177,7 @@ body {
 .char-card {
   font: inherit; display: flex; flex-direction: column; align-items: center; gap: 4px;
   width: 100px; padding: 12px 6px 10px; border-radius: 18px; cursor: pointer;
-  background: linear-gradient(180deg, #3a2110, #201006);
+  background: linear-gradient(180deg, #15356d, #0a1f4d);
   border: 3px solid var(--gold-dim); color: var(--cream);
   transition: transform 0.1s; box-shadow: 0 8px 18px rgba(0, 0, 0, 0.5), inset 0 1px 0 rgba(255,216,61,0.15);
 }
@@ -193,13 +194,14 @@ body {
 .join-row .boards { max-width: 76px; flex: none; }
 .comp-box {
   width: min(560px, 96%); margin-top: 8px; padding: 4px 18px 16px;
-  background: linear-gradient(180deg, rgba(58, 33, 16, 0.94), rgba(32, 16, 6, 0.94));
+  background: linear-gradient(180deg, rgba(21, 53, 109, 0.94), rgba(10, 31, 77, 0.94));
   border: 2px solid var(--gold-dim); border-radius: 18px;
   box-shadow: 0 10px 26px rgba(0, 0, 0, 0.5), inset 0 1px 0 rgba(255,216,61,0.15);
 }
+.comp-box .btn { white-space: nowrap; }
 .demo-banner {
   margin: 0 auto 12px; max-width: 560px; padding: 8px 14px; border-radius: 12px;
-  background: rgba(30, 16, 8, 0.92); border: 2px solid var(--gold2);
+  background: rgba(10, 25, 55, 0.92); border: 2px solid var(--gold2);
   color: #ffe9b8; font-size: 0.85rem; font-weight: 800; text-align: center;
   box-shadow: 0 6px 16px rgba(0, 0, 0, 0.5);
 }
@@ -208,7 +210,7 @@ body {
 .lobby { display: flex; flex-direction: column; align-items: center; gap: 16px; padding-top: 16px; }
 .room-code-box {
   text-align: center; cursor: pointer; padding: 16px 48px;
-  background: linear-gradient(180deg, #3a2110, #201006);
+  background: linear-gradient(180deg, #15356d, #0a1f4d);
   border: 3px solid var(--gold2); border-radius: 20px;
   box-shadow: 0 0 30px rgba(255, 171, 0, 0.35), 0 10px 26px rgba(0, 0, 0, 0.5), inset 0 1px 0 rgba(255,216,61,0.15);
 }
@@ -220,7 +222,7 @@ body {
 .room-code-hint { font-size: 12px; color: var(--tan); }
 .seats-grid { display: grid; grid-template-columns: repeat(2, minmax(150px, 210px)); gap: 12px; }
 .seat-card {
-  background: linear-gradient(180deg, #3a2110, #201006);
+  background: linear-gradient(180deg, #15356d, #0a1f4d);
   border: 2px solid var(--gold-dim); border-radius: 16px;
   padding: 14px; text-align: center; min-height: 130px;
   box-shadow: 0 8px 20px rgba(0, 0, 0, 0.5), inset 0 1px 0 rgba(255,216,61,0.12);
@@ -241,7 +243,7 @@ body {
 /* full-width HUD strip, like the card-counter bar in card games */
 .table-bar {
   display: flex; gap: 16px; align-items: center; justify-content: center; flex-wrap: wrap;
-  background: linear-gradient(180deg, rgba(58, 33, 16, 0.96), rgba(32, 16, 6, 0.96));
+  background: linear-gradient(180deg, rgba(21, 53, 109, 0.96), rgba(10, 31, 77, 0.96));
   border-top: 2px solid var(--gold2); border-bottom: 2px solid var(--gold2);
   padding: 8px 22px;
   font-weight: 800; font-size: 14px; color: #ffe9b8;
@@ -304,7 +306,7 @@ body {
 .opp-emoji { font-size: 44px; }
 .pod-plate {
   margin-top: -10px; padding: 11px 16px 6px; min-width: 112px; text-align: center;
-  background: linear-gradient(180deg, #6b2415, #3f130c);
+  background: linear-gradient(180deg, #1a3f7d, #0c2450);
   border: 2px solid var(--gold2); border-top: none; border-radius: 0 0 14px 14px;
   box-shadow: 0 8px 16px rgba(0, 0, 0, 0.5);
 }
@@ -318,7 +320,7 @@ body {
 }
 .opp-cards {
   margin-top: 5px; font-size: 12px; font-weight: 800; color: #ffe9b8;
-  background: rgba(10, 5, 2, 0.72); border: 1px solid var(--gold-dim); border-radius: 999px; padding: 2px 10px;
+  background: rgba(8, 16, 38, 0.72); border: 1px solid var(--gold-dim); border-radius: 999px; padding: 2px 10px;
 }
 .opp.active-turn .pod-avatar { animation: ring-pulse 1s infinite; }
 @keyframes ring-pulse {
@@ -340,7 +342,7 @@ body {
 .trick-card.pos-right { transform: translateX(74px); }
 .auction-trail { display: flex; flex-wrap: wrap; gap: 6px; justify-content: center; max-width: 440px; }
 .trail-bid {
-  background: rgba(20, 10, 5, 0.92); border: 2px solid var(--gold-dim); border-radius: 10px;
+  background: rgba(10, 20, 45, 0.92); border: 2px solid var(--gold-dim); border-radius: 10px;
   padding: 4px 10px; font-weight: 800; font-size: 14px; color: #ffe9b8;
   box-shadow: 0 4px 10px rgba(0, 0, 0, 0.4);
   text-shadow: 0 1px 2px rgba(0,0,0,0.6);
@@ -394,7 +396,7 @@ body {
 /* action bar → dark wood HUD strip with gold trim */
 .action-bar {
   display: flex; flex-direction: column; align-items: center; gap: 8px; min-height: 96px;
-  background: linear-gradient(180deg, #3d2110, #1d0e06);
+  background: linear-gradient(180deg, #173a75, #0a1c40);
   border: 2px solid var(--gold-dim); border-radius: 18px; padding: 10px 16px;
   box-shadow: 0 10px 26px rgba(0, 0, 0, 0.5), inset 0 1px 0 rgba(255,216,61,0.15);
 }
@@ -425,8 +427,8 @@ body {
 .voice-label { font-size: 13px; color: var(--gold); font-weight: 800; }
 .action-bar .hint { color: var(--tan); }
 .action-bar .chip {
-  background: linear-gradient(180deg, #3a2110, #201006); color: var(--gold);
-  border-color: var(--gold-dim); box-shadow: 0 3px 0 #0e0602;
+  background: linear-gradient(180deg, #15356d, #0a1f4d); color: var(--gold);
+  border-color: var(--gold-dim); box-shadow: 0 3px 0 #081a3d;
 }
 
 /* observer hands */
@@ -484,11 +486,11 @@ body {
 /* results */
 .results-overlay {
   position: fixed; inset: 0; z-index: 40; display: flex; align-items: center; justify-content: center;
-  background: rgba(10, 5, 2, 0.72); animation: fade-in 0.3s ease;
+  background: rgba(8, 16, 38, 0.72); animation: fade-in 0.3s ease;
 }
 @keyframes fade-in { from { opacity: 0; } }
 .results-card {
-  background: linear-gradient(180deg, #3a2110, #201006);
+  background: linear-gradient(180deg, #15356d, #0a1f4d);
   border: 3px solid var(--gold2); border-radius: 24px;
   padding: 32px 52px; text-align: center; color: var(--cream);
   box-shadow: 0 24px 70px rgba(0, 0, 0, 0.6), 0 0 44px rgba(255, 171, 0, 0.3), inset 0 1px 0 rgba(255,216,61,0.15);
@@ -533,7 +535,7 @@ body {
 .tut-body { display: flex; flex-direction: column; align-items: center; }
 .tut-card {
   width: min(680px, 96%);
-  background: linear-gradient(180deg, #2e1a0c, #1a0d05);
+  background: linear-gradient(180deg, #15356d, #0a1f4d);
   border: 2px solid var(--gold2); border-radius: 18px; color: var(--cream);
   padding: 24px; display: flex; flex-direction: column; gap: 14px; align-items: center;
   box-shadow: 0 12px 32px rgba(0, 0, 0, 0.55), inset 0 1px 0 rgba(255,216,61,0.12);
@@ -548,14 +550,14 @@ body {
 .comp-codes { display: flex; flex-direction: column; gap: 8px; align-items: center; }
 .code-row {
   display: flex; gap: 12px; align-items: center; cursor: pointer;
-  background: linear-gradient(180deg, #3a2110, #201006);
+  background: linear-gradient(180deg, #15356d, #0a1f4d);
   border: 2px solid var(--gold2); border-radius: 14px; padding: 10px 22px; font-size: 18px; font-weight: 800;
   color: var(--cream); box-shadow: 0 8px 20px rgba(0, 0, 0, 0.5);
 }
 .tables-row { display: flex; gap: 8px; flex-wrap: wrap; justify-content: center; align-items: center; }
 table.standings {
   width: min(640px, 96%); margin: 0 auto; border-collapse: collapse; font-size: 16px;
-  background: linear-gradient(180deg, rgba(58, 33, 16, 0.96), rgba(32, 16, 6, 0.96));
+  background: linear-gradient(180deg, rgba(21, 53, 109, 0.96), rgba(10, 31, 77, 0.96));
   border: 2px solid var(--gold-dim);
   border-radius: 14px; overflow: hidden; color: var(--cream);
   box-shadow: 0 10px 26px rgba(0, 0, 0, 0.5);
