@@ -15,7 +15,8 @@ import type { Card, Seat, Hands } from './deck.js';
 import type { Bid, Contract } from './bidding.js';
 import { Auction, parseBid, bidLabel } from './bidding.js';
 import { PlayState } from './play.js';
-import { ScoreBreakdown, scoreContract } from './scoring.js';
+import { scoreContract } from './scoring.js';
+import type { ScoreBreakdown } from './scoring.js';
 
 export type BidAction =
   | { seat: Seat; bid: string }
@@ -215,35 +216,29 @@ export class TutorialRunner {
     for (;;) {
       const s = this.currentStep();
       if (!s) return;
-      if (s.kind === 'auction' || s.kind === 'play') {
-        if (this.actionIdx >= s.script.length) {
-          this.stepIdx++;
-          this.actionIdx = 0;
-          continue;
-        }
-        const action = s.script[this.actionIdx]!;
-        const isLearner =
-          s.kind === 'auction' ? isLearnerBid(action as BidAction) : isLearnerPlay(action as PlayAction);
-        if (isLearner) return; // wait for the learner
-        // Scripted action — apply immediately (also validates the script).
-        if (s.kind === 'auction') {
-          const a = action as Extract<BidAction, { learner?: false }>;
-          if (this.auction.turn !== a.seat) {
-            throw new Error(`script error: expected ${a.seat} to bid, turn is ${this.auction.turn}`);
-          }
-          this.auction.apply(parseBid(a.bid!));
-        } else {
-          const play = this.ensurePlay();
-          const a = action as Extract<PlayAction, { learner?: false }>;
-          if (play.turn !== a.seat) {
-            throw new Error(`script error: expected ${a.seat} to play, turn is ${play.turn}`);
-          }
-          play.play(parseCard(a.card!));
-        }
-        this.actionIdx++;
+      if (s.kind !== 'auction' && s.kind !== 'play') return; // info/quiz/result wait
+      if (this.actionIdx >= s.script.length) {
+        this.stepIdx++;
+        this.actionIdx = 0;
         continue;
       }
-      return; // info / quiz / result wait for the learner
+      if (s.kind === 'auction') {
+        const a = s.script[this.actionIdx] as BidAction;
+        if (isLearnerBid(a)) return; // wait for the learner
+        if (this.auction.turn !== a.seat) {
+          throw new Error(`script error: expected ${a.seat} to bid, turn is ${this.auction.turn}`);
+        }
+        this.auction.apply(parseBid(a.bid));
+      } else {
+        const a = s.script[this.actionIdx] as PlayAction;
+        if (isLearnerPlay(a)) return; // wait for the learner
+        const play = this.ensurePlay();
+        if (play.turn !== a.seat) {
+          throw new Error(`script error: expected ${a.seat} to play, turn is ${play.turn}`);
+        }
+        play.play(parseCard(a.card));
+      }
+      this.actionIdx++;
     }
   }
 
