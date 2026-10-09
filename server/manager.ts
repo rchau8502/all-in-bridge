@@ -10,6 +10,10 @@ import type { SendFn, BoardSource } from './room.js';
 import { parseClientMessage } from './protocol.js';
 import type { ClientMessage } from './protocol.js';
 import { makeEvent } from '../shared/events.js';
+import { Competition } from './competition.js';
+import type { CompetitionJSON } from './competition.js';
+import { writeFileSync, readFileSync, existsSync, mkdirSync } from 'node:fs';
+import { dirname } from 'node:path';
 
 const CODE_CHARS = 'ABCDEFGHJKMNPQRSTUVWXYZ23456789'; // no confusables
 
@@ -24,6 +28,9 @@ export function makeRoomCode(rng: () => number = Math.random): string {
 export class RoomManager {
   private rooms = new Map<string, Room>();
   private clientRoom = new Map<string, string>(); // clientId -> room code
+  private competitions = new Map<string, Competition>();
+  private followers = new Map<string, Set<string>>(); // competition code -> clientIds
+  private competitionTables = new Set<string>(); // room codes owned by competitions
 
   constructor(
     private send: SendFn,
@@ -35,6 +42,10 @@ export class RoomManager {
     return this.rooms.get(code.toUpperCase());
   }
 
+  getCompetition(code: string): Competition | undefined {
+    return this.competitions.get(code.toUpperCase());
+  }
+
   /** Route one inbound message from a connected client. */
   handleMessage(clientId: string, raw: unknown, now: number): void {
     let msg: ClientMessage;
@@ -42,6 +53,11 @@ export class RoomManager {
       msg = parseClientMessage(raw);
     } catch (e) {
       this.send(clientId, makeEvent('error', { code: (e as Error).message }));
+      return;
+    }
+
+    if (msg.action === 'create_competition' || msg.action === 'create_table' || msg.action === 'follow_competition') {
+      this.handleCompetitionAction(clientId, msg, now);
       return;
     }
 
@@ -82,11 +98,11 @@ export class RoomManager {
     this.rooms.get(code)?.leave(clientId, now);
   }
 
-  /** Expire dead seats; drop empty rooms. */
+  /** Expire dead seats; drop empty non-competition rooms. */
   sweep(now: number): void {
     for (const [code, room] of this.rooms) {
       room.sweep(now);
-      if (room.connectedClients().length === 0) {
+      if (room.connectedClients().length === 0 && !this.competitionTables.has(code)) {
         this.rooms.delete(code);
       }
     }
@@ -94,5 +110,119 @@ export class RoomManager {
 
   roomCount(): number {
     return this.rooms.size;
+  }
+
+  // ------------------------------------------------------- competitions ---
+
+  private makeCompetitionCode(): string {
+    let code = 'T' + makeRoomCode(this.rng).slice(0, 5);
+    while (this.competitions.has(code)) code = 'T' + makeRoomCode(this.rng).slice(0, 5);
+    return code;
+  }
+
+  private handleCompetitionAction(
+    clientId: string,
+    msg: Extract<ClientMessage, { action: 'create_competition' | 'create_table' | 'follow_competition' }>,
+    _now: number
+  ): void {
+    if (msg.action === 'create_competition') {
+      const code = this.makeCompetitionCode();
+      const comp = Competition.create(code, msg.name.slice(0, 40), msg.boards, this.rng);
+      this.competitions.set(code, comp);
+      this.followers.set(code, new Set());
+      const table = this.createTable(comp);
+      this.send(clientId, makeEvent('competition_created', {
+        competitionCode: code,
+        tableCode: table.code,
+        boards: comp.boards.length,
+      }));
+      return;
+    }
+    const comp = this.competitions.get(msg.competitionCode.toUpperCase());
+    if (!comp) {
+      this.send(clientId, makeEvent('error', { code: 'competition-not-found' }));
+      return;
+    }
+    if (msg.action === 'create_table') {
+      const table = this.createTable(comp);
+      this.send(clientId, makeEvent('table_created', { competitionCode: comp.code, tableCode: table.code }));
+      return;
+    }
+    // follow_competition
+    this.followers.get(comp.code)!.add(clientId);
+    this.send(clientId, makeEvent('competition_joined', {
+      competitionCode: comp.code,
+      name: comp.name,
+      boards: comp.boards.length,
+      tables: comp.tables.map(t => t.code),
+    }));
+    this.sendStandings(clientId, comp);
+  }
+
+  private createTable(comp: Competition): Room {
+    let code = makeRoomCode(this.rng);
+    while (this.rooms.has(code)) code = makeRoomCode(this.rng);
+    return this.attachTable(comp, code);
+  }
+
+  private attachTable(comp: Competition, code: string): Room {
+    const room = new Room(code, this.send, comp.fixedSource(), {
+      onBoardComplete: () => this.publishStandings(comp),
+    });
+    this.rooms.set(code, room);
+    comp.addTable(room);
+    this.competitionTables.add(code);
+    return room;
+  }
+
+  private standingsPayload(comp: Competition) {
+    return {
+      competitionCode: comp.code,
+      standings: comp.standings(),
+      boardsCompleted: comp.boardsCompleted(),
+      boardsTotal: comp.boards.length,
+    };
+  }
+
+  private sendStandings(clientId: string, comp: Competition): void {
+    this.send(clientId, makeEvent('standings_update', this.standingsPayload(comp)));
+  }
+
+  /** Broadcast fresh standings to followers and everyone at the tables. */
+  publishStandings(comp: Competition): void {
+    const event = makeEvent('standings_update', this.standingsPayload(comp));
+    for (const fid of this.followers.get(comp.code) ?? []) {
+      this.send(fid, event);
+    }
+    for (const table of comp.tables) {
+      for (const cid of table.connectedClients()) {
+        this.send(cid, event);
+      }
+    }
+  }
+
+  // ---------------------------------------------------------- persistence ---
+
+  /** Persist all competitions (boards + results) to a JSON file. */
+  saveCompetitions(path: string): void {
+    const data = [...this.competitions.values()].map(c => c.toJSON());
+    mkdirSync(dirname(path), { recursive: true });
+    writeFileSync(path, JSON.stringify(data));
+  }
+
+  /** Restore competitions; tables are recreated (empty seats, results kept). */
+  loadCompetitions(path: string): void {
+    if (!existsSync(path)) return;
+    const data = JSON.parse(readFileSync(path, 'utf8')) as CompetitionJSON[];
+    for (const j of data) {
+      if (this.competitions.has(j.code)) continue;
+      const comp = new Competition(j.code, j.name, j.boards);
+      this.competitions.set(j.code, comp);
+      this.followers.set(j.code, new Set());
+      for (const t of j.tables) {
+        const room = this.attachTable(comp, t.code);
+        room.tableResults.push(...t.results);
+      }
+    }
   }
 }

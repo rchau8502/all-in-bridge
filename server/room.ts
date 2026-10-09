@@ -43,6 +43,13 @@ interface ClientInfo {
 /** How a room gets its boards. Default: fresh shuffle per board. */
 export interface BoardSource {
   nextBoard(boardNumber: number): { hands: Hands; dealer: Seat; vulnerability: Vulnerability };
+  /** Set for fixed sets (competitions); next_board past this is rejected. */
+  totalBoards?: number;
+}
+
+/** Lifecycle hooks, e.g. for competitions to hear about completed boards. */
+export interface RoomHooks {
+  onBoardComplete?: (room: Room) => void;
 }
 
 export function randomBoardSource(rng: () => number = Math.random): BoardSource {
@@ -112,7 +119,8 @@ export class Room {
   constructor(
     code: string,
     private send: SendFn,
-    private boardSource: BoardSource = randomBoardSource()
+    private boardSource: BoardSource = randomBoardSource(),
+    private hooks: RoomHooks = {}
   ) {
     this.code = code;
     this.tableId = `${code}-${++roomSeq}`;
@@ -267,6 +275,10 @@ export class Room {
   private onNextBoard(c: ClientInfo): void {
     if (c.clientId !== this.hostClientId) return this.send(c.clientId, this.error('not-host'));
     if (this.phase !== 'board_done') return this.send(c.clientId, this.error('wrong-phase'));
+    const total = this.boardSource.totalBoards;
+    if (total !== undefined && this.boardNumber >= total) {
+      return this.send(c.clientId, this.error('no-more-boards'));
+    }
     this.startBoard(this.boardNumber + 1);
   }
 
@@ -385,6 +397,7 @@ export class Room {
     if (contract && score !== null) {
       this.announce(score >= 0 ? 'victory' : 'defeat', contract.declarer);
     }
+    this.hooks.onBoardComplete?.(this);
   }
 
   private isDeclarerVulnerable(): boolean {

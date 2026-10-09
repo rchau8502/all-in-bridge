@@ -10,6 +10,7 @@
 
 import type { Seat, Card, Hands } from './deck.js';
 import type { Bid, Contract, Vulnerability } from './bidding.js';
+import type { StandingEntry } from './duplicate.js';
 
 export type EventType =
   | 'room_joined'      // { roomCode, seat: Seat | 'observer', players: Seat[] }
@@ -28,6 +29,10 @@ export type EventType =
   | 'emote'            // { seat, emoteId }
   | 'observer_joined'  // { count }
   | 'player_left'      // { seat }
+  | 'competition_created' // { competitionCode, tableCode, boards }
+  | 'competition_joined'  // { competitionCode, name, boards, tables }
+  | 'table_created'       // { competitionCode, tableCode }
+  | 'standings_update'    // { competitionCode, standings, boardsCompleted, boardsTotal }
   | 'error';           // { code: string } — client maps code → localized message
 
 export interface GameEvent<T extends EventType = EventType> {
@@ -81,6 +86,15 @@ export interface EventPayloadMap {
   emote: { seat: Seat; emoteId: string };
   observer_joined: { count: number };
   player_left: { seat: Seat };
+  competition_created: { competitionCode: string; tableCode: string; boards: number };
+  competition_joined: { competitionCode: string; name: string; boards: number; tables: string[] };
+  table_created: { competitionCode: string; tableCode: string };
+  standings_update: {
+    competitionCode: string;
+    standings: StandingEntry[];
+    boardsCompleted: number;
+    boardsTotal: number;
+  };
   error: { code: string };
 }
 

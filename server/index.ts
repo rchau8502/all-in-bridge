@@ -47,4 +47,19 @@ wss.on('connection', (ws: WebSocket) => {
 // Reap expired seats and empty rooms.
 setInterval(() => manager.sweep(Date.now()), 30_000);
 
+// Persist competitions (boards + results) across restarts.
+const DATA_PATH = process.env['DATA_PATH'] ?? './data/competitions.json';
+manager.loadCompetitions(DATA_PATH);
+setInterval(() => {
+  try {
+    manager.saveCompetitions(DATA_PATH);
+  } catch (e) {
+    console.error('competition save failed:', (e as Error).message);
+  }
+}, 60_000);
+process.on('SIGTERM', () => {
+  try { manager.saveCompetitions(DATA_PATH); } catch { /* shutting down */ }
+  process.exit(0);
+});
+
 console.log(`All-In Bridge server listening on :${PORT}`);

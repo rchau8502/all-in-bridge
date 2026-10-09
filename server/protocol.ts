@@ -20,10 +20,14 @@ export type ClientMessage =
   | { action: 'play'; card: unknown }
   | { action: 'pick_character'; characterId: string }
   | { action: 'emote'; emoteId: string }
-  | { action: 'voice'; lineId: string };
+  | { action: 'voice'; lineId: string }
+  | { action: 'create_competition'; name: string; boards: number }
+  | { action: 'create_table'; competitionCode: string }
+  | { action: 'follow_competition'; competitionCode: string };
 
 const ACTIONS = new Set([
   'join', 'start', 'next_board', 'bid', 'play', 'pick_character', 'emote', 'voice',
+  'create_competition', 'create_table', 'follow_competition',
 ]);
 
 /** Parse + shape-check an inbound message. Throws on anything invalid. */
@@ -69,6 +73,19 @@ export function parseClientMessage(data: unknown): ClientMessage {
       if (obj['card'] === undefined) throw new Error('bad-play');
       return obj as ClientMessage;
     }
+    case 'create_competition': {
+      if (!str(obj['name'])) throw new Error('bad-competition');
+      const boards = obj['boards'];
+      if (typeof boards !== 'number' || !Number.isInteger(boards) || boards < 1 || boards > 32) {
+        throw new Error('bad-competition');
+      }
+      return obj as ClientMessage;
+    }
+    case 'create_table':
+    case 'follow_competition': {
+      if (!str(obj['competitionCode'])) throw new Error('bad-competition');
+      return obj as ClientMessage;
+    }
     default:
       return obj as ClientMessage; // start, next_board
   }
@@ -94,6 +111,9 @@ export const ERROR_CODES = [
   'need-4-players',
   'unknown-character',
   'room-not-found',
+  'bad-competition',
+  'competition-not-found',
+  'no-more-boards',
 ] as const;
 
 export type ErrorCode = (typeof ERROR_CODES)[number];
