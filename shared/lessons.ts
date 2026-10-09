@@ -119,20 +119,10 @@ const RAW_LESSONS: RawLesson[] = [
         ],
       },
       {
-        kind: 'quiz',
-        question: T(
-          'West played the 2 of clubs while hearts were led. Why is that allowed?',
-          '首攻是红桃，西家却出了梅花2，为什么可以？'
-        ),
-        options: [
-          T('West had no hearts left', '西家已经没有红桃了'),
-          T('Clubs beat hearts', '梅花比红桃大'),
-          T('West felt like it', '西家想出就出'),
-        ],
-        answer: 0,
-        explain: T(
-          'You only have to follow suit when you hold a card of the led suit. West was out of hearts, so any discard was legal.',
-          '只有手中有首攻花色时才必须跟出。西家没有红桃了，所以垫任何牌都合法。'
+        kind: 'info',
+        text: T(
+          'Did you catch that? West had no hearts left, so the 2♣ was a perfectly legal discard — you only have to follow suit when you actually hold the led suit.',
+          '注意到了吗？西家已经没有红桃，所以垫梅花2完全合法 —— 只有手中有首攻花色时才必须跟出。'
         ),
       },
       {
@@ -220,17 +210,10 @@ const RAW_LESSONS: RawLesson[] = [
         ],
       },
       {
-        kind: 'quiz',
-        question: T('The final contract is 2H. Who is the declarer?', '最终定约是2H，谁是庄家？'),
-        options: [
-          T('South — first of their side to bid hearts', '南家 —— 本方第一个叫出红桃的人'),
-          T('East — they bid diamonds first', '东家 —— 他先叫的方块'),
-          T('North — the dealer', '北家 —— 他是发牌人'),
-        ],
-        answer: 0,
-        explain: T(
-          "The declarer is the first player of the winning side to bid the contract's denomination. South bid hearts first, so South declares.",
-          '庄家是赢得定约一方中，第一个叫出定约花色的人。南家先叫的红桃，所以南家做庄。'
+        kind: 'info',
+        text: T(
+          "South is the declarer — the declarer is the first player of the winning side to bid the contract's suit. South bid hearts first, so South plays the hand, with North's cards as dummy.",
+          '南家是庄家 —— 庄家是赢得定约一方中第一个叫出定约花色的人。南家先叫的红桃，所以南家主打，北家的牌作为明手。'
         ),
       },
     ],
@@ -251,11 +234,11 @@ const RAW_LESSONS: RawLesson[] = [
         ),
       },
       {
-        kind: 'quiz',
-        question: T('Your contract is 3NT. How many tricks must you take?', '你的定约是3NT，需要拿几墩？'),
-        options: [T('9', '9'), T('8', '8'), T('10', '10')],
-        answer: 0,
-        explain: T('6 + 3 = 9 tricks.', '6 + 3 = 9 墩。'),
+        kind: 'info',
+        text: T(
+          "A 3NT contract needs 6 + 3 = 9 tricks out of 13. The first 6 are the \"book\" — they don't count.",
+          '3NT 定约需要拿下 6 + 3 = 9 墩（共13墩）。前6墩是"本墩"，不算数。'
+        ),
       },
       {
         kind: 'info',
@@ -265,11 +248,40 @@ const RAW_LESSONS: RawLesson[] = [
         ),
       },
       {
-        kind: 'quiz',
-        question: T('3NT made exactly, not vulnerable, scores…', '3NT 刚好做成，无局，得分是…'),
-        options: [T('400', '400'), T('600', '600'), T('100', '100')],
-        answer: 0,
-        explain: T('100 trick points + 300 game bonus = 400.', '100 墩分 + 300 成局奖励 = 400。'),
+        kind: 'info',
+        text: T(
+          '3NT made exactly, not vulnerable: 100 trick points + 300 game bonus = 400. Every overtrick adds 30 more — each extra trick is cash.',
+          '3NT 刚好做成、无局：100 墩分 + 300 成局奖励 = 400 分。每超一墩再加 30 分 —— 每一墩都是钱。'
+        ),
+      },
+      {
+        kind: 'info',
+        text: T(
+          'Enough theory — feel it. Contract 2H, you need 8 tricks. West leads…',
+          '理论够了 —— 来感受一下。定约2H，你需要8墩。西家首攻……'
+        ),
+      },
+      {
+        kind: 'play',
+        script: [
+          { seat: 'W', card: '4D' },
+          { seat: 'N', card: '2D' },
+          { seat: 'E', card: '9D' },
+          {
+            seat: 'S', learner: true, expected: 'AD',
+            hint: T(
+              'Win it with the ace of diamonds (AD) — one trick banked toward your 8.',
+              '用方块A (AD) 赢下这一墩 —— 向8墩目标拿下第一墩。'
+            ),
+          },
+        ],
+      },
+      {
+        kind: 'info',
+        text: T(
+          "One down, seven to go — that's the grind, and overtricks are bonus cash.",
+          '拿下一墩，还差七墩 —— 就是这样一墩一墩地磨，超墩还是奖金。'
+        ),
       },
       {
         kind: 'info',

@@ -545,6 +545,85 @@ body {
 .tut-trick { display: flex; gap: 8px; flex-wrap: wrap; justify-content: center; }
 .tut-feedback { font-weight: 800; color: var(--gold); text-align: center; min-height: 24px; text-shadow: 0 1px 2px rgba(0,0,0,0.6); }
 
+/* ---------- simulated table (tutorial): a compact game table ---------- */
+.sim-felt {
+  position: relative;
+  width: min(780px, 98%);
+  background:
+    radial-gradient(ellipse at 50% 30%, rgba(255, 235, 170, 0.16) 0%, transparent 55%),
+    radial-gradient(ellipse at center, var(--felt1) 0%, var(--felt2) 55%, var(--felt3) 100%);
+  border: 6px solid var(--wood);
+  outline: 2px solid var(--gold2);
+  border-radius: 24px;
+  padding: 12px;
+  display: grid;
+  grid-template-columns: 108px 1fr 108px;
+  grid-template-rows: auto 1fr auto;
+  grid-template-areas: ". simn ." "simw simc sime" ". simme .";
+  box-shadow: inset 0 0 60px rgba(0, 0, 0, 0.45), 0 12px 30px rgba(0, 0, 0, 0.4);
+  min-height: 460px;
+}
+.sim-topbar { grid-column: 1 / -1; display: flex; justify-content: center; gap: 10px; align-items: center; margin-bottom: 6px; }
+.sim-trickno {
+  background: rgba(8, 16, 38, 0.78); border: 1px solid var(--gold2); color: var(--gold);
+  font-weight: 900; border-radius: 999px; padding: 2px 14px; font-size: 14px;
+  text-shadow: 0 1px 2px rgba(0,0,0,0.6);
+}
+.sim-seat { display: flex; flex-direction: column; align-items: center; gap: 4px; }
+.sim-n { grid-area: simn; }
+.sim-w { grid-area: simw; justify-content: center; }
+.sim-e { grid-area: sime; justify-content: center; }
+.sim-backs { display: flex; }
+.sim-backs .card { margin: 0 -15px; }
+.sim-backs .card:first-child { margin-left: 0; }
+.card.tiny { --card-w: 34px; --card-h: 48px; }
+.card.tiny .pip { font-size: 18px; }
+.card.tiny .corner { font-size: 9px; }
+.sim-plate {
+  background: rgba(8, 16, 38, 0.8); border: 1px solid var(--gold-dim);
+  border-radius: 10px; padding: 3px 10px; text-align: center; white-space: nowrap;
+}
+.sim-seatname { color: #fff; font-weight: 800; font-size: 13px; text-shadow: 0 1px 2px rgba(0,0,0,0.6); }
+.sim-count { color: var(--gold); font-weight: 800; font-size: 12px; margin-left: 6px; }
+.sim-badge {
+  background: linear-gradient(180deg, #ffe27a, var(--gold2));
+  border: 1px solid var(--gold-deep); color: var(--ink-btn);
+  font-weight: 900; border-radius: 8px; padding: 1px 10px; font-size: 13px;
+}
+.sim-seat.active-turn .sim-plate { border-color: var(--gold2); box-shadow: 0 0 14px rgba(255, 171, 0, 0.85); }
+.sim-center { grid-area: simc; position: relative; min-height: 170px; display: flex; align-items: center; justify-content: center; }
+.sim-trick { position: relative; width: 200px; height: 160px; }
+.sim-tcard { position: absolute; animation: slam 0.35s cubic-bezier(0.2, 1.6, 0.4, 1) backwards; }
+.sim-tcard.noanim { animation: none; }
+.sim-tcard.pos-top { top: 0; left: 50%; margin-left: -26px; }
+.sim-tcard.pos-bottom { bottom: 0; left: 50%; margin-left: -26px; }
+.sim-tcard.pos-left { left: 0; top: 50%; margin-top: -37px; }
+.sim-tcard.pos-right { right: 0; top: 50%; margin-top: -37px; }
+.sim-me { grid-area: simme; display: flex; flex-direction: column; align-items: center; gap: 6px; }
+.sim-hint { color: #fff; font-weight: 800; text-shadow: 0 2px 3px rgba(0,0,0,0.65); text-align: center; }
+.sim-handlabel { color: var(--gold); font-weight: 900; font-size: 14px; text-shadow: 0 2px 3px rgba(0,0,0,0.6); }
+.sim-me .hand .card { margin: 0 -20px; }
+.sim-me .hand .card:first-child { margin-left: 0; }
+.sim-me .hand .card:last-child { margin-right: 0; }
+.sim-trail { display: flex; flex-wrap: wrap; gap: 6px; justify-content: center; max-width: 430px; }
+.sim-trail .trail-bid { animation: fade-in 0.3s backwards; }
+.sim-bidbox { width: 100%; display: flex; flex-direction: column; gap: 8px; align-items: center; }
+
+/* coach card: your fighter explains the lesson */
+.tut-coach-card { display: flex; gap: 14px; align-items: flex-start; width: min(680px, 96%); }
+.coach-avatar {
+  width: 84px; height: 84px; border-radius: 50%; border: 3px solid var(--gold2);
+  object-fit: cover; flex: none; background: #f5eeda;
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.4);
+}
+.coach-bubble {
+  background: linear-gradient(180deg, #fffdf4, #fff3d6); color: #4a2600;
+  border: 2px solid var(--gold2); border-radius: 18px;
+  padding: 18px 20px; display: flex; flex-direction: column; gap: 12px; align-items: flex-start;
+  box-shadow: 0 10px 26px rgba(0, 0, 0, 0.35);
+}
+.coach-bubble .tut-text { color: #4a2600; }
+
 /* ---------- compete ---------- */
 .compete { display: flex; flex-direction: column; gap: 10px; padding-top: 8px; }
 .comp-codes { display: flex; flex-direction: column; gap: 8px; align-items: center; }

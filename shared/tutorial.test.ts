@@ -12,8 +12,7 @@ function walkLesson(lesson: Lesson): TutorialRunner {
     if (s.kind === 'info' || s.kind === 'result') {
       r.advance();
     } else if (s.kind === 'quiz') {
-      const res = r.answerQuiz(s.answer);
-      expect(res.ok).toBe(true);
+      throw new Error('lessons no longer use quiz steps — teach visually instead');
     } else {
       const p = r.pendingLearnerAction();
       expect(p).not.toBeNull();
@@ -83,23 +82,19 @@ describe('TutorialRunner mistakes', () => {
     expect(r.stepIndex).toBe(before);
   });
 
-  it('a wrong quiz answer does not advance', () => {
-    const lesson = LESSONS.find(l => l.id === 'scoring')!;
-    const r = new TutorialRunner(lesson);
-    r.advance(); // info
-    const s = r.currentStep()!;
-    if (s.kind !== 'quiz') throw new Error('expected quiz');
-    const wrong = (s.answer + 1) % s.options.length;
-    const before = r.stepIndex;
-    expect(r.answerQuiz(wrong).ok).toBe(false);
-    expect(r.stepIndex).toBe(before);
-    expect(r.answerQuiz(s.answer).ok).toBe(true);
+  it('lessons teach visually instead of quizzing', () => {
+    for (const lesson of LESSONS) {
+      expect(lesson.steps.some(s => s.kind === 'quiz')).toBe(false);
+    }
+    // The engine still supports quizzes; the content just doesn't use them.
+    const r = new TutorialRunner(LESSONS[0]!);
+    expect(r.pendingLearnerAction()).toBeNull();
   });
 
   it('advance() throws on non-info steps', () => {
-    const lesson = LESSONS.find(l => l.id === 'scoring')!;
+    const lesson = LESSONS.find(l => l.id === 'tricks')!;
     const r = new TutorialRunner(lesson);
-    r.advance(); // now at quiz
+    r.advance(); r.advance(); // infos → now at a play step
     expect(() => r.advance()).toThrow();
   });
 
@@ -124,9 +119,8 @@ describe('lesson script self-consistency', () => {
     for (const lesson of LESSONS) {
       const interactive = lesson.steps.some(
         (s: Step) =>
-          s.kind === 'quiz' ||
-          ((s.kind === 'auction' || s.kind === 'play') &&
-            s.script.some(a => 'learner' in a && a.learner === true))
+          (s.kind === 'auction' || s.kind === 'play') &&
+          s.script.some(a => 'learner' in a && a.learner === true)
       );
       expect(interactive).toBe(true);
     }
