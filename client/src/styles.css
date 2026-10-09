@@ -22,11 +22,12 @@
 body {
   margin: 0;
   font-family: "Baloo 2", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", system-ui, sans-serif;
-  /* sunset card-hall sky */
+  /* sunset card-hall sky — warm horizon glows behind the content */
   background:
-    radial-gradient(900px 480px at 50% 118%, rgba(245, 166, 35, 0.28), transparent 60%),
-    radial-gradient(1400px 700px at 50% 130%, rgba(179, 71, 127, 0.35), transparent 62%),
-    linear-gradient(180deg, #1b1440 0%, #2c1c55 34%, #4a2a63 62%, #1a2340 100%);
+    radial-gradient(1100px 520px at 50% 86%, rgba(245, 166, 35, 0.22), transparent 60%),
+    radial-gradient(1500px 720px at 50% 104%, rgba(190, 80, 130, 0.32), transparent 62%),
+    radial-gradient(2000px 900px at 50% -40%, rgba(90, 60, 160, 0.35), transparent 60%),
+    linear-gradient(180deg, #12102e 0%, #221a4c 30%, #3a2358 54%, #5c2f52 70%, #232a4a 100%);
   background-attachment: fixed;
   color: var(--ink);
   min-height: 100vh;
