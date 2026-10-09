@@ -259,6 +259,9 @@ export class Room {
       case 'voice':
         this.broadcast(makeEvent('voice_line', { seat: c.seat as Seat, lineId: msg.lineId }));
         return;
+      case 'snapshot':
+        this.send(clientId, makeEvent('room_snapshot', this.snapshotFor(c)));
+        return;
     }
   }
 

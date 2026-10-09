@@ -165,6 +165,31 @@ export class TutorialRunner {
     return scoreContract(c, this.playState.declarerTricks(), this.lesson.vulnerable);
   }
 
+  /** For UI: auction entries + whose turn for the current auction step. */
+  auctionView(): { entries: Array<{ seat: Seat; bid: Bid }>; turn: Seat } | null {
+    const s = this.currentStep();
+    if (!s || s.kind !== 'auction') return null;
+    return { entries: this.auction.entries.map(e => ({ seat: e.seat, bid: e.bid })), turn: this.auction.turn };
+  }
+
+  /** For UI: live play state for the current play step (hands shrink as cards are played). */
+  playView(): {
+    hands: Hands;
+    trick: Array<{ seat: Seat; card: Card }>;
+    contract: Contract | null;
+    turn: Seat;
+  } | null {
+    const s = this.currentStep();
+    if (!s || s.kind !== 'play') return null;
+    const ps = this.ensurePlay();
+    return {
+      hands: ps.hands,
+      trick: ps.currentTrick.map(t => ({ seat: t.seat, card: { ...t.card } })),
+      contract: this.lesson.contract,
+      turn: ps.turn,
+    };
+  }
+
   /**
    * The action the learner must take right now, or null if the current step
    * doesn't need input. The UI uses this to prompt (and to offer the hint).

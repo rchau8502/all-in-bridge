@@ -10,7 +10,6 @@
 import { buildDeck, shuffle, deal, seatSide } from './deck.js';
 import type { Hands, Seat } from './deck.js';
 import { boardDealerVul } from './bidding.js';
-import type { Vulnerability } from './bidding.js';
 import type { BoardRecord, TableResult } from './events.js';
 
 export type Direction = 'NS' | 'EW';

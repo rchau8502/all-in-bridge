@@ -23,11 +23,12 @@ export type ClientMessage =
   | { action: 'voice'; lineId: string }
   | { action: 'create_competition'; name: string; boards: number }
   | { action: 'create_table'; competitionCode: string }
-  | { action: 'follow_competition'; competitionCode: string };
+  | { action: 'follow_competition'; competitionCode: string }
+  | { action: 'snapshot' };
 
 const ACTIONS = new Set([
   'join', 'start', 'next_board', 'bid', 'play', 'pick_character', 'emote', 'voice',
-  'create_competition', 'create_table', 'follow_competition',
+  'create_competition', 'create_table', 'follow_competition', 'snapshot',
 ]);
 
 /** Parse + shape-check an inbound message. Throws on anything invalid. */
