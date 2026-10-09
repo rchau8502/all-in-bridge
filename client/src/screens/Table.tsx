@@ -401,9 +401,13 @@ function OppPanel({ seat, seats, lang, lastBid, played, turn, pos }: {
   const info = seats[seat];
   return (
     <div className={`opp ${pos} ${turn ? 'active-turn' : ''}`}>
-      <div className="opp-emoji">{characterEmoji(info?.characterId ?? 'cowboy')}</div>
-      <div className="opp-name">{info?.name ?? '…'}</div>
-      <div className="opp-seat">{seatLabel(lang, seat)}</div>
+      <div className="pod-avatar">
+        <div className="opp-emoji">{characterEmoji(info?.characterId ?? 'cowboy')}</div>
+      </div>
+      <div className="pod-plate">
+        <div className="opp-name">{info?.name ?? '…'}</div>
+        <div className="opp-seat">{seatLabel(lang, seat)}</div>
+      </div>
       {lastBid && <div className="opp-bid">{bidLabelL(lang, lastBid)}</div>}
       <div className="opp-cards">🂠 × {13 - played}</div>
       {turn && <div className="turn-dot">●</div>}
