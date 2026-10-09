@@ -299,7 +299,11 @@ export function Tutorial() {
           <SimTable
             lang={lang}
             title={lang === 'zh' ? `第 ${trickNo} 墩` : `Trick ${trickNo}`}
-            contractLabel={`${bidLabelL(lang, { type: 'bid', level: lesson.contract.level, denom: lesson.contract.denom })} · ${seatLabel(lang, lesson.contract.declarer)}`}
+            contractLabel={
+              lesson.id === 'tricks'
+                ? null
+                : `${bidLabelL(lang, { type: 'bid', level: lesson.contract.level, denom: lesson.contract.denom })} · ${seatLabel(lang, lesson.contract.declarer)}`
+            }
             seats={(Object.keys(playView.hands) as Seat[]).map(s => ({
               seat: s,
               count: playView.hands[s].length,
