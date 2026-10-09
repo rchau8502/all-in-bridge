@@ -48,6 +48,14 @@ body {
   color: #fff; text-shadow: 0 2px 0 var(--panel-blue2), 0 4px 10px rgba(20, 60, 120, 0.4);
 }
 .logo-emoji { font-size: 26px; }
+.logo-suit {
+  display: inline-flex; align-items: center; justify-content: center;
+  width: 34px; height: 34px; border-radius: 10px; font-size: 22px;
+  background: linear-gradient(180deg, #2f7cd0, #205fa8); color: #fff;
+  border: 2px solid var(--gold2);
+  box-shadow: 0 3px 8px rgba(20, 60, 120, 0.4);
+  vertical-align: -6px; margin-right: 6px;
+}
 .topbar-right { display: flex; gap: 8px; }
 .footer { margin-top: auto; padding-top: 24px; text-align: center; color: #eaf4ff; font-size: 12px; font-weight: 700; text-shadow: 0 1px 3px rgba(20,60,120,0.5); }
 
@@ -223,10 +231,20 @@ body {
 .pod-avatar {
   width: 78px; height: 78px; border-radius: 50%;
   display: flex; align-items: center; justify-content: center;
-  background: radial-gradient(circle at 35% 30%, #ffffff, #cfe4fa 75%);
+  overflow: hidden;
+  background: #f5eeda;
   border: 4px solid #fff;
   box-shadow: 0 0 0 3px var(--gold2), 0 0 18px rgba(255, 171, 0, 0.55), 0 8px 16px rgba(20, 60, 120, 0.4);
   z-index: 1;
+}
+.pod-avatar .avatar-img { width: 100%; height: 100%; object-fit: cover; }
+.char-portrait {
+  width: 76px; height: 76px; border-radius: 14px; object-fit: cover;
+  box-shadow: 0 4px 10px rgba(30, 80, 140, 0.3);
+}
+.seat-emoji .avatar-img {
+  width: 58px; height: 58px; border-radius: 14px; object-fit: cover;
+  box-shadow: 0 4px 10px rgba(30, 80, 140, 0.3);
 }
 .opp-emoji { font-size: 44px; }
 .pod-plate {

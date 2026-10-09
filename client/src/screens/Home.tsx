@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { useApp } from '../App.js';
 import { t } from '../i18n.js';
 import { CHARACTERS } from '../../../shared/characters.js';
+import { Avatar } from '../components/ui.js';
 import { audio } from '../audio.js';
 import type { GameEvent } from '../../../shared/events.js';
 
@@ -113,7 +114,7 @@ export function Home() {
             onClick={() => { setCharacterId(c.id); audio.sfx('click'); }}
             style={{ ['--c1' as string]: c.colors.primary, ['--c2' as string]: c.colors.secondary }}
           >
-            <span className="char-emoji">{c.emoji}</span>
+            <Avatar id={c.id} className="char-portrait" />
             <span className="char-name">{lang === 'zh'
               ? { cowboy: '牛仔', gamer: '电竞少年', grandma: '奶奶', robot: '机器人' }[c.id]
               : c.id[0]!.toUpperCase() + c.id.slice(1)}</span>

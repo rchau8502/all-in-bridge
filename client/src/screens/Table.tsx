@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { useApp } from '../App.js';
 import { t, bidLabelL, seatLabel, errMsg, type Lang } from '../i18n.js';
-import { CardView, Banner, CoinRain, Bubble, characterEmoji } from '../components/ui.js';
+import { CardView, Banner, CoinRain, Bubble, Avatar } from '../components/ui.js';
 import { audio } from '../audio.js';
 import { SEATS, nextSeat, seatSide } from '../../../shared/deck.js';
 import type { Seat, Card, Suit, Hands } from '../../../shared/deck.js';
@@ -402,7 +402,7 @@ function OppPanel({ seat, seats, lang, lastBid, played, turn, pos }: {
   return (
     <div className={`opp ${pos} ${turn ? 'active-turn' : ''}`}>
       <div className="pod-avatar">
-        <div className="opp-emoji">{characterEmoji(info?.characterId ?? 'cowboy')}</div>
+        <Avatar id={info?.characterId ?? 'cowboy'} />
       </div>
       <div className="pod-plate">
         <div className="opp-name">{info?.name ?? '…'}</div>

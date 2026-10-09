@@ -86,7 +86,7 @@ export function App() {
       <div className="app">
         <header className="topbar">
           <div className="logo" onClick={() => go('home')}>
-            <span className="logo-emoji">🃏</span> {t(lang, 'app.title')}
+            <span className="logo-suit">♠</span> {t(lang, 'app.title')}
           </div>
           <div className="topbar-right">
             <button className={`chip ${lang === 'en' ? 'active' : ''}`} onClick={() => setLang('en')}>EN</button>

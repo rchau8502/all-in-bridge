@@ -81,6 +81,15 @@ export function characterEmoji(id: string): string {
   return CHARACTERS.find(c => c.id === id)?.emoji ?? '🃏';
 }
 
+/** Illustrated avatar portrait (generated set in public/avatars/). */
+export function avatarUrl(id: string): string {
+  return `avatars/${id}.webp`;
+}
+
+export function Avatar({ id, className }: { id: string; className?: string }) {
+  return <img src={avatarUrl(id)} alt={id} className={className ?? 'avatar-img'} draggable={false} />;
+}
+
 export function SeatTag({ seat, lang }: { seat: Seat; lang: Lang }) {
   return <span className="seat-tag">{seatLabel(lang, seat)}</span>;
 }

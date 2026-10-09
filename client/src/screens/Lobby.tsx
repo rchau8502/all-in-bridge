@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useApp } from '../App.js';
 import { t, seatLabel } from '../i18n.js';
-import { characterEmoji } from '../components/ui.js';
+import { Avatar } from '../components/ui.js';
 import { audio } from '../audio.js';
 import type { Seat } from '../../../shared/deck.js';
 import { SEATS } from '../../../shared/deck.js';
@@ -55,7 +55,7 @@ export function Lobby() {
               <div className="seat-name">{seatLabel(lang, s)}</div>
               {info ? (
                 <>
-                  <div className="seat-emoji">{characterEmoji(info.characterId)}</div>
+                  <div className="seat-emoji"><Avatar id={info.characterId} /></div>
                   <div className="seat-player">{info.name}{isMe ? ` (${t(lang, 'lobby.you')})` : ''}</div>
                   {hostSeat === s && <div className="host-badge">👑 {t(lang, 'lobby.host')}</div>}
                   {!info.connected && <div className="dc-badge">…</div>}
