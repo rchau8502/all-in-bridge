@@ -132,7 +132,7 @@ function SimTable(props: {
                 <CardView
                   key={`${c.suit}${c.rank}-${i}`}
                   card={c}
-                  clickable={props.interactive}
+                  playable={props.interactive}
                   onClick={props.interactive ? () => props.onPlay(c) : undefined}
                 />
               ))}
