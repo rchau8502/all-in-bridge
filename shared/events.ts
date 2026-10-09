@@ -13,8 +13,11 @@ import type { Bid, Contract, Vulnerability } from './bidding.js';
 
 export type EventType =
   | 'room_joined'      // { roomCode, seat: Seat | 'observer', players: Seat[] }
+  | 'players_update'   // { seats, observers, hostSeat } — lobby roster changes
+  | 'room_snapshot'    // full state for rejoining clients
   | 'game_start'       // { boardNumber, dealer, vulnerability }
   | 'deal'             // { yourHand: Card[] } — sent privately per player
+  | 'observer_deal'    // { hands: Hands } — observers see everything, kibitzer-style
   | 'bid_made'         // { seat, bid }
   | 'auction_end'      // { contract: Contract | null } (null = passed out)
   | 'play_made'        // { seat, card }
@@ -36,8 +39,32 @@ export interface GameEvent<T extends EventType = EventType> {
 
 export interface EventPayloadMap {
   room_joined: { roomCode: string; seat: Seat | 'observer'; players: Seat[] };
+  players_update: {
+    seats: Record<Seat, { name: string; characterId: string; connected: boolean } | null>;
+    observers: number;
+    hostSeat: Seat | null;
+  };
+  room_snapshot: {
+    phase: 'lobby' | 'auction' | 'play' | 'board_done';
+    boardNumber: number;
+    dealer: Seat | null;
+    vulnerability: Vulnerability | null;
+    seats: Record<Seat, { name: string; characterId: string; connected: boolean } | null>;
+    observers: number;
+    hostSeat: Seat | null;
+    auction: Array<{ seat: Seat; bid: Bid }>;
+    contract: Contract | null;
+    /** Set for players; null for observers. */
+    yourHand: Card[] | null;
+    /** Set for observers; null for players. */
+    allHands: Hands | null;
+    currentTrick: Array<{ seat: Seat; card: Card }>;
+    tricksWon: { NS: number; EW: number };
+    turn: Seat | null;
+  };
   game_start: { boardNumber: number; dealer: Seat; vulnerability: Vulnerability };
   deal: { yourHand: Card[] };
+  observer_deal: { hands: Hands };
   bid_made: { seat: Seat; bid: Bid };
   auction_end: { contract: Contract | null };
   play_made: { seat: Seat; card: Card };
