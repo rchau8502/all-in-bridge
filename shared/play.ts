@@ -44,7 +44,8 @@ export class PlayState {
 
   /** The suit led in the current trick, or null if the trick is empty. */
   ledSuit(): Card['suit'] | null {
-    return this.currentTrick.length === 0 ? null : this.currentTrick[0].card.suit;
+    const first = this.currentTrick[0];
+    return first ? first.card.suit : null;
   }
 
   /** Cards the current seat is legally allowed to play. */
