@@ -36,9 +36,22 @@ body {
   background-attachment: fixed;
   color: var(--cream);
   min-height: 100vh;
+  overflow-x: hidden;
 }
 
 .app { max-width: 1100px; margin: 0 auto; padding: 0 16px 40px; min-height: 100vh; display: flex; flex-direction: column; }
+
+/* game screens break out of the centered column and fill the viewport,
+ * like a real game scene instead of a web page */
+.home, .lobby, .table-screen, .tutorial, .compete {
+  width: 100vw;
+  position: relative;
+  left: 50%;
+  margin-left: -50vw;
+  padding-left: 16px;
+  padding-right: 16px;
+}
+.lobby, .tutorial, .compete { min-height: calc(100dvh - 70px); }
 
 .topbar {
   display: flex; justify-content: space-between; align-items: center;
@@ -114,8 +127,39 @@ body {
 }
 .error.floating { position: fixed; top: 70px; left: 50%; transform: translateX(-50%); z-index: 60; margin: 0; }
 
-/* ---------- home ---------- */
-.home { display: flex; flex-direction: column; align-items: center; gap: 10px; padding-top: 10px; }
+/* ---------- home: full-screen game menu ---------- */
+.home { display: flex; flex-direction: column; align-items: center; gap: 10px; padding-top: 14px; min-height: calc(100dvh - 70px); justify-content: center; overflow: hidden; padding-bottom: 120px; }
+/* a giant card table rising behind the menu — you're seated at it */
+.home::before {
+  content: ""; position: absolute; left: 50%; transform: translateX(-50%);
+  bottom: -320px; width: min(1300px, 160vw); height: 520px; border-radius: 50%;
+  background: radial-gradient(ellipse at 50% 32%, rgba(255, 235, 170, 0.13) 0%, transparent 55%),
+    radial-gradient(ellipse at center, var(--felt1) 0%, var(--felt2) 55%, var(--felt3) 100%);
+  border: 14px solid var(--wood);
+  outline: 3px solid var(--gold2);
+  box-shadow: inset 0 0 90px rgba(0, 0, 0, 0.6);
+  pointer-events: none;
+}
+.home > * { position: relative; z-index: 1; }
+.profile-plate {
+  display: flex; align-items: center; gap: 12px; margin-top: 4px;
+  background: linear-gradient(180deg, #3a2110, #201006);
+  border: 2px solid var(--gold2); border-radius: 999px;
+  padding: 6px 20px 6px 6px;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.5), inset 0 1px 0 rgba(255,216,61,0.15);
+}
+.plate-avatar { width: 58px; height: 58px; border-radius: 50%; border: 3px solid var(--gold2); object-fit: cover; background: #f5eeda; }
+.profile-plate .name-input {
+  border: none; background: transparent; box-shadow: none; border-radius: 0;
+  text-align: left; font-size: 19px; font-weight: 800; color: var(--cream);
+  width: 210px; padding: 8px 4px;
+}
+.profile-plate .name-input::placeholder { color: #a08050; }
+.profile-plate .name-input:focus { box-shadow: none; }
+.menu { display: flex; flex-direction: column; align-items: stretch; gap: 12px; margin-top: 12px; width: min(430px, 94%); }
+.menu-btn { width: 100%; font-size: 22px; padding: 15px 34px; }
+.menu-row { width: 100%; }
+.menu-row .input { flex: 1; }
 .hero { text-align: center; margin-bottom: 6px; }
 .hero-title {
   font-size: clamp(48px, 9vw, 92px); font-weight: 900; line-height: 1.05;
@@ -192,16 +236,19 @@ body {
 .observers { color: var(--cream); font-weight: 800; text-shadow: 0 2px 4px rgba(0,0,0,0.6); }
 .lobby-actions { display: flex; flex-direction: column; align-items: center; gap: 10px; }
 
-/* ---------- table ---------- */
-.table-screen { display: flex; flex-direction: column; gap: 8px; padding-top: 6px; }
-/* dark gold-trimmed info strip */
+/* ---------- table: full-viewport game screen ---------- */
+.table-screen { display: flex; flex-direction: column; gap: 8px; padding-top: 8px; min-height: calc(100dvh - 70px); }
+/* full-width HUD strip, like the card-counter bar in card games */
 .table-bar {
   display: flex; gap: 16px; align-items: center; justify-content: center; flex-wrap: wrap;
-  background: linear-gradient(180deg, #3a2110, #201006);
-  border: 2px solid var(--gold2); border-radius: 999px; padding: 7px 22px;
+  background: linear-gradient(180deg, rgba(58, 33, 16, 0.96), rgba(32, 16, 6, 0.96));
+  border-top: 2px solid var(--gold2); border-bottom: 2px solid var(--gold2);
+  padding: 8px 22px;
   font-weight: 800; font-size: 14px; color: #ffe9b8;
   box-shadow: 0 6px 16px rgba(0, 0, 0, 0.5), inset 0 1px 0 rgba(255,216,61,0.15);
-  align-self: center;
+  align-self: stretch;
+  margin-left: -16px; margin-right: -16px;
+  padding-left: 32px; padding-right: 32px;
   text-shadow: 0 1px 2px rgba(0,0,0,0.6);
 }
 .contract-pill {
@@ -221,6 +268,7 @@ body {
   outline: 3px solid var(--gold2);
   border-radius: 30px;
   min-height: 440px; padding: 14px;
+  flex: 1;
   display: grid; grid-template-columns: 160px 1fr 160px; grid-template-rows: auto 1fr auto;
   grid-template-areas: ". top ." "left center right" ". me .";
   box-shadow: inset 0 0 80px rgba(0, 0, 0, 0.55), 0 14px 44px rgba(0, 0, 0, 0.6);

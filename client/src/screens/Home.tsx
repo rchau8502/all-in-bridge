@@ -16,6 +16,7 @@ export function Home() {
   const [compBoards, setCompBoards] = useState('8');
   const [followCode, setFollowCode] = useState('');
   const [busy, setBusy] = useState(false);
+  const [showComp, setShowComp] = useState(false);
   const [err, setErr] = useState('');
 
   const ensureConnected = async (): Promise<boolean> => {
@@ -97,13 +98,16 @@ export function Home() {
         <div className="demo-banner">{t(lang, 'home.demo')}</div>
       )}
 
-      <input
-        className="input name-input"
-        placeholder={t(lang, 'home.namePh')}
-        value={name}
-        maxLength={16}
-        onChange={e => setName(e.target.value)}
-      />
+      <div className="profile-plate">
+        <Avatar id={characterId} className="plate-avatar" />
+        <input
+          className="input name-input"
+          placeholder={t(lang, 'home.namePh')}
+          value={name}
+          maxLength={16}
+          onChange={e => setName(e.target.value)}
+        />
+      </div>
 
       <div className="section-label">{t(lang, 'home.character')}</div>
       <div className="char-row">
@@ -122,49 +126,52 @@ export function Home() {
         ))}
       </div>
 
-      <div className="btn-row">
-        <button className="btn primary big" disabled={busy} onClick={doCreate}>
-          {t(lang, 'home.createRoom')}
+      <div className="menu">
+        <button className="btn primary big menu-btn" disabled={busy} onClick={doCreate}>
+          🃏 {t(lang, 'home.createRoom')}
+        </button>
+        <div className="join-row menu-row">
+          <input
+            className="input"
+            placeholder={t(lang, 'home.joinPh')}
+            value={joinCode}
+            maxLength={6}
+            onChange={e => setJoinCode(e.target.value.toUpperCase())}
+            onKeyDown={e => e.key === 'Enter' && doJoin()}
+          />
+          <button className="btn" disabled={busy} onClick={doJoin}>{t(lang, 'home.join')}</button>
+        </div>
+        <button className="btn ghost big menu-btn" onClick={() => go('tutorial')}>
+          🎓 {t(lang, 'home.tutorial')}
+        </button>
+        <button className="btn ghost big menu-btn" onClick={() => { audio.sfx('click'); setShowComp(v => !v); }}>
+          🏆 {t(lang, 'home.compTitle')}
         </button>
       </div>
-      <div className="join-row">
-        <input
-          className="input"
-          placeholder={t(lang, 'home.joinPh')}
-          value={joinCode}
-          maxLength={6}
-          onChange={e => setJoinCode(e.target.value.toUpperCase())}
-          onKeyDown={e => e.key === 'Enter' && doJoin()}
-        />
-        <button className="btn" disabled={busy} onClick={doJoin}>{t(lang, 'home.join')}</button>
-      </div>
 
-      <button className="btn ghost big" onClick={() => go('tutorial')}>
-        🎓 {t(lang, 'home.tutorial')}
-      </button>
-
-      <div className="comp-box">
-        <div className="section-label">🏆 {t(lang, 'home.compTitle')}</div>
-        <div className="join-row">
-          <input
-            className="input" placeholder={t(lang, 'home.compNamePh')}
-            value={compName} maxLength={30} onChange={e => setCompName(e.target.value)}
-          />
-          <input
-            className="input boards" placeholder={t(lang, 'home.compBoards')}
-            value={compBoards} inputMode="numeric" onChange={e => setCompBoards(e.target.value)}
-          />
-          <button className="btn" disabled={busy} onClick={doCreateComp}>{t(lang, 'home.createComp')}</button>
+      {showComp && (
+        <div className="comp-box">
+          <div className="join-row">
+            <input
+              className="input" placeholder={t(lang, 'home.compNamePh')}
+              value={compName} maxLength={30} onChange={e => setCompName(e.target.value)}
+            />
+            <input
+              className="input boards" placeholder={t(lang, 'home.compBoards')}
+              value={compBoards} inputMode="numeric" onChange={e => setCompBoards(e.target.value)}
+            />
+            <button className="btn" disabled={busy} onClick={doCreateComp}>{t(lang, 'home.createComp')}</button>
+          </div>
+          <div className="join-row">
+            <input
+              className="input" placeholder={t(lang, 'home.followPh')}
+              value={followCode} maxLength={6} onChange={e => setFollowCode(e.target.value.toUpperCase())}
+              onKeyDown={e => e.key === 'Enter' && doFollow()}
+            />
+            <button className="btn" disabled={busy} onClick={doFollow}>{t(lang, 'home.follow')}</button>
+          </div>
         </div>
-        <div className="join-row">
-          <input
-            className="input" placeholder={t(lang, 'home.followPh')}
-            value={followCode} maxLength={6} onChange={e => setFollowCode(e.target.value.toUpperCase())}
-            onKeyDown={e => e.key === 'Enter' && doFollow()}
-          />
-          <button className="btn" disabled={busy} onClick={doFollow}>{t(lang, 'home.follow')}</button>
-        </div>
-      </div>
+      )}
 
       <p className="hint">{t(lang, 'home.howto')}</p>
       {err && <div className="error">{err}</div>}
