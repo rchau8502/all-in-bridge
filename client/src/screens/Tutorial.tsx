@@ -115,7 +115,7 @@ function SimTable(props: {
                 className={`sim-tcard pos-${simPos(t.seat)}${ord === undefined ? ' noanim' : ''}`}
                 style={ord === undefined ? undefined : { animationDelay: `${ord * 0.38}s` }}
               >
-                <CardView card={t.card} small />
+                <CardView card={t.card} />
               </div>
             );
           })}

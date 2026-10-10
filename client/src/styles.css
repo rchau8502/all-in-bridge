@@ -532,7 +532,7 @@ body {
 }
 .tut-progress { margin-left: auto; color: var(--cream); font-weight: 800; text-shadow: 0 2px 4px rgba(0,0,0,0.6); }
 .tut-lessons { display: flex; gap: 8px; flex-wrap: wrap; }
-.tut-body { display: flex; flex-direction: column; align-items: center; }
+.tut-body { display: flex; flex-direction: column; align-items: center; justify-content: center; flex: 1; }
 .tut-card {
   width: min(680px, 96%);
   background: linear-gradient(180deg, #15356d, #0a1f4d);
@@ -548,20 +548,20 @@ body {
 /* ---------- simulated table (tutorial): a compact game table ---------- */
 .sim-felt {
   position: relative;
-  width: min(780px, 98%);
+  width: min(1060px, 98%);
   background:
     radial-gradient(ellipse at 50% 30%, rgba(255, 235, 170, 0.16) 0%, transparent 55%),
     radial-gradient(ellipse at center, var(--felt1) 0%, var(--felt2) 55%, var(--felt3) 100%);
   border: 6px solid var(--wood);
   outline: 2px solid var(--gold2);
   border-radius: 24px;
-  padding: 12px;
+  padding: 14px;
   display: grid;
   grid-template-columns: 108px 1fr 108px;
   grid-template-rows: auto 1fr auto;
   grid-template-areas: ". simn ." "simw simc sime" ". simme .";
   box-shadow: inset 0 0 60px rgba(0, 0, 0, 0.45), 0 12px 30px rgba(0, 0, 0, 0.4);
-  min-height: 460px;
+  min-height: 560px;
 }
 .sim-topbar { grid-column: 1 / -1; display: flex; justify-content: center; gap: 10px; align-items: center; margin-bottom: 6px; }
 .sim-trickno {
@@ -591,14 +591,14 @@ body {
   font-weight: 900; border-radius: 8px; padding: 1px 10px; font-size: 13px;
 }
 .sim-seat.active-turn .sim-plate { border-color: var(--gold2); box-shadow: 0 0 14px rgba(255, 171, 0, 0.85); }
-.sim-center { grid-area: simc; position: relative; min-height: 170px; display: flex; align-items: center; justify-content: center; }
-.sim-trick { position: relative; width: 200px; height: 160px; }
+.sim-center { grid-area: simc; position: relative; min-height: 230px; display: flex; align-items: center; justify-content: center; }
+.sim-trick { position: relative; width: 260px; height: 230px; }
 .sim-tcard { position: absolute; animation: slam 0.35s cubic-bezier(0.2, 1.6, 0.4, 1) backwards; }
 .sim-tcard.noanim { animation: none; }
-.sim-tcard.pos-top { top: 0; left: 50%; margin-left: -26px; }
-.sim-tcard.pos-bottom { bottom: 0; left: 50%; margin-left: -26px; }
-.sim-tcard.pos-left { left: 0; top: 50%; margin-top: -37px; }
-.sim-tcard.pos-right { right: 0; top: 50%; margin-top: -37px; }
+.sim-tcard.pos-top { top: 0; left: 50%; margin-left: -38px; }
+.sim-tcard.pos-bottom { bottom: 0; left: 50%; margin-left: -38px; }
+.sim-tcard.pos-left { left: 0; top: 50%; margin-top: -54px; }
+.sim-tcard.pos-right { right: 0; top: 50%; margin-top: -54px; }
 .sim-me { grid-area: simme; display: flex; flex-direction: column; align-items: center; gap: 6px; }
 .sim-hint { color: #fff; font-weight: 800; text-shadow: 0 2px 3px rgba(0,0,0,0.65); text-align: center; }
 .sim-handlabel { color: var(--gold); font-weight: 900; font-size: 14px; text-shadow: 0 2px 3px rgba(0,0,0,0.6); }
@@ -610,7 +610,7 @@ body {
 .sim-bidbox { width: 100%; display: flex; flex-direction: column; gap: 8px; align-items: center; }
 
 /* coach card: your fighter explains the lesson */
-.tut-coach-card { display: flex; gap: 14px; align-items: flex-start; width: min(680px, 96%); }
+.tut-coach-card { display: flex; gap: 14px; align-items: flex-start; width: min(760px, 96%); }
 .coach-avatar {
   width: 84px; height: 84px; border-radius: 50%; border: 3px solid var(--gold2);
   object-fit: cover; flex: none; background: #f5eeda;
@@ -653,4 +653,18 @@ table.standings tr.leader td { color: var(--gold); font-weight: 900; }
   .room-code { font-size: 34px; }
   .pod-avatar { width: 60px; height: 60px; }
   .opp-emoji { font-size: 34px; }
+  /* simulated tutorial table fits phones */
+  .sim-felt { grid-template-columns: 84px 1fr 84px; min-height: 440px; padding: 8px; }
+  .sim-trick { width: 170px; height: 170px; }
+  .sim-tcard { --card-w: 52px; --card-h: 74px; }
+  .sim-tcard .pip { font-size: 26px; }
+  .sim-tcard.pos-top { margin-left: -26px; }
+  .sim-tcard.pos-bottom { margin-left: -26px; }
+  .sim-tcard.pos-left { margin-top: -37px; }
+  .sim-tcard.pos-right { margin-top: -37px; }
+  .sim-plate { padding: 2px 6px; }
+  .sim-seatname { font-size: 11px; }
+  .sim-count { font-size: 10px; margin-left: 3px; }
+  .sim-me .hand { flex-wrap: nowrap; }
+  .sim-me .hand .card { margin: 0 -35px; }
 }
