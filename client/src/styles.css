@@ -648,7 +648,15 @@ table.standings tr.leader td { color: var(--gold); font-weight: 900; }
 
 @media (max-width: 720px) {
   :root { --card-w: 60px; --card-h: 86px; }
-  .felt { grid-template-columns: 110px 1fr 110px; min-height: 400px; }
+  .felt { grid-template-columns: 84px 1fr 84px; min-height: 400px; padding: 10px; }
+  /* real game table: hand spans full width, tight fan, compact trick */
+  .me-area { grid-column: 1 / -1; }
+  .hand { flex-wrap: nowrap; }
+  .hand .card { margin: 0 -39px; }
+  .trick-card.pos-left { transform: translateX(-56px); }
+  .trick-card.pos-right { transform: translateX(56px); }
+  .trick-card.pos-top { transform: translateY(-40px); }
+  .trick-card.pos-bottom { transform: translateY(40px); }
   .bid-grid { grid-template-columns: repeat(5, 1fr); }
   .seats-grid { grid-template-columns: repeat(2, minmax(120px, 1fr)); }
   .room-code { font-size: 34px; }
@@ -667,5 +675,6 @@ table.standings tr.leader td { color: var(--gold); font-weight: 900; }
   .sim-seatname { font-size: 11px; }
   .sim-count { font-size: 10px; margin-left: 3px; }
   .sim-me .hand { flex-wrap: nowrap; }
-  .sim-me .hand .card { margin: 0 -35px; }
+  .sim-me { grid-column: 1 / -1; }
+  .sim-me .hand .card { margin: 0 -39px; }
 }
