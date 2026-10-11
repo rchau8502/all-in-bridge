@@ -380,6 +380,7 @@ body {
 .card.heart, .card.diamond { color: #d21f3c; }
 .card.spade, .card.club { color: #1c1c1c; }
 .card.clickable { cursor: pointer; }
+.card.clickable:focus-visible { outline: 3px solid var(--gold); outline-offset: 2px; }
 .card.playable {
   border-color: var(--gold2);
   box-shadow: 0 0 16px rgba(255, 171, 0, 0.9), 0 6px 14px rgba(0, 0, 0, 0.45);

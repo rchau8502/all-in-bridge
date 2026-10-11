@@ -1,4 +1,5 @@
 /** Shared presentational bits: cards, banners, coin rain, speech bubbles. */
+import type { KeyboardEvent } from 'react';
 import type { Card, Seat } from '../../../shared/deck.js';
 import { cardLabel } from '../../../shared/deck.js';
 import { CHARACTERS } from '../../../shared/characters.js';
@@ -9,6 +10,15 @@ const SUIT_CLASS: Record<string, string> = { S: 'spade', H: 'heart', D: 'diamond
 const RANK_LABEL: Record<number, string> = {
   14: 'A', 13: 'K', 12: 'Q', 11: 'J', 10: '10', 9: '9', 8: '8', 7: '7', 6: '6', 5: '5', 4: '4', 3: '3', 2: '2',
 };
+const RANK_NAME: Record<number, string> = {
+  14: 'Ace', 13: 'King', 12: 'Queen', 11: 'Jack', 10: '10', 9: '9', 8: '8', 7: '7', 6: '6', 5: '5', 4: '4', 3: '3', 2: '2',
+};
+const SUIT_NAME: Record<string, string> = { S: 'Spades', H: 'Hearts', D: 'Diamonds', C: 'Clubs' };
+
+/** Spoken name for screen readers, e.g. "Ace of Diamonds". */
+export function cardName(card: Card): string {
+  return `${RANK_NAME[card.rank]} of ${SUIT_NAME[card.suit]}`;
+}
 
 export function CardView({
   card, small, dim, onClick, playable, selected,
@@ -21,8 +31,22 @@ export function CardView({
     dim ? 'dim' : '', playable ? 'playable' : '', selected ? 'selected' : '',
     onClick ? 'clickable' : '',
   ].join(' ');
+  const handleKey = (e: KeyboardEvent<HTMLDivElement>) => {
+    if (e.key === 'Enter' || e.key === ' ') {
+      e.preventDefault();
+      onClick?.();
+    }
+  };
   return (
-    <div className={cls} onClick={onClick} title={cardLabel(card)}>
+    <div
+      className={cls}
+      onClick={onClick}
+      title={cardLabel(card)}
+      role={onClick ? 'button' : undefined}
+      tabIndex={onClick ? 0 : undefined}
+      aria-label={onClick ? cardName(card) : undefined}
+      onKeyDown={onClick ? handleKey : undefined}
+    >
       <span className="corner tl">{RANK_LABEL[card.rank]}<br />{SUIT_SYM[card.suit]}</span>
       <span className="pip">{SUIT_SYM[card.suit]}</span>
       <span className="corner br">{RANK_LABEL[card.rank]}<br />{SUIT_SYM[card.suit]}</span>
