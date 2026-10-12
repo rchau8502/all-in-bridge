@@ -10,7 +10,7 @@
 import type { Seat, Card, Hands } from './deck.js';
 import type { Bid, Contract, Vulnerability } from './bidding.js';
 import type { StandingEntry } from './duplicate.js';
-export type EventType = 'room_joined' | 'players_update' | 'room_snapshot' | 'game_start' | 'deal' | 'observer_deal' | 'bid_made' | 'auction_end' | 'play_made' | 'trick_won' | 'board_result' | 'announce' | 'voice_line' | 'emote' | 'observer_joined' | 'player_left' | 'competition_created' | 'competition_joined' | 'table_created' | 'standings_update' | 'queue_update' | 'competitions_list' | 'open_table_found' | 'error';
+export type EventType = 'room_joined' | 'players_update' | 'room_snapshot' | 'game_start' | 'deal' | 'observer_deal' | 'bid_made' | 'auction_end' | 'play_made' | 'trick_won' | 'board_result' | 'announce' | 'voice_line' | 'emote' | 'observer_joined' | 'player_left' | 'competition_created' | 'competition_joined' | 'table_created' | 'standings_update' | 'queue_update' | 'competitions_list' | 'open_table_found' | 'player_stats' | 'leaderboard' | 'error';
 export interface GameEvent<T extends EventType = EventType> {
     type: T;
     payload: EventPayloadMap[T];
@@ -146,9 +146,45 @@ export interface EventPayloadMap {
         competitionCode: string;
         tableCode: string;
     };
+    player_stats: {
+        found: boolean;
+        stats?: PlayerStatsData;
+    };
+    leaderboard: {
+        entries: LeaderboardEntry[];
+    };
     error: {
         code: string;
     };
+}
+/** One completed board from a single player's perspective. */
+export interface BoardStatEntry {
+    at: number;
+    tableCode: string;
+    competition: string | null;
+    boardNumber: number;
+    /** e.g. "3NT", "2HX"; null when passed out. */
+    contract: string | null;
+    declarer: Seat | null;
+    declarerTricks: number;
+    /** Score from this player's perspective. */
+    score: number;
+    won: boolean;
+}
+/** Aggregated personal stats. */
+export interface PlayerStatsData {
+    playerId: string;
+    name: string;
+    boards: number;
+    wins: number;
+    totalScore: number;
+    recent: BoardStatEntry[];
+}
+export interface LeaderboardEntry {
+    name: string;
+    boards: number;
+    avgScore: number;
+    winRate: number;
 }
 /** Public listing row for an open competition. */
 export interface CompetitionSummary {

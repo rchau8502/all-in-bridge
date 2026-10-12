@@ -32,6 +32,8 @@ export type Phase = 'lobby' | 'auction' | 'play' | 'board_done';
 
 interface ClientInfo {
   clientId: string;
+  /** Stable per-player id (client's localStorage), for stats/history. Falls back to the connection id. */
+  playerId: string;
   name: string;
   characterId: string;
   lang: Lang;
@@ -143,6 +145,11 @@ export class Room {
     return this.activePlayers().length;
   }
 
+  /** Seated (non-observer) players with their stable ids — for stats attribution. */
+  seatedPlayers(): Array<{ playerId: string; name: string; seat: Seat }> {
+    return this.activePlayers().map(c => ({ playerId: c.playerId, name: c.name, seat: c.seat as Seat }));
+  }
+
   /**
    * Join (or rejoin) the room. Returns the assigned seat, or 'observer'
    * when the table is full. Rejoining with a known clientId restores the
@@ -177,6 +184,7 @@ export class Room {
 
     const info: ClientInfo = {
       clientId,
+      playerId: msg.clientId || clientId,
       name: msg.name.slice(0, 24),
       characterId: isValidCharacterId(msg.characterId) ? msg.characterId : 'cowboy',
       lang: msg.lang,

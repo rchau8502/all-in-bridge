@@ -87,6 +87,10 @@ export class Room {
     playerCount() {
         return this.activePlayers().length;
     }
+    /** Seated (non-observer) players with their stable ids — for stats attribution. */
+    seatedPlayers() {
+        return this.activePlayers().map(c => ({ playerId: c.playerId, name: c.name, seat: c.seat }));
+    }
     /**
      * Join (or rejoin) the room. Returns the assigned seat, or 'observer'
      * when the table is full. Rejoining with a known clientId restores the
@@ -120,6 +124,7 @@ export class Room {
         }
         const info = {
             clientId,
+            playerId: msg.clientId || clientId,
             name: msg.name.slice(0, 24),
             characterId: isValidCharacterId(msg.characterId) ? msg.characterId : 'cowboy',
             lang: msg.lang,

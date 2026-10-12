@@ -56,6 +56,12 @@ export declare class Room {
     private observers;
     /** Seats currently held by players (includes recently-disconnected seats on hold). */
     playerCount(): number;
+    /** Seated (non-observer) players with their stable ids — for stats attribution. */
+    seatedPlayers(): Array<{
+        playerId: string;
+        name: string;
+        seat: Seat;
+    }>;
     /**
      * Join (or rejoin) the room. Returns the assigned seat, or 'observer'
      * when the table is full. Rejoining with a known clientId restores the

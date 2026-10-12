@@ -24,16 +24,19 @@ export type ClientMessage =
   | { action: 'create_competition'; name: string; boards: number; isPublic?: boolean; durationHours?: number }
   | { action: 'create_table'; competitionCode: string }
   | { action: 'follow_competition'; competitionCode: string }
-  | { action: 'quick_match'; name: string; characterId: string; lang: Lang }
+  | { action: 'quick_match'; name: string; characterId: string; lang: Lang; clientId?: string }
   | { action: 'leave_queue' }
   | { action: 'list_competitions' }
   | { action: 'join_open_table'; competitionCode: string }
+  | { action: 'get_stats' }
+  | { action: 'get_leaderboard' }
   | { action: 'snapshot' };
 
 const ACTIONS = new Set([
   'join', 'start', 'next_board', 'bid', 'play', 'pick_character', 'emote', 'voice',
   'create_competition', 'create_table', 'follow_competition', 'snapshot',
   'quick_match', 'leave_queue', 'list_competitions', 'join_open_table',
+  'get_stats', 'get_leaderboard',
 ]);
 
 /** Parse + shape-check an inbound message. Throws on anything invalid. */
@@ -98,6 +101,7 @@ export function parseClientMessage(data: unknown): ClientMessage {
     case 'quick_match': {
       if (!str(obj['name']) || !str(obj['characterId'])) throw new Error('bad-queue');
       if (obj['lang'] !== 'en' && obj['lang'] !== 'zh') throw new Error('bad-queue');
+      if (obj['clientId'] !== undefined && !str(obj['clientId'])) throw new Error('bad-queue');
       return obj as ClientMessage;
     }
     case 'create_table':
@@ -107,7 +111,9 @@ export function parseClientMessage(data: unknown): ClientMessage {
       return obj as ClientMessage;
     }
     case 'leave_queue':
-    case 'list_competitions': {
+    case 'list_competitions':
+    case 'get_stats':
+    case 'get_leaderboard': {
       return obj as ClientMessage;
     }
     default:

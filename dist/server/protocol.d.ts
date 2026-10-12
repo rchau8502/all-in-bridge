@@ -50,6 +50,7 @@ export type ClientMessage = {
     name: string;
     characterId: string;
     lang: Lang;
+    clientId?: string;
 } | {
     action: 'leave_queue';
 } | {
@@ -57,6 +58,10 @@ export type ClientMessage = {
 } | {
     action: 'join_open_table';
     competitionCode: string;
+} | {
+    action: 'get_stats';
+} | {
+    action: 'get_leaderboard';
 } | {
     action: 'snapshot';
 };

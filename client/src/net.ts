@@ -11,11 +11,34 @@ function wsUrl(): string {
   return `${proto}//${location.hostname}:8080`;
 }
 
+/** Stable per-player id, generated once per browser — used for stats/history. */
+function loadPlayerId(): string {
+  try {
+    let id = localStorage.getItem('aib-player-id');
+    if (!id) {
+      try {
+        id = crypto.randomUUID();
+      } catch {
+        id = 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, c => {
+          const r = (Math.random() * 16) | 0;
+          return (c === 'x' ? r : (r & 0x3) | 0x8).toString(16);
+        });
+      }
+      localStorage.setItem('aib-player-id', id);
+    }
+    return id;
+  } catch {
+    return '';
+  }
+}
+
 export class GameClient {
   private ws: WebSocket | null = null;
   onEvent: (ev: GameEvent) => void = () => {};
   onClose: () => void = () => {};
   clientId = '';
+  /** Stable identity for stats/history; sent as `clientId` on join. */
+  readonly playerId = loadPlayerId();
 
   get connected(): boolean {
     return !!this.ws && this.ws.readyState === WebSocket.OPEN;
@@ -56,7 +79,7 @@ export class GameClient {
   }
 
   join(roomCode: string | undefined, name: string, characterId: string, lang: Lang, clientId?: string): void {
-    this.sendMsg({ action: 'join', roomCode, name, characterId, lang, clientId: clientId || undefined });
+    this.sendMsg({ action: 'join', roomCode, name, characterId, lang, clientId: clientId || this.playerId || undefined });
   }
   start(): void { this.sendMsg({ action: 'start' }); }
   nextBoard(): void { this.sendMsg({ action: 'next_board' }); }
@@ -73,8 +96,10 @@ export class GameClient {
   listCompetitions(): void { this.sendMsg({ action: 'list_competitions' }); }
   joinOpenTable(competitionCode: string): void { this.sendMsg({ action: 'join_open_table', competitionCode }); }
   quickMatch(name: string, characterId: string, lang: Lang): void {
-    this.sendMsg({ action: 'quick_match', name, characterId, lang });
+    this.sendMsg({ action: 'quick_match', name, characterId, lang, clientId: this.playerId || undefined });
   }
   leaveQueue(): void { this.sendMsg({ action: 'leave_queue' }); }
+  getStats(): void { this.sendMsg({ action: 'get_stats' }); }
+  getLeaderboard(): void { this.sendMsg({ action: 'get_leaderboard' }); }
   snapshot(): void { this.sendMsg({ action: 'snapshot' }); }
 }

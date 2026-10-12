@@ -10,8 +10,11 @@ import type { SendFn, BoardSource } from './room.js';
 import { parseClientMessage } from './protocol.js';
 import type { ClientMessage } from './protocol.js';
 import { makeEvent } from '../shared/events.js';
+import type { PlayerStatsData } from '../shared/events.js';
 import { Competition } from './competition.js';
 import type { CompetitionJSON } from './competition.js';
+import { StatsRegistry } from './stats.js';
+import { nsScore } from '../shared/duplicate.js';
 import { isValidCharacterId } from '../shared/characters.js';
 import { writeFileSync, readFileSync, existsSync, mkdirSync } from 'node:fs';
 import { dirname } from 'node:path';
@@ -31,6 +34,8 @@ interface QueuedPlayer {
   name: string;
   characterId: string;
   lang: 'en' | 'zh';
+  /** Stable player id (falls back to the connection id). */
+  playerId: string;
 }
 
 export class RoomManager {
@@ -39,7 +44,10 @@ export class RoomManager {
   private competitions = new Map<string, Competition>();
   private followers = new Map<string, Set<string>>(); // competition code -> clientIds
   private competitionTables = new Set<string>(); // room codes owned by competitions
+  private tableCompetition = new Map<string, string>(); // room code -> competition code
   private queue: QueuedPlayer[] = []; // quick-match waiting list (ephemeral)
+  private stats = new StatsRegistry();
+  private playerIds = new Map<string, string>(); // connection clientId -> stable player id
 
   constructor(
     private send: SendFn,
@@ -74,6 +82,11 @@ export class RoomManager {
       return;
     }
 
+    if (msg.action === 'get_stats' || msg.action === 'get_leaderboard') {
+      this.handleStatsAction(clientId, msg);
+      return;
+    }
+
     if (msg.action === 'quick_match' || msg.action === 'leave_queue') {
       this.handleQueueAction(clientId, msg, now);
       return;
@@ -81,6 +94,7 @@ export class RoomManager {
 
     if (msg.action === 'join') {
       this.dequeue(clientId);
+      if (msg.clientId) this.playerIds.set(clientId, msg.clientId);
       const wantCode = msg.roomCode?.toUpperCase();
       let room = wantCode ? this.rooms.get(wantCode) : undefined;
       if (wantCode && !room) {
@@ -90,7 +104,9 @@ export class RoomManager {
       if (!room) {
         let code = makeRoomCode(this.rng);
         while (this.rooms.has(code)) code = makeRoomCode(this.rng);
-        room = new Room(code, this.send, this.boardSource);
+        room = new Room(code, this.send, this.boardSource, {
+          onBoardComplete: r => this.recordBoard(r),
+        });
         this.rooms.set(code, room);
       }
       this.clientRoom.set(clientId, room.code);
@@ -115,6 +131,7 @@ export class RoomManager {
     const code = this.clientRoom.get(clientId);
     if (code) this.rooms.get(code)?.leave(clientId, now);
     if (this.dequeue(clientId)) this.broadcastQueue();
+    this.playerIds.delete(clientId);
   }
 
   /** Remove a client from the quick-match queue. Returns true if they were queued. */
@@ -141,11 +158,13 @@ export class RoomManager {
       return;
     }
     this.dequeue(clientId);
+    if (msg.clientId) this.playerIds.set(clientId, msg.clientId);
     this.queue.push({
       clientId,
       name: msg.name.slice(0, 16),
       characterId: msg.characterId,
       lang: msg.lang,
+      playerId: msg.clientId || clientId,
     });
     this.broadcastQueue();
     this.tryMatch(now);
@@ -157,18 +176,77 @@ export class RoomManager {
     });
   }
 
+  /** Respond to personal-stats and leaderboard requests. */
+  private handleStatsAction(
+    clientId: string,
+    msg: Extract<ClientMessage, { action: 'get_stats' | 'get_leaderboard' }>
+  ): void {
+    if (msg.action === 'get_stats') {
+      const pid = this.playerIds.get(clientId);
+      const stats = pid ? this.stats.get(pid) : undefined;
+      this.send(clientId, makeEvent('player_stats', { found: !!stats, ...(stats ? { stats } : {}) }));
+      return;
+    }
+    this.send(clientId, makeEvent('leaderboard', { entries: this.stats.leaderboard() }));
+  }
+
+  /** Record one stats entry per seated player for the just-finished board. */
+  private recordBoard(room: Room): void {
+    const r = room.tableResults[room.tableResults.length - 1];
+    if (!r) return;
+    const compCode = this.tableCompetition.get(room.code);
+    const competition = compCode ? this.competitions.get(compCode)?.name ?? null : null;
+    const ns = nsScore(r);
+    const contractStr = r.contract
+      ? `${r.contract.level}${r.contract.denom}${r.contract.doubled === 1 ? 'X' : r.contract.doubled === 2 ? 'XX' : ''}`
+      : null;
+    for (const p of room.seatedPlayers()) {
+      const score = p.seat === 'N' || p.seat === 'S' ? ns : -ns;
+      this.stats.record(p.playerId, p.name, {
+        at: Date.now(),
+        tableCode: room.code,
+        competition,
+        boardNumber: r.boardNumber,
+        contract: contractStr,
+        declarer: r.contract ? r.contract.declarer : null,
+        declarerTricks: r.declarerTricks,
+        score,
+        won: score > 0,
+      });
+    }
+  }
+
+  saveStats(path: string): void {
+    writeFileSync(path, JSON.stringify(this.stats.toJSON()));
+  }
+
+  loadStats(path: string): void {
+    try {
+      const data = JSON.parse(readFileSync(path, 'utf8')) as PlayerStatsData[];
+      this.stats = StatsRegistry.fromJSON(data);
+    } catch {
+      // Missing/corrupt file: start fresh.
+    }
+  }
+
   /** Form tables of 4 from the waiting queue. */
   private tryMatch(now: number): void {
     while (this.queue.length >= 4) {
       const four = this.queue.splice(0, 4);
       let code = makeRoomCode(this.rng);
       while (this.rooms.has(code)) code = makeRoomCode(this.rng);
-      const room = new Room(code, this.send, this.boardSource);
+      const room = new Room(code, this.send, this.boardSource, {
+        onBoardComplete: r => this.recordBoard(r),
+      });
       this.rooms.set(code, room);
       for (const q of four) {
         this.clientRoom.set(q.clientId, code);
         try {
-          room.join({ action: 'join', name: q.name, characterId: q.characterId, lang: q.lang }, q.clientId, now);
+          room.join(
+            { action: 'join', name: q.name, characterId: q.characterId, lang: q.lang, clientId: q.playerId },
+            q.clientId,
+            now
+          );
         } catch {
           this.send(q.clientId, makeEvent('error', { code: 'bad-join' }));
         }
@@ -270,11 +348,15 @@ export class RoomManager {
 
   private attachTable(comp: Competition, code: string): Room {
     const room = new Room(code, this.send, comp.fixedSource(), {
-      onBoardComplete: () => this.publishStandings(comp),
+      onBoardComplete: r => {
+        this.publishStandings(comp);
+        this.recordBoard(r);
+      },
     });
     this.rooms.set(code, room);
     comp.addTable(room);
     this.competitionTables.add(code);
+    this.tableCompetition.set(code, comp.code);
     return room;
   }
 

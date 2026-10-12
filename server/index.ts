@@ -47,18 +47,22 @@ wss.on('connection', (ws: WebSocket) => {
 // Reap expired seats and empty rooms.
 setInterval(() => manager.sweep(Date.now()), 30_000);
 
-// Persist competitions (boards + results) across restarts.
+// Persist competitions (boards + results) and player stats across restarts.
 const DATA_PATH = process.env['DATA_PATH'] ?? './data/competitions.json';
+const STATS_PATH = process.env['STATS_PATH'] ?? './data/player-stats.json';
 manager.loadCompetitions(DATA_PATH);
+manager.loadStats(STATS_PATH);
 setInterval(() => {
   try {
     manager.saveCompetitions(DATA_PATH);
+    manager.saveStats(STATS_PATH);
   } catch (e) {
-    console.error('competition save failed:', (e as Error).message);
+    console.error('save failed:', (e as Error).message);
   }
 }, 60_000);
 process.on('SIGTERM', () => {
   try { manager.saveCompetitions(DATA_PATH); } catch { /* shutting down */ }
+  try { manager.saveStats(STATS_PATH); } catch { /* shutting down */ }
   process.exit(0);
 });
 

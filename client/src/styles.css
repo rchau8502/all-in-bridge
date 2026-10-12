@@ -221,6 +221,25 @@ body {
 }
 .queue-title { font-size: 1.25rem; font-weight: 900; color: var(--gold); animation: queue-pulse 1.2s ease-in-out infinite; }
 @keyframes queue-pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.55; } }
+.stats-grid {
+  display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin: 8px 0 4px;
+}
+.stat-cell {
+  text-align: center; padding: 10px 4px; border-radius: 12px;
+  background: rgba(10, 25, 55, 0.7); border: 1px solid var(--gold-dim);
+}
+.stat-num { font-size: 1.4rem; font-weight: 900; color: var(--gold); }
+.stat-lab { font-size: 0.75rem; color: #9db4dd; margin-top: 2px; }
+.stat-row {
+  display: flex; align-items: center; justify-content: space-between; gap: 10px;
+  padding: 7px 10px; margin: 5px 0; border-radius: 10px;
+  background: rgba(10, 25, 55, 0.55); border: 1px solid rgba(255, 216, 61, 0.18);
+  color: var(--cream); font-size: 0.9rem;
+}
+.stat-contract { font-weight: 700; }
+.stat-score { font-weight: 900; color: #ff9d9d; }
+.stat-score.won { color: #9df0a8; }
+.stats-box .btn { margin-top: 6px; }
 .demo-banner {
   margin: 0 auto 12px; max-width: 560px; padding: 8px 14px; border-radius: 12px;
   background: rgba(10, 25, 55, 0.92); border: 2px solid var(--gold2);

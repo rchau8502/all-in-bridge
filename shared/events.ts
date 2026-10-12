@@ -36,6 +36,8 @@ export type EventType =
   | 'queue_update'        // { position, waiting } — quick-match queue status
   | 'competitions_list'   // { competitions: CompetitionSummary[] }
   | 'open_table_found'    // { competitionCode, tableCode } — client follows up with join
+  | 'player_stats'        // { found, stats? } — personal stats + recent boards
+  | 'leaderboard'         // { entries: LeaderboardEntry[] }
   | 'error';           // { code: string } — client maps code → localized message
 
 export interface GameEvent<T extends EventType = EventType> {
@@ -101,7 +103,41 @@ export interface EventPayloadMap {
   queue_update: { position: number; waiting: number };
   competitions_list: { competitions: CompetitionSummary[] };
   open_table_found: { competitionCode: string; tableCode: string };
+  player_stats: { found: boolean; stats?: PlayerStatsData };
+  leaderboard: { entries: LeaderboardEntry[] };
   error: { code: string };
+}
+
+/** One completed board from a single player's perspective. */
+export interface BoardStatEntry {
+  at: number;
+  tableCode: string;
+  competition: string | null;
+  boardNumber: number;
+  /** e.g. "3NT", "2HX"; null when passed out. */
+  contract: string | null;
+  declarer: Seat | null;
+  declarerTricks: number;
+  /** Score from this player's perspective. */
+  score: number;
+  won: boolean;
+}
+
+/** Aggregated personal stats. */
+export interface PlayerStatsData {
+  playerId: string;
+  name: string;
+  boards: number;
+  wins: number;
+  totalScore: number;
+  recent: BoardStatEntry[];
+}
+
+export interface LeaderboardEntry {
+  name: string;
+  boards: number;
+  avgScore: number;
+  winRate: number;
 }
 
 /** Public listing row for an open competition. */

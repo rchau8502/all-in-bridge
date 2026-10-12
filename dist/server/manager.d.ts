@@ -17,7 +17,10 @@ export declare class RoomManager {
     private competitions;
     private followers;
     private competitionTables;
+    private tableCompetition;
     private queue;
+    private stats;
+    private playerIds;
     constructor(send: SendFn, boardSource?: BoardSource | undefined, rng?: () => number);
     getRoom(code: string): Room | undefined;
     getCompetition(code: string): Competition | undefined;
@@ -28,6 +31,12 @@ export declare class RoomManager {
     private dequeue;
     private handleQueueAction;
     private broadcastQueue;
+    /** Respond to personal-stats and leaderboard requests. */
+    private handleStatsAction;
+    /** Record one stats entry per seated player for the just-finished board. */
+    private recordBoard;
+    saveStats(path: string): void;
+    loadStats(path: string): void;
     /** Form tables of 4 from the waiting queue. */
     private tryMatch;
     /** Expire dead seats; drop empty non-competition rooms. */

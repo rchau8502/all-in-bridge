@@ -1,11 +1,11 @@
 import { useState } from 'react';
 import { useApp } from '../App.js';
-import { t } from '../i18n.js';
+import { t, seatLabel } from '../i18n.js';
 import { CHARACTERS } from '../../../shared/characters.js';
 import { Avatar } from '../components/ui.js';
 import { audio } from '../audio.js';
 import type { GameEvent } from '../../../shared/events.js';
-import type { CompetitionSummary } from '../../../shared/events.js';
+import type { CompetitionSummary, PlayerStatsData, LeaderboardEntry } from '../../../shared/events.js';
 
 const errCode = (ev: GameEvent): string | null =>
   ev.type === 'error' ? (ev.payload as { code: string }).code : null;
@@ -42,6 +42,9 @@ export function Home() {
   const [compPublic, setCompPublic] = useState(false);
   const [compDur, setCompDur] = useState('0');
   const [openComps, setOpenComps] = useState<CompetitionSummary[] | null>(null);
+  const [showStats, setShowStats] = useState(false);
+  const [myStats, setMyStats] = useState<PlayerStatsData | null>(null);
+  const [board, setBoard] = useState<LeaderboardEntry[] | null>(null);
 
   const ensureConnected = async (): Promise<boolean> => {
     if (client.connected) return true;
@@ -166,6 +169,30 @@ export function Home() {
     setQueueing(false);
   };
 
+  const refreshStats = async () => {
+    if (!(await ensureConnected())) return;
+    client.onEvent = ev => {
+      if (ev.type === 'player_stats') {
+        const p = ev.payload as { found: boolean; stats?: PlayerStatsData };
+        setMyStats(p.found && p.stats ? p.stats : null);
+      } else if (ev.type === 'leaderboard') {
+        setBoard((ev.payload as { entries: LeaderboardEntry[] }).entries);
+      }
+      const ec = errCode(ev); if (ec) setErr(ec);
+    };
+    client.getStats();
+    client.getLeaderboard();
+  };
+
+  const toggleStats = async () => {
+    const next = !showStats;
+    setShowStats(next);
+    if (next) {
+      audio.sfx('click');
+      await refreshStats();
+    }
+  };
+
   const doFollow = async () => {
     const code = followCode.trim().toUpperCase();
     if (!code) return;
@@ -251,6 +278,9 @@ export function Home() {
         <button className="btn ghost big menu-btn" onClick={() => { audio.sfx('click'); setShowComp(v => !v); }}>
           🏆 {t(lang, 'home.compTitle')}
         </button>
+        <button className="btn ghost big menu-btn" disabled={busy} onClick={toggleStats}>
+          📊 {t(lang, 'home.stats')}
+        </button>
       </div>
 
       {showComp && (
@@ -307,6 +337,63 @@ export function Home() {
               </div>
             ))
           )}
+        </div>
+      )}
+
+      {showStats && (
+        <div className="comp-box stats-box">
+          <div className="section-label">{t(lang, 'home.myStats')}</div>
+          {myStats === null ? (
+            <div className="dim">{t(lang, 'home.noStats')}</div>
+          ) : (
+            <>
+              <div className="stats-grid">
+                <div className="stat-cell">
+                  <div className="stat-num">{myStats.boards}</div>
+                  <div className="stat-lab">{t(lang, 'home.boards')}</div>
+                </div>
+                <div className="stat-cell">
+                  <div className="stat-num">
+                    {myStats.boards ? Math.round((myStats.wins / myStats.boards) * 100) : 0}%
+                  </div>
+                  <div className="stat-lab">{t(lang, 'home.winRate')}</div>
+                </div>
+                <div className="stat-cell">
+                  <div className="stat-num">
+                    {myStats.boards ? Math.round(myStats.totalScore / myStats.boards) : 0}
+                  </div>
+                  <div className="stat-lab">{t(lang, 'home.avgScore')}</div>
+                </div>
+              </div>
+              <div className="section-label">{t(lang, 'home.recentBoards')}</div>
+              {myStats.recent.map((b, i) => (
+                <div key={i} className="stat-row">
+                  <span className="stat-contract">
+                    {b.contract ? `${b.contract} · ${seatLabel(lang, b.declarer!)}` : t(lang, 'home.passedOut')}
+                  </span>
+                  <span className={b.won ? 'stat-score won' : 'stat-score'}>
+                    {b.score > 0 ? `+${b.score}` : `${b.score}`}
+                  </span>
+                </div>
+              ))}
+            </>
+          )}
+          <div className="section-label">{t(lang, 'home.leaderboard')}</div>
+          {board === null || board.length === 0 ? (
+            <div className="dim small">—</div>
+          ) : (
+            board.map((e, i) => (
+              <div key={i} className="stat-row">
+                <span>#{i + 1} {e.name}</span>
+                <span className="dim small">
+                  {e.boards} {t(lang, 'home.boards')} · {e.winRate}% · {e.avgScore > 0 ? '+' : ''}{e.avgScore}
+                </span>
+              </div>
+            ))
+          )}
+          <button className="btn ghost" disabled={busy} onClick={refreshStats}>
+            {t(lang, 'home.refresh')}
+          </button>
         </div>
       )}
 

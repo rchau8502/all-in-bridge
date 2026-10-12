@@ -8,6 +8,8 @@ import { Room } from './room.js';
 import { parseClientMessage } from './protocol.js';
 import { makeEvent } from '../shared/events.js';
 import { Competition } from './competition.js';
+import { StatsRegistry } from './stats.js';
+import { nsScore } from '../shared/duplicate.js';
 import { isValidCharacterId } from '../shared/characters.js';
 import { writeFileSync, readFileSync, existsSync, mkdirSync } from 'node:fs';
 import { dirname } from 'node:path';
@@ -29,7 +31,10 @@ export class RoomManager {
         this.competitions = new Map();
         this.followers = new Map(); // competition code -> clientIds
         this.competitionTables = new Set(); // room codes owned by competitions
+        this.tableCompetition = new Map(); // room code -> competition code
         this.queue = []; // quick-match waiting list (ephemeral)
+        this.stats = new StatsRegistry();
+        this.playerIds = new Map(); // connection clientId -> stable player id
     }
     getRoom(code) {
         return this.rooms.get(code.toUpperCase());
@@ -53,12 +58,18 @@ export class RoomManager {
             this.handleCompetitionAction(clientId, msg, now);
             return;
         }
+        if (msg.action === 'get_stats' || msg.action === 'get_leaderboard') {
+            this.handleStatsAction(clientId, msg);
+            return;
+        }
         if (msg.action === 'quick_match' || msg.action === 'leave_queue') {
             this.handleQueueAction(clientId, msg, now);
             return;
         }
         if (msg.action === 'join') {
             this.dequeue(clientId);
+            if (msg.clientId)
+                this.playerIds.set(clientId, msg.clientId);
             const wantCode = msg.roomCode?.toUpperCase();
             let room = wantCode ? this.rooms.get(wantCode) : undefined;
             if (wantCode && !room) {
@@ -69,7 +80,9 @@ export class RoomManager {
                 let code = makeRoomCode(this.rng);
                 while (this.rooms.has(code))
                     code = makeRoomCode(this.rng);
-                room = new Room(code, this.send, this.boardSource);
+                room = new Room(code, this.send, this.boardSource, {
+                    onBoardComplete: r => this.recordBoard(r),
+                });
                 this.rooms.set(code, room);
             }
             this.clientRoom.set(clientId, room.code);
@@ -95,6 +108,7 @@ export class RoomManager {
             this.rooms.get(code)?.leave(clientId, now);
         if (this.dequeue(clientId))
             this.broadcastQueue();
+        this.playerIds.delete(clientId);
     }
     /** Remove a client from the quick-match queue. Returns true if they were queued. */
     dequeue(clientId) {
@@ -116,11 +130,14 @@ export class RoomManager {
             return;
         }
         this.dequeue(clientId);
+        if (msg.clientId)
+            this.playerIds.set(clientId, msg.clientId);
         this.queue.push({
             clientId,
             name: msg.name.slice(0, 16),
             characterId: msg.characterId,
             lang: msg.lang,
+            playerId: msg.clientId || clientId,
         });
         this.broadcastQueue();
         this.tryMatch(now);
@@ -130,6 +147,54 @@ export class RoomManager {
             this.send(q.clientId, makeEvent('queue_update', { position: i + 1, waiting: this.queue.length }));
         });
     }
+    /** Respond to personal-stats and leaderboard requests. */
+    handleStatsAction(clientId, msg) {
+        if (msg.action === 'get_stats') {
+            const pid = this.playerIds.get(clientId);
+            const stats = pid ? this.stats.get(pid) : undefined;
+            this.send(clientId, makeEvent('player_stats', { found: !!stats, ...(stats ? { stats } : {}) }));
+            return;
+        }
+        this.send(clientId, makeEvent('leaderboard', { entries: this.stats.leaderboard() }));
+    }
+    /** Record one stats entry per seated player for the just-finished board. */
+    recordBoard(room) {
+        const r = room.tableResults[room.tableResults.length - 1];
+        if (!r)
+            return;
+        const compCode = this.tableCompetition.get(room.code);
+        const competition = compCode ? this.competitions.get(compCode)?.name ?? null : null;
+        const ns = nsScore(r);
+        const contractStr = r.contract
+            ? `${r.contract.level}${r.contract.denom}${r.contract.doubled === 1 ? 'X' : r.contract.doubled === 2 ? 'XX' : ''}`
+            : null;
+        for (const p of room.seatedPlayers()) {
+            const score = p.seat === 'N' || p.seat === 'S' ? ns : -ns;
+            this.stats.record(p.playerId, p.name, {
+                at: Date.now(),
+                tableCode: room.code,
+                competition,
+                boardNumber: r.boardNumber,
+                contract: contractStr,
+                declarer: r.contract ? r.contract.declarer : null,
+                declarerTricks: r.declarerTricks,
+                score,
+                won: score > 0,
+            });
+        }
+    }
+    saveStats(path) {
+        writeFileSync(path, JSON.stringify(this.stats.toJSON()));
+    }
+    loadStats(path) {
+        try {
+            const data = JSON.parse(readFileSync(path, 'utf8'));
+            this.stats = StatsRegistry.fromJSON(data);
+        }
+        catch {
+            // Missing/corrupt file: start fresh.
+        }
+    }
     /** Form tables of 4 from the waiting queue. */
     tryMatch(now) {
         while (this.queue.length >= 4) {
@@ -137,12 +202,14 @@ export class RoomManager {
             let code = makeRoomCode(this.rng);
             while (this.rooms.has(code))
                 code = makeRoomCode(this.rng);
-            const room = new Room(code, this.send, this.boardSource);
+            const room = new Room(code, this.send, this.boardSource, {
+                onBoardComplete: r => this.recordBoard(r),
+            });
             this.rooms.set(code, room);
             for (const q of four) {
                 this.clientRoom.set(q.clientId, code);
                 try {
-                    room.join({ action: 'join', name: q.name, characterId: q.characterId, lang: q.lang }, q.clientId, now);
+                    room.join({ action: 'join', name: q.name, characterId: q.characterId, lang: q.lang, clientId: q.playerId }, q.clientId, now);
                 }
                 catch {
                     this.send(q.clientId, makeEvent('error', { code: 'bad-join' }));
@@ -235,11 +302,15 @@ export class RoomManager {
     }
     attachTable(comp, code) {
         const room = new Room(code, this.send, comp.fixedSource(), {
-            onBoardComplete: () => this.publishStandings(comp),
+            onBoardComplete: r => {
+                this.publishStandings(comp);
+                this.recordBoard(r);
+            },
         });
         this.rooms.set(code, room);
         comp.addTable(room);
         this.competitionTables.add(code);
+        this.tableCompetition.set(code, comp.code);
         return room;
     }
     standingsPayload(comp) {

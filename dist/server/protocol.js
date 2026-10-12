@@ -8,6 +8,7 @@ const ACTIONS = new Set([
     'join', 'start', 'next_board', 'bid', 'play', 'pick_character', 'emote', 'voice',
     'create_competition', 'create_table', 'follow_competition', 'snapshot',
     'quick_match', 'leave_queue', 'list_competitions', 'join_open_table',
+    'get_stats', 'get_leaderboard',
 ]);
 /** Parse + shape-check an inbound message. Throws on anything invalid. */
 export function parseClientMessage(data) {
@@ -82,6 +83,8 @@ export function parseClientMessage(data) {
                 throw new Error('bad-queue');
             if (obj['lang'] !== 'en' && obj['lang'] !== 'zh')
                 throw new Error('bad-queue');
+            if (obj['clientId'] !== undefined && !str(obj['clientId']))
+                throw new Error('bad-queue');
             return obj;
         }
         case 'create_table':
@@ -92,7 +95,9 @@ export function parseClientMessage(data) {
             return obj;
         }
         case 'leave_queue':
-        case 'list_competitions': {
+        case 'list_competitions':
+        case 'get_stats':
+        case 'get_leaderboard': {
             return obj;
         }
         default:
