@@ -606,7 +606,7 @@ function ResultsOverlay({ result, lang, mySeat, isHost, onNext, onLeave }: {
 }
 
 /** Post-board hand record: auction, tricks, and all four hands. */
-function BoardReviewModal({ review, lang, onClose }: { review: BoardReview; lang: Lang; onClose: () => void }) {
+export function BoardReviewModal({ review, lang, onClose }: { review: BoardReview; lang: Lang; onClose: () => void }) {
   const [tab, setTab] = useState<'auction' | 'tricks' | 'hands'>('auction');
   // Columns in dealer-first order, like a real auction pad.
   const order: Seat[] = [review.dealer];

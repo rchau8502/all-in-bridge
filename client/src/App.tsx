@@ -5,10 +5,44 @@ import { GameClient } from './net.js';
 import { audio } from './audio.js';
 import { Home } from './screens/Home.js';
 import { Lobby } from './screens/Lobby.js';
-import { Table } from './screens/Table.js';
+import { Table, BoardReviewModal } from './screens/Table.js';
 import { Tutorial } from './screens/Tutorial.js';
 import { Compete } from './screens/Compete.js';
+import type { BoardReview } from '../../shared/events.js';
+import type { Bid, Contract } from '../../shared/bidding.js';
+import type { Card } from '../../shared/deck.js';
 import './styles.css';
+
+/** Dev preview (?preview=review[&lang=zh]): render the hand-record modal with
+ *  mock data so it can be visually QA'd without a live server. */
+function mockReview(): BoardReview {
+  const suits = ['S', 'H', 'D', 'C'] as const;
+  const ranks = [14, 13, 12, 11, 10, 9, 8, 7, 6, 5, 4, 3, 2];
+  const hands: Record<Seat, Card[]> = { N: [], E: [], S: [], W: [] };
+  const order: Seat[] = ['N', 'E', 'S', 'W'];
+  suits.forEach(s => ranks.forEach(r => {
+    const seat = order[(hands.N.length + hands.E.length + hands.S.length + hands.W.length) % 4]!;
+    hands[seat].push({ suit: s, rank: r });
+  }));
+  const lead: Seat[] = ['W', 'N', 'E', 'S'];
+  const tricks = Array.from({ length: 13 }, (_, t) => ({
+    plays: lead.map(seat => ({ seat, card: hands[seat]![t]! })),
+    winner: lead[t % 4]!,
+  }));
+  const auction: { seat: Seat; bid: Bid }[] = [
+    { seat: 'N', bid: { type: 'pass' } },
+    { seat: 'E', bid: { type: 'bid', level: 1, denom: 'D' } },
+    { seat: 'S', bid: { type: 'bid', level: 1, denom: 'NT' } },
+    { seat: 'W', bid: { type: 'pass' } },
+    { seat: 'N', bid: { type: 'pass' } },
+    { seat: 'E', bid: { type: 'pass' } },
+  ];
+  const contract: Contract = { level: 1, denom: 'NT', declarer: 'S', doubled: 0 };
+  return {
+    boardNumber: 1, dealer: 'N', vulnerability: 'none', hands,
+    auction, contract, tricks, declarerTricks: 8, score: 120,
+  };
+}
 
 export type ScreenName = 'home' | 'lobby' | 'table' | 'tutorial' | 'compete';
 
@@ -32,6 +66,16 @@ const Ctx = createContext<AppCtx>(null as unknown as AppCtx);
 export const useApp = () => useContext(Ctx);
 
 export function App() {
+  const params = new URLSearchParams(location.search);
+  // Dev preview: visual QA for the hand-record modal without a live server.
+  if (params.get('preview') === 'review') {
+    const lang = (params.get('lang') as Lang) || 'en';
+    return (
+      <div className="app">
+        <BoardReviewModal review={mockReview()} lang={lang} onClose={() => {}} />
+      </div>
+    );
+  }
   const [lang, setLangState] = useState<Lang>(() => (localStorage.getItem('aib-lang') as Lang) || 'en');
   const [name, setName] = useState(() => localStorage.getItem('aib-name') || '');
   const [characterId, setCharacterId] = useState(() => localStorage.getItem('aib-char') || 'cowboy');
