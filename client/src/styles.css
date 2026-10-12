@@ -824,7 +824,9 @@ table.standings tr.leader td { color: var(--accent); font-weight: 800; }
   /* comfortable touch targets */
   .chip { padding: 9px 16px; }
   .btn { min-height: 44px; }
-  .bid-btn { padding: 11px 4px; }
+  .bid-btn { padding: 13px 4px; }
+  /* voice-line bubbles can be long — wrap them on narrow screens */
+  .bubble { white-space: normal; max-width: 62vw; text-align: center; }
 }
 
 /* accessibility: honor the OS reduced-motion setting */
