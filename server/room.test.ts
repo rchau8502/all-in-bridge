@@ -375,6 +375,42 @@ describe('claiming tricks', () => {
     expect((cres.payload as { accepted: boolean }).accepted).toBe(false);
     expect(h.room.phase).toBe('play');
   });
+
+  it('claim during a partially-played trick counts the partial trick as remaining', () => {
+    const h = toPlayPhase();
+    // Trick 1: W leads, N follows — leave the trick partial.
+    const wLead = PRACTICE_DEAL.W[0]!;
+    h.room.handle('cW', { action: 'play', card: { suit: wLead.suit, rank: wLead.rank } } as ClientMessage, h.now);
+    const nFollow = PRACTICE_DEAL.N.find(c => c.suit === wLead.suit) ?? PRACTICE_DEAL.N[0]!;
+    h.room.handle('cN', { action: 'play', card: { suit: nFollow.suit, rank: nFollow.rank } } as ClientMessage, h.now);
+    expect(h.room.phase).toBe('play');
+
+    // All 13 tricks remain (the partial trick counts). Declarer claims 10.
+    h.room.handle('cS', { action: 'claim', tricks: 10 } as unknown as ClientMessage, h.now);
+    expect(lastEvent(h, 'cN', 'claim_offered')).toBeDefined();
+    h.room.handle('cE', { action: 'claim_accept' } as ClientMessage, h.now);
+    h.room.handle('cW', { action: 'claim_accept' } as ClientMessage, h.now);
+
+    expect(h.room.phase).toBe('board_done');
+    const result = lastEvent(h, 'cN', 'board_result')!;
+    // 0 completed tricks won by declarer + 10 claimed = 10.
+    expect((result.payload as { declarerTricks: number }).declarerTricks).toBe(10);
+  });
+
+  it('rejecting a mid-trick claim leaves the partial trick untouched', () => {
+    const h = toPlayPhase();
+    const wLead = PRACTICE_DEAL.W[0]!;
+    h.room.handle('cW', { action: 'play', card: { suit: wLead.suit, rank: wLead.rank } } as ClientMessage, h.now);
+    h.room.handle('cS', { action: 'claim', tricks: 13 } as unknown as ClientMessage, h.now);
+    h.room.handle('cE', { action: 'claim_reject' } as ClientMessage, h.now);
+    expect(h.room.phase).toBe('play');
+    const cres = lastEvent(h, 'cN', 'claim_result')!;
+    expect((cres.payload as { accepted: boolean }).accepted).toBe(false);
+    // N can still follow to the partial trick — play continues normally.
+    const nFollow = PRACTICE_DEAL.N.find(c => c.suit === wLead.suit) ?? PRACTICE_DEAL.N[0]!;
+    h.room.handle('cN', { action: 'play', card: { suit: nFollow.suit, rank: nFollow.rank } } as ClientMessage, h.now);
+    expect(h.room.phase).toBe('play');
+  });
 });
 
 describe('rejoin by stable player id', () => {
