@@ -39,15 +39,20 @@ laptops. The game connects to the server automatically — no config needed.
 ## Playing
 
 1. Enter your name, pick a character, choose language (EN/中文).
-2. **Create** a room → you get a 6-character share code. Or **Join** with a code.
-3. The first 4 people in play N/E/S/W; anyone after that auto-joins as an observer.
-4. Bid, play, score. "Next board" deals again.
+2. **Quick Play** — jump into matchmaking; when 4 players are waiting, a table forms automatically.
+3. **Create** a room → you get a 6-character share code. Or **Join** with a code.
+4. The first 4 people in play N/E/S/W; anyone after that auto-joins as an observer.
+5. Bid, play, score. "Next board" deals again.
 
 ## Duplicate competition (club night mode)
 
-1. Create competition → you get a `Txxxxx` code.
+1. Create competition → you get a `Txxxxx` code. Tick **Public** and pick a duration
+   (1/3/7 days, or no limit) to run an async club event — players join tables
+   whenever they're free during the window.
 2. Create 2+ tables under it — every table plays the *same* pre-shuffled boards.
-3. Live matchpoint standings update as tables finish.
+3. Players can also tap **Refresh** under Duplicate Competition to see all open
+   public competitions and **Join a table** directly — no share code needed.
+4. Live matchpoint standings update as tables finish.
 
 ## Test checklist
 
