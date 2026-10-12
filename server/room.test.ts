@@ -6,7 +6,7 @@ import { parseCard, cardLabel, nextSeat, SEATS } from '../shared/deck.js';
 import type { Seat, Card, Hands, Suit } from '../shared/deck.js';
 import { trickWinner } from '../shared/play.js';
 import { PRACTICE_DEAL } from '../shared/lessons.js';
-import type { GameEvent, EventType } from '../shared/events.js';
+import type { GameEvent, EventType, BoardReview } from '../shared/events.js';
 import type { ClientMessage } from './protocol.js';
 
 const SEAT_IDS: Record<Seat, string> = { N: 'cN', E: 'cE', S: 'cS', W: 'cW' };
@@ -503,6 +503,71 @@ describe('undo take-backs', () => {
     expect(lastEvent(h, 'cN', 'claim_offered')).toBeDefined();
     h.room.handle('cW', { action: 'undo' } as ClientMessage, h.now);
     expect(errorCodes(h, 'cW')).toContain('claim-pending');
+  });
+});
+
+describe('board review', () => {
+  function joinAll(h: Harness): void {
+    (['N', 'E', 'S', 'W'] as Seat[]).forEach(s =>
+      h.room.join(
+        { action: 'join', name: s, characterId: 'cowboy', lang: 'en', clientId: `pid-${s}` },
+        SEAT_IDS[s],
+        h.now
+      )
+    );
+    h.room.handle('cN', { action: 'start' } as ClientMessage, h.now);
+  }
+
+  it('board_result carries the full hand record after a played board', () => {
+    const h = setup();
+    joinAll(h);
+    const result = playFullGame(h);
+    const review = (result.payload as unknown as { review: BoardReview }).review;
+    expect(review).toBeDefined();
+    expect(review.boardNumber).toBe(1);
+    expect(review.dealer).toBe('N');
+    // Auction starts with the dealer and every entry is recorded.
+    expect(review.auction.length).toBeGreaterThanOrEqual(4);
+    expect(review.auction[0]!.seat).toBe('N');
+    expect(review.contract).toMatchObject({ level: 1, denom: 'NT' });
+    // All 13 tricks, 4 plays each, winner set.
+    expect(review.tricks).toHaveLength(13);
+    for (const t of review.tricks) {
+      expect(t.plays).toHaveLength(4);
+      expect(['N', 'E', 'S', 'W']).toContain(t.winner);
+    }
+    // All 52 cards across the four original hands.
+    const all: Card[] = (['N', 'E', 'S', 'W'] as Seat[]).flatMap(s => review.hands[s]);
+    expect(all).toHaveLength(52);
+    expect(new Set(all.map(c => `${c.suit}${c.rank}`)).size).toBe(52);
+  });
+
+  it('passed-out board records the auction but no tricks', () => {
+    const h = setup();
+    joinAll(h);
+    bid(h, 'N', 'P'); bid(h, 'E', 'P'); bid(h, 'S', 'P'); bid(h, 'W', 'P');
+    expect(h.room.phase).toBe('board_done');
+    const result = lastEvent(h, 'cN', 'board_result')!;
+    const review = (result.payload as unknown as { review: BoardReview }).review;
+    expect(review.contract).toBeNull();
+    expect(review.auction).toHaveLength(4);
+    expect(review.tricks).toHaveLength(0);
+    expect(review.score).toBeNull();
+  });
+
+  it('claimed board records only the completed tricks', () => {
+    const h = setup();
+    joinAll(h);
+    bid(h, 'N', 'P'); bid(h, 'E', 'P'); bid(h, 'S', '1NT');
+    bid(h, 'W', 'P'); bid(h, 'N', 'P'); bid(h, 'E', 'P');
+    h.room.handle('cS', { action: 'claim', tricks: 10 } as unknown as ClientMessage, h.now);
+    h.room.handle('cE', { action: 'claim_accept' } as ClientMessage, h.now);
+    h.room.handle('cW', { action: 'claim_accept' } as ClientMessage, h.now);
+    const result = lastEvent(h, 'cN', 'board_result')!;
+    const review = (result.payload as unknown as { review: BoardReview }).review;
+    expect(review.tricks.length).toBeLessThan(13);
+    expect(review.declarerTricks).toBe(10);
+    expect(review.contract).toMatchObject({ level: 1, denom: 'NT' });
   });
 });
 

@@ -599,6 +599,34 @@ select.input { appearance: auto; }
 .results-tricks { color: var(--text-dim); margin-top: 4px; font-weight: 600; }
 .results-actions { display: flex; gap: 10px; justify-content: center; margin-top: 18px; }
 
+/* post-board hand record */
+.review-overlay {
+  position: fixed; inset: 0; z-index: 60; display: flex; align-items: center; justify-content: center;
+  background: rgba(8, 16, 38, 0.72); animation: fade-in 0.25s ease; padding: 12px;
+}
+.review-card {
+  background: rgba(10, 22, 48, 0.94); backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px);
+  border: 1px solid var(--gold-dim); border-radius: 18px; padding: 18px;
+  width: min(560px, 100%); max-height: 84vh; display: flex; flex-direction: column; gap: 12px;
+  box-shadow: 0 24px 60px rgba(0, 0, 0, 0.55); animation: pop-in 0.25s ease;
+}
+.review-title { font-size: 19px; font-weight: 900; color: var(--gold); text-align: center; }
+.review-meta { text-align: center; color: rgba(255, 255, 255, 0.75); font-size: 13px; font-weight: 600; }
+.review-tabs { display: flex; gap: 8px; justify-content: center; }
+.review-body { overflow-y: auto; min-height: 200px; max-height: 50vh; padding: 4px; }
+.review-auction { width: 100%; border-collapse: collapse; text-align: center; }
+.review-auction th { color: var(--gold); font-size: 13px; padding: 6px; border-bottom: 1px solid var(--gold-dim); }
+.review-auction td { padding: 6px; font-size: 14px; font-weight: 700; color: #fff; border-bottom: 1px solid rgba(255, 255, 255, 0.06); }
+.review-trick { display: flex; align-items: center; gap: 8px; padding: 7px 4px; border-bottom: 1px solid rgba(255, 255, 255, 0.06); font-size: 13px; }
+.review-tricknum { color: var(--gold); font-weight: 900; min-width: 22px; }
+.review-trickcards { display: flex; gap: 10px; flex-wrap: wrap; flex: 1; }
+.review-play { color: rgba(255, 255, 255, 0.85); white-space: nowrap; }
+.review-play b { color: #fff; }
+.review-winner { color: var(--gold); font-weight: 800; white-space: nowrap; }
+.review-hand { display: flex; gap: 10px; align-items: flex-start; padding: 8px 0; border-bottom: 1px solid rgba(255, 255, 255, 0.06); }
+.review-handseat { color: var(--gold); font-weight: 900; min-width: 60px; padding-top: 4px; }
+.review-handcards { display: flex; flex-wrap: wrap; gap: 2px; }
+
 .coin-rain { position: absolute; inset: 0; overflow: hidden; pointer-events: none; }
 .coin {
   position: absolute; top: -40px; border-radius: 50%;

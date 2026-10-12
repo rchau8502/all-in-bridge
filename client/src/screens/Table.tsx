@@ -3,14 +3,15 @@ import { useApp } from '../App.js';
 import { t, bidLabelL, seatLabel, errMsg, type Lang } from '../i18n.js';
 import { CardView, Banner, CoinRain, Bubble, Avatar } from '../components/ui.js';
 import { audio } from '../audio.js';
-import { SEATS, nextSeat, seatSide } from '../../../shared/deck.js';
+import { SEATS, nextSeat, seatSide, cardLabel } from '../../../shared/deck.js';
 import type { Seat, Card, Suit, Hands } from '../../../shared/deck.js';
 import { Auction } from '../../../shared/bidding.js';
 import type { Bid, Contract, Vulnerability } from '../../../shared/bidding.js';
 import { voiceUrl } from '../../../shared/voices.js';
+import type { BoardReview } from '../../../shared/events.js';
 
 interface SeatInfo { name: string; characterId: string; connected: boolean; }
-interface Result { contract: Contract | null; declarerTricks: number; score: number | null; }
+interface Result { contract: Contract | null; declarerTricks: number; score: number | null; review: BoardReview; }
 
 const ALL_BIDS: Bid[] = (() => {
   const bids: Bid[] = [{ type: 'pass' }];
@@ -53,6 +54,7 @@ export function Table() {
   const [claimDraft, setClaimDraft] = useState<number | null>(null);
   /** My last bid/play is still the latest action → I can take it back. */
   const [canUndo, setCanUndo] = useState(false);
+  const [showReview, setShowReview] = useState(false);
 
   const auctionRef = useRef<Auction | null>(null);
   const trickRef = useRef<Array<{ seat: Seat; card: Card }>>([]);
@@ -588,8 +590,108 @@ function ResultsOverlay({ result, lang, mySeat, isHost, onNext, onLeave }: {
           {isHost && contract && (
             <button className="btn primary" onClick={onNext}>{t(lang, 'table.nextBoard')}</button>
           )}
+          {result.review && (
+            <button className="btn ghost" onClick={() => { audio.sfx('click'); setShowReview(true); }}>
+              📋 {t(lang, 'table.review')}
+            </button>
+          )}
           <button className="btn ghost" onClick={onLeave}>🏠</button>
         </div>
+      </div>
+      {showReview && result.review && (
+        <BoardReviewModal review={result.review} lang={lang} onClose={() => setShowReview(false)} />
+      )}
+    </div>
+  );
+}
+
+/** Post-board hand record: auction, tricks, and all four hands. */
+function BoardReviewModal({ review, lang, onClose }: { review: BoardReview; lang: Lang; onClose: () => void }) {
+  const [tab, setTab] = useState<'auction' | 'tricks' | 'hands'>('auction');
+  // Columns in dealer-first order, like a real auction pad.
+  const order: Seat[] = [review.dealer];
+  for (let i = 1; i < 4; i++) order.push(nextSeat(order[i - 1]!));
+  const rounds: ({ seat: Seat; bid: Bid } | null)[][] = [];
+  for (let i = 0; i < review.auction.length; i += 4) {
+    const r: ({ seat: Seat; bid: Bid } | null)[] = [];
+    for (let j = 0; j < 4; j++) r.push(review.auction[i + j] ?? null);
+    rounds.push(r);
+  }
+  const vulKey = { none: 'table.vulNone', NS: 'table.vulNS', EW: 'table.vulEW', all: 'table.vulAll' } as const;
+
+  return (
+    <div className="review-overlay" onClick={onClose}>
+      <div className="review-card" onClick={e => e.stopPropagation()}>
+        <div className="review-head">
+          <div className="review-title">📋 {t(lang, 'table.review')} · #{review.boardNumber}</div>
+          <div className="review-meta">
+            {t(lang, 'table.dealer')}: {seatLabel(lang, review.dealer)} · {t(lang, vulKey[review.vulnerability])}
+            {review.contract && (
+              <> · {bidLabelL(lang, { type: 'bid', level: review.contract.level, denom: review.contract.denom })}
+              {review.contract.doubled === 1 ? ' ✕' : review.contract.doubled === 2 ? ' ✕✕' : ''}</>
+            )}
+          </div>
+          <div className="review-tabs">
+            {(['auction', 'tricks', 'hands'] as const).map(k => (
+              <button key={k} className={`chip ${tab === k ? 'big' : ''}`} onClick={() => setTab(k)}>
+                {t(lang, `review.${k}`)}
+              </button>
+            ))}
+          </div>
+        </div>
+        <div className="review-body">
+          {tab === 'auction' && (
+            <table className="review-auction">
+              <thead>
+                <tr>{order.map(s => <th key={s}>{seatLabel(lang, s)}</th>)}</tr>
+              </thead>
+              <tbody>
+                {rounds.map((r, i) => (
+                  <tr key={i}>
+                    {r.map((cell, j) => (
+                      <td key={j}>{cell ? bidLabelL(lang, cell.bid) : ''}</td>
+                    ))}
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          )}
+          {tab === 'tricks' && (
+            <div className="review-tricks">
+              {review.tricks.map((tr, i) => (
+                <div key={i} className="review-trick">
+                  <span className="review-tricknum">{i + 1}</span>
+                  <span className="review-trickcards">
+                    {tr.plays.map((p, j) => (
+                      <span key={j} className="review-play">
+                        <b>{seatLabel(lang, p.seat)}</b> {cardLabel(p.card)}
+                      </span>
+                    ))}
+                  </span>
+                  <span className="review-winner">→ {seatLabel(lang, tr.winner)}</span>
+                </div>
+              ))}
+              {review.tricks.length === 0 && (
+                <div className="hint">{t(lang, 'review.noTricks')}</div>
+              )}
+            </div>
+          )}
+          {tab === 'hands' && (
+            <div className="review-hands">
+              {(['N', 'E', 'S', 'W'] as Seat[]).map(s => (
+                <div key={s} className="review-hand">
+                  <span className="review-handseat">{seatLabel(lang, s)}</span>
+                  <span className="review-handcards">
+                    {review.hands[s].slice().sort(cardSort).map((c, i) => (
+                      <CardView key={i} card={c} small />
+                    ))}
+                  </span>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+        <button className="btn ghost" onClick={onClose}>{t(lang, 'review.close')}</button>
       </div>
     </div>
   );

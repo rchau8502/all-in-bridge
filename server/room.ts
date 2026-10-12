@@ -15,11 +15,11 @@ import {
 import type { Seat, Side, Card, Hands } from '../shared/deck.js';
 import { Auction, boardDealerVul } from '../shared/bidding.js';
 import type { Bid, Contract, Vulnerability } from '../shared/bidding.js';
-import { PlayState } from '../shared/play.js';
+import { PlayState, trickWinner } from '../shared/play.js';
 import { scoreContract } from '../shared/scoring.js';
 import { makeEvent } from '../shared/events.js';
 import type {
-  GameEvent, EventType, EventPayloadMap, BoardRecord, TableResult,
+  GameEvent, EventType, EventPayloadMap, BoardRecord, BoardReview, TableResult,
 } from '../shared/events.js';
 import { CharacterSelect } from '../shared/voices.js';
 import { isValidCharacterId } from '../shared/characters.js';
@@ -525,11 +525,32 @@ export class Room {
       declarerTricks,
       score,
     });
+    const trump = contract && contract.denom !== 'NT' ? contract.denom : null;
+    const review: BoardReview = {
+      boardNumber: this.boardNumber,
+      dealer: this.dealer!,
+      vulnerability: this.vulnerability!,
+      hands: {
+        N: this.currentHands!.N.map(c => ({ ...c })),
+        E: this.currentHands!.E.map(c => ({ ...c })),
+        S: this.currentHands!.S.map(c => ({ ...c })),
+        W: this.currentHands!.W.map(c => ({ ...c })),
+      },
+      auction: this.auction ? this.auction.entries.map(e => ({ seat: e.seat, bid: e.bid })) : [],
+      contract,
+      tricks: (this.play?.completedTricks ?? []).map(plays => ({
+        plays: plays.map(p => ({ seat: p.seat, card: { ...p.card } })),
+        winner: trickWinner(plays, trump),
+      })),
+      declarerTricks,
+      score,
+    };
     this.broadcast(makeEvent('board_result', {
       boardNumber: this.boardNumber,
       contract,
       declarerTricks,
       score,
+      review,
     }));
     if (contract && score !== null) {
       this.announce(score >= 0 ? 'victory' : 'defeat', contract.declarer);

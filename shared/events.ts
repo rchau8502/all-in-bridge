@@ -89,6 +89,8 @@ export interface EventPayloadMap {
     declarerTricks: number;
     /** Declarer's perspective; null when passed out. */
     score: number | null;
+    /** Full hand record for post-board review. */
+    review: BoardReview;
   };
   announce: { key: 'game' | 'slam' | 'double' | 'redouble' | 'victory' | 'defeat'; seat?: Seat };
   voice_line: { seat: Seat; lineId: string };
@@ -166,6 +168,20 @@ export interface BoardRecord {
   dealer: Seat;
   vulnerability: Vulnerability;
   hands: Hands;
+}
+
+/** Full post-board review: auction, every completed trick, and all four hands. */
+export interface BoardReview {
+  boardNumber: number;
+  dealer: Seat;
+  vulnerability: Vulnerability;
+  hands: Hands;
+  auction: Array<{ seat: Seat; bid: Bid }>;
+  contract: Contract | null;
+  tricks: Array<{ plays: Array<{ seat: Seat; card: Card }>; winner: Seat }>;
+  declarerTricks: number;
+  /** Declarer's perspective; null when passed out. */
+  score: number | null;
 }
 
 /** Per-table result on one board, for competition scoring. */
