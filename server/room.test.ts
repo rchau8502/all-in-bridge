@@ -413,6 +413,99 @@ describe('claiming tricks', () => {
   });
 });
 
+describe('undo take-backs', () => {
+  function joinLobby(h: Harness): void {
+    (['N', 'E', 'S', 'W'] as Seat[]).forEach(s =>
+      h.room.join(
+        { action: 'join', name: s, characterId: 'cowboy', lang: 'en', clientId: `pid-${s}` },
+        SEAT_IDS[s],
+        h.now
+      )
+    );
+    h.room.handle('cN', { action: 'start' } as ClientMessage, h.now);
+  }
+
+  function toAuction(): Harness {
+    const h = setup();
+    joinLobby(h);
+    return h; // dealer N opens the bidding
+  }
+
+  function toPlay(): Harness {
+    const h = toAuction();
+    bid(h, 'N', 'P'); bid(h, 'E', 'P'); bid(h, 'S', '1NT');
+    bid(h, 'W', 'P'); bid(h, 'N', 'P'); bid(h, 'E', 'P');
+    expect(h.room.phase).toBe('play');
+    return h;
+  }
+
+  function playCard(h: Harness, seat: Seat, card: Card): void {
+    h.room.handle(
+      SEAT_IDS[seat],
+      { action: 'play', card: { suit: card.suit, rank: card.rank } } as ClientMessage,
+      h.now
+    );
+  }
+
+  it('a bidder takes back their own last bid and re-bids', () => {
+    const h = toAuction();
+    h.room.handle('cN', { action: 'bid', bid: parseBid('1C') } as unknown as ClientMessage, h.now);
+    h.room.handle('cN', { action: 'undo' } as ClientMessage, h.now);
+    const undone = lastEvent(h, 'cE', 'bid_undone')!;
+    expect((undone.payload as { seat: string }).seat).toBe('N');
+    // N bids differently; the auction continues normally.
+    h.room.handle('cN', { action: 'bid', bid: parseBid('1H') } as unknown as ClientMessage, h.now);
+    expect(errorCodes(h, 'cN')).not.toContain('not-your-turn');
+    h.room.handle('cE', { action: 'bid', bid: parseBid('P') } as unknown as ClientMessage, h.now);
+    expect(h.room.phase).toBe('auction');
+  });
+
+  it('cannot undo someone else\'s bid', () => {
+    const h = toAuction();
+    h.room.handle('cN', { action: 'bid', bid: parseBid('1C') } as unknown as ClientMessage, h.now);
+    h.room.handle('cE', { action: 'bid', bid: parseBid('P') } as unknown as ClientMessage, h.now);
+    h.room.handle('cN', { action: 'undo' } as ClientMessage, h.now);
+    expect(errorCodes(h, 'cN')).toContain('nothing-to-undo');
+  });
+
+  it('a player takes back their lead and plays a different card', () => {
+    const h = toPlay();
+    const wLead = PRACTICE_DEAL.W[0]!;
+    playCard(h, 'W', wLead);
+    h.room.handle('cW', { action: 'undo' } as ClientMessage, h.now);
+    const undone = lastEvent(h, 'cN', 'play_undone')!;
+    expect((undone.payload as { seat: string }).seat).toBe('W');
+    expect((undone.payload as { card: Card }).card).toMatchObject({ suit: wLead.suit, rank: wLead.rank });
+    // The card is back in hand: W can lead the SAME card again.
+    playCard(h, 'W', wLead);
+    expect(errorCodes(h, 'cW')).not.toContain('not-your-card');
+    expect(h.room.phase).toBe('play');
+  });
+
+  it('cannot undo after the next player has played', () => {
+    const h = toPlay();
+    const wLead = PRACTICE_DEAL.W[0]!;
+    playCard(h, 'W', wLead);
+    const nFollow = PRACTICE_DEAL.N.find(c => c.suit === wLead.suit) ?? PRACTICE_DEAL.N[0]!;
+    playCard(h, 'N', nFollow);
+    h.room.handle('cW', { action: 'undo' } as ClientMessage, h.now);
+    expect(errorCodes(h, 'cW')).toContain('nothing-to-undo');
+    // But N, who played last, can still take it back.
+    h.room.handle('cN', { action: 'undo' } as ClientMessage, h.now);
+    expect(lastEvent(h, 'cW', 'play_undone')).toBeDefined();
+  });
+
+  it('cannot undo while a claim vote is pending', () => {
+    const h = toPlay();
+    const wLead = PRACTICE_DEAL.W[0]!;
+    playCard(h, 'W', wLead);
+    h.room.handle('cS', { action: 'claim', tricks: 12 } as unknown as ClientMessage, h.now);
+    expect(lastEvent(h, 'cN', 'claim_offered')).toBeDefined();
+    h.room.handle('cW', { action: 'undo' } as ClientMessage, h.now);
+    expect(errorCodes(h, 'cW')).toContain('claim-pending');
+  });
+});
+
 describe('rejoin by stable player id', () => {
   function joinWithPid(h: Harness, seat: Seat, pid: string, conn: string): void {
     h.room.join(

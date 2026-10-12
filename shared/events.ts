@@ -40,6 +40,8 @@ export type EventType =
   | 'leaderboard'         // { entries: LeaderboardEntry[] }
   | 'claim_offered'       // { by: Seat, tricks: number } — declarer claims remaining tricks
   | 'claim_result'        // { accepted: boolean, tricks: number }
+  | 'bid_undone'          // { seat } — take-back of the most recent bid
+  | 'play_undone'         // { seat, card } — take-back of the most recent play
   | 'error';           // { code: string } — client maps code → localized message
 
 export interface GameEvent<T extends EventType = EventType> {
@@ -109,6 +111,8 @@ export interface EventPayloadMap {
   leaderboard: { entries: LeaderboardEntry[] };
   claim_offered: { by: Seat; tricks: number };
   claim_result: { accepted: boolean; tricks: number };
+  bid_undone: { seat: Seat };
+  play_undone: { seat: Seat; card: Card };
   error: { code: string };
 }
 

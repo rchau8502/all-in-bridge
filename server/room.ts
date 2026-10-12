@@ -290,6 +290,9 @@ export class Room {
       case 'play':
         this.onPlay(c, msg.card);
         return;
+      case 'undo':
+        this.onUndo(c);
+        return;
       case 'claim':
         this.onClaim(c, msg.tricks);
         return;
@@ -429,6 +432,39 @@ export class Room {
     c.characterId = characterId;
     if (c.seat !== 'observer') this.characters.pick(c.seat, characterId);
     this.broadcastPlayersUpdate();
+  }
+
+  /**
+   * Take back your own most recent bid or play, if nothing happened after it.
+   * Mis-taps on phones are the #1 friendly-game frustration; this keeps the
+   * rule simple: only your own last action, only while it's still the latest.
+   */
+  private onUndo(c: ClientInfo): void {
+    if (c.seat === 'observer') return this.send(c.clientId, this.error('not-in-room'));
+    if (this.pendingClaim) return this.send(c.clientId, this.error('claim-pending'));
+    if (this.phase === 'auction' && this.auction) {
+      const entries = this.auction.entries;
+      const last = entries[entries.length - 1];
+      if (!last || last.seat !== c.seat) {
+        return this.send(c.clientId, this.error('nothing-to-undo'));
+      }
+      this.auction.unapply();
+      this.broadcast(makeEvent('bid_undone', { seat: c.seat as Seat }));
+      return;
+    }
+    if (this.phase === 'play' && this.play) {
+      const trick = this.play.currentTrick;
+      const last = trick[trick.length - 1];
+      if (!last || last.seat !== c.seat) {
+        return this.send(c.clientId, this.error('nothing-to-undo'));
+      }
+      trick.pop();
+      this.play.hands[c.seat as Seat].push({ ...last.card });
+      this.play.turn = c.seat as Seat;
+      this.broadcast(makeEvent('play_undone', { seat: c.seat as Seat, card: { ...last.card } }));
+      return;
+    }
+    return this.send(c.clientId, this.error('wrong-phase'));
   }
 
   /**

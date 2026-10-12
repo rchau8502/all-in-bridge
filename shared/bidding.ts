@@ -146,6 +146,13 @@ export class Auction {
     this.turn = nextSeat(this.turn);
   }
 
+  /** Retract the most recent bid (take-back). Turn returns to that seat. */
+  unapply(): AuctionEntry | undefined {
+    const e = this.entries.pop();
+    if (e) this.turn = e.seat;
+    return e;
+  }
+
   /** True when the auction is over (4 straight passes, or 3 passes after a bid). */
   isComplete(): boolean {
     const n = this.entries.length;

@@ -21,6 +21,7 @@ export type ClientMessage =
   | { action: 'claim'; tricks: unknown }
   | { action: 'claim_accept' }
   | { action: 'claim_reject' }
+  | { action: 'undo' }
   | { action: 'pick_character'; characterId: string }
   | { action: 'emote'; emoteId: string }
   | { action: 'voice'; lineId: string }
@@ -40,7 +41,7 @@ const ACTIONS = new Set([
   'create_competition', 'create_table', 'follow_competition', 'snapshot',
   'quick_match', 'leave_queue', 'list_competitions', 'join_open_table',
   'get_stats', 'get_leaderboard',
-  'claim', 'claim_accept', 'claim_reject',
+  'claim', 'claim_accept', 'claim_reject', 'undo',
 ]);
 
 /** Parse + shape-check an inbound message. Throws on anything invalid. */
@@ -123,7 +124,8 @@ export function parseClientMessage(data: unknown): ClientMessage {
     case 'get_stats':
     case 'get_leaderboard':
     case 'claim_accept':
-    case 'claim_reject': {
+    case 'claim_reject':
+    case 'undo': {
       return obj as ClientMessage;
     }
     default:
@@ -161,6 +163,8 @@ export const ERROR_CODES = [
   'claim-unavailable',
   'no-claim',
   'not-defender',
+  'nothing-to-undo',
+  'claim-pending',
 ] as const;
 
 export type ErrorCode = (typeof ERROR_CODES)[number];

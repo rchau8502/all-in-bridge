@@ -45,6 +45,8 @@ laptops. The game connects to the server automatically — no config needed.
 5. Bid, play, score. "Next board" deals again.
 6. **Claiming:** when the rest are yours, the declarer can tap ✋ Claim and name
    how many of the remaining tricks they'll win — both defenders must accept.
+6b. **Mis-tap?** Tap ↩️ Undo to take back your own last bid or card — as long
+   as nobody has played after you.
 7. **Dropped?** If your connection dies mid-game, the app auto-reconnects and
    puts you back in your seat (within 60s) — if you were the host, you get
    host back too.

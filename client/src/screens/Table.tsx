@@ -51,6 +51,8 @@ export function Table() {
   const [bidTick, setBidTick] = useState(0);
   const [claimOffer, setClaimOffer] = useState<{ by: Seat; tricks: number } | null>(null);
   const [claimDraft, setClaimDraft] = useState<number | null>(null);
+  /** My last bid/play is still the latest action → I can take it back. */
+  const [canUndo, setCanUndo] = useState(false);
 
   const auctionRef = useRef<Auction | null>(null);
   const trickRef = useRef<Array<{ seat: Seat; card: Card }>>([]);
@@ -163,6 +165,7 @@ export function Table() {
         case 'deal': {
           const cards = (p['yourHand'] as Card[]).slice().sort(cardSort);
           setHand(cards);
+          setCanUndo(false);
           break;
         }
         case 'observer_deal':
@@ -174,11 +177,27 @@ export function Table() {
           setLastBids(b => ({ ...b, [p['seat']]: bid }));
           setTurn(nextSeat(p['seat']));
           setBidTick(x => x + 1);
+          setCanUndo(p['seat'] === liveRef.current.mySeat);
           audio.sfx('bid');
+          break;
+        }
+        case 'bid_undone': {
+          const seat = p['seat'] as Seat;
+          auctionRef.current?.unapply();
+          // Recompute each seat's latest visible bid from the remaining entries.
+          const nb: Partial<Record<Seat, Bid>> = {};
+          for (const e of auctionRef.current?.entries ?? []) nb[e.seat] = e.bid;
+          setLastBids(nb);
+          setTurn(seat);
+          setBidTick(x => x + 1);
+          setCanUndo(false);
+          pushBanner('undo.bidTaken');
+          audio.sfx('click');
           break;
         }
         case 'auction_end':
           setContract(p['contract']);
+          setCanUndo(false);
           if (p['contract']) {
             setPhase('play');
             setTurn(nextSeat((p['contract'] as Contract).declarer));
@@ -196,7 +215,27 @@ export function Table() {
           }
           if (trickRef.current.length < 4) setTurn(nextSeat(seat));
           // On the 4th card, wait for trick_won — never act on stale turn.
+          setCanUndo(seat === liveRef.current.mySeat);
           audio.sfx('card');
+          break;
+        }
+        case 'play_undone': {
+          const { seat, card } = p as { seat: Seat; card: Card };
+          // The undone card is always the latest one on the table.
+          const t = trickRef.current;
+          const idx = t.map(e => e.seat).lastIndexOf(seat);
+          if (idx >= 0) {
+            trickRef.current = [...t.slice(0, idx), ...t.slice(idx + 1)];
+            setTrick(trickRef.current);
+          }
+          setPlayedCount(c => ({ ...c, [seat]: Math.max(0, c[seat] - 1) }));
+          if (liveRef.current.mySeat === seat) {
+            setHand(h => [...h, card].sort(cardSort));
+          }
+          setTurn(seat);
+          setCanUndo(false);
+          pushBanner('undo.cardTaken');
+          audio.sfx('click');
           break;
         }
         case 'trick_won': {
@@ -205,6 +244,7 @@ export function Table() {
           setTrick([]);
           setTricksWon(w => ({ ...w, [seatSide(winner)]: w[seatSide(winner)] + 1 }));
           setTurn(winner);
+          setCanUndo(false);
           audio.sfx('trick');
           break;
         }
@@ -212,6 +252,7 @@ export function Table() {
           setResult(p as unknown as Result);
           setPhase('board_done');
           setTurn(null);
+          setCanUndo(false);
           break;
         case 'announce': {
           const key = p['key'] as string;
@@ -358,14 +399,28 @@ export function Table() {
               </div>
             </div>
           ) : (
-            <div className="hint">⏳ {turn ? seatLabel(lang, turn) : ''} {t(lang, 'table.waitingBid')}</div>
+            <div className="hint-row">
+              <div className="hint">⏳ {turn ? seatLabel(lang, turn) : ''} {t(lang, 'table.waitingBid')}</div>
+              {canUndo && (
+                <button className="btn ghost small" onClick={() => { audio.sfx('click'); setCanUndo(false); client.undo(); }}>
+                  ↩️ {t(lang, 'table.undo')}
+                </button>
+              )}
+            </div>
           )
         )}
         {phase === 'play' && !isObserver && (
           myTurnPlay ? (
             <div className="bid-prompt">🃏 {t(lang, 'table.yourPlay')}</div>
           ) : (
-            <div className="hint">⏳ {turn ? seatLabel(lang, turn) : ''} {t(lang, 'table.waitingPlay')}</div>
+            <div className="hint-row">
+              <div className="hint">⏳ {turn ? seatLabel(lang, turn) : ''} {t(lang, 'table.waitingPlay')}</div>
+              {canUndo && (
+                <button className="btn ghost small" onClick={() => { audio.sfx('click'); setCanUndo(false); client.undo(); }}>
+                  ↩️ {t(lang, 'table.undo')}
+                </button>
+              )}
+            </div>
           )
         )}
         {phase === 'play' && !isObserver && contract && contract.declarer === mySeat && (

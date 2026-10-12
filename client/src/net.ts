@@ -109,5 +109,6 @@ export class GameClient {
   claim(tricks: number): void { this.sendMsg({ action: 'claim', tricks }); }
   claimAccept(): void { this.sendMsg({ action: 'claim_accept' }); }
   claimReject(): void { this.sendMsg({ action: 'claim_reject' }); }
+  undo(): void { this.sendMsg({ action: 'undo' }); }
   snapshot(): void { this.sendMsg({ action: 'snapshot' }); }
 }
