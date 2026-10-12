@@ -54,7 +54,6 @@ export function Table() {
   const [claimDraft, setClaimDraft] = useState<number | null>(null);
   /** My last bid/play is still the latest action → I can take it back. */
   const [canUndo, setCanUndo] = useState(false);
-  const [showReview, setShowReview] = useState(false);
 
   const auctionRef = useRef<Auction | null>(null);
   const trickRef = useRef<Array<{ seat: Seat; card: Card }>>([]);
@@ -560,6 +559,7 @@ function ResultsOverlay({ result, lang, mySeat, isHost, onNext, onLeave }: {
   isHost: boolean; onNext: () => void; onLeave: () => void;
 }) {
   const { contract, declarerTricks, score } = result;
+  const [showReview, setShowReview] = useState(false);
   const made = (score ?? 0) >= 0;
   const mySide = mySeat && mySeat !== 'observer' ? seatSide(mySeat) : null;
   const declSide = contract ? seatSide(contract.declarer) : null;
