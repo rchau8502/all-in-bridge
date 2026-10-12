@@ -52,6 +52,8 @@ laptops. The game connects to the server automatically — no config needed.
    host back too.
 8. Your results are tracked automatically — tap **📊 Stats** on the home screen
    for your boards, win rate, recent games, and the club leaderboard.
+9. **Review:** after each board, tap 📋 **Review** on the results card to see
+   the full auction, every trick, and all four hands.
 
 ## Duplicate competition (club night mode)
 
