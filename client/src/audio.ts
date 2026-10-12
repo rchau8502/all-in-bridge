@@ -5,7 +5,7 @@
 
 export type SfxName =
   | 'click' | 'bid' | 'card' | 'trick' | 'win' | 'lose'
-  | 'coin' | 'deal' | 'yourturn' | 'join' | 'slam';
+  | 'coin' | 'deal' | 'yourturn' | 'join' | 'slam' | 'blip';
 
 class AudioEngine {
   private ctx: AudioContext | null = null;
@@ -67,6 +67,7 @@ class AudioEngine {
     this.unlock();
     switch (name) {
       case 'click': this.tone(700, 0.06, 'square', 0.05); break;
+      case 'blip': this.tone(1050 + Math.random() * 260, 0.035, 'sine', 0.022); break;
       case 'join': this.tone(520, 0.08, 'triangle', 0.07); this.tone(780, 0.1, 'triangle', 0.07, 0.07); break;
       case 'bid': this.tone(660, 0.07, 'square', 0.06); this.tone(880, 0.09, 'square', 0.06, 0.07); break;
       case 'card': this.noise(0.09, 0.16, 0, 2500); this.tone(180, 0.08, 'sine', 0.1); break;

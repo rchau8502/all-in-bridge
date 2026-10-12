@@ -43,6 +43,115 @@ function simPos(seat: Seat): 'top' | 'left' | 'right' | 'bottom' {
   return seat === 'N' ? 'top' : seat === 'W' ? 'left' : seat === 'E' ? 'right' : 'bottom';
 }
 
+/** Typewriter dialogue, like an RPG: text reveals code-point by code-point
+ *  (emoji-safe), with a soft blip every few chars. CJK chars type slower. */
+function useTypewriter(text: string) {
+  const chars = useMemo(() => Array.from(text), [text]);
+  const [shown, setShown] = useState(0);
+  const done = shown >= chars.length;
+  useEffect(() => {
+    if (shown >= chars.length) return;
+    const cjk = /[\u2e80-\u9fff\uf900-\ufaff]/.test(chars[shown] ?? '');
+    const timer = window.setTimeout(() => {
+      if (shown % 4 === 0) audio.sfx('blip');
+      setShown(s => s + 1);
+    }, cjk ? 55 : 22);
+    return () => window.clearTimeout(timer);
+  }, [shown, chars]);
+  return { shown: chars.slice(0, shown).join(''), done, skip: () => setShown(chars.length) };
+}
+
+/** Coach dialogue card: typewriter text, tap the bubble to skip while typing
+ *  or advance when done; the avatar celebrates when the line finishes. */
+function CoachCard(props: {
+  lang: Lang; characterId: string; text: string; nextLabel: string;
+  onAdvance: () => void;
+}) {
+  const { lang, characterId, text, nextLabel, onAdvance } = props;
+  const { shown, done, skip } = useTypewriter(text);
+  const [mood, setMood] = useState<'happy' | null>(null);
+  const moodTimer = useRef<number | undefined>(undefined);
+
+  useEffect(() => {
+    if (done) {
+      setMood('happy');
+      window.clearTimeout(moodTimer.current);
+      moodTimer.current = window.setTimeout(() => setMood(null), 800);
+    }
+  }, [done ]);
+  useEffect(() => () => window.clearTimeout(moodTimer.current), []);
+
+  const tap = () => {
+    if (!done) skip();
+    else { audio.sfx('click'); onAdvance(); }
+  };
+
+  return (
+    <div className="tut-coach-card">
+      <Avatar id={characterId} className={`coach-avatar${mood ? ` react-${mood}` : ''}`} />
+      <div className="coach-bubble" onClick={tap}>
+        <p className="tut-text">{shown}{!done && <span className="tw-caret" />}</p>
+        {!done && <span className="tw-skip">{t(lang, 'tut.tapToSkip')}</span>}
+        <button
+          className="btn primary"
+          onClick={e => { e.stopPropagation(); tap(); }}
+        >
+          {nextLabel}
+        </button>
+      </div>
+    </div>
+  );
+}
+
+/** Lesson result card: typewriter score line, fanfare/sting on arrival. */
+function ResultCard(props: {
+  text: string; made: boolean; nextLabel: string; onAdvance: () => void;
+}) {
+  const { text, made, nextLabel, onAdvance } = props;
+  const { shown, done, skip } = useTypewriter(text);
+  useEffect(() => { audio.sfx(made ? 'win' : 'lose'); }, []); // eslint-disable-line react-hooks/exhaustive-deps
+  const tap = () => {
+    if (!done) skip();
+    else { audio.sfx('click'); onAdvance(); }
+  };
+  return (
+    <div className="tut-card" onClick={tap} style={{ cursor: 'pointer' }}>
+      <p className="tut-text">{shown}{!done && <span className="tw-caret" />}</p>
+      <button
+        className="btn primary"
+        onClick={e => { e.stopPropagation(); tap(); }}
+      >
+        {nextLabel}
+      </button>
+    </div>
+  );
+}
+
+/** Lesson-complete card: coach celebrates, fanfare, typewriter sign-off. */
+function DoneCard(props: {
+  lang: Lang; characterId: string; nextTitle: string | null;
+  onNextLesson: () => void; onHome: () => void;
+}) {
+  const { lang, characterId, nextTitle, onNextLesson, onHome } = props;
+  const { shown, done, skip } = useTypewriter(`🏁 ${t(lang, 'tut.done')}`);
+  useEffect(() => { audio.sfx('win'); }, []); // eslint-disable-line react-hooks/exhaustive-deps
+  return (
+    <div className="tut-card" onClick={() => { if (!done) skip(); }} style={{ cursor: 'pointer' }}>
+      <Avatar id={characterId} className="coach-avatar react-happy" />
+      <p className="tut-text">{shown}{!done && <span className="tw-caret" />}</p>
+      <button
+        className="btn primary"
+        onClick={() => {
+          if (nextTitle) { audio.sfx('click'); onNextLesson(); }
+          else onHome();
+        }}
+      >
+        {nextTitle ? `${t(lang, 'tut.next')}: ${nextTitle}` : `🃏 ${t(lang, 'app.title')}`}
+      </button>
+    </div>
+  );
+}
+
 interface SimSeatInfo {
   seat: Seat;
   count: number;
@@ -150,6 +259,8 @@ export function Tutorial() {
   const [lessonIdx, setLessonIdx] = useState(0);
   const [tick, setTick] = useState(0);
   const [feedback, setFeedback] = useState('');
+  const [fbMood, setFbMood] = useState<'bad' | null>(null);
+  const [fbNonce, setFbNonce] = useState(0);
   const runnerRef = useRef<TutorialRunner | null>(null);
 
   const lessons = useMemo(() => getLessons(lang), [lang]);
@@ -168,14 +279,14 @@ export function Tutorial() {
     setLessonIdx(i);
     runnerRef.current = new TutorialRunner(lessons[i]!);
     setFeedback('');
-    audio.sfx('click');
+    setFbMood(null);
     refresh();
   };
 
   const doAdvance = () => {
     setFeedback('');
+    setFbMood(null);
     runner.advance();
-    audio.sfx('click');
     refresh();
   };
 
@@ -184,9 +295,12 @@ export function Tutorial() {
     if (r.ok) {
       audio.sfx('bid');
       setFeedback('');
+      setFbMood(null);
     } else {
       audio.sfx('lose');
       setFeedback(`${t(lang, 'tut.tryAgain')} ${r.hint ?? ''}`);
+      setFbMood('bad');
+      setFbNonce(n => n + 1);
     }
     refresh();
   };
@@ -196,9 +310,12 @@ export function Tutorial() {
     if (r.ok) {
       audio.sfx('card');
       setFeedback('');
+      setFbMood(null);
     } else {
       audio.sfx('lose');
       setFeedback(`${t(lang, 'tut.tryAgain')} ${r.hint ?? ''}`);
+      setFbMood('bad');
+      setFbNonce(n => n + 1);
     }
     refresh();
   };
@@ -232,7 +349,7 @@ export function Tutorial() {
           <button
             key={l.id}
             className={`chip ${i === lessonIdx ? 'active' : ''}`}
-            onClick={() => startLesson(i)}
+            onClick={() => { audio.sfx('click'); startLesson(i); }}
           >
             {i + 1}. {l.title}
           </button>
@@ -241,13 +358,14 @@ export function Tutorial() {
 
       <div className="tut-body">
         {step?.kind === 'info' && (
-          <div className="tut-coach-card">
-            <Avatar id={characterId} className="coach-avatar" />
-            <div className="coach-bubble">
-              <p className="tut-text">{step.text}</p>
-              <button className="btn primary" onClick={doAdvance}>{t(lang, 'tut.next')}</button>
-            </div>
-          </div>
+          <CoachCard
+            key={stepKey}
+            lang={lang}
+            characterId={characterId}
+            text={step.text}
+            nextLabel={t(lang, 'tut.next')}
+            onAdvance={doAdvance}
+          />
         )}
 
         {step?.kind === 'auction' && auctionView && (
@@ -324,29 +442,32 @@ export function Tutorial() {
         )}
 
         {step?.kind === 'result' && result && (
-          <div className="tut-card">
-            <p className="tut-text">
-              {result.made ? '🎉' : '💪'} {result.total} {t(lang, 'table.resultScore').toLowerCase()}!
-              ({result.tricksTaken}/13 {t(lang, 'table.resultTricks').toLowerCase()})
-            </p>
-            <button className="btn primary" onClick={doAdvance}>{t(lang, 'tut.next')}</button>
-          </div>
+          <ResultCard
+            key={stepKey}
+            text={`${result.made ? '🎉' : '💪'} ${result.total} ${t(lang, 'table.resultScore').toLowerCase()}! (${result.tricksTaken}/13 ${t(lang, 'table.resultTricks').toLowerCase()})`}
+            made={result.made}
+            nextLabel={t(lang, 'tut.next')}
+            onAdvance={doAdvance}
+          />
         )}
 
         {done && (
-          <div className="tut-card">
-            <p className="tut-text">🏁 {t(lang, 'tut.done')}</p>
-            {lessonIdx + 1 < lessons.length ? (
-              <button className="btn primary" onClick={() => startLesson(lessonIdx + 1)}>
-                {t(lang, 'tut.next')}: {lessons[lessonIdx + 1]!.title}
-              </button>
-            ) : (
-              <button className="btn primary" onClick={() => go('home')}>🃏 {t(lang, 'app.title')}</button>
-            )}
-          </div>
+          <DoneCard
+            key={`done-${lang}-${lessonIdx}`}
+            lang={lang}
+            characterId={characterId}
+            nextTitle={lessonIdx + 1 < lessons.length ? lessons[lessonIdx + 1]!.title : null}
+            onNextLesson={() => startLesson(lessonIdx + 1)}
+            onHome={() => go('home')}
+          />
         )}
 
-        {feedback && <div className="tut-feedback">{feedback}</div>}
+        {feedback && (
+          <div key={fbNonce} className={`tut-feedback${fbMood ? ` ${fbMood}` : ''}`}>
+            {fbMood === 'bad' && <Avatar id={characterId} className="coach-avatar mini" />}
+            <span>{feedback}</span>
+          </div>
+        )}
       </div>
     </div>
   );

@@ -618,7 +618,7 @@ select.input { appearance: auto; }
 }
 .tut-progress { margin-left: auto; color: var(--text); font-weight: 700; }
 .tut-lessons { display: flex; gap: 8px; flex-wrap: wrap; }
-.tut-body { display: flex; flex-direction: column; align-items: center; justify-content: flex-start; padding-top: 28px; flex: 1; border-top: 6px solid red; border-bottom: 6px solid red; }
+.tut-body { display: flex; flex-direction: column; align-items: center; justify-content: flex-start; padding-top: 28px; flex: 1; }
 .tut-card {
   width: min(680px, 96%);
   background: var(--surface);
@@ -630,7 +630,10 @@ select.input { appearance: auto; }
 .tut-text { font-size: 17px; line-height: 1.6; margin: 0; }
 .quiz-opts { display: flex; flex-direction: column; gap: 8px; width: 100%; }
 .tut-trick { display: flex; gap: 8px; flex-wrap: wrap; justify-content: center; }
-.tut-feedback { font-weight: 700; color: var(--accent); text-align: center; min-height: 24px; }
+.tut-feedback {
+  font-weight: 700; color: var(--accent); text-align: center; min-height: 24px;
+  display: flex; align-items: center; gap: 10px; justify-content: center;
+}
 
 /* ---------- simulated table (tutorial): a compact game table ---------- */
 .sim-felt {
@@ -710,6 +713,54 @@ select.input { appearance: auto; }
   box-shadow: 0 10px 26px rgba(0, 0, 0, 0.35);
 }
 .coach-bubble .tut-text { color: #4a2600; }
+.coach-bubble { cursor: pointer; }
+
+/* typewriter dialogue: blinking caret + tap-to-skip hint */
+.tw-caret {
+  display: inline-block; width: 3px; height: 1.05em; margin-left: 3px;
+  vertical-align: -2px; background: #b57e12; border-radius: 2px;
+  animation: tw-blink 0.75s steps(1) infinite;
+}
+@keyframes tw-blink { 50% { opacity: 0; } }
+.tw-skip {
+  font-size: 12px; font-weight: 700; color: #a08050; align-self: flex-end;
+  animation: tw-blink 1.4s ease infinite;
+}
+
+/* coach avatar reactions */
+.coach-avatar.react-nod { animation: coach-nod 0.45s ease; }
+.coach-avatar.react-happy { animation: coach-happy 0.75s ease; }
+.coach-avatar.react-shake { animation: coach-shake 0.45s ease; }
+.coach-avatar.mini { width: 46px; height: 46px; border-width: 2px; }
+@keyframes coach-nod {
+  0%, 100% { transform: translateY(0); }
+  40% { transform: translateY(8px) scale(1.04); }
+}
+@keyframes coach-happy {
+  0%, 100% { transform: scale(1) rotate(0deg); }
+  25% { transform: scale(1.16) rotate(-8deg); }
+  55% { transform: scale(1.1) rotate(8deg); }
+  80% { transform: scale(1.13) rotate(0deg); }
+}
+@keyframes coach-shake {
+  0%, 100% { transform: translateX(0); }
+  20%, 60% { transform: translateX(-9px) rotate(-5deg); }
+  40%, 80% { transform: translateX(9px) rotate(5deg); }
+}
+
+/* feedback reactions: the whole line shakes on a wrong answer */
+.tut-feedback.bad { animation: fb-shake 0.45s ease; color: #ffb3ab; }
+.tut-feedback.good { animation: fb-pop 0.35s ease; }
+@keyframes fb-shake {
+  0%, 100% { transform: translateX(0); }
+  20%, 60% { transform: translateX(-10px); }
+  40%, 80% { transform: translateX(10px); }
+}
+@keyframes fb-pop {
+  0% { transform: scale(0.85); }
+  60% { transform: scale(1.07); }
+  100% { transform: scale(1); }
+}
 
 /* ---------- compete ---------- */
 .compete { display: flex; flex-direction: column; gap: 10px; padding-top: 8px; }
