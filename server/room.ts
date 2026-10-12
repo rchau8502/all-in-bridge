@@ -117,6 +117,8 @@ export class Room {
   private dealer: Seat | null = null;
   private vulnerability: Vulnerability | null = null;
   private currentHands: Hands | null = null;
+  /** Declarer's pending claim: remaining tricks asserted, awaiting defenders' votes. */
+  private pendingClaim: { by: Seat; tricks: number; accepts: Set<Seat> } | null = null;
 
   constructor(
     code: string,
@@ -156,10 +158,14 @@ export class Room {
    * seat and gets a full state snapshot.
    */
   join(msg: Extract<ClientMessage, { action: 'join' }>, clientId: string, now: number): void {
-    // Rejoin?
+    // Rejoin? A disconnected seat is reclaimed by matching the stable player
+    // id, then re-keyed to the new connection.
     if (msg.clientId) {
-      const existing = this.clients.get(msg.clientId);
+      const existing = [...this.clients.values()].find(c => c.playerId === msg.clientId && !c.connected);
       if (existing) {
+        this.clients.delete(existing.clientId);
+        if (this.hostClientId === existing.clientId) this.hostClientId = clientId;
+        existing.clientId = clientId;
         existing.connected = true;
         existing.disconnectedAt = null;
         existing.name = msg.name;
@@ -167,7 +173,8 @@ export class Room {
           existing.characterId = msg.characterId;
           if (existing.seat !== 'observer') this.characters.pick(existing.seat, msg.characterId);
         }
-        this.send(existing.clientId, makeEvent('room_snapshot', this.snapshotFor(existing)));
+        this.clients.set(clientId, existing);
+        this.send(clientId, makeEvent('room_snapshot', this.snapshotFor(existing)));
         this.broadcastPlayersUpdate();
         return;
       }
@@ -220,6 +227,15 @@ export class Room {
     if (c.seat !== 'observer') {
       this.broadcast(makeEvent('player_left', { seat: c.seat }));
     }
+    // A pending claim needs all four at the table: cancel the vote.
+    if (this.pendingClaim && c.seat !== 'observer') {
+      const claim = this.pendingClaim;
+      const claimSide = seatSide(claim.by);
+      if (c.seat === claim.by || seatSide(c.seat as Seat) !== claimSide) {
+        this.pendingClaim = null;
+        this.broadcast(makeEvent('claim_result', { accepted: false, tricks: claim.tricks }));
+      }
+    }
     if (this.hostClientId === clientId) {
       // Pass host to the longest-seated connected player.
       const next = this.activePlayers().find(p => p.connected);
@@ -262,6 +278,15 @@ export class Room {
         return;
       case 'play':
         this.onPlay(c, msg.card);
+        return;
+      case 'claim':
+        this.onClaim(c, msg.tricks);
+        return;
+      case 'claim_accept':
+        this.onClaimVote(c, true);
+        return;
+      case 'claim_reject':
+        this.onClaimVote(c, false);
         return;
       case 'pick_character':
         this.onPickCharacter(c, msg.characterId);
@@ -308,6 +333,7 @@ export class Room {
     this.auction = new Auction(dealer);
     this.play = null;
     this.contract = null;
+    this.pendingClaim = null;
     this.phase = 'auction';
 
     this.broadcast(makeEvent('game_start', { boardNumber: n, dealer, vulnerability }));
@@ -392,6 +418,54 @@ export class Room {
     c.characterId = characterId;
     if (c.seat !== 'observer') this.characters.pick(c.seat, characterId);
     this.broadcastPlayersUpdate();
+  }
+
+  /**
+   * Declarer claims a number of the remaining tricks. Both defenders must
+   * accept; one rejection (or a dropout) cancels the claim and play continues.
+   */
+  private onClaim(c: ClientInfo, tricks: unknown): void {
+    if (this.phase !== 'play' || !this.play || !this.contract) {
+      return this.send(c.clientId, this.error('wrong-phase'));
+    }
+    if (c.seat !== this.contract.declarer) {
+      return this.send(c.clientId, this.error('not-declarer'));
+    }
+    const remaining = 13 - this.play.completedTricks.length;
+    if (typeof tricks !== 'number' || !Number.isInteger(tricks) || tricks < 0 || tricks > remaining) {
+      return this.send(c.clientId, this.error('bad-claim'));
+    }
+    const defenders = (['N', 'E', 'S', 'W'] as Seat[]).filter(s => seatSide(s) !== seatSide(c.seat as Seat));
+    const allHere = defenders.every(s => this.activePlayers().some(p => p.seat === s && p.connected));
+    if (!allHere) return this.send(c.clientId, this.error('claim-unavailable'));
+    // A new claim replaces any pending one.
+    this.pendingClaim = { by: c.seat as Seat, tricks, accepts: new Set() };
+    this.broadcast(makeEvent('claim_offered', { by: c.seat as Seat, tricks }));
+  }
+
+  private onClaimVote(c: ClientInfo, accept: boolean): void {
+    const claim = this.pendingClaim;
+    if (!claim || this.phase !== 'play') {
+      return this.send(c.clientId, this.error('no-claim'));
+    }
+    const claimSide = seatSide(claim.by);
+    if (c.seat === 'observer' || seatSide(c.seat as Seat) === claimSide) {
+      return this.send(c.clientId, this.error('not-defender'));
+    }
+    if (!accept) {
+      this.pendingClaim = null;
+      this.broadcast(makeEvent('claim_result', { accepted: false, tricks: claim.tricks }));
+      return;
+    }
+    claim.accepts.add(c.seat as Seat);
+    const defenders = (['N', 'E', 'S', 'W'] as Seat[]).filter(s => seatSide(s) !== claimSide);
+    if (defenders.every(s => claim.accepts.has(s))) {
+      this.pendingClaim = null;
+      const tricks = this.play!.declarerTricks() + claim.tricks;
+      const score = scoreContract(this.contract!, tricks, this.isDeclarerVulnerable()).total;
+      this.broadcast(makeEvent('claim_result', { accepted: true, tricks: claim.tricks }));
+      this.finishBoard(this.contract, tricks, score);
+    }
   }
 
   private finishBoard(contract: Contract | null, declarerTricks: number, score: number | null): void {

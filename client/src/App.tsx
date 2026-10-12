@@ -39,8 +39,12 @@ export function App() {
   const [tick, setTick] = useState(0);
   const [roomCode, setRoomCode] = useState('');
   const [mySeat, setMySeat] = useState<Seat | 'observer' | null>(null);
+  const [reconnecting, setReconnecting] = useState(false);
   const clientRef = useRef<GameClient | null>(null);
   if (!clientRef.current) clientRef.current = new GameClient();
+  const stateRef = useRef({ roomCode, screen, name, characterId, lang });
+  stateRef.current = { roomCode, screen, name, characterId, lang };
+  const reconnectingRef = useRef(false);
 
   const setLang = (l: Lang) => {
     setLangState(l);
@@ -63,6 +67,44 @@ export function App() {
     };
     window.addEventListener('pointerdown', kick);
     return () => window.removeEventListener('pointerdown', kick);
+  }, []);
+
+  // Auto-reconnect: if the socket drops while inside a room, retry and rejoin.
+  // The server matches the stable player id, restores the seat, and replies
+  // with room_snapshot, which the active screen applies.
+  useEffect(() => {
+    const client = clientRef.current!;
+    client.onClose = (manual: boolean) => {
+      if (manual) return;
+      const s = stateRef.current;
+      if (!s.roomCode || s.screen === 'home' || s.screen === 'tutorial') return;
+      if (reconnectingRef.current) return;
+      reconnectingRef.current = true;
+      setReconnecting(true);
+      void (async () => {
+        let ok = false;
+        for (let i = 0; i < 8 && !ok; i++) {
+          await new Promise(r => setTimeout(r, 1500));
+          try {
+            await client.connect();
+            ok = true;
+          } catch { /* retry */ }
+        }
+        if (ok) {
+          const cur = stateRef.current;
+          client.join(cur.roomCode, cur.name.trim() || 'Player', cur.characterId, cur.lang);
+        } else {
+          // Give up: back to home so the user can rejoin by hand.
+          stateRef.current = { ...stateRef.current, roomCode: '', screen: 'home' };
+          setRoomCode('');
+          setMySeat(null);
+          setScreen('home');
+        }
+        reconnectingRef.current = false;
+        setReconnecting(false);
+      })();
+    };
+    return () => { client.onClose = () => {}; };
   }, []);
 
   const go = (s: ScreenName) => {
@@ -108,6 +150,11 @@ export function App() {
         {screen === 'table' && <Table />}
         {screen === 'tutorial' && <Tutorial />}
         {screen === 'compete' && <Compete />}
+        {reconnecting && (
+          <div className="reconnect-overlay">
+            <div className="reconnect-card">🔄 {t(lang, 'conn.reconnecting')}</div>
+          </div>
+        )}
         <footer className="footer">{t(lang, 'app.footer')}</footer>
       </div>
     </Ctx.Provider>

@@ -35,10 +35,12 @@ function loadPlayerId(): string {
 export class GameClient {
   private ws: WebSocket | null = null;
   onEvent: (ev: GameEvent) => void = () => {};
-  onClose: () => void = () => {};
+  /** Called on close; `manual` is true when disconnect() was called deliberately. */
+  onClose: (manual: boolean) => void = () => {};
   clientId = '';
   /** Stable identity for stats/history; sent as `clientId` on join. */
   readonly playerId = loadPlayerId();
+  private manualClose = false;
 
   get connected(): boolean {
     return !!this.ws && this.ws.readyState === WebSocket.OPEN;
@@ -64,12 +66,15 @@ export class GameClient {
       };
       ws.onclose = () => {
         this.ws = null;
-        this.onClose();
+        const manual = this.manualClose;
+        this.manualClose = false;
+        this.onClose(manual);
       };
     });
   }
 
   disconnect(): void {
+    this.manualClose = true;
     this.ws?.close();
     this.ws = null;
   }
@@ -101,5 +106,8 @@ export class GameClient {
   leaveQueue(): void { this.sendMsg({ action: 'leave_queue' }); }
   getStats(): void { this.sendMsg({ action: 'get_stats' }); }
   getLeaderboard(): void { this.sendMsg({ action: 'get_leaderboard' }); }
+  claim(tricks: number): void { this.sendMsg({ action: 'claim', tricks }); }
+  claimAccept(): void { this.sendMsg({ action: 'claim_accept' }); }
+  claimReject(): void { this.sendMsg({ action: 'claim_reject' }); }
   snapshot(): void { this.sendMsg({ action: 'snapshot' }); }
 }

@@ -18,6 +18,9 @@ export type ClientMessage =
   | { action: 'next_board' }
   | { action: 'bid'; bid: unknown }
   | { action: 'play'; card: unknown }
+  | { action: 'claim'; tricks: unknown }
+  | { action: 'claim_accept' }
+  | { action: 'claim_reject' }
   | { action: 'pick_character'; characterId: string }
   | { action: 'emote'; emoteId: string }
   | { action: 'voice'; lineId: string }
@@ -37,6 +40,7 @@ const ACTIONS = new Set([
   'create_competition', 'create_table', 'follow_competition', 'snapshot',
   'quick_match', 'leave_queue', 'list_competitions', 'join_open_table',
   'get_stats', 'get_leaderboard',
+  'claim', 'claim_accept', 'claim_reject',
 ]);
 
 /** Parse + shape-check an inbound message. Throws on anything invalid. */
@@ -104,6 +108,10 @@ export function parseClientMessage(data: unknown): ClientMessage {
       if (obj['clientId'] !== undefined && !str(obj['clientId'])) throw new Error('bad-queue');
       return obj as ClientMessage;
     }
+    case 'claim': {
+      if (typeof obj['tricks'] !== 'number') throw new Error('bad-claim');
+      return obj as ClientMessage;
+    }
     case 'create_table':
     case 'follow_competition':
     case 'join_open_table': {
@@ -113,7 +121,9 @@ export function parseClientMessage(data: unknown): ClientMessage {
     case 'leave_queue':
     case 'list_competitions':
     case 'get_stats':
-    case 'get_leaderboard': {
+    case 'get_leaderboard':
+    case 'claim_accept':
+    case 'claim_reject': {
       return obj as ClientMessage;
     }
     default:
@@ -146,6 +156,11 @@ export const ERROR_CODES = [
   'bad-queue',
   'competition-closed',
   'no-more-boards',
+  'not-declarer',
+  'bad-claim',
+  'claim-unavailable',
+  'no-claim',
+  'not-defender',
 ] as const;
 
 export type ErrorCode = (typeof ERROR_CODES)[number];

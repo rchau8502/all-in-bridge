@@ -28,7 +28,7 @@ let bannerId = 0;
 let bubbleId = 0;
 
 export function Table() {
-  const { lang, client, go, mySeat } = useApp();
+  const { lang, client, go, mySeat, setMySeat } = useApp();
   const [seats, setSeats] = useState<Record<Seat, SeatInfo | null>>({ N: null, E: null, S: null, W: null });
   const [hostSeat, setHostSeat] = useState<Seat | null>(null);
   const [observers, setObservers] = useState(0);
@@ -49,6 +49,8 @@ export function Table() {
   const [bubbles, setBubbles] = useState<Array<{ id: number; seat: Seat; text: string; emoji?: string }>>([]);
   const [err, setErr] = useState('');
   const [bidTick, setBidTick] = useState(0);
+  const [claimOffer, setClaimOffer] = useState<{ by: Seat; tricks: number } | null>(null);
+  const [claimDraft, setClaimDraft] = useState<number | null>(null);
 
   const auctionRef = useRef<Auction | null>(null);
   const trickRef = useRef<Array<{ seat: Seat; card: Card }>>([]);
@@ -119,6 +121,7 @@ export function Table() {
           break;
         }
         case 'room_joined':
+          setMySeat((p['seat'] as Seat | 'observer') ?? null);
           break;
         case 'players_update':
           setSeats(p['seats']);
@@ -142,7 +145,21 @@ export function Table() {
           setBanners([]);
           setBidTick(x => x + 1);
           audio.sfx('deal');
+          setClaimOffer(null);
+          setClaimDraft(null);
           break;
+        case 'claim_offered': {
+          const o = p as unknown as { by: Seat; tricks: number };
+          setClaimOffer({ by: o.by, tricks: o.tricks });
+          break;
+        }
+        case 'claim_result': {
+          const r = p as unknown as { accepted: boolean; tricks: number };
+          setClaimOffer(null);
+          setClaimDraft(null);
+          pushBanner(r.accepted ? 'claim.accepted' : 'claim.rejected');
+          break;
+        }
         case 'deal': {
           const cards = (p['yourHand'] as Card[]).slice().sort(cardSort);
           setHand(cards);
@@ -350,6 +367,45 @@ export function Table() {
           ) : (
             <div className="hint">⏳ {turn ? seatLabel(lang, turn) : ''} {t(lang, 'table.waitingPlay')}</div>
           )
+        )}
+        {phase === 'play' && !isObserver && contract && contract.declarer === mySeat && (
+          <div className="claim-row">
+            {claimDraft === null ? (
+              <button className="btn small" onClick={() => { audio.sfx('click'); setClaimDraft(13 - tricksWon.NS - tricksWon.EW); }}>
+                ✋ {t(lang, 'claim.claimBtn')}
+              </button>
+            ) : (
+              <div className="claim-dialog">
+                <div className="claim-title">{t(lang, 'claim.title')} · {t(lang, 'claim.tricksLeft')}: {13 - tricksWon.NS - tricksWon.EW}</div>
+                <div className="claim-stepper">
+                  <button className="btn small" onClick={() => setClaimDraft(d => Math.max(0, (d ?? 0) - 1))}>−</button>
+                  <span className="claim-num">{claimDraft}</span>
+                  <button className="btn small" onClick={() => setClaimDraft(d => Math.min(13 - tricksWon.NS - tricksWon.EW, (d ?? 0) + 1))}>+</button>
+                </div>
+                <div className="claim-actions">
+                  <button className="btn primary small" onClick={() => { client.claim(claimDraft); setClaimDraft(null); }}>
+                    {t(lang, 'claim.confirm')}
+                  </button>
+                  <button className="btn ghost small" onClick={() => setClaimDraft(null)}>
+                    {t(lang, 'claim.cancel')}
+                  </button>
+                </div>
+              </div>
+            )}
+          </div>
+        )}
+        {claimOffer && !isObserver && mySeat && seatSide(mySeat) !== seatSide(claimOffer.by) && (
+          <div className="claim-dialog">
+            <div className="claim-title">
+              {t(lang, 'claim.offer')
+                .replace('{name}', seats[claimOffer.by]?.name ?? seatLabel(lang, claimOffer.by))
+                .replace('{n}', String(claimOffer.tricks))}
+            </div>
+            <div className="claim-actions">
+              <button className="btn primary small" onClick={() => client.claimAccept()}>{t(lang, 'claim.accept')}</button>
+              <button className="btn ghost small" onClick={() => client.claimReject()}>{t(lang, 'claim.reject')}</button>
+            </div>
+          </div>
         )}
         {!isObserver && phase !== 'lobby' && (
           <div className="voice-row">

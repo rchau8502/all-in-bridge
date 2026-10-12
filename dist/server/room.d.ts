@@ -51,6 +51,8 @@ export declare class Room {
     private dealer;
     private vulnerability;
     private currentHands;
+    /** Declarer's pending claim: remaining tricks asserted, awaiting defenders' votes. */
+    private pendingClaim;
     constructor(code: string, send: SendFn, boardSource?: BoardSource, hooks?: RoomHooks);
     private activePlayers;
     private observers;
@@ -81,6 +83,12 @@ export declare class Room {
     private onBid;
     private onPlay;
     private onPickCharacter;
+    /**
+     * Declarer claims a number of the remaining tricks. Both defenders must
+     * accept; one rejection (or a dropout) cancels the claim and play continues.
+     */
+    private onClaim;
+    private onClaimVote;
     private finishBoard;
     private isDeclarerVulnerable;
     private announce;

@@ -10,7 +10,7 @@
 import type { Seat, Card, Hands } from './deck.js';
 import type { Bid, Contract, Vulnerability } from './bidding.js';
 import type { StandingEntry } from './duplicate.js';
-export type EventType = 'room_joined' | 'players_update' | 'room_snapshot' | 'game_start' | 'deal' | 'observer_deal' | 'bid_made' | 'auction_end' | 'play_made' | 'trick_won' | 'board_result' | 'announce' | 'voice_line' | 'emote' | 'observer_joined' | 'player_left' | 'competition_created' | 'competition_joined' | 'table_created' | 'standings_update' | 'queue_update' | 'competitions_list' | 'open_table_found' | 'player_stats' | 'leaderboard' | 'error';
+export type EventType = 'room_joined' | 'players_update' | 'room_snapshot' | 'game_start' | 'deal' | 'observer_deal' | 'bid_made' | 'auction_end' | 'play_made' | 'trick_won' | 'board_result' | 'announce' | 'voice_line' | 'emote' | 'observer_joined' | 'player_left' | 'competition_created' | 'competition_joined' | 'table_created' | 'standings_update' | 'queue_update' | 'competitions_list' | 'open_table_found' | 'player_stats' | 'leaderboard' | 'claim_offered' | 'claim_result' | 'error';
 export interface GameEvent<T extends EventType = EventType> {
     type: T;
     payload: EventPayloadMap[T];
@@ -152,6 +152,14 @@ export interface EventPayloadMap {
     };
     leaderboard: {
         entries: LeaderboardEntry[];
+    };
+    claim_offered: {
+        by: Seat;
+        tricks: number;
+    };
+    claim_result: {
+        accepted: boolean;
+        tricks: number;
     };
     error: {
         code: string;

@@ -240,6 +240,30 @@ body {
 .stat-score { font-weight: 900; color: #ff9d9d; }
 .stat-score.won { color: #9df0a8; }
 .stats-box .btn { margin-top: 6px; }
+.claim-row { display: flex; justify-content: center; margin: 6px 0; }
+.claim-dialog {
+  display: flex; flex-direction: column; align-items: center; gap: 8px;
+  padding: 12px 18px; border-radius: 14px; margin: 6px auto; max-width: 420px;
+  background: linear-gradient(180deg, rgba(21, 53, 109, 0.96), rgba(10, 31, 77, 0.96));
+  border: 2px solid var(--gold);
+  box-shadow: 0 8px 22px rgba(0, 0, 0, 0.55);
+}
+.claim-title { color: var(--cream); font-weight: 800; font-size: 0.95rem; text-align: center; }
+.claim-stepper { display: flex; align-items: center; gap: 12px; }
+.claim-num { font-size: 1.6rem; font-weight: 900; color: var(--gold); min-width: 2ch; text-align: center; }
+.claim-actions { display: flex; gap: 10px; }
+.reconnect-overlay {
+  position: fixed; inset: 0; z-index: 90;
+  display: flex; align-items: center; justify-content: center;
+  background: rgba(4, 12, 32, 0.72);
+}
+.reconnect-card {
+  padding: 18px 34px; border-radius: 16px;
+  background: linear-gradient(180deg, #15356d, #0a1f4d);
+  border: 2px solid var(--gold2); color: var(--gold);
+  font-size: 1.15rem; font-weight: 900;
+  animation: queue-pulse 1.2s ease-in-out infinite;
+}
 .demo-banner {
   margin: 0 auto 12px; max-width: 560px; padding: 8px 14px; border-radius: 12px;
   background: rgba(10, 25, 55, 0.92); border: 2px solid var(--gold2);

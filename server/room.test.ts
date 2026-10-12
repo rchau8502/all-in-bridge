@@ -297,3 +297,117 @@ describe('character picks', () => {
     expect(errorCodes(h, 'cN')).toContain('unknown-character');
   });
 });
+
+describe('claiming tricks', () => {
+  function joinWithPid(h: Harness, seat: Seat, pid: string): void {
+    h.room.join(
+      { action: 'join', name: seat, characterId: 'cowboy', lang: 'en', clientId: pid },
+      SEAT_IDS[seat],
+      h.now
+    );
+  }
+
+  /** Four players in, 1NT by S auctioned, play phase reached. */
+  function toPlayPhase(): Harness {
+    const h = setup();
+    (['N', 'E', 'S', 'W'] as Seat[]).forEach(s => joinWithPid(h, s, `pid-${s}`));
+    h.room.handle('cN', { action: 'start' } as ClientMessage, h.now);
+    bid(h, 'N', 'P'); bid(h, 'E', 'P'); bid(h, 'S', '1NT');
+    bid(h, 'W', 'P'); bid(h, 'N', 'P'); bid(h, 'E', 'P');
+    expect(h.room.phase).toBe('play');
+    return h;
+  }
+
+  it('declarer claims; both defenders accept → board ends with claimed tricks', () => {
+    const h = toPlayPhase();
+    h.room.handle('cS', { action: 'claim', tricks: 10 } as unknown as ClientMessage, h.now);
+    const offered = lastEvent(h, 'cN', 'claim_offered');
+    expect(offered).toBeDefined();
+    expect((offered!.payload as { by: string; tricks: number }).by).toBe('S');
+
+    h.room.handle('cE', { action: 'claim_accept' } as ClientMessage, h.now);
+    expect(h.room.phase).toBe('play'); // still waiting on W
+    h.room.handle('cW', { action: 'claim_accept' } as ClientMessage, h.now);
+    expect(h.room.phase).toBe('board_done');
+    const result = lastEvent(h, 'cN', 'board_result')!;
+    expect((result.payload as { declarerTricks: number }).declarerTricks).toBe(10);
+    const cres = lastEvent(h, 'cN', 'claim_result')!;
+    expect((cres.payload as { accepted: boolean }).accepted).toBe(true);
+  });
+
+  it('a defender rejection cancels the claim and play continues', () => {
+    const h = toPlayPhase();
+    h.room.handle('cS', { action: 'claim', tricks: 12 } as unknown as ClientMessage, h.now);
+    h.room.handle('cE', { action: 'claim_accept' } as ClientMessage, h.now);
+    h.room.handle('cW', { action: 'claim_reject' } as ClientMessage, h.now);
+    expect(h.room.phase).toBe('play');
+    const cres = lastEvent(h, 'cN', 'claim_result')!;
+    expect((cres.payload as { accepted: boolean }).accepted).toBe(false);
+    // A fresh claim can be made afterwards.
+    h.room.handle('cS', { action: 'claim', tricks: 8 } as unknown as ClientMessage, h.now);
+    expect(lastEvent(h, 'cN', 'claim_offered')).toBeDefined();
+  });
+
+  it('rejects claims from non-declarers, bad counts, and wrong phases', () => {
+    const h = toPlayPhase();
+    h.room.handle('cE', { action: 'claim', tricks: 5 } as unknown as ClientMessage, h.now);
+    expect(errorCodes(h, 'cE')).toContain('not-declarer');
+    h.room.handle('cS', { action: 'claim', tricks: 14 } as unknown as ClientMessage, h.now);
+    expect(errorCodes(h, 'cS')).toContain('bad-claim');
+    // Declarer's partner cannot vote.
+    h.room.handle('cS', { action: 'claim', tricks: 5 } as unknown as ClientMessage, h.now);
+    h.room.handle('cN', { action: 'claim_accept' } as ClientMessage, h.now);
+    expect(errorCodes(h, 'cN')).toContain('not-defender');
+
+    const h2 = setup();
+    (['N', 'E', 'S', 'W'] as Seat[]).forEach(s => joinWithPid(h2, s, `pid-${s}`));
+    h2.room.handle('cN', { action: 'start' } as ClientMessage, h2.now);
+    h2.room.handle('cS', { action: 'claim', tricks: 5 } as unknown as ClientMessage, h2.now);
+    expect(errorCodes(h2, 'cS')).toContain('wrong-phase');
+  });
+
+  it('a dropout cancels the pending claim', () => {
+    const h = toPlayPhase();
+    h.room.handle('cS', { action: 'claim', tricks: 9 } as unknown as ClientMessage, h.now);
+    h.room.handle('cE', { action: 'claim_accept' } as ClientMessage, h.now);
+    h.room.leave('cW', h.now); // defender drops before voting
+    const cres = lastEvent(h, 'cN', 'claim_result')!;
+    expect((cres.payload as { accepted: boolean }).accepted).toBe(false);
+    expect(h.room.phase).toBe('play');
+  });
+});
+
+describe('rejoin by stable player id', () => {
+  function joinWithPid(h: Harness, seat: Seat, pid: string, conn: string): void {
+    h.room.join(
+      { action: 'join', name: seat, characterId: 'cowboy', lang: 'en', clientId: pid },
+      conn,
+      h.now
+    );
+  }
+
+  it('a disconnected seat is reclaimed on a new connection', () => {
+    const h = setup();
+    (['N', 'E', 'S', 'W'] as Seat[]).forEach(s => joinWithPid(h, s, `pid-${s}`, SEAT_IDS[s]));
+    h.room.leave('cN', h.now);
+    joinWithPid(h, 'N', 'pid-N', 'new-conn');
+    const snap = lastEvent(h, 'new-conn', 'room_snapshot');
+    expect(snap).toBeDefined();
+    expect(h.room.connectedClients()).toContain('new-conn');
+    expect(h.room.connectedClients()).not.toContain('cN');
+    // Seat still held: a stranger gets observer.
+    h.room.join({ action: 'join', name: 'X', characterId: 'cowboy', lang: 'en' }, 'conn5', h.now);
+    const joined = lastEvent(h, 'conn5', 'room_joined')!;
+    expect((joined.payload as { seat: string }).seat).toBe('observer');
+  });
+
+  it('does not steal the seat of a still-connected player', () => {
+    const h = setup();
+    (['N', 'E', 'S', 'W'] as Seat[]).forEach(s => joinWithPid(h, s, `pid-${s}`, SEAT_IDS[s]));
+    // Same player id, new connection, but the old one never dropped.
+    joinWithPid(h, 'N', 'pid-N', 'second-tab');
+    const joined = lastEvent(h, 'second-tab', 'room_joined')!;
+    expect((joined.payload as { seat: string }).seat).toBe('observer');
+    expect(h.room.connectedClients()).toContain('cN');
+  });
+});

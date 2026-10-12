@@ -25,6 +25,13 @@ export type ClientMessage = {
     action: 'play';
     card: unknown;
 } | {
+    action: 'claim';
+    tricks: unknown;
+} | {
+    action: 'claim_accept';
+} | {
+    action: 'claim_reject';
+} | {
     action: 'pick_character';
     characterId: string;
 } | {
@@ -68,6 +75,6 @@ export type ClientMessage = {
 /** Parse + shape-check an inbound message. Throws on anything invalid. */
 export declare function parseClientMessage(data: unknown): ClientMessage;
 /** Error codes the server can send back in `error` events. */
-export declare const ERROR_CODES: readonly ['unknown-action', 'invalid-json', 'bad-join', 'bad-character', 'bad-emote', 'bad-voice', 'bad-bid', 'bad-play', 'not-in-room', 'not-your-turn', 'illegal-bid', 'illegal-play', 'not-your-card', 'wrong-phase', 'not-host', 'need-4-players', 'unknown-character', 'room-not-found', 'bad-competition', 'competition-not-found', 'bad-queue', 'competition-closed', 'no-more-boards'];
+export declare const ERROR_CODES: readonly ['unknown-action', 'invalid-json', 'bad-join', 'bad-character', 'bad-emote', 'bad-voice', 'bad-bid', 'bad-play', 'not-in-room', 'not-your-turn', 'illegal-bid', 'illegal-play', 'not-your-card', 'wrong-phase', 'not-host', 'need-4-players', 'unknown-character', 'room-not-found', 'bad-competition', 'competition-not-found', 'bad-queue', 'competition-closed', 'no-more-boards', 'not-declarer', 'bad-claim', 'claim-unavailable', 'no-claim', 'not-defender'];
 export type ErrorCode = (typeof ERROR_CODES)[number];
 //# sourceMappingURL=protocol.d.ts.map

@@ -9,7 +9,7 @@ import { SEATS } from '../../../shared/deck.js';
 interface SeatInfo { name: string; characterId: string; connected: boolean; }
 
 export function Lobby() {
-  const { lang, client, go, roomCode, mySeat } = useApp();
+  const { lang, client, go, roomCode, mySeat, setMySeat } = useApp();
   const [seats, setSeats] = useState<Record<Seat, SeatInfo | null>>({ N: null, E: null, S: null, W: null });
   const [observers, setObservers] = useState(0);
   const [hostSeat, setHostSeat] = useState<Seat | null>(null);
@@ -22,6 +22,15 @@ export function Lobby() {
         setSeats(p['seats'] as Record<Seat, SeatInfo | null>);
         setObservers(p['observers'] as number);
         setHostSeat(p['hostSeat'] as Seat | null);
+      } else if (ev.type === 'room_snapshot') {
+        const s = p as unknown as {
+          seats: Record<Seat, SeatInfo | null>; observers: number; hostSeat: Seat | null;
+        };
+        setSeats(s.seats);
+        setObservers(s.observers);
+        setHostSeat(s.hostSeat);
+      } else if (ev.type === 'room_joined') {
+        setMySeat((p['seat'] as Seat | 'observer') ?? null);
       } else if (ev.type === 'game_start') {
         go('table');
       }

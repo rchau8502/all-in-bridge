@@ -38,6 +38,8 @@ export type EventType =
   | 'open_table_found'    // { competitionCode, tableCode } — client follows up with join
   | 'player_stats'        // { found, stats? } — personal stats + recent boards
   | 'leaderboard'         // { entries: LeaderboardEntry[] }
+  | 'claim_offered'       // { by: Seat, tricks: number } — declarer claims remaining tricks
+  | 'claim_result'        // { accepted: boolean, tricks: number }
   | 'error';           // { code: string } — client maps code → localized message
 
 export interface GameEvent<T extends EventType = EventType> {
@@ -105,6 +107,8 @@ export interface EventPayloadMap {
   open_table_found: { competitionCode: string; tableCode: string };
   player_stats: { found: boolean; stats?: PlayerStatsData };
   leaderboard: { entries: LeaderboardEntry[] };
+  claim_offered: { by: Seat; tricks: number };
+  claim_result: { accepted: boolean; tricks: number };
   error: { code: string };
 }
 

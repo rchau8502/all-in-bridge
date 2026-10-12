@@ -9,6 +9,7 @@ const ACTIONS = new Set([
     'create_competition', 'create_table', 'follow_competition', 'snapshot',
     'quick_match', 'leave_queue', 'list_competitions', 'join_open_table',
     'get_stats', 'get_leaderboard',
+    'claim', 'claim_accept', 'claim_reject',
 ]);
 /** Parse + shape-check an inbound message. Throws on anything invalid. */
 export function parseClientMessage(data) {
@@ -87,6 +88,11 @@ export function parseClientMessage(data) {
                 throw new Error('bad-queue');
             return obj;
         }
+        case 'claim': {
+            if (typeof obj['tricks'] !== 'number')
+                throw new Error('bad-claim');
+            return obj;
+        }
         case 'create_table':
         case 'follow_competition':
         case 'join_open_table': {
@@ -97,7 +103,9 @@ export function parseClientMessage(data) {
         case 'leave_queue':
         case 'list_competitions':
         case 'get_stats':
-        case 'get_leaderboard': {
+        case 'get_leaderboard':
+        case 'claim_accept':
+        case 'claim_reject': {
             return obj;
         }
         default:
@@ -129,5 +137,10 @@ export const ERROR_CODES = [
     'bad-queue',
     'competition-closed',
     'no-more-boards',
+    'not-declarer',
+    'bad-claim',
+    'claim-unavailable',
+    'no-claim',
+    'not-defender',
 ];
 //# sourceMappingURL=protocol.js.map
