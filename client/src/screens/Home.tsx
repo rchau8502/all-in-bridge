@@ -53,7 +53,7 @@ export function Home() {
       await client.connect();
       return true;
     } catch {
-      setErr('Connection failed — is the game server running?');
+      setErr(t(lang, 'home.connFailed'));
       return false;
     } finally {
       setBusy(false);
