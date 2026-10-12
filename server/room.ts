@@ -108,6 +108,9 @@ export class Room {
   readonly boardRecords: BoardRecord[] = [];
   readonly tableResults: TableResult[] = [];
   hostClientId: string | null = null;
+  /** Stable player id of the most recent host, if they dropped within the
+   *  reconnect window — rejoining restores their host status. */
+  private previousHostPlayerId: string | null = null;
 
   private clients = new Map<string, ClientInfo>();
   private characters = new CharacterSelect();
@@ -165,6 +168,11 @@ export class Room {
       if (existing) {
         this.clients.delete(existing.clientId);
         if (this.hostClientId === existing.clientId) this.hostClientId = clientId;
+        // The dropped host gets their status back on rejoin.
+        if (this.previousHostPlayerId === existing.playerId) {
+          this.hostClientId = clientId;
+          this.previousHostPlayerId = null;
+        }
         existing.clientId = clientId;
         existing.connected = true;
         existing.disconnectedAt = null;
@@ -237,7 +245,9 @@ export class Room {
       }
     }
     if (this.hostClientId === clientId) {
-      // Pass host to the longest-seated connected player.
+      // Remember the dropped host so a quick rejoin restores their status;
+      // pass host to the longest-seated connected player meanwhile.
+      this.previousHostPlayerId = c.playerId;
       const next = this.activePlayers().find(p => p.connected);
       this.hostClientId = next ? next.clientId : null;
     }
@@ -249,6 +259,7 @@ export class Room {
     for (const [id, c] of this.clients) {
       if (!c.connected && c.disconnectedAt !== null && now - c.disconnectedAt > RECONNECT_WINDOW_MS) {
         this.clients.delete(id);
+        if (this.previousHostPlayerId === c.playerId) this.previousHostPlayerId = null;
         if (c.seat !== 'observer') this.characters.clear(c.seat);
       }
     }

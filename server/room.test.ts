@@ -446,4 +446,27 @@ describe('rejoin by stable player id', () => {
     expect((joined.payload as { seat: string }).seat).toBe('observer');
     expect(h.room.connectedClients()).toContain('cN');
   });
+
+  it('a dropped host reclaims host status on rejoin', () => {
+    const h = setup();
+    (['N', 'E', 'S', 'W'] as Seat[]).forEach(s => joinWithPid(h, s, `pid-${s}`, SEAT_IDS[s]));
+    expect(h.room.hostClientId).toBe('cN'); // N joined first → host
+    h.room.leave('cN', h.now); // host drops
+    const interim = h.room.hostClientId;
+    expect(interim).not.toBe('cN'); // transferred meanwhile
+    joinWithPid(h, 'N', 'pid-N', 'new-conn'); // host rejoins in-window
+    expect(h.room.hostClientId).toBe('new-conn'); // host restored
+  });
+
+  it('host transfer sticks when the dropped host never returns', () => {
+    const h = setup();
+    (['N', 'E', 'S', 'W'] as Seat[]).forEach(s => joinWithPid(h, s, `pid-${s}`, SEAT_IDS[s]));
+    h.room.leave('cN', h.now);
+    const interim = h.room.hostClientId;
+    expect(interim).not.toBe('cN');
+    h.room.sweep(h.now + RECONNECT_WINDOW_MS + 1000); // window expires
+    expect(h.room.hostClientId).toBe(interim);
+    joinWithPid(h, 'N', 'pid-N', 'late-conn'); // too late: seat yes, host no
+    expect(h.room.hostClientId).toBe(interim);
+  });
 });
