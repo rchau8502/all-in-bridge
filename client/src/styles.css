@@ -816,4 +816,22 @@ table.standings tr.leader td { color: var(--accent); font-weight: 800; }
   .sim-me .hand { flex-wrap: nowrap; }
   .sim-me { grid-column: 1 / -1; }
   .sim-me .hand .card { margin: 0 -39px; }
+  /* performance: backdrop blur is a GPU hog on phones — the translucent
+   * backgrounds read fine without it */
+  * { backdrop-filter: none !important; -webkit-backdrop-filter: none !important; }
+  /* fewer falling coins on small screens */
+  .coin:nth-child(n+13) { display: none; }
+  /* comfortable touch targets */
+  .chip { padding: 9px 16px; }
+  .btn { min-height: 44px; }
+  .bid-btn { padding: 11px 4px; }
+}
+
+/* accessibility: honor the OS reduced-motion setting */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
 }

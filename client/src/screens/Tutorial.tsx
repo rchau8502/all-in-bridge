@@ -44,13 +44,18 @@ function simPos(seat: Seat): 'top' | 'left' | 'right' | 'bottom' {
 }
 
 /** Typewriter dialogue, like an RPG: text reveals code-point by code-point
- *  (emoji-safe), with a soft blip every few chars. CJK chars type slower. */
+ *  (emoji-safe), with a soft blip every few chars. CJK chars type slower.
+ *  Honors prefers-reduced-motion: shows the full line instantly. */
+const REDUCED_MOTION = typeof window !== 'undefined' &&
+  typeof window.matchMedia === 'function' &&
+  window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
 function useTypewriter(text: string) {
   const chars = useMemo(() => Array.from(text), [text]);
-  const [shown, setShown] = useState(0);
+  const [shown, setShown] = useState(() => (REDUCED_MOTION ? chars.length : 0));
   const done = shown >= chars.length;
   useEffect(() => {
-    if (shown >= chars.length) return;
+    if (REDUCED_MOTION || shown >= chars.length) return;
     const cjk = /[\u2e80-\u9fff\uf900-\ufaff]/.test(chars[shown] ?? '');
     const timer = window.setTimeout(() => {
       if (shown % 4 === 0) audio.sfx('blip');
