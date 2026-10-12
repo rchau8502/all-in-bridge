@@ -46,7 +46,8 @@ laptops. The game connects to the server automatically — no config needed.
 6. **Claiming:** when the rest are yours, the declarer can tap ✋ Claim and name
    how many of the remaining tricks they'll win — both defenders must accept.
 7. **Dropped?** If your connection dies mid-game, the app auto-reconnects and
-   puts you back in your seat (within 60s).
+   puts you back in your seat (within 60s) — if you were the host, you get
+   host back too.
 8. Your results are tracked automatically — tap **📊 Stats** on the home screen
    for your boards, win rate, recent games, and the club leaderboard.
 
