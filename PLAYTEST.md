@@ -43,6 +43,8 @@ laptops. The game connects to the server automatically — no config needed.
 3. **Create** a room → you get a 6-character share code. Or **Join** with a code.
 4. The first 4 people in play N/E/S/W; anyone after that auto-joins as an observer.
 5. Bid, play, score. "Next board" deals again.
+6. Your results are tracked automatically — tap **📊 Stats** on the home screen
+   for your boards, win rate, recent games, and the club leaderboard.
 
 ## Duplicate competition (club night mode)
 
