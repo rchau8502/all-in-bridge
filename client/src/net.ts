@@ -65,8 +65,16 @@ export class GameClient {
   pickCharacter(characterId: string): void { this.sendMsg({ action: 'pick_character', characterId }); }
   voice(lineId: string): void { this.sendMsg({ action: 'voice', lineId }); }
   emote(emoteId: string): void { this.sendMsg({ action: 'emote', emoteId }); }
-  createCompetition(name: string, boards: number): void { this.sendMsg({ action: 'create_competition', name, boards }); }
+  createCompetition(name: string, boards: number, isPublic?: boolean, durationHours?: number): void {
+    this.sendMsg({ action: 'create_competition', name, boards, isPublic, durationHours });
+  }
   createTable(competitionCode: string): void { this.sendMsg({ action: 'create_table', competitionCode }); }
   followCompetition(competitionCode: string): void { this.sendMsg({ action: 'follow_competition', competitionCode }); }
+  listCompetitions(): void { this.sendMsg({ action: 'list_competitions' }); }
+  joinOpenTable(competitionCode: string): void { this.sendMsg({ action: 'join_open_table', competitionCode }); }
+  quickMatch(name: string, characterId: string, lang: Lang): void {
+    this.sendMsg({ action: 'quick_match', name, characterId, lang });
+  }
+  leaveQueue(): void { this.sendMsg({ action: 'leave_queue' }); }
   snapshot(): void { this.sendMsg({ action: 'snapshot' }); }
 }

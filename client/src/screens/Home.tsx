@@ -5,9 +5,27 @@ import { CHARACTERS } from '../../../shared/characters.js';
 import { Avatar } from '../components/ui.js';
 import { audio } from '../audio.js';
 import type { GameEvent } from '../../../shared/events.js';
+import type { CompetitionSummary } from '../../../shared/events.js';
 
 const errCode = (ev: GameEvent): string | null =>
   ev.type === 'error' ? (ev.payload as { code: string }).code : null;
+
+const DURATIONS = [
+  { hours: 0, label: 'home.noLimit' },
+  { hours: 24, label: '1d' },
+  { hours: 72, label: '3d' },
+  { hours: 168, label: '7d' },
+];
+
+function endsIn(lang: 'en' | 'zh', ts: number | null): string {
+  if (!ts) return lang === 'zh' ? '不限时' : 'no limit';
+  const ms = ts - Date.now();
+  if (ms <= 0) return '—';
+  const h = Math.floor(ms / 3_600_000);
+  const d = Math.floor(h / 24);
+  if (lang === 'zh') return d > 0 ? `${d}天${h % 24}小时后` : `${h}小时后`;
+  return d > 0 ? `in ${d}d ${h % 24}h` : `in ${h}h`;
+}
 
 export function Home() {
   const { lang, name, setName, characterId, setCharacterId, client, go, setRoomCode, setMySeat } = useApp();
@@ -18,6 +36,12 @@ export function Home() {
   const [busy, setBusy] = useState(false);
   const [showComp, setShowComp] = useState(false);
   const [err, setErr] = useState('');
+  const [queueing, setQueueing] = useState(false);
+  const [queuePos, setQueuePos] = useState(0);
+  const [queueWaiting, setQueueWaiting] = useState(0);
+  const [compPublic, setCompPublic] = useState(false);
+  const [compDur, setCompDur] = useState('0');
+  const [openComps, setOpenComps] = useState<CompetitionSummary[] | null>(null);
 
   const ensureConnected = async (): Promise<boolean> => {
     if (client.connected) return true;
@@ -70,11 +94,76 @@ export function Home() {
   const doCreateComp = async () => {
     if (!(await ensureConnected())) return;
     const boards = Math.max(1, Math.min(32, parseInt(compBoards, 10) || 8));
+    const hours = parseInt(compDur, 10) || 0;
     client.onEvent = ev => {
       if (ev.type === 'competition_created') go('compete');
       const ec = errCode(ev); if (ec) setErr(ec);
     };
-    client.createCompetition(compName.trim() || 'Friday Game', boards);
+    client.createCompetition(compName.trim() || 'Friday Game', boards, compPublic, hours);
+  };
+
+  const handleOpenTableFound = (tableCode: string) => {
+    client.onEvent = ev2 => {
+      if (ev2.type === 'room_joined') {
+        const pl = ev2.payload as { roomCode: string; seat: 'N' | 'E' | 'S' | 'W' | 'observer' };
+        setRoomCode(pl.roomCode);
+        setMySeat(pl.seat);
+        go('lobby');
+      }
+      const ec2 = errCode(ev2); if (ec2) setErr(ec2);
+    };
+    client.join(tableCode, playerName, characterId, lang);
+  };
+
+  const refreshComps = async () => {
+    if (!(await ensureConnected())) return;
+    client.onEvent = ev => {
+      if (ev.type === 'competitions_list') {
+        setOpenComps((ev.payload as { competitions: CompetitionSummary[] }).competitions);
+      } else if (ev.type === 'open_table_found') {
+        handleOpenTableFound((ev.payload as { tableCode: string }).tableCode);
+      }
+      const ec = errCode(ev); if (ec) setErr(ec);
+    };
+    client.listCompetitions();
+  };
+
+  const doJoinOpenTable = async (code: string) => {
+    if (!(await ensureConnected())) return;
+    client.onEvent = ev => {
+      if (ev.type === 'open_table_found') {
+        handleOpenTableFound((ev.payload as { tableCode: string }).tableCode);
+      }
+      const ec = errCode(ev); if (ec) setErr(ec);
+    };
+    client.joinOpenTable(code);
+  };
+
+  const doQuickPlay = async () => {
+    if (!(await ensureConnected())) return;
+    audio.sfx('join');
+    setQueueing(true);
+    setQueuePos(0);
+    client.onEvent = ev => {
+      if (ev.type === 'queue_update') {
+        const p = ev.payload as { position: number; waiting: number };
+        setQueuePos(p.position);
+        setQueueWaiting(p.waiting);
+      } else if (ev.type === 'room_joined') {
+        const pl = ev.payload as { roomCode: string; seat: 'N' | 'E' | 'S' | 'W' | 'observer' };
+        setQueueing(false);
+        setRoomCode(pl.roomCode);
+        setMySeat(pl.seat);
+        go('lobby');
+      }
+      const ec = errCode(ev); if (ec) { setErr(ec); setQueueing(false); }
+    };
+    client.quickMatch(playerName, characterId, lang);
+  };
+
+  const cancelQueue = () => {
+    client.leaveQueue();
+    setQueueing(false);
   };
 
   const doFollow = async () => {
@@ -127,20 +216,35 @@ export function Home() {
       </div>
 
       <div className="menu">
-        <button className="btn primary big menu-btn" disabled={busy} onClick={doCreate}>
-          🃏 {t(lang, 'home.createRoom')}
-        </button>
-        <div className="join-row menu-row">
-          <input
-            className="input"
-            placeholder={t(lang, 'home.joinPh')}
-            value={joinCode}
-            maxLength={6}
-            onChange={e => setJoinCode(e.target.value.toUpperCase())}
-            onKeyDown={e => e.key === 'Enter' && doJoin()}
-          />
-          <button className="btn" disabled={busy} onClick={doJoin}>{t(lang, 'home.join')}</button>
-        </div>
+        {queueing ? (
+          <div className="queue-box">
+            <div className="queue-title">⚡ {t(lang, 'home.searching')}</div>
+            {queuePos > 0 && (
+              <div className="hint">#{queuePos} · {queueWaiting} {t(lang, 'home.inQueue')}</div>
+            )}
+            <button className="btn ghost" onClick={cancelQueue}>{t(lang, 'home.cancelSearch')}</button>
+          </div>
+        ) : (
+          <>
+            <button className="btn primary big menu-btn" disabled={busy} onClick={doQuickPlay}>
+              ⚡ {t(lang, 'home.quickPlay')}
+            </button>
+            <button className="btn primary big menu-btn" disabled={busy} onClick={doCreate}>
+              🃏 {t(lang, 'home.createRoom')}
+            </button>
+            <div className="join-row menu-row">
+              <input
+                className="input"
+                placeholder={t(lang, 'home.joinPh')}
+                value={joinCode}
+                maxLength={6}
+                onChange={e => setJoinCode(e.target.value.toUpperCase())}
+                onKeyDown={e => e.key === 'Enter' && doJoin()}
+              />
+              <button className="btn" disabled={busy} onClick={doJoin}>{t(lang, 'home.join')}</button>
+            </div>
+          </>
+        )}
         <button className="btn ghost big menu-btn" onClick={() => go('tutorial')}>
           🎓 {t(lang, 'home.tutorial')}
         </button>
@@ -160,8 +264,20 @@ export function Home() {
               className="input boards" placeholder={t(lang, 'home.compBoards')}
               value={compBoards} inputMode="numeric" onChange={e => setCompBoards(e.target.value)}
             />
+            <select className="input" value={compDur} onChange={e => setCompDur(e.target.value)}
+              title={t(lang, 'home.duration')}>
+              {DURATIONS.map(d => (
+                <option key={d.hours} value={String(d.hours)}>
+                  {d.label === 'home.noLimit' ? t(lang, 'home.noLimit') : d.label}
+                </option>
+              ))}
+            </select>
             <button className="btn" disabled={busy} onClick={doCreateComp}>{t(lang, 'home.createComp')}</button>
           </div>
+          <label className="check-row">
+            <input type="checkbox" checked={compPublic} onChange={e => setCompPublic(e.target.checked)} />
+            {t(lang, 'home.makePublic')}
+          </label>
           <div className="join-row">
             <input
               className="input" placeholder={t(lang, 'home.followPh')}
@@ -169,7 +285,28 @@ export function Home() {
               onKeyDown={e => e.key === 'Enter' && doFollow()}
             />
             <button className="btn" disabled={busy} onClick={doFollow}>{t(lang, 'home.follow')}</button>
+            <button className="btn ghost" disabled={busy} onClick={refreshComps}>{t(lang, 'home.refresh')}</button>
           </div>
+          <div className="section-label">{t(lang, 'home.openComps')}</div>
+          {openComps === null ? (
+            <div className="hint">…</div>
+          ) : openComps.length === 0 ? (
+            <div className="hint">{t(lang, 'home.noOpenComps')}</div>
+          ) : (
+            openComps.map(c => (
+              <div className="comp-row" key={c.code}>
+                <div className="comp-row-main">
+                  <div><b>{c.name}</b> <span className="dim">{c.code}</span></div>
+                  <div className="dim small">
+                    {c.boards} {t(lang, 'home.boardsN')} · {c.tables} {t(lang, 'home.tablesN')} · {c.players} {t(lang, 'home.playersN')} · {t(lang, 'home.endsIn')} {endsIn(lang, c.closesAt)}
+                  </div>
+                </div>
+                <button className="btn" disabled={busy} onClick={() => doJoinOpenTable(c.code)}>
+                  {t(lang, 'home.joinTable')}
+                </button>
+              </div>
+            ))
+          )}
         </div>
       )}
 

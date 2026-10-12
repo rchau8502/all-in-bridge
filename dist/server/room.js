@@ -83,6 +83,10 @@ export class Room {
     observers() {
         return [...this.clients.values()].filter(c => c.seat === 'observer' && c.connected);
     }
+    /** Seats currently held by players (includes recently-disconnected seats on hold). */
+    playerCount() {
+        return this.activePlayers().length;
+    }
     /**
      * Join (or rejoin) the room. Returns the assigned seat, or 'observer'
      * when the table is full. Rejoining with a known clientId restores the

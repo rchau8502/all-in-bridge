@@ -126,6 +126,13 @@ export class TutorialRunner {
             return null;
         return { entries: this.auction.entries.map(e => ({ seat: e.seat, bid: e.bid })), turn: this.auction.turn };
     }
+    /** 1-based number of the trick currently being played, for UI progress. */
+    trickNumber() {
+        const s = this.currentStep();
+        if (!s || s.kind !== 'play')
+            return null;
+        return this.ensurePlay().completedTricks.length + 1;
+    }
     /** For UI: live play state for the current play step (hands shrink as cards are played). */
     playView() {
         const s = this.currentStep();

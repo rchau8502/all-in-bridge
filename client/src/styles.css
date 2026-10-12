@@ -199,6 +199,28 @@ body {
   box-shadow: 0 10px 26px rgba(0, 0, 0, 0.5), inset 0 1px 0 rgba(255,216,61,0.15);
 }
 .comp-box .btn { white-space: nowrap; }
+.check-row {
+  display: flex; align-items: center; gap: 8px; margin: 8px 0;
+  color: #ffe9b8; font-weight: 700; font-size: 0.9rem; cursor: pointer;
+}
+.check-row input[type="checkbox"] { width: 18px; height: 18px; accent-color: var(--gold); cursor: pointer; }
+.comp-row {
+  display: flex; align-items: center; justify-content: space-between; gap: 10px;
+  padding: 10px 12px; margin: 8px 0; border-radius: 12px;
+  background: rgba(10, 25, 55, 0.7); border: 1px solid var(--gold-dim);
+}
+.comp-row-main { min-width: 0; color: var(--cream); }
+.comp-row-main .dim { color: #9db4dd; }
+.comp-row-main .small { font-size: 0.8rem; }
+.queue-box {
+  display: flex; flex-direction: column; align-items: center; gap: 10px;
+  padding: 18px 26px; border-radius: 18px; width: min(420px, 94%);
+  background: linear-gradient(180deg, rgba(21, 53, 109, 0.94), rgba(10, 31, 77, 0.94));
+  border: 2px solid var(--gold-dim);
+  box-shadow: 0 10px 26px rgba(0, 0, 0, 0.5);
+}
+.queue-title { font-size: 1.25rem; font-weight: 900; color: var(--gold); animation: queue-pulse 1.2s ease-in-out infinite; }
+@keyframes queue-pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.55; } }
 .demo-banner {
   margin: 0 auto 12px; max-width: 560px; padding: 8px 14px; border-radius: 12px;
   background: rgba(10, 25, 55, 0.92); border: 2px solid var(--gold2);

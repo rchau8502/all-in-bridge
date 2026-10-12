@@ -37,6 +37,8 @@ export type ClientMessage = {
     action: 'create_competition';
     name: string;
     boards: number;
+    isPublic?: boolean;
+    durationHours?: number;
 } | {
     action: 'create_table';
     competitionCode: string;
@@ -44,11 +46,23 @@ export type ClientMessage = {
     action: 'follow_competition';
     competitionCode: string;
 } | {
+    action: 'quick_match';
+    name: string;
+    characterId: string;
+    lang: Lang;
+} | {
+    action: 'leave_queue';
+} | {
+    action: 'list_competitions';
+} | {
+    action: 'join_open_table';
+    competitionCode: string;
+} | {
     action: 'snapshot';
 };
 /** Parse + shape-check an inbound message. Throws on anything invalid. */
 export declare function parseClientMessage(data: unknown): ClientMessage;
 /** Error codes the server can send back in `error` events. */
-export declare const ERROR_CODES: readonly ['unknown-action', 'invalid-json', 'bad-join', 'bad-character', 'bad-emote', 'bad-voice', 'bad-bid', 'bad-play', 'not-in-room', 'not-your-turn', 'illegal-bid', 'illegal-play', 'not-your-card', 'wrong-phase', 'not-host', 'need-4-players', 'unknown-character', 'room-not-found', 'bad-competition', 'competition-not-found', 'no-more-boards'];
+export declare const ERROR_CODES: readonly ['unknown-action', 'invalid-json', 'bad-join', 'bad-character', 'bad-emote', 'bad-voice', 'bad-bid', 'bad-play', 'not-in-room', 'not-your-turn', 'illegal-bid', 'illegal-play', 'not-your-card', 'wrong-phase', 'not-host', 'need-4-players', 'unknown-character', 'room-not-found', 'bad-competition', 'competition-not-found', 'bad-queue', 'competition-closed', 'no-more-boards'];
 export type ErrorCode = (typeof ERROR_CODES)[number];
 //# sourceMappingURL=protocol.d.ts.map

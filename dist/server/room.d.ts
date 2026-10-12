@@ -54,6 +54,8 @@ export declare class Room {
     constructor(code: string, send: SendFn, boardSource?: BoardSource, hooks?: RoomHooks);
     private activePlayers;
     private observers;
+    /** Seats currently held by players (includes recently-disconnected seats on hold). */
+    playerCount(): number;
     /**
      * Join (or rejoin) the room. Returns the assigned seat, or 'observer'
      * when the table is full. Rejoining with a known clientId restores the

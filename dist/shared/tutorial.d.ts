@@ -92,6 +92,8 @@ export declare class TutorialRunner {
         }>;
         turn: Seat;
     } | null;
+    /** 1-based number of the trick currently being played, for UI progress. */
+    trickNumber(): number | null;
     /** For UI: live play state for the current play step (hands shrink as cards are played). */
     playView(): {
         hands: Hands;

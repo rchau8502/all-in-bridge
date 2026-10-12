@@ -33,6 +33,9 @@ export type EventType =
   | 'competition_joined'  // { competitionCode, name, boards, tables }
   | 'table_created'       // { competitionCode, tableCode }
   | 'standings_update'    // { competitionCode, standings, boardsCompleted, boardsTotal }
+  | 'queue_update'        // { position, waiting } — quick-match queue status
+  | 'competitions_list'   // { competitions: CompetitionSummary[] }
+  | 'open_table_found'    // { competitionCode, tableCode } — client follows up with join
   | 'error';           // { code: string } — client maps code → localized message
 
 export interface GameEvent<T extends EventType = EventType> {
@@ -95,7 +98,22 @@ export interface EventPayloadMap {
     boardsCompleted: number;
     boardsTotal: number;
   };
+  queue_update: { position: number; waiting: number };
+  competitions_list: { competitions: CompetitionSummary[] };
+  open_table_found: { competitionCode: string; tableCode: string };
   error: { code: string };
+}
+
+/** Public listing row for an open competition. */
+export interface CompetitionSummary {
+  code: string;
+  name: string;
+  boards: number;
+  tables: number;
+  players: number;
+  /** Epoch ms when the competition closes; null = no deadline. */
+  closesAt: number | null;
+  isPublic: boolean;
 }
 
 /** All 52 cards of a board, for the server's board record (duplicate audit). */

@@ -21,14 +21,19 @@ export type ClientMessage =
   | { action: 'pick_character'; characterId: string }
   | { action: 'emote'; emoteId: string }
   | { action: 'voice'; lineId: string }
-  | { action: 'create_competition'; name: string; boards: number }
+  | { action: 'create_competition'; name: string; boards: number; isPublic?: boolean; durationHours?: number }
   | { action: 'create_table'; competitionCode: string }
   | { action: 'follow_competition'; competitionCode: string }
+  | { action: 'quick_match'; name: string; characterId: string; lang: Lang }
+  | { action: 'leave_queue' }
+  | { action: 'list_competitions' }
+  | { action: 'join_open_table'; competitionCode: string }
   | { action: 'snapshot' };
 
 const ACTIONS = new Set([
   'join', 'start', 'next_board', 'bid', 'play', 'pick_character', 'emote', 'voice',
   'create_competition', 'create_table', 'follow_competition', 'snapshot',
+  'quick_match', 'leave_queue', 'list_competitions', 'join_open_table',
 ]);
 
 /** Parse + shape-check an inbound message. Throws on anything invalid. */
@@ -80,11 +85,29 @@ export function parseClientMessage(data: unknown): ClientMessage {
       if (typeof boards !== 'number' || !Number.isInteger(boards) || boards < 1 || boards > 32) {
         throw new Error('bad-competition');
       }
+      if (obj['isPublic'] !== undefined && typeof obj['isPublic'] !== 'boolean') {
+        throw new Error('bad-competition');
+      }
+      const durationHours = obj['durationHours'];
+      if (durationHours !== undefined &&
+        (typeof durationHours !== 'number' || !Number.isInteger(durationHours) || durationHours < 0 || durationHours > 24 * 30)) {
+        throw new Error('bad-competition');
+      }
+      return obj as ClientMessage;
+    }
+    case 'quick_match': {
+      if (!str(obj['name']) || !str(obj['characterId'])) throw new Error('bad-queue');
+      if (obj['lang'] !== 'en' && obj['lang'] !== 'zh') throw new Error('bad-queue');
       return obj as ClientMessage;
     }
     case 'create_table':
-    case 'follow_competition': {
+    case 'follow_competition':
+    case 'join_open_table': {
       if (!str(obj['competitionCode'])) throw new Error('bad-competition');
+      return obj as ClientMessage;
+    }
+    case 'leave_queue':
+    case 'list_competitions': {
       return obj as ClientMessage;
     }
     default:
@@ -114,6 +137,8 @@ export const ERROR_CODES = [
   'room-not-found',
   'bad-competition',
   'competition-not-found',
+  'bad-queue',
+  'competition-closed',
   'no-more-boards',
 ] as const;
 

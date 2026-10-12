@@ -17,12 +17,19 @@ export declare class RoomManager {
     private competitions;
     private followers;
     private competitionTables;
+    private queue;
     constructor(send: SendFn, boardSource?: BoardSource | undefined, rng?: () => number);
     getRoom(code: string): Room | undefined;
     getCompetition(code: string): Competition | undefined;
     /** Route one inbound message from a connected client. */
     handleMessage(clientId: string, raw: unknown, now: number): void;
     handleDisconnect(clientId: string, now: number): void;
+    /** Remove a client from the quick-match queue. Returns true if they were queued. */
+    private dequeue;
+    private handleQueueAction;
+    private broadcastQueue;
+    /** Form tables of 4 from the waiting queue. */
+    private tryMatch;
     /** Expire dead seats; drop empty non-competition rooms. */
     sweep(now: number): void;
     roomCount(): number;

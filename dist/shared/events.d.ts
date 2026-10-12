@@ -10,7 +10,7 @@
 import type { Seat, Card, Hands } from './deck.js';
 import type { Bid, Contract, Vulnerability } from './bidding.js';
 import type { StandingEntry } from './duplicate.js';
-export type EventType = 'room_joined' | 'players_update' | 'room_snapshot' | 'game_start' | 'deal' | 'observer_deal' | 'bid_made' | 'auction_end' | 'play_made' | 'trick_won' | 'board_result' | 'announce' | 'voice_line' | 'emote' | 'observer_joined' | 'player_left' | 'competition_created' | 'competition_joined' | 'table_created' | 'standings_update' | 'error';
+export type EventType = 'room_joined' | 'players_update' | 'room_snapshot' | 'game_start' | 'deal' | 'observer_deal' | 'bid_made' | 'auction_end' | 'play_made' | 'trick_won' | 'board_result' | 'announce' | 'voice_line' | 'emote' | 'observer_joined' | 'player_left' | 'competition_created' | 'competition_joined' | 'table_created' | 'standings_update' | 'queue_update' | 'competitions_list' | 'open_table_found' | 'error';
 export interface GameEvent<T extends EventType = EventType> {
     type: T;
     payload: EventPayloadMap[T];
@@ -135,9 +135,31 @@ export interface EventPayloadMap {
         boardsCompleted: number;
         boardsTotal: number;
     };
+    queue_update: {
+        position: number;
+        waiting: number;
+    };
+    competitions_list: {
+        competitions: CompetitionSummary[];
+    };
+    open_table_found: {
+        competitionCode: string;
+        tableCode: string;
+    };
     error: {
         code: string;
     };
+}
+/** Public listing row for an open competition. */
+export interface CompetitionSummary {
+    code: string;
+    name: string;
+    boards: number;
+    tables: number;
+    players: number;
+    /** Epoch ms when the competition closes; null = no deadline. */
+    closesAt: number | null;
+    isPublic: boolean;
 }
 /** All 52 cards of a board, for the server's board record (duplicate audit). */
 export interface BoardRecord {

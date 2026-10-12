@@ -118,5 +118,35 @@ describe('duplicate competitions', () => {
             rmSync(dir, { recursive: true });
         }
     });
+    it('persists and restores public flag and closing time', () => {
+        const { mgr, sent } = setup();
+        const now = 5000000;
+        mgr.handleMessage('host', JSON.stringify({
+            action: 'create_competition', name: 'Weekend', boards: 2, isPublic: true, durationHours: 48,
+        }), now);
+        const code = lastPayload(sent, 'host', 'competition_created').competitionCode;
+        const before = mgr.getCompetition(code);
+        expect(before.isPublic).toBe(true);
+        expect(before.closesAt).toBe(now + 48 * 3600000);
+        expect(before.isOpen(now)).toBe(true);
+        expect(before.isOpen(now + 48 * 3600000 + 1)).toBe(false);
+        const dir = mkdtempSync(join(tmpdir(), 'aib-'));
+        try {
+            const path = join(dir, 'comps.json');
+            mgr.saveCompetitions(path);
+            const s2 = setup();
+            s2.mgr.loadCompetitions(path);
+            const after = s2.mgr.getCompetition(code);
+            expect(after.isPublic).toBe(true);
+            expect(after.closesAt).toBe(now + 48 * 3600000);
+            expect(after.isOpen(now)).toBe(true);
+            const summary = after.summary(now);
+            expect(summary.code).toBe(code);
+            expect(summary.isPublic).toBe(true);
+        }
+        finally {
+            rmSync(dir, { recursive: true });
+        }
+    });
 });
 //# sourceMappingURL=competition.test.js.map

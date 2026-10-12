@@ -12,6 +12,7 @@ import type { ClientMessage } from './protocol.js';
 import { makeEvent } from '../shared/events.js';
 import { Competition } from './competition.js';
 import type { CompetitionJSON } from './competition.js';
+import { isValidCharacterId } from '../shared/characters.js';
 import { writeFileSync, readFileSync, existsSync, mkdirSync } from 'node:fs';
 import { dirname } from 'node:path';
 
@@ -25,12 +26,20 @@ export function makeRoomCode(rng: () => number = Math.random): string {
   return code;
 }
 
+interface QueuedPlayer {
+  clientId: string;
+  name: string;
+  characterId: string;
+  lang: 'en' | 'zh';
+}
+
 export class RoomManager {
   private rooms = new Map<string, Room>();
   private clientRoom = new Map<string, string>(); // clientId -> room code
   private competitions = new Map<string, Competition>();
   private followers = new Map<string, Set<string>>(); // competition code -> clientIds
   private competitionTables = new Set<string>(); // room codes owned by competitions
+  private queue: QueuedPlayer[] = []; // quick-match waiting list (ephemeral)
 
   constructor(
     private send: SendFn,
@@ -56,12 +65,22 @@ export class RoomManager {
       return;
     }
 
-    if (msg.action === 'create_competition' || msg.action === 'create_table' || msg.action === 'follow_competition') {
+    if (
+      msg.action === 'create_competition' || msg.action === 'create_table' ||
+      msg.action === 'follow_competition' || msg.action === 'list_competitions' ||
+      msg.action === 'join_open_table'
+    ) {
       this.handleCompetitionAction(clientId, msg, now);
       return;
     }
 
+    if (msg.action === 'quick_match' || msg.action === 'leave_queue') {
+      this.handleQueueAction(clientId, msg, now);
+      return;
+    }
+
     if (msg.action === 'join') {
+      this.dequeue(clientId);
       const wantCode = msg.roomCode?.toUpperCase();
       let room = wantCode ? this.rooms.get(wantCode) : undefined;
       if (wantCode && !room) {
@@ -94,8 +113,68 @@ export class RoomManager {
 
   handleDisconnect(clientId: string, now: number): void {
     const code = this.clientRoom.get(clientId);
-    if (!code) return;
-    this.rooms.get(code)?.leave(clientId, now);
+    if (code) this.rooms.get(code)?.leave(clientId, now);
+    if (this.dequeue(clientId)) this.broadcastQueue();
+  }
+
+  /** Remove a client from the quick-match queue. Returns true if they were queued. */
+  private dequeue(clientId: string): boolean {
+    const i = this.queue.findIndex(q => q.clientId === clientId);
+    if (i === -1) return false;
+    this.queue.splice(i, 1);
+    return true;
+  }
+
+  // ------------------------------------------------------------ quick match ---
+
+  private handleQueueAction(
+    clientId: string,
+    msg: Extract<ClientMessage, { action: 'quick_match' | 'leave_queue' }>,
+    now: number
+  ): void {
+    if (msg.action === 'leave_queue') {
+      if (this.dequeue(clientId)) this.broadcastQueue();
+      return;
+    }
+    if (!isValidCharacterId(msg.characterId)) {
+      this.send(clientId, makeEvent('error', { code: 'unknown-character' }));
+      return;
+    }
+    this.dequeue(clientId);
+    this.queue.push({
+      clientId,
+      name: msg.name.slice(0, 16),
+      characterId: msg.characterId,
+      lang: msg.lang,
+    });
+    this.broadcastQueue();
+    this.tryMatch(now);
+  }
+
+  private broadcastQueue(): void {
+    this.queue.forEach((q, i) => {
+      this.send(q.clientId, makeEvent('queue_update', { position: i + 1, waiting: this.queue.length }));
+    });
+  }
+
+  /** Form tables of 4 from the waiting queue. */
+  private tryMatch(now: number): void {
+    while (this.queue.length >= 4) {
+      const four = this.queue.splice(0, 4);
+      let code = makeRoomCode(this.rng);
+      while (this.rooms.has(code)) code = makeRoomCode(this.rng);
+      const room = new Room(code, this.send, this.boardSource);
+      this.rooms.set(code, room);
+      for (const q of four) {
+        this.clientRoom.set(q.clientId, code);
+        try {
+          room.join({ action: 'join', name: q.name, characterId: q.characterId, lang: q.lang }, q.clientId, now);
+        } catch {
+          this.send(q.clientId, makeEvent('error', { code: 'bad-join' }));
+        }
+      }
+    }
+    this.broadcastQueue();
   }
 
   /** Expire dead seats; drop empty non-competition rooms. */
@@ -122,12 +201,26 @@ export class RoomManager {
 
   private handleCompetitionAction(
     clientId: string,
-    msg: Extract<ClientMessage, { action: 'create_competition' | 'create_table' | 'follow_competition' }>,
-    _now: number
+    msg: Extract<ClientMessage, {
+      action: 'create_competition' | 'create_table' | 'follow_competition' | 'list_competitions' | 'join_open_table'
+    }>,
+    now: number
   ): void {
+    if (msg.action === 'list_competitions') {
+      const open = [...this.competitions.values()]
+        .filter(c => c.isPublic && c.isOpen(now))
+        .map(c => c.summary(now));
+      this.send(clientId, makeEvent('competitions_list', { competitions: open }));
+      return;
+    }
     if (msg.action === 'create_competition') {
       const code = this.makeCompetitionCode();
-      const comp = Competition.create(code, msg.name.slice(0, 40), msg.boards, this.rng);
+      const comp = Competition.create(code, msg.name.slice(0, 40), msg.boards, {
+        rng: this.rng,
+        isPublic: msg.isPublic ?? false,
+        durationHours: msg.durationHours ?? 0,
+        now,
+      });
       this.competitions.set(code, comp);
       this.followers.set(code, new Set());
       const table = this.createTable(comp);
@@ -141,6 +234,16 @@ export class RoomManager {
     const comp = this.competitions.get(msg.competitionCode.toUpperCase());
     if (!comp) {
       this.send(clientId, makeEvent('error', { code: 'competition-not-found' }));
+      return;
+    }
+    if (msg.action === 'join_open_table') {
+      if (!comp.isOpen(now)) {
+        this.send(clientId, makeEvent('error', { code: 'competition-closed' }));
+        return;
+      }
+      let table = comp.tables.find(t => t.playerCount() < 4);
+      if (!table) table = this.createTable(comp);
+      this.send(clientId, makeEvent('open_table_found', { competitionCode: comp.code, tableCode: table.code }));
       return;
     }
     if (msg.action === 'create_table') {
@@ -216,7 +319,7 @@ export class RoomManager {
     const data = JSON.parse(readFileSync(path, 'utf8')) as CompetitionJSON[];
     for (const j of data) {
       if (this.competitions.has(j.code)) continue;
-      const comp = new Competition(j.code, j.name, j.boards);
+      const comp = Competition.fromJSON(j);
       this.competitions.set(j.code, comp);
       this.followers.set(j.code, new Set());
       for (const t of j.tables) {
