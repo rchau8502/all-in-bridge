@@ -727,6 +727,8 @@ select.input { appearance: auto; }
 .sim-trail { display: flex; flex-wrap: wrap; gap: 6px; justify-content: center; max-width: 430px; }
 .sim-trail .trail-bid { animation: fade-in 0.3s backwards; }
 .sim-bidbox { width: 100%; display: flex; flex-direction: column; gap: 8px; align-items: center; }
+.tut-tap-row { display: flex; justify-content: center; margin-top: 10px; }
+.tut-tap-next { min-height: 44px; animation: fade-in 0.25s backwards; }
 
 /* coach card: your fighter explains the lesson */
 .tut-coach-card { display: flex; gap: 14px; align-items: flex-start; width: min(760px, 96%); }
