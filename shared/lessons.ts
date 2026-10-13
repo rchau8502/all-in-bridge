@@ -93,9 +93,9 @@ const RAW_LESSONS: RawLesson[] = [
   {
     id: 'deck',
     title: T('The Deck', '认识纸牌'),
-    dealer: 'E',
+    dealer: 'N',
     hands: DECK_DEAL,
-    contract: { level: 1, denom: 'S', declarer: 'S', doubled: 0 },
+    contract: { level: 1, denom: 'NT', declarer: 'S', doubled: 0 },
     vulnerable: false,
     steps: [
       {
@@ -108,8 +108,8 @@ const RAW_LESSONS: RawLesson[] = [
       {
         kind: 'info',
         text: T(
-          'Each suit ranks 2 3 4 5 6 7 8 9 10 J Q K A — the ace is the highest card. Hearts are led: play your ace of hearts (AH), a red ace!',
-          '每种花色从小到大是 2 3 4 5 6 7 8 9 10 J Q K A —— A最大。首攻是红桃：打出你的红桃A (AH)，一张红色的A！'
+          'Each suit ranks 2 3 4 5 6 7 8 9 10 J Q K A — the ace is the highest card. Watch each card land: hearts are led, and you will play the ace of hearts (AH), a red ace!',
+          '每种花色从小到大是 2 3 4 5 6 7 8 9 10 J Q K A —— A最大。看每张牌落下：首攻是红桃，最后由你打出红桃A (AH)，一张红色的A！'
         ),
       },
       {
@@ -127,8 +127,8 @@ const RAW_LESSONS: RawLesson[] = [
       {
         kind: 'info',
         text: T(
-          'The red ace wins! Now spades are led — play your ace of spades (AS), the highest card in the deck.',
-          '红色的A赢了！现在首攻是黑桃 —— 打出你的黑桃A (AS)，整副牌中最大的一张。'
+          'The red ace wins! You won the trick, so you lead the next one. Spades are your turn to lead — play the ace of spades (AS), the highest card in the deck.',
+          '红色的A赢了！你赢得这一墩，所以由你领出下一墩。轮到你领出黑桃 —— 打出黑桃A (AS)，整副牌中最大的一张。'
         ),
       },
       {
@@ -136,7 +136,7 @@ const RAW_LESSONS: RawLesson[] = [
         script: [
           {
             seat: 'S', learner: true, expected: 'AS',
-            hint: T('You won the last trick, so you lead — play the ace of spades (AS).', '上一墩是你赢的，由你领出 —— 打出黑桃A (AS)。'),
+            hint: T('You lead — play the ace of spades (AS).', '由你领出 —— 打出黑桃A (AS)。'),
           },
           { seat: 'W', card: '2S' },
           { seat: 'N', card: '3S' },
@@ -146,28 +146,8 @@ const RAW_LESSONS: RawLesson[] = [
       {
         kind: 'info',
         text: T(
-          'Two aces, two tricks! One more ranking for bidding: suits rank clubs < diamonds < hearts < spades < no-trump. East opened 1♥ — top it with 1♠.',
-          '两个A，两墩！再记住叫牌时的花色排序：梅花 < 方块 < 红桃 < 黑桃 < 无将。东家开了 1♥ —— 用 1♠ 超过它。'
-        ),
-      },
-      {
-        kind: 'auction',
-        script: [
-          { seat: 'E', bid: '1H' },
-          {
-            seat: 'S', learner: true, expected: '1S',
-            hint: T('Spades outrank hearts — bid 1♠.', '黑桃比红桃大 —— 叫 1♠。'),
-          },
-          { seat: 'W', bid: 'P' },
-          { seat: 'N', bid: 'P' },
-          { seat: 'E', bid: 'P' },
-        ],
-      },
-      {
-        kind: 'info',
-        text: T(
-          'You know the deck: suits, colors, ranks, and even your first bid. Next: how tricks are won and lost.',
-          '你已经认识了纸牌：花色、颜色、大小，还学会了第一次叫牌。接下来：如何赢墩。'
+          'Two aces, two tricks! You know the deck now: suits, colors, and ranks. Next lesson: how tricks are won and lost.',
+          '两个A，两墩！你已经认识了纸牌：花色、颜色、大小。下一课：如何赢墩。'
         ),
       },
       { kind: 'result' },

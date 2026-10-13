@@ -3,11 +3,11 @@ import { TutorialRunner } from './tutorial.js';
 import type { Lesson, Step } from './tutorial.js';
 import { LESSONS, getLessons } from './lessons.js';
 
-/** Walk a whole lesson taking every correct action. */
+/** Walk a whole lesson: tap through info/result steps and scripted actions, take every correct learner action. */
 function walkLesson(lesson: Lesson): TutorialRunner {
   const r = new TutorialRunner(lesson);
   let guard = 0;
-  while (!r.finished && guard++ < 500) {
+  while (!r.finished && guard++ < 1000) {
     const s = r.currentStep()!;
     if (s.kind === 'info' || s.kind === 'result') {
       r.advance();
@@ -15,12 +15,15 @@ function walkLesson(lesson: Lesson): TutorialRunner {
       throw new Error('lessons no longer use quiz steps — teach visually instead');
     } else {
       const p = r.pendingLearnerAction();
-      expect(p).not.toBeNull();
-      const res = p!.kind === 'bid' ? r.submitBid(p!.expected) : r.submitPlay(p!.expected);
-      expect(res.ok).toBe(true);
+      if (p) {
+        const res = p!.kind === 'bid' ? r.submitBid(p!.expected) : r.submitPlay(p!.expected);
+        expect(res.ok).toBe(true);
+      } else {
+        r.advance(); // reveal next scripted bid/play, or move past a completed script
+      }
     }
   }
-  expect(guard).toBeLessThan(500);
+  expect(guard).toBeLessThan(1000);
   expect(r.finished).toBe(true);
   return r;
 }
@@ -51,10 +54,18 @@ describe('all lessons', () => {
 });
 
 describe('TutorialRunner mistakes', () => {
+  /** Tap through scripted bids/plays until it's the learner's turn. */
+  function tapToLearner(r: TutorialRunner): void {
+    let guard = 0;
+    while (!r.pendingLearnerAction() && guard++ < 50) r.advance();
+    expect(r.pendingLearnerAction()).not.toBeNull();
+  }
+
   it('rejects a wrong bid with the hint and does not advance', () => {
     const lesson = LESSONS.find(l => l.id === 'bidding')!;
     const r = new TutorialRunner(lesson);
     r.advance(); // info
+    tapToLearner(r); // N P, E 1D revealed
     const before = r.stepIndex;
     const res = r.submitBid('1S'); // legal but wrong (expected 1H)
     expect(res.ok).toBe(false);
@@ -68,6 +79,7 @@ describe('TutorialRunner mistakes', () => {
     const lesson = LESSONS.find(l => l.id === 'bidding')!;
     const r = new TutorialRunner(lesson);
     r.advance();
+    tapToLearner(r);
     expect(r.submitBid('banana').ok).toBe(false);
   });
 
@@ -75,6 +87,7 @@ describe('TutorialRunner mistakes', () => {
     const lesson = LESSONS.find(l => l.id === 'tricks')!;
     const r = new TutorialRunner(lesson);
     r.advance(); r.advance(); // infos
+    tapToLearner(r); // W/N/E cards revealed
     const before = r.stepIndex;
     const res = r.submitPlay('D2'); // wrong (expected DA; also not held)
     expect(res.ok).toBe(false);
@@ -91,11 +104,18 @@ describe('TutorialRunner mistakes', () => {
     expect(r.pendingLearnerAction()).toBeNull();
   });
 
-  it('advance() throws on non-info steps', () => {
+  it('advance() reveals scripted actions one at a time, throws when waiting for learner', () => {
     const lesson = LESSONS.find(l => l.id === 'tricks')!;
     const r = new TutorialRunner(lesson);
-    r.advance(); r.advance(); // infos → now at a play step
-    expect(() => r.advance()).toThrow();
+    r.advance(); r.advance(); // infos → now at a play step, nothing revealed yet
+    expect(r.pendingLearnerAction()).toBeNull();
+    expect(r.playView()!.trick.length).toBe(0);
+    r.advance(); // reveal W's lead
+    expect(r.playView()!.trick.length).toBe(1);
+    r.advance(); // reveal N
+    r.advance(); // reveal E
+    expect(r.pendingLearnerAction()).not.toBeNull(); // now it's the learner's turn
+    expect(() => r.advance()).toThrow(); // can't tap past a learner action
   });
 
   it('pendingLearnerAction is null on info steps', () => {

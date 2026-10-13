@@ -69,7 +69,6 @@ export class TutorialRunner {
   constructor(lesson: Lesson) {
     this.lesson = lesson;
     this.auction = new Auction(lesson.dealer);
-    this.settle();
   }
 
   get finished(): boolean {
@@ -90,15 +89,47 @@ export class TutorialRunner {
     return this.lesson.steps[this.stepIdx]!;
   }
 
-  /** Advance past info/result steps. */
+  /**
+   * Advance one beat. Past info/result steps, or reveal the next scripted
+   * bid/play (one tap per card/bid so the learner sees every detail step).
+   * Throws when the runner is waiting for a learner action.
+   */
   advance(): void {
     const s = this.currentStep();
-    if (!s || (s.kind !== 'info' && s.kind !== 'result')) {
-      throw new Error('advance() is only for info/result steps');
+    if (!s) throw new Error('lesson finished');
+    if (s.kind === 'info' || s.kind === 'result') {
+      this.stepIdx++;
+      this.actionIdx = 0;
+      return;
     }
-    this.stepIdx++;
-    this.actionIdx = 0;
-    this.settle();
+    if (s.kind === 'quiz') throw new Error('advance() is not for quiz steps');
+    // play/auction step
+    if (this.actionIdx >= s.script.length) {
+      // script complete → next step
+      this.stepIdx++;
+      this.actionIdx = 0;
+      return;
+    }
+    const a = s.script[this.actionIdx]!;
+    if (isLearnerBid(a as BidAction) || isLearnerPlay(a as PlayAction)) {
+      throw new Error('waiting for learner action');
+    }
+    if (s.kind === 'auction') {
+      const action = a as Extract<BidAction, { seat: Seat; bid: string }>;
+      if (this.auction.turn !== action.seat) {
+        throw new Error(`script error: expected ${action.seat} to bid, turn is ${this.auction.turn}`);
+      }
+      this.auction.apply(parseBid(action.bid));
+    } else {
+      const action = a as Extract<PlayAction, { seat: Seat; card: string }>;
+      const play = this.ensurePlay();
+      if (play.turn !== action.seat) {
+        throw new Error(`script error: expected ${action.seat} to play, turn is ${play.turn}`);
+      }
+      play.play(parseCard(action.card));
+    }
+    this.actionIdx++;
+    // Pause here — one tap reveals one action. No auto-continue.
   }
 
   answerQuiz(choice: number): SubmissionResult {
@@ -107,7 +138,6 @@ export class TutorialRunner {
     if (choice === s.answer) {
       this.stepIdx++;
       this.actionIdx = 0;
-      this.settle();
       return { ok: true, hint: s.explain };
     }
     return { ok: false, hint: 'Not quite — try again.' };
@@ -130,7 +160,6 @@ export class TutorialRunner {
     }
     this.auction.apply(bid);
     this.actionIdx++;
-    this.settle();
     return { ok: true };
   }
 
@@ -154,7 +183,6 @@ export class TutorialRunner {
     }
     play.play(card);
     this.actionIdx++;
-    this.settle();
     return { ok: true };
   }
 
@@ -241,37 +269,6 @@ export class TutorialRunner {
       this.playState = new PlayState(this.lesson.hands, c!);
     }
     return this.playState;
-  }
-
-  /** Apply scripted actions until a learner action, the script end, or lesson end. */
-  private settle(): void {
-    for (;;) {
-      const s = this.currentStep();
-      if (!s) return;
-      if (s.kind !== 'auction' && s.kind !== 'play') return; // info/quiz/result wait
-      if (this.actionIdx >= s.script.length) {
-        this.stepIdx++;
-        this.actionIdx = 0;
-        continue;
-      }
-      if (s.kind === 'auction') {
-        const a = s.script[this.actionIdx] as BidAction;
-        if (isLearnerBid(a)) return; // wait for the learner
-        if (this.auction.turn !== a.seat) {
-          throw new Error(`script error: expected ${a.seat} to bid, turn is ${this.auction.turn}`);
-        }
-        this.auction.apply(parseBid(a.bid));
-      } else {
-        const a = s.script[this.actionIdx] as PlayAction;
-        if (isLearnerPlay(a)) return; // wait for the learner
-        const play = this.ensurePlay();
-        if (play.turn !== a.seat) {
-          throw new Error(`script error: expected ${a.seat} to play, turn is ${play.turn}`);
-        }
-        play.play(parseCard(a.card));
-      }
-      this.actionIdx++;
-    }
   }
 
   private pendingLearnerBid(): Extract<BidAction, { learner: true }> | null {

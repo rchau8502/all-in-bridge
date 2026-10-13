@@ -332,6 +332,14 @@ export function Tutorial() {
   const result = runner.getResult();
   const done = !step;
   const stepKey = `${lang}:${lesson.id}:${runner.stepIndex}`;
+  // Paused at a scripted bid/play (not the learner's turn): offer a Next tap
+  // so every card and bid is revealed one at a time.
+  const awaitingTap = !pending && !done && (step?.kind === 'auction' || step?.kind === 'play');
+  const tapNext = (
+    <button className="btn primary tut-tap-next" onClick={() => { audio.sfx('click'); doAdvance(); }}>
+      {t(lang, 'tut.next')} ▸
+    </button>
+  );
 
   const lastBidBySeat = useMemo(() => {
     const m = new Map<Seat, Bid>();
@@ -413,6 +421,7 @@ export function Tutorial() {
                     ))}
                   </div>
                 )}
+                {awaitingTap && <div className="tut-tap-row">{tapNext}</div>}
               </div>
             }
           />
@@ -444,6 +453,9 @@ export function Tutorial() {
             hint={pending?.hint ?? null}
             stepKey={stepKey}
           />
+        )}
+        {step?.kind === 'play' && awaitingTap && (
+          <div className="tut-tap-row">{tapNext}</div>
         )}
 
         {step?.kind === 'result' && result && (
