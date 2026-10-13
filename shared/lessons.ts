@@ -38,6 +38,34 @@ export const PRACTICE_DEAL: Hands = makeHands({
 
 const FULL_HAND_CONTRACT = { level: 2, denom: 'H' as const, declarer: 'S' as Seat, doubled: 0 as const };
 
+const DECK_DEAL: Hands = makeHands({
+  N: ['3S', '5S', '9S', 'KS', '5H', '9H', 'KH', '4D', '8D', 'QD', '3C', '7C', 'JC'],
+  E: ['4S', '6S', 'TS', '2H', '6H', 'TH', '3H', '5D', '9D', 'KD', '4C', '8C', 'QC'],
+  S: ['AS', '7S', 'JS', 'AH', '7H', 'JH', '2D', '6D', 'TD', 'AD', '5C', '9C', 'KC'],
+  W: ['2S', '8S', 'QS', '4H', '8H', 'QH', '3D', '7D', 'JD', '2C', '6C', 'TC', 'AC'],
+});
+
+const TRUMP_DEAL: Hands = makeHands({
+  N: ['2D', '3D', '5D', '7D', '2H', '3H', '4H', 'AS', 'KS', 'QS', '8S', 'AD', 'KD'],
+  E: ['3S', '5H', '6H', '7H', '8H', '9H', 'TH', 'JH', '9D', 'JD', 'QD', '2C', '3C'],
+  S: ['2S', '5S', '7S', 'AC', 'KC', 'QC', 'JC', 'TC', '9C', '8C', '7C', '6C', '5C'],
+  W: ['4D', '6D', '8D', 'TD', 'AH', 'KH', 'QH', '4C', '9S', 'TS', 'JS', '4S', '6S'],
+});
+
+const CONV_DEAL: Hands = makeHands({
+  N: ['AS', 'KS', 'QS', 'JS', '4S', '2H', '3H', '8D', '9D', 'TD', '4C', '5C', '6C'],
+  E: ['6S', '8S', 'TS', '6H', '8H', '2D', '6D', 'JD', 'KD', '7C', '9C', 'JC', 'KC'],
+  S: ['AH', 'KH', 'QH', 'JH', 'TH', '5H', '2S', '3S', '4D', '5D', 'AC', '2C', '3C'],
+  W: ['5S', '7S', '9S', '4H', '7H', '9H', '3D', '7D', 'QD', 'AD', '8C', 'TC', 'QC'],
+});
+
+const STRAT_DEAL: Hands = makeHands({
+  N: ['5S', '6S', '7S', '2D', '3D', '8H', '9H', '9C', 'TC', 'JC', 'QC', 'KC', 'AC'],
+  E: ['8S', '9S', 'TS', 'JS', '4H', '5H', '6H', '7H', '7D', '8D', '9D', 'TD', 'JD'],
+  S: ['AS', 'KS', 'QS', 'AH', '2H', '3H', '4D', '5D', '6D', '2C', '3C', '4C', '5C'],
+  W: ['2S', '3S', '4S', 'KH', 'QH', 'JH', 'TH', 'AD', 'KD', 'QD', '6C', '7C', '8C'],
+});
+
 type RawBidAction =
   | { seat: Seat; bid: string }
   | { seat: Seat; learner: true; expected: string; hint: LText };
@@ -62,6 +90,89 @@ interface RawLesson {
 }
 
 const RAW_LESSONS: RawLesson[] = [
+  {
+    id: 'deck',
+    title: T('The Deck', '认识纸牌'),
+    dealer: 'E',
+    hands: DECK_DEAL,
+    contract: { level: 1, denom: 'S', declarer: 'S', doubled: 0 },
+    vulnerable: false,
+    steps: [
+      {
+        kind: 'info',
+        text: T(
+          'Welcome to bridge! It starts with 52 cards: 4 suits, 13 cards each. The suits are spades ♠, hearts ♥, diamonds ♦, and clubs ♣. Spades and clubs are black; hearts and diamonds are red.',
+          '欢迎来到桥牌！先从52张牌开始：4种花色，每种13张。花色是黑桃 ♠、红桃 ♥、方块 ♦、梅花 ♣。黑桃和梅花是黑色的；红桃和方块是红色的。'
+        ),
+      },
+      {
+        kind: 'info',
+        text: T(
+          'Each suit ranks 2 3 4 5 6 7 8 9 10 J Q K A — the ace is the highest card. Hearts are led: play your ace of hearts (AH), a red ace!',
+          '每种花色从小到大是 2 3 4 5 6 7 8 9 10 J Q K A —— A最大。首攻是红桃：打出你的红桃A (AH)，一张红色的A！'
+        ),
+      },
+      {
+        kind: 'play',
+        script: [
+          { seat: 'W', card: '4H' },
+          { seat: 'N', card: '5H' },
+          { seat: 'E', card: '2H' },
+          {
+            seat: 'S', learner: true, expected: 'AH',
+            hint: T('Play the ace of hearts (AH).', '打出红桃A (AH)。'),
+          },
+        ],
+      },
+      {
+        kind: 'info',
+        text: T(
+          'The red ace wins! Now spades are led — play your ace of spades (AS), the highest card in the deck.',
+          '红色的A赢了！现在首攻是黑桃 —— 打出你的黑桃A (AS)，整副牌中最大的一张。'
+        ),
+      },
+      {
+        kind: 'play',
+        script: [
+          {
+            seat: 'S', learner: true, expected: 'AS',
+            hint: T('You won the last trick, so you lead — play the ace of spades (AS).', '上一墩是你赢的，由你领出 —— 打出黑桃A (AS)。'),
+          },
+          { seat: 'W', card: '2S' },
+          { seat: 'N', card: '3S' },
+          { seat: 'E', card: '4S' },
+        ],
+      },
+      {
+        kind: 'info',
+        text: T(
+          'Two aces, two tricks! One more ranking for bidding: suits rank clubs < diamonds < hearts < spades < no-trump. East opened 1♥ — top it with 1♠.',
+          '两个A，两墩！再记住叫牌时的花色排序：梅花 < 方块 < 红桃 < 黑桃 < 无将。东家开了 1♥ —— 用 1♠ 超过它。'
+        ),
+      },
+      {
+        kind: 'auction',
+        script: [
+          { seat: 'E', bid: '1H' },
+          {
+            seat: 'S', learner: true, expected: '1S',
+            hint: T('Spades outrank hearts — bid 1♠.', '黑桃比红桃大 —— 叫 1♠。'),
+          },
+          { seat: 'W', bid: 'P' },
+          { seat: 'N', bid: 'P' },
+          { seat: 'E', bid: 'P' },
+        ],
+      },
+      {
+        kind: 'info',
+        text: T(
+          'You know the deck: suits, colors, ranks, and even your first bid. Next: how tricks are won and lost.',
+          '你已经认识了纸牌：花色、颜色、大小，还学会了第一次叫牌。接下来：如何赢墩。'
+        ),
+      },
+      { kind: 'result' },
+    ],
+  },
   {
     id: 'tricks',
     title: T('Winning tricks', '赢墩'),
@@ -147,6 +258,79 @@ const RAW_LESSONS: RawLesson[] = [
     ],
   },
   {
+    id: 'trump',
+    title: T('Trump', '将牌'),
+    dealer: 'N',
+    hands: TRUMP_DEAL,
+    contract: { level: 2, denom: 'S', declarer: 'S', doubled: 0 },
+    vulnerable: false,
+    steps: [
+      {
+        kind: 'info',
+        text: T(
+          'Some contracts name a trump suit. Here spades are trump — and any trump beats ANY card of another suit, even an ace. A tiny 2♠ beats the mighty A♥.',
+          '有些定约会指定将牌花色。这里黑桃是将牌 —— 任何将牌都能打败其他花色的任何牌，哪怕是A。小小的2♠能打败强大的A♥。'
+        ),
+      },
+      {
+        kind: 'info',
+        text: T(
+          'If you cannot follow suit, you may play a trump instead. That is called ruffing. Diamonds are led and you have none — ruff!',
+          '如果你没有首攻花色，可以改出将牌。这叫"将吃"。首攻是方块而你没有方块 —— 将吃它！'
+        ),
+      },
+      {
+        kind: 'play',
+        script: [
+          { seat: 'W', card: '4D' },
+          { seat: 'N', card: '2D' },
+          { seat: 'E', card: '9D' },
+          {
+            seat: 'S', learner: true, expected: '2S',
+            hint: T(
+              'You are void in diamonds — ruff with the 2♠!',
+              '你没有方块了 —— 用 2♠ 将吃！'
+            ),
+          },
+        ],
+      },
+      {
+        kind: 'info',
+        text: T(
+          'The little 2♠ beat the 9♦! Remember: any trump beats any non-trump.',
+          '小小的 2♠ 打败了 9♦！记住：将牌永远打败非将牌。'
+        ),
+      },
+      {
+        kind: 'info',
+        text: T(
+          'You won the trick, so you lead. When trump itself is led, it works like a normal suit — highest trump wins. Lead a spade.',
+          '你赢得了这一墩，所以由你领出。当领出的就是将牌时，和普通花色一样 —— 最大的将牌赢。领出一张黑桃。'
+        ),
+      },
+      {
+        kind: 'play',
+        script: [
+          {
+            seat: 'S', learner: true, expected: '7S',
+            hint: T('Lead the 7♠.', '领出 7♠。'),
+          },
+          { seat: 'W', card: '9S' },
+          { seat: 'N', card: 'AS' },
+          { seat: 'E', card: '3S' },
+        ],
+      },
+      {
+        kind: 'info',
+        text: T(
+          'North\'s ace of spades takes it — highest trump wins. You now understand trump, the heart of bridge strategy.',
+          '北家的黑桃A拿下 —— 最大的将牌赢。你已经懂了将牌，这是桥牌策略的核心。'
+        ),
+      },
+      { kind: 'result' },
+    ],
+  },
+  {
     id: 'bidding',
     title: T('Bidding basics', '叫牌基础'),
     dealer: 'N',
@@ -216,6 +400,88 @@ const RAW_LESSONS: RawLesson[] = [
           '南家是庄家 —— 庄家是赢得定约一方中第一个叫出定约花色的人。南家先叫的红桃，所以南家主打，北家的牌作为明手。'
         ),
       },
+    ],
+  },
+  {
+    id: 'conversation',
+    title: T('Bidding Conversation', '叫牌交流'),
+    dealer: 'S',
+    hands: CONV_DEAL,
+    contract: { level: 2, denom: 'H', declarer: 'S', doubled: 0 },
+    vulnerable: false,
+    steps: [
+      {
+        kind: 'info',
+        text: T(
+          'Bids are a conversation with your partner — every bid describes your hand. The measuring tool is high-card points: ace 4, king 3, queen 2, jack 1. (Ace + king = 7 points.)',
+          '叫牌是和搭档的对话 —— 每一次叫牌都在描述你的手牌。衡量工具是"大牌点"：A=4点，K=3点，Q=2点，J=1点。（A+K=7点。）'
+        ),
+      },
+      {
+        kind: 'info',
+        text: T(
+          'Opening: with about 12 or more points, open the bidding in your longest suit. You hold 6 hearts and 14 points — open 1♥.',
+          '开叫：大约12点以上，用你最长的花色开叫。你有6张红桃和14点 —— 开叫 1♥。'
+        ),
+      },
+      {
+        kind: 'auction',
+        script: [
+          {
+            seat: 'S', learner: true, expected: '1H',
+            hint: T('Open your heart suit: bid 1♥.', '开叫你的红桃套：叫 1♥。'),
+          },
+        ],
+      },
+      {
+        kind: 'info',
+        text: T(
+          'You opened! Now partner responds — North will describe their own hand.',
+          '你开叫了！现在轮到搭档"应叫" —— 北家会描述他自己的牌。'
+        ),
+      },
+      {
+        kind: 'auction',
+        script: [
+          { seat: 'W', bid: 'P' },
+          { seat: 'N', bid: '1S' },
+        ],
+      },
+      {
+        kind: 'info',
+        text: T(
+          'North\'s 1♠ is a response: "I have spades, partner." Now you rebid — bid again to clarify. With 6 hearts, rebid 2♥ to say hearts are really your suit.',
+          '北家的 1♠ 是应叫："搭档，我有黑桃。" 现在你"再叫" —— 再次叫牌来澄清牌情。有6张红桃，再叫 2♥ 表示红桃真是你的花色。'
+        ),
+      },
+      {
+        kind: 'auction',
+        script: [
+          { seat: 'E', bid: 'P' },
+          {
+            seat: 'S', learner: true, expected: '2H',
+            hint: T('Rebid your hearts: 2♥.', '再叫你的红桃：2♥。'),
+          },
+          { seat: 'W', bid: 'P' },
+          { seat: 'N', bid: 'P' },
+          { seat: 'E', bid: 'P' },
+        ],
+      },
+      {
+        kind: 'info',
+        text: T(
+          'Three passes — the auction is yours. Hear the conversation: 1♥ "I have hearts" → 1♠ "I have spades" → 2♥ "hearts again — I really mean it."',
+          '三次不叫 —— 定约是你们的了。听听这段对话：1♥"我有红桃" → 1♠"我有黑桃" → 2♥"红桃再叫一次 —— 我是认真的。"'
+        ),
+      },
+      {
+        kind: 'info',
+        text: T(
+          'Overcalls: when the opponents open, you can still compete. If East opened 1♦ and you hold a good heart suit, bidding 1♥ is an overcall — "we want to play this hand too." And with 3-card support for partner\'s suit, raise it: over partner\'s 1♠, bid 2♠ to say "I like spades too."',
+          '争叫：当对手开叫后，你依然可以竞争。如果东家开了 1♦ 而你有不错的红桃，叫 1♥ 就是争叫 —— "这副牌我们也要打。"而当你有3张支持搭档的花色时就加叫：搭档开 1♠，你叫 2♠ 表示"我也喜欢黑桃"。'
+        ),
+      },
+      { kind: 'result' },
     ],
   },
   {
@@ -290,6 +556,69 @@ const RAW_LESSONS: RawLesson[] = [
           '叫到并做成满贯（6阶或7阶）有巨额奖励 —— 最高1500分。宕了的话，对方按缺少的墩数得分。现在：打一整副牌！'
         ),
       },
+    ],
+  },
+  {
+    id: 'strategy',
+    title: T('Plan Your Play', '打牌计划'),
+    dealer: 'N',
+    hands: STRAT_DEAL,
+    contract: { level: 1, denom: 'NT', declarer: 'S', doubled: 0 },
+    vulnerable: false,
+    steps: [
+      {
+        kind: 'info',
+        text: T(
+          'Strong players plan before they play. First step: count your sure winners. An ace always wins a trick. A king wins if you also hold the ace. Look at your hand: ♠A K Q are 3 winners, ♥A is 1 more — 4 sure tricks.',
+          '高手出牌前先做计划。第一步：数清你的"稳赢墩"。A永远能赢一墩；如果你同时有A，K也能赢一墩。看看你的手牌：♠A K Q 是3个赢墩，♥A 再加1个 —— 4个稳赢墩。'
+        ),
+      },
+      {
+        kind: 'info',
+        text: T(
+          'You are in 1NT with 4 sure winners. West makes the opening lead. Win it with your ace — then the plan is to cash your winners before anything can go wrong.',
+          '你是1NT定约，有4个稳赢墩。西家首攻。用你的A赢下这一墩 —— 然后计划是趁一切顺利先把赢墩兑现。'
+        ),
+      },
+      {
+        kind: 'play',
+        script: [
+          { seat: 'W', card: '2S' },
+          { seat: 'N', card: '5S' },
+          { seat: 'E', card: '8S' },
+          {
+            seat: 'S', learner: true, expected: 'AS',
+            hint: T('Win the opening lead with the ace of spades (AS).', '用黑桃A (AS) 赢下首攻。'),
+          },
+        ],
+      },
+      {
+        kind: 'info',
+        text: T(
+          'You took the first trick. Now you lead — keep cashing winners with the king of spades.',
+          '你拿下了第一墩。现在由你领出 —— 继续用黑桃K兑现赢墩。'
+        ),
+      },
+      {
+        kind: 'play',
+        script: [
+          {
+            seat: 'S', learner: true, expected: 'KS',
+            hint: T('Cash the king of spades (KS).', '兑现黑桃K (KS)。'),
+          },
+          { seat: 'W', card: '3S' },
+          { seat: 'N', card: '6S' },
+          { seat: 'E', card: '9S' },
+        ],
+      },
+      {
+        kind: 'info',
+        text: T(
+          'That is planning in action: count your winners, then take them before the defense can interfere. Next: a full hand where you plan it all yourself.',
+          '这就是计划的威力：先数赢墩，再趁防守方捣乱之前兑现。接下来：一整副牌，由你自己做计划。'
+        ),
+      },
+      { kind: 'result' },
     ],
   },
   {

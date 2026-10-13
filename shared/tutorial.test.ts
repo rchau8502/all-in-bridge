@@ -139,10 +139,14 @@ describe('chinese lessons', () => {
 
   it('zh text is translated (not english), same scripts', () => {
     const zh = getLessons('zh');
-    expect(zh[0]!.title).toBe('赢墩');
-    expect(zh[1]!.title).toBe('叫牌基础');
-    expect(zh[2]!.title).toBe('定约与计分');
-    expect(zh[3]!.title).toBe('打一整副牌');
+    expect(zh[0]!.title).toBe('认识纸牌');
+    expect(zh[1]!.title).toBe('赢墩');
+    expect(zh[2]!.title).toBe('将牌');
+    expect(zh[3]!.title).toBe('叫牌基础');
+    expect(zh[4]!.title).toBe('叫牌交流');
+    expect(zh[5]!.title).toBe('定约与计分');
+    expect(zh[6]!.title).toBe('打牌计划');
+    expect(zh[7]!.title).toBe('打一整副牌');
     // Same step structure, same scripts — only text differs.
     for (let i = 0; i < LESSONS.length; i++) {
       const en = LESSONS[i]!;
@@ -151,7 +155,7 @@ describe('chinese lessons', () => {
       expect(z.id).toBe(en.id);
     }
     // The full-hand zh lesson scores the same 230.
-    const r = walkLesson(zh[3]!);
+    const r = walkLesson(zh[7]!);
     expect(r.getResult()!.total).toBe(230);
   });
 });
