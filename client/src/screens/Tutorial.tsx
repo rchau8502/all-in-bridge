@@ -6,17 +6,11 @@ import { audio } from '../audio.js';
 import { TutorialRunner } from '../../../shared/tutorial.js';
 import { getLessons } from '../../../shared/lessons.js';
 import type { Bid } from '../../../shared/bidding.js';
-import { cardLabel } from '../../../shared/deck.js';
+import { cardLabel, sortHand } from '../../../shared/deck.js';
 import type { Card, Seat } from '../../../shared/deck.js';
 
-const ALL_BIDS: Bid[] = (() => {
-  const bids: Bid[] = [{ type: 'pass' }];
-  const denoms = ['C', 'D', 'H', 'S', 'NT'] as const;
-  for (let level = 1; level <= 7; level++)
-    for (const d of denoms) bids.push({ type: 'bid', level, denom: d });
-  bids.push({ type: 'double' }, { type: 'redouble' });
-  return bids;
-})();
+/** Bidding-box column order, per club convention: NT leftmost, clubs rightmost. */
+const DENOM_ORDER = ['NT', 'S', 'H', 'D', 'C'] as const;
 
 /** Track which item signatures have already been shown, so entrance
  *  animations + sounds fire only for newly-appeared cards (per step). */
@@ -180,6 +174,9 @@ function SimTable(props: {
   hint: string | null;
   stepKey: string;
   bottomExtra?: React.ReactNode;
+  /** When set, this seat's cards render face-up (the dummy) instead of backs. */
+  dummySeat?: Seat | null;
+  dummyHand?: Card[] | null;
 }) {
   const { lang } = props;
   const sigs = props.trick.map(t => `${t.seat}${t.card.suit}${t.card.rank}`);
@@ -205,11 +202,19 @@ function SimTable(props: {
         .filter(s => s.seat !== 'S')
         .map(s => (
           <div key={s.seat} className={`sim-seat sim-${simPos(s.seat)}${s.active ? ' active-turn' : ''}`}>
-            <div className="sim-backs" aria-hidden>
-              <div className="card back tiny" />
-              <div className="card back tiny" />
-              <div className="card back tiny" />
-            </div>
+            {props.dummySeat === s.seat && props.dummyHand ? (
+              <div className="sim-dummy-hand" aria-label="dummy">
+                {sortHand(props.dummyHand).map((c, i) => (
+                  <CardView key={`${c.suit}${c.rank}-${i}`} card={c} small />
+                ))}
+              </div>
+            ) : (
+              <div className="sim-backs" aria-hidden>
+                <div className="card back tiny" />
+                <div className="card back tiny" />
+                <div className="card back tiny" />
+              </div>
+            )}
             <div className="sim-plate">
               <span className="sim-seatname">{seatLabel(lang, s.seat)}</span>
               <span className="sim-count">🂠×{s.count}</span>
@@ -347,6 +352,15 @@ export function Tutorial() {
     return m;
   }, [auctionView]);
 
+  // Lessons past the auction introduce the dummy (明手): declarer's partner,
+  // whose cards lie face-up on the table for the declarer to play.
+  const DUMMY_LESSON_IDS: ReadonlySet<string> = useMemo(
+    () => new Set(['bidding', 'conversation', 'scoring', 'strategy', 'full-hand']), []
+  );
+  const dummySeat: Seat | null = DUMMY_LESSON_IDS.has(lesson.id)
+    ? (lesson.contract.declarer === 'N' ? 'S' : lesson.contract.declarer === 'S' ? 'N' : lesson.contract.declarer === 'E' ? 'W' : 'E')
+    : null;
+
   return (
     <div className="tutorial">
       <div className="tut-header">
@@ -393,8 +407,8 @@ export function Tutorial() {
               active: auctionView.turn === s,
             }))}
             trick={[]}
-            hand={null}
-            handLabel={null}
+            hand={sortHand(lesson.hands.S)}
+            handLabel={seatLabel(lang, 'S')}
             interactive={false}
             onPlay={() => {}}
             hint={null}
@@ -404,11 +418,29 @@ export function Tutorial() {
                 {pending && pending.kind === 'bid' ? (
                   <>
                     <div className="sim-hint">🫵 {pending.hint}</div>
-                    <div className="bid-grid">
-                      {ALL_BIDS.map((b, i) => (
-                        <button key={i} className="bid-btn" onClick={() => doBid(bidToLabel(b))}>
-                          {bidLabelL(lang, b)}
-                        </button>
+                    <div className="bid-rows">
+                      <div className="bid-row">
+                        {(['pass', 'double', 'redouble'] as const).map(k => {
+                          const b: Bid = { type: k };
+                          return (
+                            <button key={k} className="bid-btn special" onClick={() => doBid(bidToLabel(b))}>
+                              {bidLabelL(lang, b)}
+                            </button>
+                          );
+                        })}
+                      </div>
+                      {[1, 2, 3, 4, 5, 6, 7].map(level => (
+                        <div className="bid-row level-row" key={level}>
+                          <span className="bid-lvl">{level}</span>
+                          {DENOM_ORDER.map(d => {
+                            const b: Bid = { type: 'bid', level, denom: d };
+                            return (
+                              <button key={d} className={`bid-btn denom-${d}`} onClick={() => doBid(bidToLabel(b))}>
+                                {bidLabelL(lang, b)}
+                              </button>
+                            );
+                          })}
+                        </div>
                       ))}
                     </div>
                   </>
@@ -442,7 +474,7 @@ export function Tutorial() {
               active: playView.turn === s,
             }))}
             trick={playView.trick}
-            hand={pending && pending.kind === 'play' ? playView.hands[pending.seat] : playView.hands.S}
+            hand={sortHand(pending && pending.kind === 'play' ? playView.hands[pending.seat] : playView.hands.S)}
             handLabel={
               pending && pending.kind === 'play'
                 ? `${seatLabel(lang, pending.seat)}${pending.seat === 'N' ? (lang === 'zh' ? '（明手）' : ' (dummy)') : ''}`
@@ -452,6 +484,8 @@ export function Tutorial() {
             onPlay={doPlay}
             hint={pending?.hint ?? null}
             stepKey={stepKey}
+            dummySeat={dummySeat}
+            dummyHand={dummySeat ? playView.hands[dummySeat] : null}
           />
         )}
         {step?.kind === 'play' && awaitingTap && (

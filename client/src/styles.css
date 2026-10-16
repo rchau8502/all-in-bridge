@@ -501,7 +501,24 @@ select.input { appearance: auto; }
   color: var(--accent);
   animation: ring-pulse 1s infinite;
 }
-.bid-grid { display: grid; grid-template-columns: repeat(8, 1fr); gap: 6px; }
+.bid-rows { display: flex; flex-direction: column; gap: 6px; width: 100%; max-width: 440px; }
+.bid-row { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; }
+.bid-row.level-row { grid-template-columns: 1.4rem repeat(5, 1fr); align-items: center; }
+.bid-lvl { font-weight: 800; color: var(--text-dim); text-align: center; font-size: 14px; }
+.bid-btn.denom-H, .bid-btn.denom-D {
+  background: linear-gradient(180deg, #ff9a9a, #e05252);
+  color: #fff;
+  box-shadow: 0 2px 10px rgba(224, 82, 82, 0.3);
+}
+.bid-btn.denom-S, .bid-btn.denom-C {
+  background: linear-gradient(180deg, #5a6c94, #33415f);
+  color: #fff;
+  box-shadow: 0 2px 10px rgba(51, 65, 95, 0.35);
+}
+.sim-dummy-hand {
+  display: flex; flex-wrap: wrap; gap: 3px;
+  justify-content: center; max-width: 240px;
+}
 .bid-btn {
   font: inherit; font-weight: 800; font-size: 15px; padding: 9px 4px; border-radius: 12px;
   background: linear-gradient(180deg, #ffdd55, #f5b62e);
@@ -827,7 +844,7 @@ table.standings tr.leader td { color: var(--accent); font-weight: 800; }
   .trick-card.pos-right { transform: translateX(56px); }
   .trick-card.pos-top { transform: translateY(-40px); }
   .trick-card.pos-bottom { transform: translateY(40px); }
-  .bid-grid { grid-template-columns: repeat(5, 1fr); }
+  .bid-rows { max-width: 100%; }
   .seats-grid { grid-template-columns: repeat(2, minmax(120px, 1fr)); }
   .room-code { font-size: 34px; }
   .pod-avatar { width: 60px; height: 60px; }

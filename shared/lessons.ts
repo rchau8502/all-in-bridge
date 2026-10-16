@@ -60,10 +60,10 @@ const CONV_DEAL: Hands = makeHands({
 });
 
 const STRAT_DEAL: Hands = makeHands({
-  N: ['5S', '6S', '7S', '2D', '3D', '8H', '9H', '9C', 'TC', 'JC', 'QC', 'KC', 'AC'],
-  E: ['8S', '9S', 'TS', 'JS', '4H', '5H', '6H', '7H', '7D', '8D', '9D', 'TD', 'JD'],
-  S: ['AS', 'KS', 'QS', 'AH', '2H', '3H', '4D', '5D', '6D', '2C', '3C', '4C', '5C'],
-  W: ['2S', '3S', '4S', 'KH', 'QH', 'JH', 'TH', 'AD', 'KD', 'QD', '6C', '7C', '8C'],
+  N: ['5S', '6S', '7S', '2D', '3D', 'QH', '8H', '9C', 'TC', 'JC', 'QC', 'KC', 'AC'],
+  E: ['8S', '9S', 'TS', 'JS', 'JH', 'TH', '7H', '5H', '7D', '8D', '9D', 'TD', 'JD'],
+  S: ['AS', 'KS', 'QS', 'AH', '6H', '2H', '4D', '5D', '6D', '2C', '3C', '4C', '5C'],
+  W: ['2S', '3S', '4S', 'KH', '9H', '4H', '3H', 'AD', 'KD', 'QD', '6C', '7C', '8C'],
 });
 
 type RawBidAction =
@@ -150,7 +150,6 @@ const RAW_LESSONS: RawLesson[] = [
           '两个A，两墩！你已经认识了纸牌：花色、颜色、大小。下一课：如何赢墩。'
         ),
       },
-      { kind: 'result' },
     ],
   },
   {
@@ -307,7 +306,6 @@ const RAW_LESSONS: RawLesson[] = [
           '北家的黑桃A拿下 —— 最大的将牌赢。你已经懂了将牌，这是桥牌策略的核心。'
         ),
       },
-      { kind: 'result' },
     ],
   },
   {
@@ -378,6 +376,13 @@ const RAW_LESSONS: RawLesson[] = [
         text: T(
           "South is the declarer — the declarer is the first player of the winning side to bid the contract's suit. South bid hearts first, so South plays the hand, with North's cards as dummy.",
           '南家是庄家 —— 庄家是赢得定约一方中第一个叫出定约花色的人。南家先叫的红桃，所以南家主打，北家的牌作为明手。'
+        ),
+      },
+      {
+        kind: 'info',
+        text: T(
+          "Meet the dummy （明手）. The declarer's partner lays their entire hand face-up on the table — that is the dummy — and doesn't touch the cards again. The declarer plays BOTH hands. From now on you will see North's cards face-up: you are South, the declarer, and North is your dummy.",
+          '认识一下明手。庄家的搭档把整手牌摊在桌上 —— 这就是明手 —— 然后就不再碰牌了。庄家一个人打两手牌。从现在起你会看到北家的牌全部翻开：你是南家（庄家），北家就是你的明手。'
         ),
       },
     ],
@@ -461,7 +466,13 @@ const RAW_LESSONS: RawLesson[] = [
           '争叫：当对手开叫后，你依然可以竞争。如果东家开了 1♦ 而你有不错的红桃，叫 1♥ 就是争叫 —— "这副牌我们也要打。"而当你有3张支持搭档的花色时就加叫：搭档开 1♠，你叫 2♠ 表示"我也喜欢黑桃"。'
         ),
       },
-      { kind: 'result' },
+      {
+        kind: 'info',
+        text: T(
+          'Last piece of the conversation: how high should we go? A contract worth 100+ trick points is game （成局） — 3NT, 4♥, 4♠, 5♣ or 5♦ — and it pays a big bonus: +300 (or +500 when vulnerable). Anything cheaper is a partscore. The classic rule: with about 25 combined high-card points, bid game （25点进局）. You held 14, partner showed about 10 — 24 total, just short — so stopping in 2♥ is exactly right.',
+          '对话的最后一课：到底该叫多高？墩分满100的定约叫成局 —— 3NT、4♥、4♠、5♣、5♦ —— 奖励丰厚：无局+300，有局+500。不满100分的是部分定约。经典法则：两人合计约25点大牌点，就叫成局（25点进局）。你14点，搭档约10点，合计24点，差一口气 —— 所以停在2♥恰到好处。'
+        ),
+      },
     ],
   },
   {
@@ -498,6 +509,13 @@ const RAW_LESSONS: RawLesson[] = [
         text: T(
           '3NT made exactly, not vulnerable: 100 trick points + 300 game bonus = 400. Every overtrick adds 30 more — each extra trick is cash.',
           '3NT 刚好做成、无局：100 墩分 + 300 成局奖励 = 400 分。每超一墩再加 30 分 —— 每一墩都是钱。'
+        ),
+      },
+      {
+        kind: 'info',
+        text: T(
+          'That +300 is the game bonus （成局奖励）. Any contract with 100+ trick points is game （成局）: 3NT = 100, 4♥/4♠ = 120, 5♣/5♦ = 100. Below 100 is a partscore （部分定约） — still a plus score, with a smaller 50-point bonus.',
+          '这+300就是成局奖励。墩分满100的定约就是成局：3NT=100分，4♥/4♠=120分，5♣/5♦=100分。不满100分是部分定约 —— 照样是正分，只是奖励只有50分。'
         ),
       },
       {
@@ -594,11 +612,52 @@ const RAW_LESSONS: RawLesson[] = [
       {
         kind: 'info',
         text: T(
-          'That is planning in action: count your winners, then take them before the defense can interfere. Next: a full hand where you plan it all yourself.',
-          '这就是计划的威力：先数赢墩，再趁防守方捣乱之前兑现。接下来：一整副牌，由你自己做计划。'
+          'That is planning in action: count your winners, then take them before the defense can interfere.',
+          '这就是计划的威力：先数赢墩，再趁防守方捣乱之前兑现。'
         ),
       },
-      { kind: 'result' },
+      {
+        kind: 'info',
+        text: T(
+          'New weapon: the finesse （飞牌）. Look at hearts: you hold A-6-2, dummy holds Q-8, and the missing king is out there. Lead a low heart TOWARD dummy\'s queen — if West holds the king, it is trapped in front of your queen and cannot win. Try it!',
+          '新武器：飞牌。看红桃：你有 A-6-2，明手有 Q-8，缺少的K在外面。朝着明手的Q领出一张小红桃 —— 如果K在西家，它就被困在Q前面，拿不到这一墩。试试！'
+        ),
+      },
+      {
+        kind: 'play',
+        script: [
+          {
+            seat: 'S', learner: true, expected: '2H',
+            hint: T(
+              'Lead a low heart toward dummy\'s queen — finesse time!',
+              '朝着明手的红桃Q领出一张小红桃 —— 飞牌时刻！'
+            ),
+          },
+          { seat: 'W', card: '3H' },
+          {
+            seat: 'N', learner: true, expected: 'QH',
+            hint: T(
+              'Play dummy\'s queen — West\'s king is stuck in front of it!',
+              '打出明手的Q —— 西家的K被困在Q前面了！'
+            ),
+          },
+          { seat: 'E', card: '5H' },
+        ],
+      },
+      {
+        kind: 'info',
+        text: T(
+          'The queen held! That is a finesse: leading toward your honor so the enemy\'s higher card is trapped. It works exactly half the time (50%) — if the king had been with East instead, sitting BEHIND your queen, you would have lost.',
+          'Q拿下了！这就是飞牌：朝着你的大牌领出，把对方更高的牌困住。它正好一半时间成功（50%） —— 如果K在东家手里，坐在Q的后面，你就输了。'
+        ),
+      },
+      {
+        kind: 'info',
+        text: T(
+          'How do the missing cards usually split? Memorize these: a finesse works 50% of the time. With 5 cards missing, they split 3-2 about 68% of the time; with 4 missing, 2-2 is about 41%. The old rule: with 8 cards in a suit, always finesse ("eight ever"); with 9 or more, cash your aces and kings and let the queen drop ("nine never"). Next: a full hand where you plan it all yourself.',
+          '外面的牌通常怎么分布？记住这几个数字：飞牌成功率50%。外面有5张牌时，3-2分布约68%；有4张时，2-2约41%。老口诀：某花色有8张时永远飞牌（eight ever），9张以上就直接拔A K把Q敲下来（nine never）。接下来：一整副牌，由你自己做计划。'
+        ),
+      },
     ],
   },
   {
