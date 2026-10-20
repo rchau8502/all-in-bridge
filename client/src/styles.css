@@ -52,7 +52,7 @@ body {
   -webkit-font-smoothing: antialiased;
 }
 
-.app { max-width: 1100px; margin: 0 auto; padding: 0 16px 40px; min-height: 100vh; display: flex; flex-direction: column; }
+.app { max-width: 1500px; margin: 0 auto; padding: 0 16px 40px; min-height: 100vh; display: flex; flex-direction: column; }
 
 /* game screens break out of the centered column and fill the viewport,
  * like a real game scene instead of a web page */
@@ -354,24 +354,23 @@ select.input { appearance: auto; }
 }
 .obs-tag { color: var(--text-dim); }
 
-/* green felt with a wood rim and gold trim — the card-hall table */
+/* teal felt, modern rim: slim light edge, soft depth, no wood/gold trim */
 .felt {
   position: relative;
   background:
-    radial-gradient(ellipse at 50% 32%, rgba(255, 235, 170, 0.13) 0%, transparent 55%),
-    radial-gradient(ellipse at center, var(--felt1) 0%, var(--felt2) 55%, var(--felt3) 100%);
-  border: 8px solid var(--wood);
-  outline: 3px solid var(--gold2);
-  border-radius: 30px;
+    radial-gradient(ellipse at 50% 28%, rgba(255, 255, 255, 0.14) 0%, transparent 55%),
+    linear-gradient(160deg, #15b9d1 0%, var(--felt2) 48%, var(--felt3) 100%);
+  border: 1px solid rgba(255, 255, 255, 0.20);
+  border-radius: 28px;
   min-height: 440px; padding: 14px;
   flex: 1;
   display: grid; grid-template-columns: 160px 1fr 160px; grid-template-rows: auto 1fr auto;
   grid-template-areas: ". top ." "left center right" ". me .";
-  box-shadow: inset 0 0 80px rgba(0, 0, 0, 0.55), 0 14px 44px rgba(0, 0, 0, 0.6);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.18), inset 0 0 90px rgba(0, 43, 54, 0.35), 0 24px 60px rgba(2, 24, 48, 0.5);
 }
 .felt::before {
   content: ""; position: absolute; inset: 10px; border-radius: 20px;
-  border: 2px solid rgba(255, 216, 61, 0.35); pointer-events: none;
+  border: 1px solid rgba(255, 255, 255, 0.14); pointer-events: none;
 }
 
 /* player pods: big cartoon avatar, dark red name plate with gold trim */
@@ -430,10 +429,10 @@ select.input { appearance: auto; }
   60% { transform: scale(0.94) rotate(3deg); opacity: 1; }
   100% { transform: scale(1) rotate(0); }
 }
-.trick-card.pos-top { transform: translateY(-54px); }
-.trick-card.pos-bottom { transform: translateY(54px); }
-.trick-card.pos-left { transform: translateX(-74px); }
-.trick-card.pos-right { transform: translateX(74px); }
+.trick-card.pos-top { transform: translateY(-64px); }
+.trick-card.pos-bottom { transform: translateY(64px); }
+.trick-card.pos-left { transform: translateX(-64px); }
+.trick-card.pos-right { transform: translateX(64px); }
 .auction-trail { display: flex; flex-wrap: wrap; gap: 6px; justify-content: center; max-width: 440px; }
 .trail-bid {
   background: rgba(8, 18, 40, 0.85); border: 1px solid var(--stroke); border-radius: 10px;
@@ -458,10 +457,10 @@ select.input { appearance: auto; }
 
 /* cards */
 .card {
-  width: var(--card-w); height: var(--card-h); border-radius: 10px;
-  background: linear-gradient(165deg, #ffffff 0%, #fbf8ef 70%, #f1e9d4 100%);
-  border: 2px solid #c9b98f; position: relative; color: #1a1a1a;
-  font-weight: 900; box-shadow: 0 6px 14px rgba(0, 0, 0, 0.45);
+  width: var(--card-w); height: var(--card-h); border-radius: 12px;
+  background: linear-gradient(165deg, #ffffff 0%, #fdfcf7 70%, #f4f1e6 100%);
+  border: 1px solid rgba(15, 30, 60, 0.14); position: relative; color: #1a1a1a;
+  font-weight: 900; box-shadow: 0 4px 12px rgba(2, 24, 48, 0.35);
   user-select: none;
 }
 .card.small { --card-w: 52px; --card-h: 74px; font-size: 12px; }
@@ -480,6 +479,27 @@ select.input { appearance: auto; }
   cursor: pointer;
 }
 .card.dim { opacity: 0.45; filter: grayscale(0.5); }
+.card.target {
+  transform: translateY(-14px); z-index: 5;
+  animation: target-pulse 0.85s ease-in-out infinite;
+}
+.card.target::after {
+  content: '👇'; position: absolute; top: -32px; left: 50%;
+  transform: translateX(-50%); font-size: 22px; z-index: 6;
+  animation: target-bounce 0.85s ease-in-out infinite; pointer-events: none;
+}
+@keyframes target-pulse {
+  0%, 100% { box-shadow: 0 0 0 3px var(--gold), 0 0 18px rgba(255, 171, 0, 0.95), 0 6px 14px rgba(0, 0, 0, 0.45); }
+  50% { box-shadow: 0 0 0 5px var(--gold2), 0 0 32px rgba(255, 171, 0, 1), 0 6px 14px rgba(0, 0, 0, 0.45); }
+}
+@keyframes target-bounce {
+  0%, 100% { margin-top: 0; }
+  50% { margin-top: 6px; }
+}
+.bid-btn.hint-target {
+  position: relative;
+  animation: target-pulse 0.85s ease-in-out infinite;
+}
 .card.back {
   background:
     radial-gradient(circle at 50% 50%, rgba(255,216,61,0.5) 0 20%, transparent 21%),
@@ -505,33 +525,44 @@ select.input { appearance: auto; }
 .bid-row { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; }
 .bid-row.level-row { grid-template-columns: 1.4rem repeat(5, 1fr); align-items: center; }
 .bid-lvl { font-weight: 800; color: var(--text-dim); text-align: center; font-size: 14px; }
+.bid-btn.denom-NT {
+  background: linear-gradient(180deg, #ffdd55, #f5b62e);
+  color: var(--ink-btn);
+  box-shadow: 0 2px 10px rgba(245, 182, 46, 0.35);
+}
 .bid-btn.denom-H, .bid-btn.denom-D {
-  background: linear-gradient(180deg, #ff9a9a, #e05252);
+  background: #e14b4b;
   color: #fff;
-  box-shadow: 0 2px 10px rgba(224, 82, 82, 0.3);
+  box-shadow: 0 2px 8px rgba(225, 75, 75, 0.35);
 }
 .bid-btn.denom-S, .bid-btn.denom-C {
-  background: linear-gradient(180deg, #5a6c94, #33415f);
+  background: #46587a;
   color: #fff;
-  box-shadow: 0 2px 10px rgba(51, 65, 95, 0.35);
+  box-shadow: 0 2px 8px rgba(70, 88, 122, 0.4);
 }
-.sim-dummy-hand {
-  display: flex; flex-wrap: wrap; gap: 3px;
-  justify-content: center; max-width: 240px;
+/* face-up seat hands (open-book bootcamp): compact mini cards */
+.sim-faceup {
+  display: flex; flex-wrap: wrap; gap: 2px;
+  justify-content: center; max-width: 300px;
 }
+.sim-faceup .card { --card-w: 34px; --card-h: 48px; }
+.sim-faceup .card .pip { font-size: 17px; }
+.sim-faceup .card .corner { font-size: 9px; }
+.sim-w .sim-faceup, .sim-e .sim-faceup { max-width: 140px; }
 .bid-btn {
   font: inherit; font-weight: 800; font-size: 15px; padding: 9px 4px; border-radius: 12px;
-  background: linear-gradient(180deg, #ffdd55, #f5b62e);
-  color: var(--ink-btn); border: none; cursor: pointer;
-  box-shadow: 0 2px 10px rgba(245, 182, 46, 0.3);
+  background: rgba(255, 255, 255, 0.10);
+  color: var(--text); border: 1px solid rgba(255, 255, 255, 0.14); cursor: pointer;
+  box-shadow: none;
   transition: transform 0.1s ease, filter 0.1s ease;
 }
 .bid-btn:hover { transform: translateY(-2px); filter: brightness(1.06); }
 .bid-btn:active { transform: translateY(1px); }
 .bid-btn.special {
-  background: linear-gradient(180deg, #f25563, #c22a3a);
+  background: rgba(8, 18, 40, 0.55);
   color: #fff;
-  box-shadow: 0 2px 10px rgba(194, 42, 58, 0.4);
+  border: 1px solid rgba(255, 255, 255, 0.20);
+  box-shadow: none;
 }
 .voice-row { display: flex; gap: 6px; align-items: center; flex-wrap: wrap; justify-content: center; }
 .voice-label { font-size: 13px; color: var(--text-dim); font-weight: 700; }
@@ -664,7 +695,9 @@ select.input { appearance: auto; }
 }
 .tut-progress { margin-left: auto; color: var(--text); font-weight: 700; }
 .tut-lessons { display: flex; gap: 8px; flex-wrap: wrap; }
-.tut-body { display: flex; flex-direction: column; align-items: center; justify-content: flex-start; padding-top: 28px; flex: 1; }
+.tut-body { display: flex; flex-direction: column; align-items: center; justify-content: flex-start; padding-top: 12px; flex: 1; }
+/* text-only steps centre vertically instead of hugging the top */
+.tut-body:has(> .tut-coach-card), .tut-body:has(> .tut-card) { justify-content: center; }
 .tut-card {
   width: min(680px, 96%);
   background: var(--surface);
@@ -684,21 +717,22 @@ select.input { appearance: auto; }
 /* ---------- simulated table (tutorial): a compact game table ---------- */
 .sim-felt {
   position: relative;
-  width: min(1060px, 98%);
+  width: 100%;
   background:
-    radial-gradient(ellipse at 50% 30%, rgba(255, 235, 170, 0.16) 0%, transparent 55%),
-    radial-gradient(ellipse at center, var(--felt1) 0%, var(--felt2) 55%, var(--felt3) 100%);
-  border: 6px solid var(--wood);
-  outline: 2px solid var(--gold2);
-  border-radius: 24px;
+    radial-gradient(ellipse at 50% 28%, rgba(255, 255, 255, 0.14) 0%, transparent 55%),
+    linear-gradient(160deg, #15b9d1 0%, var(--felt2) 48%, var(--felt3) 100%);
+  border: 1px solid rgba(255, 255, 255, 0.20);
+  border-radius: 28px;
   padding: 14px;
   display: grid;
-  grid-template-columns: 108px 1fr 108px;
+  grid-template-columns: 148px 1fr 148px;
   grid-template-rows: auto 1fr auto;
   grid-template-areas: ". simn ." "simw simc sime" ". simme .";
-  box-shadow: inset 0 0 60px rgba(0, 0, 0, 0.45), 0 12px 30px rgba(0, 0, 0, 0.4);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.18), inset 0 0 90px rgba(0, 43, 54, 0.35), 0 24px 60px rgba(2, 24, 48, 0.5);
   min-height: 560px;
 }
+/* the tutorial table fills the body's free height — no dead space below */
+.tut-body > .sim-felt { align-self: stretch; flex: 1 1 auto; }
 .sim-topbar { grid-column: 1 / -1; display: flex; justify-content: center; gap: 10px; align-items: center; margin-bottom: 6px; }
 .sim-trickno {
   background: rgba(8, 16, 38, 0.78); border: 1px solid var(--gold2); color: var(--gold);
@@ -728,13 +762,15 @@ select.input { appearance: auto; }
 }
 .sim-seat.active-turn .sim-plate { border-color: var(--gold2); box-shadow: 0 0 14px rgba(255, 171, 0, 0.85); }
 .sim-center { grid-area: simc; position: relative; min-height: 230px; display: flex; align-items: center; justify-content: center; }
-.sim-trick { position: relative; width: 260px; height: 230px; }
-.sim-tcard { position: absolute; animation: slam 0.35s cubic-bezier(0.2, 1.6, 0.4, 1) backwards; }
+/* played cards sit at EQUAL offsets from the centre — a true square,
+ * one card toward each seat of the square table */
+.sim-trick { position: relative; width: 200px; height: 200px; --toff: 82px; }
+.sim-tcard { position: absolute; top: 50%; left: 50%; animation: slam 0.35s cubic-bezier(0.2, 1.6, 0.4, 1) backwards; }
 .sim-tcard.noanim { animation: none; }
-.sim-tcard.pos-top { top: 0; left: 50%; margin-left: -38px; }
-.sim-tcard.pos-bottom { bottom: 0; left: 50%; margin-left: -38px; }
-.sim-tcard.pos-left { left: 0; top: 50%; margin-top: -54px; }
-.sim-tcard.pos-right { right: 0; top: 50%; margin-top: -54px; }
+.sim-tcard.pos-top { margin-left: calc(var(--card-w) / -2); margin-top: calc(var(--card-h) / -2 - var(--toff)); }
+.sim-tcard.pos-bottom { margin-left: calc(var(--card-w) / -2); margin-top: calc(var(--card-h) / -2 + var(--toff)); }
+.sim-tcard.pos-left { margin-left: calc(var(--card-w) / -2 - var(--toff)); margin-top: calc(var(--card-h) / -2); }
+.sim-tcard.pos-right { margin-left: calc(var(--card-w) / -2 + var(--toff)); margin-top: calc(var(--card-h) / -2); }
 .sim-me { grid-area: simme; display: flex; flex-direction: column; align-items: center; gap: 6px; }
 .sim-hint { color: #fff; font-weight: 800; text-shadow: 0 2px 3px rgba(0,0,0,0.65); text-align: center; }
 .sim-handlabel { color: var(--gold); font-weight: 900; font-size: 14px; text-shadow: 0 2px 3px rgba(0,0,0,0.6); }
@@ -750,28 +786,28 @@ select.input { appearance: auto; }
 /* coach card: your fighter explains the lesson */
 .tut-coach-card { display: flex; gap: 14px; align-items: flex-start; width: min(760px, 96%); }
 .coach-avatar {
-  width: 84px; height: 84px; border-radius: 50%; border: 3px solid var(--gold2);
+  width: 84px; height: 84px; border-radius: 50%; border: 3px solid #fff;
   object-fit: cover; flex: none; background: #f5eeda;
-  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.4);
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.35), 0 0 0 2px var(--gold2);
 }
 .coach-bubble {
-  background: linear-gradient(180deg, #fffdf4, #fff3d6); color: #4a2600;
-  border: 2px solid var(--gold2); border-radius: 18px;
+  background: #ffffff; color: #17283f;
+  border: 1px solid rgba(13, 28, 61, 0.08); border-radius: 20px;
   padding: 18px 20px; display: flex; flex-direction: column; gap: 12px; align-items: flex-start;
-  box-shadow: 0 10px 26px rgba(0, 0, 0, 0.35);
+  box-shadow: 0 12px 32px rgba(2, 24, 48, 0.28);
 }
-.coach-bubble .tut-text { color: #4a2600; }
+.coach-bubble .tut-text { color: #17283f; }
 .coach-bubble { cursor: pointer; }
 
 /* typewriter dialogue: blinking caret + tap-to-skip hint */
 .tw-caret {
   display: inline-block; width: 3px; height: 1.05em; margin-left: 3px;
-  vertical-align: -2px; background: #b57e12; border-radius: 2px;
+  vertical-align: -2px; background: var(--gold2); border-radius: 2px;
   animation: tw-blink 0.75s steps(1) infinite;
 }
 @keyframes tw-blink { 50% { opacity: 0; } }
 .tw-skip {
-  font-size: 12px; font-weight: 700; color: #a08050; align-self: flex-end;
+  font-size: 12px; font-weight: 700; color: #8fa3bd; align-self: flex-end;
   animation: tw-blink 1.4s ease infinite;
 }
 
@@ -840,24 +876,24 @@ table.standings tr.leader td { color: var(--accent); font-weight: 800; }
   .me-area { grid-column: 1 / -1; }
   .hand { flex-wrap: nowrap; }
   .hand .card { margin: 0 -39px; }
-  .trick-card.pos-left { transform: translateX(-56px); }
-  .trick-card.pos-right { transform: translateX(56px); }
-  .trick-card.pos-top { transform: translateY(-40px); }
-  .trick-card.pos-bottom { transform: translateY(40px); }
+  .trick-card.pos-left { transform: translateX(-48px); }
+  .trick-card.pos-right { transform: translateX(48px); }
+  .trick-card.pos-top { transform: translateY(-48px); }
+  .trick-card.pos-bottom { transform: translateY(48px); }
   .bid-rows { max-width: 100%; }
   .seats-grid { grid-template-columns: repeat(2, minmax(120px, 1fr)); }
   .room-code { font-size: 34px; }
   .pod-avatar { width: 60px; height: 60px; }
   .opp-emoji { font-size: 34px; }
   /* simulated tutorial table fits phones */
-  .sim-felt { grid-template-columns: 84px 1fr 84px; min-height: 440px; padding: 8px; }
-  .sim-trick { width: 170px; height: 170px; }
+  .sim-felt { grid-template-columns: 96px 1fr 96px; min-height: 440px; padding: 8px; }
+  .sim-trick { width: 150px; height: 150px; --toff: 54px; }
   .sim-tcard { --card-w: 52px; --card-h: 74px; }
   .sim-tcard .pip { font-size: 26px; }
-  .sim-tcard.pos-top { margin-left: -26px; }
-  .sim-tcard.pos-bottom { margin-left: -26px; }
-  .sim-tcard.pos-left { margin-top: -37px; }
-  .sim-tcard.pos-right { margin-top: -37px; }
+  .sim-faceup { max-width: 200px; }
+  .sim-faceup .card { --card-w: 27px; --card-h: 38px; }
+  .sim-faceup .card .pip { font-size: 13px; }
+  .sim-w .sim-faceup, .sim-e .sim-faceup { max-width: 92px; }
   .sim-plate { padding: 2px 6px; }
   .sim-seatname { font-size: 11px; }
   .sim-count { font-size: 10px; margin-left: 3px; }
@@ -884,4 +920,14 @@ table.standings tr.leader td { color: var(--accent); font-weight: 800; }
     animation-iteration-count: 1 !important;
     transition-duration: 0.01ms !important;
   }
+}
+
+/* big screens: use the space — larger cards, roomier table */
+@media (min-width: 1500px) and (min-height: 820px) {
+  :root { --card-w: 88px; --card-h: 124px; }
+  .card.small { --card-w: 60px; --card-h: 84px; }
+  .sim-trick { --toff: 96px; }
+  .sim-faceup .card { --card-w: 40px; --card-h: 56px; }
+  .sim-faceup .card .pip { font-size: 20px; }
+  .sim-faceup .card .corner { font-size: 10px; }
 }

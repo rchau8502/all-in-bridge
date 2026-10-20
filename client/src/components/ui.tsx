@@ -21,14 +21,15 @@ export function cardName(card: Card): string {
 }
 
 export function CardView({
-  card, small, dim, onClick, playable, selected,
+  card, small, dim, onClick, playable, selected, target,
 }: {
   card: Card; small?: boolean; dim?: boolean;
-  onClick?: () => void; playable?: boolean; selected?: boolean;
+  onClick?: () => void; playable?: boolean; selected?: boolean; target?: boolean;
 }) {
   const cls = [
     'card', SUIT_CLASS[card.suit], small ? 'small' : '',
     dim ? 'dim' : '', playable ? 'playable' : '', selected ? 'selected' : '',
+    target ? 'target' : '',
     onClick ? 'clickable' : '',
   ].join(' ');
   const handleKey = (e: KeyboardEvent<HTMLDivElement>) => {

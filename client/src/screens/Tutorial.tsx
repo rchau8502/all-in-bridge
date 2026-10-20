@@ -37,6 +37,12 @@ function simPos(seat: Seat): 'top' | 'left' | 'right' | 'bottom' {
   return seat === 'N' ? 'top' : seat === 'W' ? 'left' : seat === 'E' ? 'right' : 'bottom';
 }
 
+/** Rotating coach praise for correct actions — like a friend cheering you on. */
+const PRAISE: Record<Lang, string[]> = {
+  en: ['Nice one! 🎉', 'Exactly right!', "That's it!", 'Perfect! 👏', 'You got it!'],
+  zh: ['太棒了！🎉', '完全正确！', '对，就是这样！', '漂亮！👏', '答对啦！'],
+};
+
 /** Typewriter dialogue, like an RPG: text reveals code-point by code-point
  *  (emoji-safe), with a soft blip every few chars. CJK chars type slower.
  *  Honors prefers-reduced-motion: shows the full line instantly. */
@@ -174,9 +180,12 @@ function SimTable(props: {
   hint: string | null;
   stepKey: string;
   bottomExtra?: React.ReactNode;
-  /** When set, this seat's cards render face-up (the dummy) instead of backs. */
+  /** Face-up hands for the seats (bootcamp = open book: everyone shows). */
+  hands?: Partial<Record<Seat, Card[]>> | null;
+  /** The dummy seat gets a small tag under its plate. */
   dummySeat?: Seat | null;
-  dummyHand?: Card[] | null;
+  /** Card label (e.g. 'AH') of the card the learner should play — it pulses with a pointer. */
+  highlight?: string | null;
 }) {
   const { lang } = props;
   const sigs = props.trick.map(t => `${t.seat}${t.card.suit}${t.card.rank}`);
@@ -201,10 +210,10 @@ function SimTable(props: {
       {props.seats
         .filter(s => s.seat !== 'S')
         .map(s => (
-          <div key={s.seat} className={`sim-seat sim-${simPos(s.seat)}${s.active ? ' active-turn' : ''}`}>
-            {props.dummySeat === s.seat && props.dummyHand ? (
-              <div className="sim-dummy-hand" aria-label="dummy">
-                {sortHand(props.dummyHand).map((c, i) => (
+          <div key={s.seat} className={`sim-seat sim-${s.seat.toLowerCase()}${s.active ? ' active-turn' : ''}`}>
+            {props.hands?.[s.seat] ? (
+              <div className="sim-faceup" aria-label={seatLabel(lang, s.seat)}>
+                {sortHand(props.hands[s.seat]!).map((c, i) => (
                   <CardView key={`${c.suit}${c.rank}-${i}`} card={c} small />
                 ))}
               </div>
@@ -219,6 +228,9 @@ function SimTable(props: {
               <span className="sim-seatname">{seatLabel(lang, s.seat)}</span>
               <span className="sim-count">🂠×{s.count}</span>
             </div>
+            {props.dummySeat === s.seat && (
+              <div className="sim-badge">{lang === 'zh' ? '明手' : 'Dummy'}</div>
+            )}
             {s.badge && <div className="sim-badge">{s.badge}</div>}
           </div>
         ))}
@@ -252,6 +264,7 @@ function SimTable(props: {
                   key={`${c.suit}${c.rank}-${i}`}
                   card={c}
                   playable={props.interactive}
+                  target={props.interactive && props.highlight === cardLabel(c)}
                   onClick={props.interactive ? () => props.onPlay(c) : undefined}
                 />
               ))}
@@ -269,8 +282,9 @@ export function Tutorial() {
   const [lessonIdx, setLessonIdx] = useState(0);
   const [tick, setTick] = useState(0);
   const [feedback, setFeedback] = useState('');
-  const [fbMood, setFbMood] = useState<'bad' | null>(null);
+  const [fbMood, setFbMood] = useState<'bad' | 'good' | null>(null);
   const [fbNonce, setFbNonce] = useState(0);
+  const fbTimer = useRef<number | undefined>(undefined);
   const runnerRef = useRef<TutorialRunner | null>(null);
 
   const lessons = useMemo(() => getLessons(lang), [lang]);
@@ -300,14 +314,24 @@ export function Tutorial() {
     refresh();
   };
 
+  const praise = () => {
+    const lines = PRAISE[lang];
+    const n = fbNonce + 1;
+    setFbNonce(n);
+    setFeedback(lines[n % lines.length]!);
+    setFbMood('good');
+    window.clearTimeout(fbTimer.current);
+    fbTimer.current = window.setTimeout(() => { setFeedback(''); setFbMood(null); }, 1600);
+  };
+
   const doBid = (label: string) => {
     const r = runner.submitBid(label);
     if (r.ok) {
       audio.sfx('bid');
-      setFeedback('');
-      setFbMood(null);
+      praise();
     } else {
       audio.sfx('lose');
+      window.clearTimeout(fbTimer.current);
       setFeedback(`${t(lang, 'tut.tryAgain')} ${r.hint ?? ''}`);
       setFbMood('bad');
       setFbNonce(n => n + 1);
@@ -319,10 +343,10 @@ export function Tutorial() {
     const r = runner.submitPlay(cardLabel(card));
     if (r.ok) {
       audio.sfx('card');
-      setFeedback('');
-      setFbMood(null);
+      praise();
     } else {
       audio.sfx('lose');
+      window.clearTimeout(fbTimer.current);
       setFeedback(`${t(lang, 'tut.tryAgain')} ${r.hint ?? ''}`);
       setFbMood('bad');
       setFbNonce(n => n + 1);
@@ -408,6 +432,7 @@ export function Tutorial() {
             }))}
             trick={[]}
             hand={sortHand(lesson.hands.S)}
+            hands={lesson.hands}
             handLabel={seatLabel(lang, 'S')}
             interactive={false}
             onPlay={() => {}}
@@ -422,8 +447,9 @@ export function Tutorial() {
                       <div className="bid-row">
                         {(['pass', 'double', 'redouble'] as const).map(k => {
                           const b: Bid = { type: k };
+                          const lbl = bidToLabel(b);
                           return (
-                            <button key={k} className="bid-btn special" onClick={() => doBid(bidToLabel(b))}>
+                            <button key={k} className={`bid-btn special${pending.expected === lbl ? ' hint-target' : ''}`} onClick={() => doBid(lbl)}>
                               {bidLabelL(lang, b)}
                             </button>
                           );
@@ -434,8 +460,9 @@ export function Tutorial() {
                           <span className="bid-lvl">{level}</span>
                           {DENOM_ORDER.map(d => {
                             const b: Bid = { type: 'bid', level, denom: d };
+                            const lbl = bidToLabel(b);
                             return (
-                              <button key={d} className={`bid-btn denom-${d}`} onClick={() => doBid(bidToLabel(b))}>
+                              <button key={d} className={`bid-btn denom-${d}${pending.expected === lbl ? ' hint-target' : ''}`} onClick={() => doBid(lbl)}>
                                 {bidLabelL(lang, b)}
                               </button>
                             );
@@ -483,9 +510,10 @@ export function Tutorial() {
             interactive={!!pending}
             onPlay={doPlay}
             hint={pending?.hint ?? null}
+            highlight={pending && pending.kind === 'play' ? pending.expected : null}
             stepKey={stepKey}
+            hands={playView.hands}
             dummySeat={dummySeat}
-            dummyHand={dummySeat ? playView.hands[dummySeat] : null}
           />
         )}
         {step?.kind === 'play' && awaitingTap && (
@@ -515,7 +543,9 @@ export function Tutorial() {
 
         {feedback && (
           <div key={fbNonce} className={`tut-feedback${fbMood ? ` ${fbMood}` : ''}`}>
-            {fbMood === 'bad' && <Avatar id={characterId} className="coach-avatar mini" />}
+            {fbMood && (
+              <Avatar id={characterId} className={`coach-avatar mini${fbMood === 'good' ? ' react-happy' : ''}`} />
+            )}
             <span>{feedback}</span>
           </div>
         )}
