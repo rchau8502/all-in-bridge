@@ -521,8 +521,8 @@ select.input { appearance: auto; }
   color: var(--accent);
   animation: ring-pulse 1s infinite;
 }
-.bid-rows { display: flex; flex-direction: column; gap: 6px; width: 100%; max-width: 440px; }
-.bid-row { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; }
+.bid-rows { display: flex; flex-direction: column; gap: 4px; width: 100%; max-width: 440px; }
+.bid-row { display: grid; grid-template-columns: repeat(3, 1fr); gap: 4px; }
 .bid-row.level-row { grid-template-columns: 1.4rem repeat(5, 1fr); align-items: center; }
 .bid-lvl { font-weight: 800; color: var(--text-dim); text-align: center; font-size: 14px; }
 .bid-btn.denom-NT {
@@ -550,7 +550,7 @@ select.input { appearance: auto; }
 .sim-faceup .card .corner { font-size: 9px; }
 .sim-w .sim-faceup, .sim-e .sim-faceup { max-width: 140px; }
 .bid-btn {
-  font: inherit; font-weight: 800; font-size: 15px; padding: 9px 4px; border-radius: 12px;
+  font: inherit; font-weight: 800; font-size: 14px; padding: 6px 4px; border-radius: 10px;
   background: rgba(255, 255, 255, 0.10);
   color: var(--text); border: 1px solid rgba(255, 255, 255, 0.14); cursor: pointer;
   box-shadow: none;
@@ -712,6 +712,7 @@ select.input { appearance: auto; }
 .tut-feedback {
   font-weight: 700; color: var(--accent); text-align: center; min-height: 24px;
   display: flex; align-items: center; gap: 10px; justify-content: center;
+  margin-top: 10px; padding-bottom: 8px;
 }
 
 /* ---------- simulated table (tutorial): a compact game table ---------- */
@@ -761,7 +762,7 @@ select.input { appearance: auto; }
   font-weight: 900; border-radius: 8px; padding: 1px 10px; font-size: 13px;
 }
 .sim-seat.active-turn .sim-plate { border-color: var(--gold2); box-shadow: 0 0 14px rgba(255, 171, 0, 0.85); }
-.sim-center { grid-area: simc; position: relative; min-height: 230px; display: flex; align-items: center; justify-content: center; }
+.sim-center { grid-area: simc; position: relative; min-height: 140px; display: flex; align-items: center; justify-content: center; }
 /* played cards sit at EQUAL offsets from the centre — a true square,
  * one card toward each seat of the square table */
 .sim-trick { position: relative; width: 200px; height: 200px; --toff: 82px; }
