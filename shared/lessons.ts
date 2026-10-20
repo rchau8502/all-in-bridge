@@ -1167,41 +1167,52 @@ const RAW_LESSONS: RawLesson[] = [
   },
 ];
 
-/**
- * Expand the raw lessons into the public Lesson[] with both languages
- * resolved. `tut.wrongBid` / play hints live in the step data above.
- */
-export function getLessons(lang: LessonLang): Lesson[] {
-  return RAW_LESSONS.map(l => ({
-    id: l.id,
-    title: l.title[lang],
-    dealer: l.dealer,
-    hands: l.hands,
-    contract: l.contract,
-    vulnerable: l.vulnerable,
-    steps: l.steps.map(s => {
-      if (s.kind === 'info') return { kind: 'info', text: s.text[lang] } as LessonStep;
-      if (s.kind === 'result') return { kind: 'result' } as LessonStep;
-      if (s.kind === 'auction') {
-        return {
-          kind: 'auction',
-          script: s.script.map(a => ({
-            seat: a.seat,
-            bid: a.bid,
-            ...(a.learner ? { learner: true, expected: a.expected, hint: a.hint![lang] } : {}),
-          })),
-        } as LessonStep;
-      }
+function resolveStep(s: RawStep, lang: LessonLang) {
+  switch (s.kind) {
+    case 'info':
+      return { kind: 'info' as const, text: s.text[lang] };
+    case 'quiz':
       return {
-        kind: 'play',
-        script: s.script.map(p => ({
-          seat: p.seat,
-          card: p.card,
-          ...(p.learner ? { learner: true, expected: p.expected, hint: p.hint![lang] } : {}),
-        })),
-      } as LessonStep;
-    }),
-  }));
+        kind: 'quiz' as const,
+        question: s.question[lang],
+        options: s.options.map(o => o[lang]),
+        answer: s.answer,
+        explain: s.explain[lang],
+      };
+    case 'auction':
+      return {
+        kind: 'auction' as const,
+        script: s.script.map(a =>
+          'learner' in a ? { ...a, hint: a.hint[lang] } : a
+        ),
+      };
+    case 'play':
+      return {
+        kind: 'play' as const,
+        script: s.script.map(a =>
+          'learner' in a ? { ...a, hint: a.hint[lang] } : a
+        ),
+      };
+    case 'result':
+      return { kind: 'result' as const };
+  }
+}
+
+function resolveLesson(raw: RawLesson, lang: LessonLang): Lesson {
+  return {
+    id: raw.id,
+    title: raw.title[lang],
+    dealer: raw.dealer,
+    hands: raw.hands,
+    contract: raw.contract,
+    vulnerable: raw.vulnerable,
+    steps: raw.steps.map(s => resolveStep(s, lang)),
+  };
+}
+
+/** Lessons with all text in the requested language. */
+export function getLessons(lang: LessonLang): Lesson[] {
+  return RAW_LESSONS.map(r => resolveLesson(r, lang));
 }
 
 /** English build (used by tests). */
