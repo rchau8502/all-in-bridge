@@ -86,7 +86,7 @@ describe('TutorialRunner mistakes', () => {
   it('rejects a wrong card with the hint and does not advance', () => {
     const lesson = LESSONS.find(l => l.id === 'tricks')!;
     const r = new TutorialRunner(lesson);
-    r.advance(); r.advance(); // infos
+    while (r.currentStep()!.kind === 'info') r.advance(); // infos
     tapToLearner(r); // W/N/E cards revealed
     const before = r.stepIndex;
     const res = r.submitPlay('D2'); // wrong (expected DA; also not held)
@@ -107,7 +107,7 @@ describe('TutorialRunner mistakes', () => {
   it('advance() reveals scripted actions one at a time, throws when waiting for learner', () => {
     const lesson = LESSONS.find(l => l.id === 'tricks')!;
     const r = new TutorialRunner(lesson);
-    r.advance(); r.advance(); // infos → now at a play step, nothing revealed yet
+    while (r.currentStep()!.kind === 'info') r.advance(); // infos → now at a play step, nothing revealed yet
     expect(r.pendingLearnerAction()).toBeNull();
     expect(r.playView()!.trick.length).toBe(0);
     r.advance(); // reveal W's lead
@@ -159,14 +159,16 @@ describe('chinese lessons', () => {
 
   it('zh text is translated (not english), same scripts', () => {
     const zh = getLessons('zh');
-    expect(zh[0]!.title).toBe('认识纸牌');
-    expect(zh[1]!.title).toBe('赢墩');
-    expect(zh[2]!.title).toBe('将牌');
-    expect(zh[3]!.title).toBe('叫牌基础');
-    expect(zh[4]!.title).toBe('叫牌交流');
-    expect(zh[5]!.title).toBe('定约与计分');
-    expect(zh[6]!.title).toBe('打牌计划');
-    expect(zh[7]!.title).toBe('打一整副牌');
+    expect(zh[0]!.title).toBe('认识牌朋友');
+    expect(zh[1]!.title).toBe('赢墩小高手');
+    expect(zh[2]!.title).toBe('数一数，做计划');
+    expect(zh[3]!.title).toBe('将牌的威力');
+    expect(zh[4]!.title).toBe('叫牌就是说话');
+    expect(zh[5]!.title).toBe('回答搭档');
+    expect(zh[6]!.title).toBe('加叫，然后打牌');
+    expect(zh[7]!.title).toBe('开叫者再说');
+    expect(zh[8]!.title).toBe('冲成局！');
+    expect(zh[9]!.title).toBe('争叫，抢进来');
     // Same step structure, same scripts — only text differs.
     for (let i = 0; i < LESSONS.length; i++) {
       const en = LESSONS[i]!;
@@ -175,7 +177,7 @@ describe('chinese lessons', () => {
       expect(z.id).toBe(en.id);
     }
     // The full-hand zh lesson scores the same 230.
-    const r = walkLesson(zh[7]!);
+    const r = walkLesson(zh[6]!);
     expect(r.getResult()!.total).toBe(230);
   });
 });
