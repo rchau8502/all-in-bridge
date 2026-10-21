@@ -876,7 +876,7 @@ table.standings tr.leader td { color: var(--accent); font-weight: 800; }
   /* real game table: hand spans full width, tight fan, compact trick */
   .me-area { grid-column: 1 / -1; }
   .hand { flex-wrap: nowrap; }
-  .hand .card { margin: 0 -39px; }
+  .hand .card { margin: 0 -19px; }
   .trick-card.pos-left { transform: translateX(-48px); }
   .trick-card.pos-right { transform: translateX(48px); }
   .trick-card.pos-top { transform: translateY(-48px); }
@@ -887,20 +887,21 @@ table.standings tr.leader td { color: var(--accent); font-weight: 800; }
   .pod-avatar { width: 60px; height: 60px; }
   .opp-emoji { font-size: 34px; }
   /* simulated tutorial table fits phones */
-  .sim-felt { grid-template-columns: 96px 1fr 96px; min-height: 440px; padding: 8px; }
-  .sim-trick { width: 150px; height: 150px; --toff: 54px; }
+  .sim-felt { grid-template-columns: 112px 1fr 112px; min-height: 440px; padding: 8px; }
+  .sim-trick { width: 110px; height: 150px; --toff: 54px; }
   .sim-tcard { --card-w: 52px; --card-h: 74px; }
   .sim-tcard .pip { font-size: 26px; }
   .sim-faceup { max-width: 200px; }
-  .sim-faceup .card { --card-w: 27px; --card-h: 38px; }
-  .sim-faceup .card .pip { font-size: 13px; }
-  .sim-w .sim-faceup, .sim-e .sim-faceup { max-width: 92px; }
+  .sim-n .sim-faceup { max-width: 110px; }
+  .sim-faceup .card { --card-w: 26px; --card-h: 37px; }
+  .sim-faceup .card .pip { display: none; }
+  .sim-w .sim-faceup, .sim-e .sim-faceup { max-width: 110px; }
   .sim-plate { padding: 2px 6px; }
   .sim-seatname { font-size: 11px; }
   .sim-count { font-size: 10px; margin-left: 3px; }
   .sim-me .hand { flex-wrap: nowrap; }
   .sim-me { grid-column: 1 / -1; }
-  .sim-me .hand .card { margin: 0 -39px; }
+  .sim-me .hand .card { margin: 0 -19px; }
   /* performance: backdrop blur is a GPU hog on phones — the translucent
    * backgrounds read fine without it */
   * { backdrop-filter: none !important; -webkit-backdrop-filter: none !important; }
@@ -909,7 +910,7 @@ table.standings tr.leader td { color: var(--accent); font-weight: 800; }
   /* comfortable touch targets */
   .chip { padding: 9px 16px; }
   .btn { min-height: 44px; }
-  .bid-btn { padding: 13px 4px; }
+  .bid-btn { padding: 10px 4px; }
   /* voice-line bubbles can be long — wrap them on narrow screens */
   .bubble { white-space: normal; max-width: 62vw; text-align: center; }
 }
