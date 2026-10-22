@@ -192,7 +192,11 @@ function SimTable(props: {
   onPlay: (c: Card) => void;
   hint: string | null;
   stepKey: string;
-  bottomExtra?: React.ReactNode;
+  /** Content floated on the centre felt itself (e.g. the auction bidding
+   *  box — a real table keeps the bidding box ON the table, and the centre
+   *  grid cell is elastic, so a tall box scrolls inside instead of pushing
+   *  the South hand row off the felt). */
+  centreExtra?: React.ReactNode;
   /** Face-up hands for the seats (bootcamp = open book: everyone shows). */
   hands?: Partial<Record<Seat, Card[]>> | null;
   /** The dummy seat gets a small tag under its plate. */
@@ -316,21 +320,24 @@ function SimTable(props: {
         })}
 
       <div className="sim-center">
-        <div className="sim-trick">
-          {props.trick.map(t => {
-            const sig = `${t.seat}${t.card.suit}${t.card.rank}`;
-            const ord = props.trickStatic ? undefined : fresh.get(sig);
-            return (
-              <div
-                key={sig}
-                className={`sim-tcard pos-${simPos(t.seat)}${ord === undefined ? ' noanim' : ''}${props.winSeat === t.seat ? ' trick-win' : ''}`}
-                style={ord === undefined ? undefined : { animationDelay: `${ord * 0.38}s` }}
-              >
-                <CardView card={t.card} />
-              </div>
-            );
-          })}
-        </div>
+        {props.trick.length > 0 && (
+          <div className="sim-trick">
+            {props.trick.map(t => {
+              const sig = `${t.seat}${t.card.suit}${t.card.rank}`;
+              const ord = props.trickStatic ? undefined : fresh.get(sig);
+              return (
+                <div
+                  key={sig}
+                  className={`sim-tcard pos-${simPos(t.seat)}${ord === undefined ? ' noanim' : ''}${props.winSeat === t.seat ? ' trick-win' : ''}`}
+                  style={ord === undefined ? undefined : { animationDelay: `${ord * 0.38}s` }}
+                >
+                  <CardView card={t.card} />
+                </div>
+              );
+            })}
+          </div>
+        )}
+        {props.centreExtra}
         {props.overlaySlot}
       </div>
 
@@ -358,7 +365,6 @@ function SimTable(props: {
             </div>
           </>
         )}
-        {props.bottomExtra}
       </div>
       </div>
     </div>
@@ -612,7 +618,11 @@ export function Tutorial() {
   // auction and play alike. Text steps used to REPLACE the table, which is
   // why the hand vanished exactly when the coach had something to say.
   const showTable = step?.kind === 'info' || step?.kind === 'auction' || step?.kind === 'play';
-  const captionOpen = step?.kind === 'auction' && !!lastEntry && !!captionNote;
+  const captionOpen = step?.kind === 'auction' && !!lastEntry && !!captionNote
+    // While it is the learner's turn to bid, the bidding box owns the centre
+    // felt — the caption for the previous bid has already been read (its
+    // "next" tap led here), so don't fight the box for the same space.
+    && !(pending && pending.kind === 'bid');
   const overlayOpen = !!recap || step?.kind === 'info' || captionOpen || (!!review && step?.kind === 'play');
 
   // The tutorial overlay (coach text / recap / review) is floated over the
@@ -663,6 +673,7 @@ export function Tutorial() {
         <div className="sim-caption" key={auctionView!.entries.length}>
           <span className="sim-caption-tag">{seatLabel(lang, lastEntry.seat)} · {bidLabelL(lang, lastEntry.bid)}</span>
           <span className="sim-caption-text">{captionNote}</span>
+          {awaitingTap && <div className="tut-tap-row">{tapNext}</div>}
         </div>
       )}
 
@@ -760,40 +771,43 @@ export function Tutorial() {
             onPlay={() => {}}
             hint={null}
             stepKey={stepKey}
-            bottomExtra={
-              <div className="sim-bidbox">
-                {pending && pending.kind === 'bid' ? (
-                  <>
-                    <div className="sim-hint">🫵 {pending.hint}</div>
-                    <div className="bid-rows">
-                      <div className="bid-row">
-                        {(['pass', 'double', 'redouble'] as const).map(k => {
-                          const b: Bid = { type: k };
+            centreExtra={
+              pending && pending.kind === 'bid' ? (
+                /* The bidding box lives ON the table (centre felt) — like a
+                 * real bidding box — instead of under the South hand where it
+                 * used to overflow past the bottom edge of the table. */
+                <div className="sim-bidbox on-felt">
+                  <div className="sim-hint">🫵 {pending.hint}</div>
+                  <div className="bid-rows">
+                    <div className="bid-row">
+                      {(['pass', 'double', 'redouble'] as const).map(k => {
+                        const b: Bid = { type: k };
+                        const lbl = bidToLabel(b);
+                        return (
+                          <button key={k} className={`bid-btn special${pending.expected === lbl ? ' hint-target' : ''}`} onClick={() => doBid(lbl)}>
+                            {bidLabelL(lang, b)}
+                          </button>
+                        );
+                      })}
+                    </div>
+                    {[1, 2, 3, 4, 5, 6, 7].map(level => (
+                      <div className="bid-row level-row" key={level}>
+                        <span className="bid-lvl">{level}</span>
+                        {DENOM_ORDER.map(d => {
+                          const b: Bid = { type: 'bid', level, denom: d };
                           const lbl = bidToLabel(b);
                           return (
-                            <button key={k} className={`bid-btn special${pending.expected === lbl ? ' hint-target' : ''}`} onClick={() => doBid(lbl)}>
+                            <button key={d} className={`bid-btn denom-${d}${pending.expected === lbl ? ' hint-target' : ''}`} onClick={() => doBid(lbl)}>
                               {bidLabelL(lang, b)}
                             </button>
                           );
                         })}
                       </div>
-                      {[1, 2, 3, 4, 5, 6, 7].map(level => (
-                        <div className="bid-row level-row" key={level}>
-                          <span className="bid-lvl">{level}</span>
-                          {DENOM_ORDER.map(d => {
-                            const b: Bid = { type: 'bid', level, denom: d };
-                            const lbl = bidToLabel(b);
-                            return (
-                              <button key={d} className={`bid-btn denom-${d}${pending.expected === lbl ? ' hint-target' : ''}`} onClick={() => doBid(lbl)}>
-                                {bidLabelL(lang, b)}
-                              </button>
-                            );
-                          })}
-                        </div>
-                      ))}
-                    </div>
-                  </>
-                ) : (
+                    ))}
+                  </div>
+                </div>
+              ) : !captionOpen ? (
+                <div className="sim-bidbox on-felt">
                   <div className="sim-trail">
                     {auctionView.entries.map((e, i) => (
                       <span key={i} className="trail-bid">
@@ -801,9 +815,9 @@ export function Tutorial() {
                       </span>
                     ))}
                   </div>
-                )}
-                {awaitingTap && <div className="tut-tap-row">{tapNext}</div>}
-              </div>
+                  {awaitingTap && <div className="tut-tap-row">{tapNext}</div>}
+                </div>
+              ) : null
             }
           />
         )}
