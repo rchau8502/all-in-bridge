@@ -745,9 +745,9 @@ select.input { appearance: auto; }
 .tut-stage-wrap > .sim-felt { flex: 1 1 auto; }
 .tut-overlay {
   position: absolute;
-  left: 50%; top: 10px; transform: translateX(-50%);
-  width: min(760px, 94%);
-  max-height: 58%;
+  left: 50%; top: 50%; transform: translate(-50%, -50%);
+  width: min(560px, 94%);
+  max-height: 100%;
   overflow-y: auto; overscroll-behavior: contain;
   z-index: 30;
   pointer-events: none; /* taps fall through to the table and the hand */
@@ -772,7 +772,7 @@ select.input { appearance: auto; }
 /* Narrow screens: the stage flows instead of scaling, so the panel gets
  * less height and slightly smaller type — the hand stays clear either way. */
 @media (max-width: 720px) {
-  .tut-overlay { top: 6px; width: 96%; max-height: 50%; }
+  .tut-overlay { top: 50%; width: 96%; max-height: 100%; transform: translate(-50%, -50%); }
   .tut-overlay .tut-text { font-size: 15px; }
   .tut-overlay .coach-avatar { width: 46px; height: 46px; }
   .tut-overlay .coach-bubble { padding: 12px 13px; }

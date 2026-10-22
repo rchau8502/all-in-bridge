@@ -210,6 +210,9 @@ function SimTable(props: {
   /** Character id per seat — the four characters ARE the four players now:
    *  the learner's pick sits South, the rest fill partner + opponents. */
   seatChars?: Partial<Record<Seat, string>>;
+  /** Tutorial overlay (coach text / recap / review) — floated over the centre
+   *  felt so it never covers the North (top) / South (bottom) hands. */
+  overlaySlot?: React.ReactNode;
 }) {
   const { lang } = props;
   const sigs = props.trick.map(t => `${t.seat}${t.card.suit}${t.card.rank}`);
@@ -310,6 +313,7 @@ function SimTable(props: {
             );
           })}
         </div>
+        {props.overlaySlot}
       </div>
 
       <div className="sim-me">
@@ -593,6 +597,78 @@ export function Tutorial() {
   const captionOpen = step?.kind === 'auction' && !!lastEntry && !!captionNote;
   const overlayOpen = !!recap || step?.kind === 'info' || captionOpen || (!!review && step?.kind === 'play');
 
+  // The tutorial overlay (coach text / recap / review) is floated over the
+  // centre felt — NEVER over the North/South hands. It is passed into SimTable
+  // as overlaySlot and rendered inside .sim-center, so the grid row for the
+  // hands stays clear; on narrow screens it may spill a little onto the East/
+  // West seats, which is fine.
+  const tutorialOverlay = overlayOpen ? (
+    <div className="tut-overlay">
+      {recap && (
+        <div className="sim-review recap-card">
+          <div className="sim-review-label">{t(lang, 'tut.recapTitle')}</div>
+          {recap.lines.map((l, i) => (
+            <div key={i} className="recap-line">
+              <span className="sim-caption-tag">{seatLabel(lang, l.seat)} · {bidLabelL(lang, l.bid)}</span>
+              {l.note && <span className="recap-text">{l.note}</span>}
+            </div>
+          ))}
+          <p className="sim-review-line recap-contract">
+            {(() => {
+              const lastBid = [...recap.lines].reverse().find(l => l.bid.type === 'bid');
+              const reached = !!lastBid && lastBid.bid.type === 'bid'
+                && lastBid.bid.level === recap.contract.level
+                && lastBid.bid.denom === recap.contract.denom;
+              return reached ? contractSummary(lang, recap.contract) : t(lang, 'tut.recapPractice');
+            })()}
+          </p>
+          <button
+            className="btn primary"
+            onClick={() => { audio.sfx('click'); setRecap(null); }}
+          >
+            {t(lang, 'tut.reviewNext')}
+          </button>
+        </div>
+      )}
+      {step?.kind === 'info' && (
+        <CoachCard
+          key={stepKey}
+          lang={lang}
+          characterId={characterId}
+          text={step.text}
+          nextLabel={t(lang, 'tut.next')}
+          onAdvance={doAdvance}
+        />
+      )}
+
+      {step?.kind === 'auction' && lastEntry && captionNote && (
+        <div className="sim-caption" key={auctionView!.entries.length}>
+          <span className="sim-caption-tag">{seatLabel(lang, lastEntry.seat)} · {bidLabelL(lang, lastEntry.bid)}</span>
+          <span className="sim-caption-text">{captionNote}</span>
+        </div>
+      )}
+
+      {review && step?.kind === 'play' && (() => {
+        const ex = explainTrick(review, lang);
+        return (
+          <div className="sim-review">
+            <div className="sim-review-label">{t(lang, 'tut.reviewTitle')}</div>
+            <div className="sim-review-title">{ex.title}</div>
+            {ex.lines.map((l, i) => (
+              <p key={i} className="sim-review-line">{l}</p>
+            ))}
+            <button
+              className="btn primary"
+              onClick={() => { audio.sfx('click'); dismissReview(); }}
+            >
+              {t(lang, 'tut.reviewNext')}
+            </button>
+          </div>
+        );
+      })()}
+    </div>
+  ) : null;
+
   return (
     <div className="tutorial">
       <div className="tut-header">
@@ -640,6 +716,7 @@ export function Tutorial() {
             stepKey={stepKey}
             dummySeat={dummySeat}
             focus={focusCards}
+            overlaySlot={tutorialOverlay}
             trickStatic
           />
         )}
@@ -660,6 +737,7 @@ export function Tutorial() {
             handLabel={seatLabel(lang, 'S')}
             trump={null}
             seatChars={seatChars}
+            overlaySlot={tutorialOverlay}
             interactive={false}
             onPlay={() => {}}
             hint={null}
@@ -745,76 +823,12 @@ export function Tutorial() {
             seatChars={seatChars}
             winSeat={review?.winner ?? null}
             trickStatic={!!review}
+            overlaySlot={tutorialOverlay}
           />
         )}
 
-        {overlayOpen && (
-          <div className="tut-overlay">
-        {recap && (
-          <div className="sim-review recap-card">
-            <div className="sim-review-label">{t(lang, 'tut.recapTitle')}</div>
-            {recap.lines.map((l, i) => (
-              <div key={i} className="recap-line">
-                <span className="sim-caption-tag">{seatLabel(lang, l.seat)} · {bidLabelL(lang, l.bid)}</span>
-                {l.note && <span className="recap-text">{l.note}</span>}
-              </div>
-            ))}
-            <p className="sim-review-line recap-contract">
-              {(() => {
-                const lastBid = [...recap.lines].reverse().find(l => l.bid.type === 'bid');
-                const reached = !!lastBid && lastBid.bid.type === 'bid'
-                  && lastBid.bid.level === recap.contract.level
-                  && lastBid.bid.denom === recap.contract.denom;
-                return reached ? contractSummary(lang, recap.contract) : t(lang, 'tut.recapPractice');
-              })()}
-            </p>
-            <button
-              className="btn primary"
-              onClick={() => { audio.sfx('click'); setRecap(null); }}
-            >
-              {t(lang, 'tut.reviewNext')}
-            </button>
-          </div>
-        )}
-        {step?.kind === 'info' && (
-          <CoachCard
-            key={stepKey}
-            lang={lang}
-            characterId={characterId}
-            text={step.text}
-            nextLabel={t(lang, 'tut.next')}
-            onAdvance={doAdvance}
-          />
-        )}
-
-        {step?.kind === 'auction' && lastEntry && captionNote && (
-          <div className="sim-caption" key={auctionView!.entries.length}>
-            <span className="sim-caption-tag">{seatLabel(lang, lastEntry.seat)} · {bidLabelL(lang, lastEntry.bid)}</span>
-            <span className="sim-caption-text">{captionNote}</span>
-          </div>
-        )}
-
-        {review && step?.kind === 'play' && (() => {
-          const ex = explainTrick(review, lang);
-          return (
-            <div className="sim-review">
-              <div className="sim-review-label">{t(lang, 'tut.reviewTitle')}</div>
-              <div className="sim-review-title">{ex.title}</div>
-              {ex.lines.map((l, i) => (
-                <p key={i} className="sim-review-line">{l}</p>
-              ))}
-              <button
-                className="btn primary"
-                onClick={() => { audio.sfx('click'); dismissReview(); }}
-              >
-                {t(lang, 'tut.reviewNext')}
-              </button>
-            </div>
-          );
-        })()}
-
-        </div>
-        )}
+        {/* tutorial overlay now rendered inside SimTable via overlaySlot —
+            floated over the centre felt, never over the North/South hands */}
         </div>
         )}
         {step?.kind === 'result' && result && (
