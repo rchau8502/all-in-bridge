@@ -80,6 +80,20 @@ const STRAT_DEAL: Hands = makeHands({
   W: ['QS', '7S', 'KH', '9H', '4H', '3H', 'JD', '4D', 'TC', '8C', '6C', '5C', '3C'],
 });
 
+/** Lesson 4 deal: South declares 3NT. Top winners (both hands together):
+ *  ♠3 ♥0 ♦2 ♣1 = 6 — three short of 9. The diamonds are the gold mine:
+ *  9 combined cards, the defenders hold only 4 (Q J T 2). Cash A and K
+ *  (three of theirs fall), then deliberately duck the 6 to West's queen —
+ *  their last diamond — re-enter with the ♣A entry and harvest 9-8-7:
+ *  5 diamond tricks and exactly 9 in total. West's ♥A K Q are the
+ *  defenders' other tricks. Simulator-verified: NS take exactly 9. */
+const LONGSUIT_DEAL: Hands = makeHands({
+  N: ['KS', 'QS', '3S', '2S', '8H', '5H', '4H', '5D', '4D', '3D', '7C', '6C', '5C'],
+  E: ['TS', '7S', '6S', 'JH', 'TH', '9H', '3H', '2H', 'TD', 'TC', '4C', '3C', '2C'],
+  S: ['AS', '5S', '4S', '7H', '6H', 'AD', 'KD', '9D', '8D', '7D', '6D', 'AC', '8C'],
+  W: ['JS', '9S', '8S', 'AH', 'KH', 'QH', 'QD', 'JD', '2D', 'KC', 'QC', 'JC', '9C'],
+});
+
 /** Lesson 5 deal: South declares 4♠. Losers from South (long trumps):
  *  ♠1 (the J) ♥1 ♦2 ♣0 = 4 — one too many. Plan: draw trumps, then throw the
  *  heart loser on dummy's spare ♣J (dummy has 4 clubs, South only 3).
@@ -474,10 +488,222 @@ const RAW_LESSONS: RawLesson[] = [
       {
         kind: 'info',
         text: T(
-          "So here is the pro's routine: (1) Count top winners TOGETHER with dummy, suit by suit — the longer hand's length caps the suit, and top cards in a row from the ace are what you can bank. (2) If you are short, go hunting: queens and finesses are where the extra winners hide. Next lesson: a whole new superpower — trumps!",
-          '所以高手的流程是：(1) 和明手一起，一门一门数顶张赢墩 —— 较长手的张数是这门花色的上限，从A开始连续的顶张才是能存进银行的赢墩。(2) 如果不够，就去打猎：Q和飞牌是额外赢墩藏身的地方。下一课：一个全新的超能力 —— 将牌！'
+          "So here is the pro's routine: (1) Count top winners TOGETHER with dummy, suit by suit — the longer hand's length caps the suit, and top cards in a row from the ace are what you can bank. (2) If you are short, go hunting: queens and finesses are where the extra winners hide. Next lesson: the long-suit gold mine — how your smallest cards can grow into winners.",
+          '所以高手的流程是：(1) 和明手一起，一门一门数顶张赢墩 —— 较长手的张数是这门花色的上限，从A开始连续的顶张才是能存进银行的赢墩。(2) 如果不够，就去打猎：Q和飞牌是额外赢墩藏身的地方。下一课：长套金矿 —— 最小的牌也能长成赢墩。'
         ),
       },
+    ],
+  },
+  {
+    id: 'long-suits',
+    title: T('Establish the Long Suit', '无将树立长套'),
+    dealer: 'N',
+    hands: LONGSUIT_DEAL,
+    contract: { level: 3, denom: 'NT', declarer: 'S', doubled: 0 },
+    vulnerable: false,
+    steps: [
+      {
+        kind: 'info',
+        text: T(
+          'Back to notrump! Last time you counted top winners and hunted queens with finesses. Today, a third way to find winners: GROW them. Your contract is 3NT — 9 tricks, please.',
+          '回到无将！上次你数了顶张赢墩、用飞牌猎了Q。今天教你第三种找赢墩的方法：把它们"种"出来。你的定约是3NT —— 需要9墩。'
+        ),
+      },
+      {
+        kind: 'info',
+        text: T(
+          "Look at the diamonds — this is a gold mine. Between your hand and dummy's you hold NINE of them: A K 9 8 7 6 with you, 5 4 3 with dummy. The defenders hold only 4 (13 − 9 = 4). Now the secret: once those 4 enemy cards have been played, every diamond left in your hands is a winner — even the tiny 7. Small cards, big dreams.",
+          '看方块 —— 这是一座金矿。你和明手联手拿着九张：你有A K 9 8 7 6，明手有5 4 3。防守方只有4张（13 − 9 = 4）。秘密在于：等这4张敌牌全部打完，你手里剩下的每一张方块都是赢墩 —— 连最小的7都是。小牌，大梦想。'
+        ),
+      },
+      {
+        kind: 'info',
+        text: T(
+          'Count first, like a pro. Top winners: spades 3 (the A-K-Q, shared between your two hands), hearts 0 (the ace is theirs), clubs 1 (your ace), diamonds only 2 — the A and K, because the enemy queen is not a top card. Total: 6. Three SHORT of 9! So the diamonds must grow: cash the A and K, lose ONE trick to their queen on purpose, and the 9, 8, 7 become winners — 5 diamond tricks instead of 2. 6 + 3 = 9. That is the plan. West leads the ace of hearts — their suit, not ours. Let it go.',
+          '像高手一样先数。顶张赢墩：黑桃3（A、K、Q，在你们两手之间）、红桃0（A是对方的）、梅花1（你的A）、方块只有2 —— A和K，因为对方的Q不算顶张。总共6个。离9还差3个！所以方块必须长大：兑现A和K，再故意输一墩给对方的Q，9、8、7就都成了赢墩 —— 方块从2墩变成5墩。6 + 3 = 9。这就是计划。西家领出红桃A —— 那是他们的花色，不是我们的。让给他。'
+        ),
+      },
+      {
+        kind: 'play',
+        script: [
+          { seat: 'W', card: 'AH' },
+          { seat: 'N', card: '4H' },
+          { seat: 'E', card: '2H' },
+          { seat: 'S', card: '6H' },
+        ],
+      },
+      {
+        kind: 'play',
+        script: [
+          { seat: 'W', card: 'KH' },
+          { seat: 'N', card: '5H' },
+          { seat: 'E', card: '3H' },
+          { seat: 'S', card: '7H' },
+        ],
+      },
+      {
+        kind: 'play',
+        script: [
+          { seat: 'W', card: 'QH' },
+          { seat: 'N', card: '8H' },
+          { seat: 'E', card: '9H' },
+          { seat: 'S', card: '8C' },
+        ],
+      },
+      {
+        kind: 'info',
+        text: T(
+          "Three hearts for the defenders — that was their suit, fair enough. Now West tries a diamond… right into our gold mine! Take it with your ace — and count their diamonds as they fall: West's 2 and East's 10 just died. Two of their four, gone already.",
+          '三墩红桃归了防守方 —— 那本来就是他们的花色，没关系。现在西家试着领出一张方块……正好走进我们的金矿！用你的A拿下 —— 同时数着他们的方块往下掉：西家的2和东家的10刚刚阵亡。他们四张里已经没了两张。'
+        ),
+      },
+      {
+        kind: 'play',
+        script: [
+          { seat: 'W', card: '2D' },
+          { seat: 'N', card: '3D' },
+          { seat: 'E', card: 'TD' },
+          {
+            seat: 'S', learner: true, expected: 'AD',
+            hint: T('Your ace of diamonds (AD). Take it — and watch their cards fall!', '你的方块A (AD)。拿下 —— 看着他们的牌往下掉！'),
+          },
+        ],
+      },
+      {
+        kind: 'play',
+        script: [
+          {
+            seat: 'S', learner: true, expected: 'KD',
+            hint: T('King of diamonds (KD) — cash the second top winner.', '方块K (KD) —— 兑现第二个顶张赢墩。'),
+          },
+          { seat: 'W', card: 'JD' },
+          { seat: 'N', card: '4D' },
+          { seat: 'E', card: '2C' },
+        ],
+      },
+      {
+        kind: 'info',
+        text: T(
+          "Count again: West's jack just fell — THREE of their four diamonds are gone. One is left: the queen, still sitting with West. Your A and K are spent, so right now the queen is the boss of this suit. You cannot avoid losing to her… so don't try! Feed her a trick ON PURPOSE: lead your little 6. She wins — and she was their LAST diamond. This is called ducking: losing a trick you would lose anyway, early and cheap, to set up the whole suit. Go on — the little 6.",
+          '再数一遍：西家的J刚刚掉下来 —— 他们四张方块已经没了三张。只剩一张：Q，还在西家手里。你的A和K都已经打完，所以现在这门花色里Q最大。你躲不开要输她这一墩的……那就不要躲！故意喂她一墩：领出你的小6。她赢了 —— 而她是他们最后一张方块。这就叫让一墩：反正要输的一墩，早早便宜地输掉，换来整门花色树立起来。来吧 —— 小6。'
+        ),
+      },
+      {
+        kind: 'play',
+        script: [
+          {
+            seat: 'S', learner: true, expected: '6D',
+            hint: T('The little 6 of diamonds (6D) — feed the queen her trick.', '小方块6 (6D) —— 把这一墩喂给Q。'),
+          },
+          { seat: 'W', card: 'QD' },
+          { seat: 'N', card: '5D' },
+          { seat: 'E', card: '4C' },
+        ],
+      },
+      {
+        kind: 'info',
+        text: T(
+          "The queen is gone — the defenders have NO diamonds left. Your 9, 8 and 7 are all winners now! But they sit in YOUR hand, and West is leading a club. To reach your gold, you must win this trick in your own hand — your ace of clubs is the bridge back (that's called an entry). Take it!",
+          'Q没了 —— 防守方一张方块都不剩了。你的9、8、7现在全是赢墩！但它们在你手里，而西家领出了一张梅花。要够到你的金子，你必须在自己手里赢下这一墩 —— 你的梅花A就是回金矿的桥（这叫进手）。拿下！'
+        ),
+      },
+      {
+        kind: 'play',
+        script: [
+          { seat: 'W', card: '9C' },
+          { seat: 'N', card: '5C' },
+          { seat: 'E', card: '3C' },
+          {
+            seat: 'S', learner: true, expected: 'AC',
+            hint: T('Ace of clubs (AC) — the bridge back to your diamonds!', '梅花A (AC) —— 回到方块金矿的桥！'),
+          },
+        ],
+      },
+      {
+        kind: 'info',
+        text: T(
+          'Home! Now the harvest. Lead the 9 of diamonds and watch the defenders squirm — nobody can follow suit any more; they can only throw cards away while your little diamonds march home.',
+          '到家了！现在收获。领出方块9，看防守方干瞪眼 —— 没人有方块可跟了，他们只能眼睁睁垫牌，你的小方块排着队回家。'
+        ),
+      },
+      {
+        kind: 'play',
+        script: [
+          {
+            seat: 'S', learner: true, expected: '9D',
+            hint: T('The 9 of diamonds (9D) — a grown winner!', '方块9 (9D) —— 种出来的赢墩！'),
+          },
+          { seat: 'W', card: '8S' },
+          { seat: 'N', card: '6C' },
+          { seat: 'E', card: '6S' },
+        ],
+      },
+      {
+        kind: 'play',
+        script: [
+          { seat: 'S', card: '8D' },
+          { seat: 'W', card: 'JS' },
+          { seat: 'N', card: '2S' },
+          { seat: 'E', card: '7S' },
+        ],
+      },
+      {
+        kind: 'play',
+        script: [
+          { seat: 'S', card: '7D' },
+          { seat: 'W', card: 'JC' },
+          { seat: 'N', card: '7C' },
+          { seat: 'E', card: 'TS' },
+        ],
+      },
+      {
+        kind: 'info',
+        text: T(
+          "Harvest complete: FIVE tricks from one suit — A, K, 9, 8, 7 — where the top count only promised 2. Two spade winners are still in the bank from our count. Cash your ace, then let dummy's queen and king bring the last tricks home.",
+          '收获完成：一门花色拿下五墩 —— A、K、9、8、7 —— 而顶张计数当初只承诺了2墩。数过的黑桃赢墩还剩两个在银行里。兑现你的A，然后让明手的Q和K把最后两墩带回家。'
+        ),
+      },
+      {
+        kind: 'play',
+        script: [
+          {
+            seat: 'S', learner: true, expected: 'AS',
+            hint: T('Ace of spades (AS) — a counted winner, cash it.', '黑桃A (AS) —— 数过的赢墩，兑现。'),
+          },
+          { seat: 'W', card: '9S' },
+          { seat: 'N', card: '3S' },
+          { seat: 'E', card: 'TC' },
+        ],
+      },
+      {
+        kind: 'play',
+        script: [
+          { seat: 'S', card: '5S' },
+          { seat: 'W', card: 'KC' },
+          {
+            seat: 'N', learner: true, expected: 'QS',
+            hint: T("Dummy's queen of spades (QS) — it wins this one!", '明手的黑桃Q (QS) —— 这一墩归她！'),
+          },
+          { seat: 'E', card: 'TH' },
+        ],
+      },
+      {
+        kind: 'play',
+        script: [
+          { seat: 'N', card: 'KS' },
+          { seat: 'E', card: 'JH' },
+          { seat: 'S', card: '4S' },
+          { seat: 'W', card: 'QC' },
+        ],
+      },
+      {
+        kind: 'info',
+        text: T(
+          "3NT — exactly 9 tricks! Final harvest: spades 3, clubs 1, diamonds 5. Remember the long-suit rules: (1) Hunt suits where you and dummy hold 7 or more cards together — the more, the richer. (2) Count the defenders' cards in the suit (13 minus yours) and watch them fall. (3) When theirs are gone, your small cards are winners. (4) If one enemy honor still guards the suit, duck — lose that trick on purpose, early and cheap. Next lesson: a whole new superpower — trumps!",
+          '3NT —— 正好9墩！清点收获：黑桃3、梅花1、方块5。记住树立长套的规则：(1) 找你和明手联手7张以上的花色 —— 越多越肥。(2) 数防守方这门有几张（13减你们的），盯着它们一张张掉。(3) 他们的掉光了，你的小牌就是赢墩。(4) 如果还有一张敌方大牌守着，就让一墩 —— 反正要输的墩，早输、便宜地输。下一课：一个全新的超能力 —— 将牌！'
+        ),
+      },
+      { kind: 'result' },
     ],
   },
   {
