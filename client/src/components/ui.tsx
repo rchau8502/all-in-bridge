@@ -51,9 +51,9 @@ export function CardView({
       aria-label={onClick ? cardName(card) : undefined}
       onKeyDown={onClick ? handleKey : undefined}
     >
-      <span className="corner tl">{RANK_LABEL[card.rank]}<br />{SUIT_SYM[card.suit]}</span>
+      <span className="corner tl">{RANK_LABEL[card.rank]}<br /><span className="corner-suit">{SUIT_SYM[card.suit]}</span></span>
       <span className="pip">{SUIT_SYM[card.suit]}</span>
-      <span className="corner br">{RANK_LABEL[card.rank]}<br />{SUIT_SYM[card.suit]}</span>
+      <span className="corner br">{RANK_LABEL[card.rank]}<br /><span className="corner-suit">{SUIT_SYM[card.suit]}</span></span>
     </div>
   );
 }

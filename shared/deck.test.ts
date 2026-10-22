@@ -59,10 +59,48 @@ describe('deal', () => {
 });
 
 describe('sortHand', () => {
-  it('orders C,D,H,S with ranks high to low', () => {
-    const hand = [parseCard('2S'), parseCard('AH'), parseCard('KC'), parseCard('TC')]
-      .map(c => ({ ...c }));
-    expect(sortHand(hand).map(cardLabel)).toEqual(['KC', 'TC', 'AH', '2S']);
+  const hand = () => [parseCard('2S'), parseCard('AH'), parseCard('KC'), parseCard('TC')]
+    .map(c => ({ ...c }));
+
+  it('alternates black and red starting from spades when there is no trump', () => {
+    expect(sortHand(hand()).map(cardLabel)).toEqual(['2S', 'AH', 'KC', 'TC']);
+  });
+
+  it('leads with the trump suit and keeps the alternation going', () => {
+    // clubs lead, then red, black, red
+    expect(sortHand(hand(), 'C').map(cardLabel)).toEqual(['KC', 'TC', 'AH', '2S']);
+    // hearts lead, then black, red, black
+    expect(sortHand(hand(), 'H').map(cardLabel)).toEqual(['AH', '2S', 'KC', 'TC']);
+    // spades already lead — the order is unchanged
+    expect(sortHand(hand(), 'S').map(cardLabel)).toEqual(['2S', 'AH', 'KC', 'TC']);
+    // diamonds lead the order, but this hand holds no diamond, so what is
+    // left is the plain black/red alternation
+    expect(sortHand(hand(), 'D').map(cardLabel)).toEqual(['2S', 'AH', 'KC', 'TC']);
+  });
+
+  it('keeps ranks high to low inside each suit, suits in S H C D order', () => {
+    const mixed = ['AS', '3S', 'QS', 'KD', 'AD', '5D', '2C', '9H']
+      .map(l => parseCard(l));
+    expect(sortHand(mixed).map(cardLabel)).toEqual(['AS', 'QS', '3S', '9H', '2C', 'AD', 'KD', '5D']);
+  });
+
+  it('puts the trump suit leftmost on a full four-suit hand', () => {
+    // AS KS 9H 4C 7D 5H JC 2C — one card short in spades and diamonds, so
+    // every suit is represented and the alternation is observable.
+    const mixed = ['AS', 'KS', '9H', '4C', '7D', '5H', 'JC', '2C']
+      .map(l => parseCard(l));
+    expect(sortHand(mixed, 'C').map(cardLabel)).toEqual(['JC', '4C', '2C', '9H', '5H', 'AS', 'KS', '7D']);
+    expect(sortHand(mixed, 'D').map(cardLabel)).toEqual(['7D', 'AS', 'KS', '9H', '5H', 'JC', '4C', '2C']);
+    expect(sortHand(mixed, 'H').map(cardLabel)).toEqual(['9H', '5H', 'AS', 'KS', '7D', 'JC', '4C', '2C']);
+    expect(sortHand(mixed, 'S').map(cardLabel)).toEqual(['AS', 'KS', '9H', '5H', 'JC', '4C', '2C', '7D']);
+    expect(sortHand(mixed).map(cardLabel)).toEqual(['AS', 'KS', '9H', '5H', 'JC', '4C', '2C', '7D']);
+  });
+
+  it('does not mutate the hand it was given', () => {
+    const h = hand();
+    const before = h.map(cardLabel);
+    sortHand(h, 'C');
+    expect(h.map(cardLabel)).toEqual(before);
   });
 });
 

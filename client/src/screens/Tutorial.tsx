@@ -10,7 +10,7 @@ import { CHARACTERS } from '../../../shared/characters.js';
 import { getLessons } from '../../../shared/lessons.js';
 import type { Bid } from '../../../shared/bidding.js';
 import { cardLabel, sortHand, partnerOf } from '../../../shared/deck.js';
-import type { Card, Seat } from '../../../shared/deck.js';
+import type { Card, Seat, Suit } from '../../../shared/deck.js';
 
 /** Bidding-box column order, per club convention: NT leftmost, clubs rightmost. */
 const DENOM_ORDER = ['NT', 'S', 'H', 'D', 'C'] as const;
@@ -185,6 +185,9 @@ function SimTable(props: {
   trick: { seat: Seat; card: Card }[];
   hand: Card[] | null;
   handLabel: string | null;
+  /** Trump suit — drives hand ordering (trump leads). Null before the
+   *  auction settles, or in a no-trump contract. */
+  trump?: Suit | null;
   interactive: boolean;
   onPlay: (c: Card) => void;
   hint: string | null;
@@ -264,7 +267,7 @@ function SimTable(props: {
             )}
             {props.hands?.[s.seat] ? (
               <div className="sim-faceup" aria-label={seatLabel(lang, s.seat)}>
-                {sortHand(props.hands[s.seat]!).map((c, i) => (
+                {sortHand(props.hands[s.seat]!, props.trump ?? null).map((c, i) => (
                   <CardView
                     key={`${c.suit}${c.rank}-${i}`}
                     card={c}
@@ -577,6 +580,12 @@ export function Tutorial() {
     return cardTagsIn(src);
   }, [step, pending]);
 
+  // Trump drives hand ordering: it leads, the rest alternate black/red.
+  // Unknown until the auction completes — and a no-trump contract has none.
+  const lessonTrump: Suit | null = lesson.contract.denom === 'NT' ? null : lesson.contract.denom;
+  const playContract = playView?.contract ?? null;
+  const playTrump: Suit | null = playContract && playContract.denom !== 'NT' ? playContract.denom : null;
+
   // The table (with the hand) is shown for every teaching step — info,
   // auction and play alike. Text steps used to REPLACE the table, which is
   // why the hand vanished exactly when the coach had something to say.
@@ -620,9 +629,10 @@ export function Tutorial() {
               active: false,
             }))}
             trick={handView?.trick ?? []}
-            hand={sortHand(handHands.S)}
+            hand={sortHand(handHands.S, lessonTrump)}
             hands={handHands}
             handLabel={seatLabel(lang, 'S')}
+            trump={lessonTrump}
             seatChars={seatChars}
             interactive={false}
             onPlay={() => {}}
@@ -645,9 +655,10 @@ export function Tutorial() {
               active: auctionView.turn === s,
             }))}
             trick={[]}
-            hand={sortHand(lesson.hands.S)}
+            hand={sortHand(lesson.hands.S, null)}
             hands={lesson.hands}
             handLabel={seatLabel(lang, 'S')}
+            trump={null}
             seatChars={seatChars}
             interactive={false}
             onPlay={() => {}}
@@ -716,12 +727,13 @@ export function Tutorial() {
               active: playView.turn === s,
             }))}
             trick={review ? review.plays : playView.trick}
-            hand={sortHand(pending && pending.kind === 'play' ? playView.hands[pending.seat] : playView.hands.S)}
+            hand={sortHand(pending && pending.kind === 'play' ? playView.hands[pending.seat] : playView.hands.S, playTrump)}
             handLabel={
               pending && pending.kind === 'play'
                 ? `${seatLabel(lang, pending.seat)}${pending.seat === 'N' ? (lang === 'zh' ? '（明手）' : ' (dummy)') : ''}`
                 : seatLabel(lang, 'S')
             }
+            trump={playTrump}
             interactive={!!pending && !review}
             onPlay={doPlay}
             hint={pending?.hint ?? null}

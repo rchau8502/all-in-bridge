@@ -78,11 +78,34 @@ export function deal(deck: Card[]): Hands {
   return hands;
 }
 
-/** Sort a hand for display: suits C,D,H,S, ranks high→low. */
-export function sortHand(hand: Card[]): Card[] {
-  const suitOrder: Record<Suit, number> = { C: 0, D: 1, H: 2, S: 3 };
+/** Suits in display order: spades first, then the alternating black/red
+ *  sequence S H C D. Within a suit, ranks run high to low. */
+const DISPLAY_SUITS: Suit[] = ['S', 'H', 'C', 'D'];
+const isRedSuit = (s: Suit) => s === 'H' || s === 'D';
+
+/**
+ * Sort a hand for display. Suits alternate black/red starting with spades
+ * (S H C D), which keeps the red cards visually interleaved instead of
+ * pooling in one block. When the contract has a trump suit, that suit leads
+ * and the remaining suits continue the alternation from the opposite colour.
+ * Pass null / omit for a deal with no trump (e.g. during the auction).
+ */
+export function sortHand(hand: Card[], trump: Suit | null = null): Card[] {
+  const order: Suit[] = [];
+  let wantRed = false;
+  if (trump && DISPLAY_SUITS.includes(trump)) {
+    order.push(trump);
+    wantRed = !isRedSuit(trump);
+  }
+  const rest = DISPLAY_SUITS.filter(s => !order.includes(s));
+  while (rest.length) {
+    const i = rest.findIndex(s => isRedSuit(s) === wantRed);
+    const picked = i < 0 ? rest.shift()! : rest.splice(i, 1)[0]!;
+    order.push(picked);
+    wantRed = !wantRed;
+  }
   return hand.slice().sort((a, b) =>
-    suitOrder[a.suit] - suitOrder[b.suit] || b.rank - a.rank
+    order.indexOf(a.suit) - order.indexOf(b.suit) || b.rank - a.rank
   );
 }
 

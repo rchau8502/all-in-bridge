@@ -465,6 +465,11 @@ select.input { appearance: auto; }
 }
 .card.small { --card-w: 52px; --card-h: 74px; font-size: 12px; }
 .card.small .pip { font-size: 26px; }
+/* A thumbnail shows its suit exactly once, in the big centre pip. At 52px
+   wide, a second suit glyph in the corner lands on top of it and reads as
+   visual noise — so the corners keep the rank only. */
+.card.small .corner { font-size: 14px; }
+.card.small .corner-suit { display: none; }
 .card .corner { position: absolute; font-size: 15px; line-height: 1.05; text-align: center; }
 .card .corner.tl { top: 4px; left: 6px; }
 .card .corner.br { bottom: 4px; right: 6px; transform: rotate(180deg); }
