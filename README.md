@@ -6,7 +6,7 @@ presentation, bilingual EN/中文 from the ground up (both language versions
 hand-written in parallel, never machine-translated).
 
 **Play it:** https://rchau8502.github.io/all-in-bridge/ — the full
-13-lesson Bridge Bootcamp runs right in the browser, no account, no install.
+14-lesson Bridge Bootcamp runs right in the browser, no account, no install.
 
 ## Layout
 
@@ -33,17 +33,18 @@ everything, and a throw-away card can never win a trick).
 
 1. Say Hi to the Cards — suits, colors, ranks; play your first trick
 2. Win the Tricks — follow suit, highest card wins, winner leads next
-3. Count and Plan — sure winners, the finesse, entries between hands
+3. Count and Plan — meet declarer, dummy and the opening lead; sure winners counted from both hands, the finesse, blocking
 4. Establish the Long Suit — grow winners in notrump: count their cards, duck once, cash the little ones
 5. Trump Power — ruffing: any trump beats any card of the led suit
 6. Count Your Losers — trump contracts flip the script: count losers from the long hand, then plan
 7. Make Losers Vanish — ruff in dummy, throw losers on spare winners, the ruffing finesse
-8. Bidding Is Talking — bids as messages, high-card points, fits
-9. Answer Partner — responding to a minor-suit opening
-10. Raise and Play — a complete 2♥ hand as declarer, dummy face-up
-11. Opener Tells More — opener's rebid after a major response
-12. Go for Game! — scoring, partscore vs game, the ~25-point rule
-13. Jump In! — overcalling when the other side opens first
+8. The Contract: A Promise — what a contract is (trump + level, level + 6 tricks), game contracts and the fat bonus, the 25-point line, the 8-card fit
+9. Bidding Is Talking — bids as messages, high-card points, fits
+10. Answer Partner — responding to a minor-suit opening
+11. Raise and Play — a complete 2♥ hand as declarer, dummy face-up
+12. Opener Tells More — opener's rebid after a major response
+13. Go for Game! — scoring, partscore vs game, the ~25-point rule
+14. Jump In! — overcalling when the other side opens first
 
 ## Run it
 

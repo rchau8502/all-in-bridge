@@ -94,6 +94,21 @@ const LONGSUIT_DEAL: Hands = makeHands({
   W: ['JS', '9S', '8S', 'AH', 'KH', 'QH', 'QD', 'JD', '2D', 'KC', 'QC', 'JC', '9C'],
 });
 
+/** Lesson 8 deal: South declares 4♠ — a GAME contract. The two clues
+ *  from the lesson are both on display: combined points 26 (South 16,
+ *  North 10 — past the 25-point game line) and an 8-card spade fit
+ *  (South 5 + North 3). Losers from South's long-trump hand: ♠0 ♥0
+ *  (dummy's K-Q cover) ♦1 ♣2 = 3 — exactly the game budget. Script pays
+ *  the three losers (two clubs to West's A-K, one diamond to the Q),
+ *  draws trumps and lands exactly 10 tricks: 420 points non-vulnerable,
+ *  vs 170 for the same 10 tricks at 2♠. Simulator-verified. */
+const CONTRACT_DEAL: Hands = makeHands({
+  N: ['JS', '7S', '5S', 'KH', 'QH', '6H', 'AD', '8D', '6D', '4D', '9C', '5C', '4C'],
+  E: ['3S', '2S', '8H', '5H', '3H', '2H', 'TD', '7D', '2D', 'QC', 'JC', 'TC', '2C'],
+  S: ['AS', 'KS', 'QS', '8S', '6S', 'AH', '7H', '4H', 'KD', '9D', '5D', '8C', '6C'],
+  W: ['TS', '9S', '4S', 'JH', 'TH', '9H', 'QD', 'JD', '3D', 'AC', 'KC', '7C', '3C'],
+});
+
 /** Lesson 5 deal: South declares 4♠. Losers from South (long trumps):
  *  ♠1 (the J) ♥1 ♦2 ♣0 = 4 — one too many. Plan: draw trumps, then throw the
  *  heart loser on dummy's spare ♣J (dummy has 4 clubs, South only 3).
@@ -339,6 +354,20 @@ const RAW_LESSONS: RawLesson[] = [
     contract: { level: 1, denom: 'NT', declarer: 'S', doubled: 0 },
     vulnerable: false,
     steps: [
+      {
+        kind: 'info',
+        text: T(
+          "Before we count, meet the four jobs at the table. In every lesson from now on, YOU are the DECLARER — the player who plays the contract; today's is 1NT, and you sit in the South chair. Your partner North is the DUMMY: North lays every card face-up on the table, then just watches — YOU play North's cards as well as your own. West and East are the DEFENDERS: their job is to stop you from winning your tricks.",
+          '数牌之前，先认识一下牌桌上的四个角色。从这一课起，每一课里你都是庄家 —— 负责打定约的人；今天的定约是1NT，你坐南家的位置。你的搭档北家是明手：他把每一张牌面朝上摊在桌上，然后就只用看着了 —— 北家的牌也由你来打。西家和东家是防守方：他们的任务是阻止你赢到需要的墩数。'
+        ),
+      },
+      {
+        kind: 'info',
+        text: T(
+          "One rule of order: the first card of the hand — the OPENING LEAD — is played by the defender on declarer's LEFT. That is West, and West must choose it BEFORE dummy's cards are shown. Leading blind is the hardest job in defense! Only after the lead does North spread the dummy face-up. (This screen opens all four hands so you can learn — your x-ray eyes. At a real table you'd see only your own hand and, after the lead, the dummy.) Now — the counting.",
+          '还有一个顺序规则：这副牌的第一张牌 —— 首攻 —— 由庄家左手边的防守方打出。也就是西家，而且西家必须在明手的牌摊开之前选定它。盲打首攻，是防守里最难的活！首攻打出之后，北家才把明手的牌摊开。（这个屏幕把四手的牌都摊开给你看，方便学习 —— 就是你的透视眼。真实牌桌上，你只能看到自己的牌，和首攻之后摊开的明手。）好 —— 开始数牌。'
+        ),
+      },
       {
         kind: 'info',
         text: T(
@@ -1227,6 +1256,236 @@ const RAW_LESSONS: RawLesson[] = [
     ],
   },
   {
+    id: 'contract',
+    title: T('The Contract: A Promise', '定约：一份承诺'),
+    dealer: 'N',
+    hands: CONTRACT_DEAL,
+    contract: { level: 4, denom: 'S', declarer: 'S', doubled: 0 },
+    vulnerable: false,
+    steps: [
+      {
+        kind: 'info',
+        text: T(
+          "All this time you have been PLAYING contracts — 1NT, 3NT, 4♠… but what IS a contract, exactly? Today we open the hood.",
+          '打了这么久，你一直在打"定约"—— 1NT、3NT、4♠……但定约到底是什么？今天我们打开引擎盖看看。'
+        ),
+      },
+      {
+        kind: 'info',
+        text: T(
+          "A contract has two parts. The TRUMP: which suit is the super suit — or notrump, no super suit at all. And the LEVEL: a number from 1 to 7. Here is the key formula: level + 6 = the tricks your side PROMISES to win. 1♠ promises 7 tricks. 4♥ promises 10. 3NT promises 9, with no trump.",
+          '定约有两部分。定将：哪个花色是将牌 —— 或者是无将，根本没有超级花色。定阶：1到7的一个数字。关键公式来了：阶数 + 6 = 你们一方承诺要赢的墩数。1♠承诺7墩，4♥承诺10墩，3NT承诺9墩、没有将牌。'
+        ),
+      },
+      {
+        kind: 'info',
+        text: T(
+          "And a promise is a promise. Make it — win at least that many tricks — and your team scores points, plus a bonus. Break it, even by ONE trick, and the DEFENDERS score instead. Promise 11 tricks, win 10, and you still failed: close does NOT count. So the golden question of every hand: how much can we honestly promise?",
+          '而承诺就是承诺。做到 —— 至少赢到承诺的墩数 —— 你们队得分，还有奖分。哪怕只差一墩没做到，分数就归防守方。承诺11墩、赢了10墩，照样算失败：接近不算数。所以每一副牌的黄金问题是：我们到底能诚实地承诺多少？'
+        ),
+      },
+      {
+        kind: 'info',
+        text: T(
+          "Two clues tell you. Clue one: POINTS. Count high-card points like this: ace = 4, king = 3, queen = 2, jack = 1 — the whole deck holds 40. Your hand: ♠A K Q (9), ♥A (4), ♦K (3) = 16 points. Partner's: ♥K Q (5), ♦A (4), ♠J (1) = 10. Together: 26 points — a big share of all the strength at the table is yours.",
+          '有两条线索告诉你。线索一：点力。这样数大牌点：A=4、K=3、Q=2、J=1 —— 整副牌共40点。你的牌：♠A K Q（9）、♥A（4）、♦K（3）= 16点。搭档的：♥K Q（5）、♦A（4）、♠J（1）= 10点。联手：26点 —— 全桌的实力有一大半在你们手里。'
+        ),
+      },
+      {
+        kind: 'info',
+        text: T(
+          "Clue two: the FIT. Count spades: you hold 5, partner holds 3 — EIGHT together. When partners share 8 or more cards in a suit, that suit is a fit — it begs to be your trump: eight soldiers marching together, and even the little ones can ruff something later. A spade fit: found!",
+          '线索二：配合。数一数黑桃：你有5张，搭档有3张 —— 联手八张。当搭档之间在一门花色联手有8张或更多，这门花色就是配合 —— 它天生就该当将牌：八个士兵一起前进，连最小的那些日后都能将吃。黑桃配合：找到了！'
+        ),
+      },
+      {
+        kind: 'info',
+        text: T(
+          "Now the magic number: 25. With about 25 or more combined points, your side is strong enough to go for a GAME contract — the contracts with the giant bonus: 3NT (promise 9 tricks), 4♥ and 4♠ (promise 10), 5♣ and 5♦ (promise 11). You have 26 points AND a spade fit… so today's contract is 4♠: promise TEN tricks.",
+          '现在说那个魔法数字：25。联手大约25点或更多，你们就有实力冲击成局定约 —— 奖分巨大的那些定约：3NT（承诺9墩）、4♥和4♠（承诺10墩）、5♣和5♦（承诺11墩）。你们有26点，还有黑桃配合……所以今天的定约是4♠：承诺十墩。'
+        ),
+      },
+      {
+        kind: 'info',
+        text: T(
+          "Why stretch so high? Watch the money. Win exactly 10 tricks at 2♠: you score 170. Win the same 10 tricks at 4♠: you score 420 — the game bonus alone is worth hundreds. But stretch WITHOUT the points and the fit, and the promise breaks — the defenders collect the points instead. Promise only what your points and fit can pay for. Plan first, like the losers lesson taught: count losers from your long-trump hand — spades 0, hearts 0 (dummy's K and Q cover your two small ones), diamonds 1, clubs 2. Total: 3 losers — and a game contract can afford exactly 3. Green light! West leads the ace of clubs — straight at our losers.",
+          '为什么要冲这么高？看分数。打2♠赢正好10墩：得170分。打4♠赢同样的10墩：得420分 —— 成局奖分本身就值几百分。但如果没有点力和配合硬冲，承诺就会破产 —— 分数反而归防守方。承诺要落在点力和配合付得起的范围内。先做计划，就像数输墩那课教的：从长将牌一方数输墩 —— 黑桃0、红桃0（明手的K和Q正好盖住你的两张小牌）、方块1、梅花2。总共3个输墩 —— 成局定约正好输得起3个。绿灯！西家领出梅花A —— 直冲我们的输墩而来。'
+        ),
+      },
+      {
+        kind: 'play',
+        script: [
+          { seat: 'W', card: 'AC' },
+          { seat: 'N', card: '4C' },
+          { seat: 'E', card: '2C' },
+          { seat: 'S', card: '6C' },
+        ],
+      },
+      {
+        kind: 'play',
+        script: [
+          { seat: 'W', card: 'KC' },
+          { seat: 'N', card: '5C' },
+          { seat: 'E', card: 'TC' },
+          { seat: 'S', card: '8C' },
+        ],
+      },
+      {
+        kind: 'info',
+        text: T(
+          "Both club losers, paid — exactly as planned. West switches to a diamond, hunting our last loser. Take it with dummy's ace!",
+          '两个梅花输墩都付清了 —— 和计划一模一样。西家改打方块，猎我们最后一个输墩。用明手的A拿下！'
+        ),
+      },
+      {
+        kind: 'play',
+        script: [
+          { seat: 'W', card: '3D' },
+          {
+            seat: 'N', learner: true, expected: 'AD',
+            hint: T("Dummy's ace of diamonds (AD). Take the trick!", '明手的方块A (AD)，拿下这一墩！'),
+          },
+          { seat: 'E', card: '2D' },
+          { seat: 'S', card: '5D' },
+        ],
+      },
+      {
+        kind: 'play',
+        script: [
+          { seat: 'N', card: '4D' },
+          { seat: 'E', card: '7D' },
+          {
+            seat: 'S', learner: true, expected: 'KD',
+            hint: T('Your king of diamonds (KD).', '你的方块K (KD)。'),
+          },
+          { seat: 'W', card: 'JD' },
+        ],
+      },
+      {
+        kind: 'play',
+        script: [
+          { seat: 'S', card: '9D' },
+          { seat: 'W', card: 'QD' },
+          { seat: 'N', card: '6D' },
+          { seat: 'E', card: 'TD' },
+        ],
+      },
+      {
+        kind: 'info',
+        text: T(
+          "There goes the diamond loser — the defenders have their 3 tricks, and the budget is spent. From here, EVERY trick must be ours. Hearts next: cash dummy's queen and king first (honors from the short hand first — remember blocking?), then your ace makes West's jack fall.",
+          '方块输墩付掉了 —— 防守方拿到3墩，预算花完。从现在起，每一墩都必须是我们的。接下来打红桃：先兑现明手的Q和K（短套的大牌先打 —— 还记得阻塞吗？），然后你的A让西家的J掉下来。'
+        ),
+      },
+      {
+        kind: 'play',
+        script: [
+          { seat: 'W', card: '9H' },
+          {
+            seat: 'N', learner: true, expected: 'QH',
+            hint: T("Dummy's queen of hearts (QH) — cash the short hand's honors first.", '明手的红桃Q (QH) —— 先兑现短套的大牌。'),
+          },
+          { seat: 'E', card: '2H' },
+          { seat: 'S', card: '4H' },
+        ],
+      },
+      {
+        kind: 'play',
+        script: [
+          { seat: 'N', card: 'KH' },
+          { seat: 'E', card: '3H' },
+          { seat: 'S', card: '7H' },
+          { seat: 'W', card: 'TH' },
+        ],
+      },
+      {
+        kind: 'play',
+        script: [
+          { seat: 'N', card: '6H' },
+          { seat: 'E', card: '5H' },
+          {
+            seat: 'S', learner: true, expected: 'AH',
+            hint: T('Your ace of hearts (AH) — down comes their jack.', '你的红桃A (AH) —— 他们的J掉下来了。'),
+          },
+          { seat: 'W', card: 'JH' },
+        ],
+      },
+      {
+        kind: 'info',
+        text: T(
+          "Only one obstacle left: their trumps. They hold 5, split between the two hands. Draw them — ace, king, queen — and watch them fall. Then your two little trumps bring the last tricks home.",
+          '只剩最后一个障碍：他们的将牌。他们有5张，分在两只手里。把它们拔出来 —— A、K、Q —— 看着它们掉。然后你的两张小将牌把最后几墩带回家。'
+        ),
+      },
+      {
+        kind: 'play',
+        script: [
+          {
+            seat: 'S', learner: true, expected: 'AS',
+            hint: T('Ace of spades (AS) — start drawing their trumps!', '黑桃A (AS) —— 开始拔他们的将牌！'),
+          },
+          { seat: 'W', card: '4S' },
+          { seat: 'N', card: '5S' },
+          { seat: 'E', card: '2S' },
+        ],
+      },
+      {
+        kind: 'play',
+        script: [
+          { seat: 'S', card: 'KS' },
+          { seat: 'W', card: '9S' },
+          { seat: 'N', card: '7S' },
+          { seat: 'E', card: '3S' },
+        ],
+      },
+      {
+        kind: 'play',
+        script: [
+          {
+            seat: 'S', learner: true, expected: 'QS',
+            hint: T('Queen of spades (QS) — the last of their trumps fall.', '黑桃Q (QS) —— 他们最后的将牌掉了。'),
+          },
+          { seat: 'W', card: 'TS' },
+          { seat: 'N', card: 'JS' },
+          { seat: 'E', card: '8H' },
+        ],
+      },
+      {
+        kind: 'play',
+        script: [
+          { seat: 'S', card: '8S' },
+          { seat: 'W', card: '3C' },
+          { seat: 'N', card: '9C' },
+          { seat: 'E', card: 'QC' },
+        ],
+      },
+      {
+        kind: 'play',
+        script: [
+          { seat: 'S', card: '6S' },
+          { seat: 'W', card: '7C' },
+          { seat: 'N', card: '8D' },
+          { seat: 'E', card: 'JC' },
+        ],
+      },
+      {
+        kind: 'info',
+        text: T(
+          "TEN tricks — promise KEPT, and kept exactly! Score it: 4♠ = 120 trick points + 300 game bonus = 420. The same ten tricks stopped at 2♠? Only 170. That 250-point gap is the whole reason for the 25-point rule: when the points and the fit are there, DARE to promise game.",
+          '十墩 —— 承诺兑现，分毫不差！算一算分：4♠ = 120墩分 + 300成局奖分 = 420分。同样的十墩如果停在2♠呢？只有170分。这250分的差距，就是25点规则的全部意义：点力和配合都在的时候，要敢承诺成局。'
+        ),
+      },
+      {
+        kind: 'info',
+        text: T(
+          "But one question remains: at a real table, nobody HANDS you the contract. You and partner must find it yourselves — without seeing each other's cards. You find it by TALKING, in bids. Next lesson: bidding, the language of partners. And the points and fits from today? They are the words of that language.",
+          '但还有一个问题：真实牌桌上，没人把定约递到你手里。你和搭档必须自己找到它 —— 还看不见对方的牌。靠什么找？靠"说话"，用叫牌。下一课：叫牌，搭档之间的语言。而今天学的点力和配合，就是这种语言的词汇。'
+        ),
+      },
+      { kind: 'result' },
+    ],
+  },
+  {
     id: 'bidding',
     title: T('Bidding Is Talking', '叫牌就是说话'),
     dealer: 'N',
@@ -1244,8 +1503,8 @@ const RAW_LESSONS: RawLesson[] = [
       {
         kind: 'info',
         text: T(
-          'To talk well, count your strength — points! Ace = 4, king = 3, queen = 2, jack = 1. Add them up: that is how strong your hand is.',
-          '想说得好，先数你的"力气" —— 点数！A=4点，K=3点，Q=2点，J=1点。加起来，就是你这手牌有多强。'
+          'Quick review from the contract lesson — to talk well, count your strength in points: Ace = 4, king = 3, queen = 2, jack = 1. Add them up: that is how strong your hand is.',
+          '先复习一下定约课的内容 —— 想说得好，先数你的"力气"：点数！A=4点，K=3点，Q=2点，J=1点。加起来，就是你这手牌有多强。'
         ),
       },
       {
@@ -1317,8 +1576,8 @@ const RAW_LESSONS: RawLesson[] = [
       {
         kind: 'info',
         text: T(
-          'Now everyone passes — three passes in a row stop the talk. The last bid becomes the contract: your team\'s promise. You promised 2♥.',
-          '现在大家都pass了 —— 连续三次不叫，谈话结束。最后一个叫牌变成定约：你们队的承诺。你们承诺的是2♥。'
+          'Now everyone passes — three passes in a row stop the talk. The last bid becomes the contract — the promise from the contract lesson, remember? You promised 2♥.',
+          '现在大家都pass了 —— 连续三次不叫，谈话结束。最后一个叫牌变成定约 —— 就是定约课里说的那份承诺，还记得吗？你们承诺的是2♥。'
         ),
       },
       {
@@ -1331,8 +1590,8 @@ const RAW_LESSONS: RawLesson[] = [
       {
         kind: 'info',
         text: T(
-          "Dummy's job is the easiest in bridge: lay ALL your cards face-up on the table… and relax. The declarer plays both hands. From now on you'll see North's cards face-up — that's your dummy.",
-          '明手的活儿是桥牌里最轻松的：把全部牌翻开摊在桌上……然后休息。庄家一个人打两手牌。从现在开始你会看到北家的牌翻开着 —— 那就是你的明手。'
+          "Dummy's job is the easiest in bridge — you met it back in the planning lesson: lay ALL your cards face-up on the table… and relax. The declarer plays both hands. From now on you'll see North's cards face-up — that's your dummy.",
+          '明手的活儿是桥牌里最轻松的 —— 你在做计划那课已经见过：把全部牌翻开摊在桌上……然后休息。庄家一个人打两手牌。从现在开始你会看到北家的牌翻开着 —— 那就是你的明手。'
         ),
       },
     ],
@@ -1849,8 +2108,8 @@ const RAW_LESSONS: RawLesson[] = [
       {
         kind: 'info',
         text: T(
-          'The contract is a promise: "We will win THIS many tricks." But how is the promise priced? Slowly, once: the first 6 tricks of every hand are FREE — a contract only counts the tricks ABOVE 6. 2♥ means 6 + 2 = 8 tricks. 4♥ means 6 + 4 = 10 tricks. Now the numbers will make sense.',
-          '定约是一个承诺："我们会赢这么多墩。"但这个承诺怎么计价？慢慢说一次：每一副牌的前6墩是免费的 —— 定约只数6以上的墩。2♥就是6+2=8墩。4♥就是6+4=10墩。现在数字就说得通了。'
+          'You already know a contract is a promise: "We will win THIS many tricks." But how is the promise priced? Slowly, once: the first 6 tricks of every hand are FREE — a contract only counts the tricks ABOVE 6. 2♥ means 6 + 2 = 8 tricks. 4♥ means 6 + 4 = 10 tricks. Now the numbers will make sense.',
+          '你已经知道定约是一个承诺："我们会赢这么多墩。"但这个承诺怎么计价？慢慢说一次：每一副牌的前6墩是免费的 —— 定约只数6以上的墩。2♥就是6+2=8墩。4♥就是6+4=10墩。现在数字就说得通了。'
         ),
       },
       {
@@ -1863,8 +2122,8 @@ const RAW_LESSONS: RawLesson[] = [
       {
         kind: 'info',
         text: T(
-          'Now the magic line: if your contract itself scores 100 points or more, it is called GAME — and the game pays a fat bonus: +300 points on top! Do the math with me: 4♥ = 4 × 30 = 120. Over 100 — GAME. 3NT = 40 + 30 + 30 = 100. Exactly 100 — GAME. The game contracts are: 3NT, 4♥, 4♠, 5♣, 5♦. (Minors need 5 because 4 × 20 = 80 — not enough!)',
-          '现在看神奇的线：如果你的定约本身达到100分或以上，就叫成局 —— 成局还有一份厚厚的奖励：额外+300分！跟我算：4♥ = 4 × 30 = 120。超过100 —— 成局。3NT = 40 + 30 + 30 = 100。正好100 —— 成局。成局的定约有：3NT、4♥、4♠、5♣、5♦。（小花色需要到5，因为4 × 20 = 80 —— 不够！）'
+          'Remember game from the contract lesson? Here is its exact line: if your contract itself scores 100 points or more, it is called GAME — and the game pays a fat bonus: +300 points on top! Do the math with me: 4♥ = 4 × 30 = 120. Over 100 — GAME. 3NT = 40 + 30 + 30 = 100. Exactly 100 — GAME. The game contracts are: 3NT, 4♥, 4♠, 5♣, 5♦. (Minors need 5 because 4 × 20 = 80 — not enough!)',
+          '还记得定约课里的成局吗？这里是它的精确分数线：如果你的定约本身达到100分或以上，就叫成局 —— 成局还有一份厚厚的奖励：额外+300分！跟我算：4♥ = 4 × 30 = 120。超过100 —— 成局。3NT = 40 + 30 + 30 = 100。正好100 —— 成局。成局的定约有：3NT、4♥、4♠、5♣、5♦。（小花色需要到5，因为4 × 20 = 80 —— 不够！）'
         ),
       },
       {
@@ -1877,8 +2136,8 @@ const RAW_LESSONS: RawLesson[] = [
       {
         kind: 'info',
         text: T(
-          'How do you know? Add BOTH hands\' points together. Years of bridge wisdom say: about 25 combined points makes game. Why 25? Game needs 9–10 tricks, and 25 of the 40 total points — almost two-thirds of all the strength at the table — usually builds those tricks. Under 25? Take the partscore and be happy.',
-          '怎么知道？把两只手的点数加起来。多年的桥牌智慧说：两家合计约25点就能成局（25点进局）。为什么是25？成局需要9到10墩，而25点 —— 占全桌40点的将近三分之二 —— 通常足够搭起这些墩。不到25？拿下部分定约，开开心心就好。'
+          'How do you know? The contract lesson\'s rule, one more time: add BOTH hands\' points together — about 25 combined points makes game. Why 25? Game needs 9–10 tricks, and 25 of the 40 total points — almost two-thirds of all the strength at the table — usually builds those tricks. Under 25? Take the partscore and be happy.',
+          '怎么知道？把定约课的规则再复习一遍：把两只手的点数加起来 —— 两家合计约25点就能成局（25点进局）。为什么是25？成局需要9到10墩，而25点 —— 占全桌40点的将近三分之二 —— 通常足够搭起这些墩。不到25？拿下部分定约，开开心心就好。'
         ),
       },
       {
@@ -2054,8 +2313,8 @@ const RAW_LESSONS: RawLesson[] = [
       {
         kind: 'info',
         text: T(
-          'The other team opened the hand — and your team walks away with the contract. That steal felt good, right? You have now learned the whole circle: play tricks, count winners, make a plan, use trump, count losers, make them vanish, talk with bids, answer, raise, rebid, hunt for game, and even jump into enemy auctions.',
-          '对方开的局 —— 定约却被你们队拿走了。这种"偷"感觉很好吧？你现在已经学完了整个循环：打墩、数赢墩、做计划、用将牌、数输墩、消去输墩、用叫牌对话、回答、加叫、再叫、猎逐成局，甚至抢进对方的叫牌。'
+          'The other team opened the hand — and your team walks away with the contract. That steal felt good, right? You have now learned the whole circle: play tricks, count winners, make a plan, use trump, count losers, make them vanish, promise a contract, talk with bids, answer, raise, rebid, hunt for game, and even jump into enemy auctions.',
+          '对方开的局 —— 定约却被你们队拿走了。这种"偷"感觉很好吧？你现在已经学完了整个循环：打墩、数赢墩、做计划、用将牌、数输墩、消去输墩、承诺定约、用叫牌对话、回答、加叫、再叫、猎逐成局，甚至抢进对方的叫牌。'
         ),
       },
       {
