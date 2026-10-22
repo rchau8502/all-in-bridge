@@ -745,6 +745,11 @@ select.input { appearance: auto; }
   animation: pop-in 0.25s ease-out;
   text-align: left;
 }
+.recap-card { display: flex; flex-direction: column; gap: 8px; align-items: stretch; }
+.recap-card .btn { align-self: flex-start; }
+.recap-line { display: flex; gap: 10px; align-items: flex-start; }
+.recap-text { flex: 1; min-width: 0; line-height: 1.55; color: #33475b; }
+.recap-contract { font-weight: 800; color: #175a34; }
 .sim-caption-tag {
   flex: 0 0 auto;
   font-weight: 900;
@@ -855,7 +860,14 @@ select.input { appearance: auto; }
 .sim-tcard.pos-right { margin-left: calc(var(--card-w) / -2 + var(--toff)); margin-top: calc(var(--card-h) / -2); }
 .sim-me { grid-area: simme; display: flex; flex-direction: column; align-items: center; gap: 6px; }
 .sim-hint { color: #fff; font-weight: 800; text-shadow: 0 2px 3px rgba(0,0,0,0.65); text-align: center; }
-.sim-handlabel { color: var(--gold); font-weight: 900; font-size: 14px; text-shadow: 0 2px 3px rgba(0,0,0,0.6); }
+.sim-handlabel { color: var(--gold); font-weight: 900; font-size: 14px; text-shadow: 0 2px 3px rgba(0,0,0,0.6); display: flex; align-items: center; gap: 8px; justify-content: center; }
+.sim-seat-avatar, .sim-me-avatar {
+  border-radius: 50%; object-fit: cover; background: #ffe9bd;
+  border: 2px solid rgba(255, 255, 255, 0.8);
+  box-shadow: 0 4px 10px rgba(2, 24, 48, 0.35);
+}
+.sim-seat-avatar { width: 38px; height: 38px; }
+.sim-me-avatar { width: 30px; height: 30px; }
 .sim-me .hand .card { margin: 0 -20px; }
 .sim-me .hand .card:first-child { margin-left: 0; }
 .sim-me .hand .card:last-child { margin-right: 0; }

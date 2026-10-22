@@ -4,10 +4,12 @@ import { t, bidLabelL, seatLabel, type Lang } from '../i18n.js';
 import { CardView, Avatar } from '../components/ui.js';
 import { audio } from '../audio.js';
 import { TutorialRunner } from '../../../shared/tutorial.js';
+import type { Lesson } from '../../../shared/tutorial.js';
 import { explainTrick, type TrickReviewData } from '../trickExplain.js';
+import { CHARACTERS } from '../../../shared/characters.js';
 import { getLessons } from '../../../shared/lessons.js';
 import type { Bid } from '../../../shared/bidding.js';
-import { cardLabel, sortHand } from '../../../shared/deck.js';
+import { cardLabel, sortHand, partnerOf } from '../../../shared/deck.js';
 import type { Card, Seat } from '../../../shared/deck.js';
 
 /** Bidding-box column order, per club convention: NT leftmost, clubs rightmost. */
@@ -198,6 +200,9 @@ function SimTable(props: {
   winSeat?: Seat | null;
   /** Render trick cards instantly, no entrance animation (review replays). */
   trickStatic?: boolean;
+  /** Character id per seat — the four characters ARE the four players now:
+   *  the learner's pick sits South, the rest fill partner + opponents. */
+  seatChars?: Partial<Record<Seat, string>>;
 }) {
   const { lang } = props;
   const sigs = props.trick.map(t => `${t.seat}${t.card.suit}${t.card.rank}`);
@@ -250,6 +255,9 @@ function SimTable(props: {
         .filter(s => s.seat !== 'S')
         .map(s => (
           <div key={s.seat} className={`sim-seat sim-${s.seat.toLowerCase()}${s.active ? ' active-turn' : ''}${props.winSeat === s.seat ? ' seat-win' : ''}`}>
+            {props.seatChars?.[s.seat] && (
+              <Avatar id={props.seatChars[s.seat]!} className="sim-seat-avatar" />
+            )}
             {props.hands?.[s.seat] ? (
               <div className="sim-faceup" aria-label={seatLabel(lang, s.seat)}>
                 {sortHand(props.hands[s.seat]!).map((c, i) => (
@@ -296,7 +304,12 @@ function SimTable(props: {
         {props.hint && <div className="sim-hint">🫵 {props.hint}</div>}
         {props.hand && (
           <>
-            {props.handLabel && <div className="sim-handlabel">{props.handLabel}</div>}
+            {props.handLabel && (
+              <div className="sim-handlabel">
+                {props.seatChars?.S && <Avatar id={props.seatChars.S} className="sim-me-avatar" />}
+                <span>{props.handLabel}</span>
+              </div>
+            )}
             <div className="hand">
               {props.hand.map((c, i) => (
                 <CardView
@@ -317,6 +330,25 @@ function SimTable(props: {
   );
 }
 
+const SUIT_WORD: Record<Lang, Record<string, string>> = {
+  en: { S: 'spades', H: 'hearts', D: 'diamonds', C: 'clubs' },
+  zh: { S: '黑桃', H: '红桃', D: '方块', C: '梅花' },
+};
+
+/** One-line "what it all added up to" at the foot of an auction recap. */
+function contractSummary(lang: Lang, c: Lesson['contract']): string {
+  const label = bidLabelL(lang, { type: 'bid', level: c.level, denom: c.denom });
+  const dec = seatLabel(lang, c.declarer);
+  const dummy = seatLabel(lang, partnerOf(c.declarer));
+  const tricks = c.level + 6;
+  if (lang === 'zh') {
+    const trump = c.denom === 'NT' ? '，没有将牌（无将）' : `，${SUIT_WORD.zh[c.denom]} 是将牌`;
+    return `🎯 定约：${label}，庄家是 ${dec}。承诺：赢下 ${tricks} 墩${trump}。${dec} 打两手牌；${dummy} 把牌摊开做明手。`;
+  }
+  const trump = c.denom === 'NT' ? ', with no trump suit' : `, with ${SUIT_WORD.en[c.denom]} as trump`;
+  return `🎯 The contract: ${label} by ${dec}. The promise: win ${tricks} tricks${trump}. ${dec} is the declarer and plays both hands; ${dummy} lays their cards down as the dummy.`;
+}
+
 export function Tutorial() {
   const { lang, go, characterId } = useApp();
   const [lessonIdx, setLessonIdx] = useState(0);
@@ -330,6 +362,16 @@ export function Tutorial() {
   // stay on the table while the coach explains who won and why.
   const [review, setReview] = useState<TrickReviewData | null>(null);
   const reviewedRef = useRef(0);
+
+  // Auction recap: when an auction step ends, replay the WHOLE conversation
+  // as a translated transcript (every bid + its explainer) plus the contract
+  // it added up to. Entries are snapshotted while on the step; a transition
+  // effect below opens the card when the step changes away from 'auction'.
+  interface RecapLine { seat: Seat; bid: Bid; note?: string }
+  const [recap, setRecap] = useState<{ lines: RecapLine[]; contract: Lesson['contract'] } | null>(null);
+  const auctionSnapRef = useRef<{ stepKey: string; lessonId: string; lang: Lang; lines: RecapLine[] } | null>(null);
+  const recapShownForRef = useRef('');
+  const prevKindRef = useRef<string | null>(null);
 
   const lessons = useMemo(() => getLessons(lang), [lang]);
   const lesson = lessons[lessonIdx]!;
@@ -365,6 +407,7 @@ export function Tutorial() {
     runnerRef.current = new TutorialRunner(lessons[i]!);
     reviewedRef.current = 0;
     setReview(null);
+    setRecap(null);
     setFeedback('');
     setFbMood(null);
     refresh();
@@ -452,6 +495,28 @@ export function Tutorial() {
     ? (step.script[auctionView.entries.length - 1]?.note ?? null)
     : null;
 
+  // Snapshot the running auction (entries map 1:1 to script actions).
+  if (step?.kind === 'auction' && auctionView) {
+    auctionSnapRef.current = {
+      stepKey, lessonId: lesson.id, lang,
+      lines: auctionView.entries.map((e, i) => ({ seat: e.seat, bid: e.bid, note: step.script[i]?.note })),
+    };
+  }
+  // Leaving an auction step → open the recap (once per auction, and only if
+  // the snapshot belongs to THIS lesson + language).
+  useEffect(() => {
+    const kind = step?.kind ?? 'done';
+    if (prevKindRef.current === 'auction' && kind !== 'auction') {
+      const snap = auctionSnapRef.current;
+      if (snap && snap.lines.length > 0 && snap.lessonId === lesson.id && snap.lang === lang
+        && recapShownForRef.current !== snap.stepKey) {
+        recapShownForRef.current = snap.stepKey;
+        setRecap({ lines: snap.lines, contract: lesson.contract });
+      }
+    }
+    prevKindRef.current = kind;
+  }, [step, lesson, lang]);
+
   // Lessons past the auction introduce the dummy (明手): declarer's partner,
   // whose cards lie face-up on the table for the declarer to play.
   const DUMMY_LESSON_IDS: ReadonlySet<string> = useMemo(
@@ -460,6 +525,13 @@ export function Tutorial() {
   const dummySeat: Seat | null = DUMMY_LESSON_IDS.has(lesson.id)
     ? (lesson.contract.declarer === 'N' ? 'S' : lesson.contract.declarer === 'S' ? 'N' : lesson.contract.declarer === 'E' ? 'W' : 'E')
     : null;
+
+  // The four characters are the four players: your pick is YOU (South +
+  // coach voice); the other three sit as partner and opponents.
+  const seatChars = useMemo(() => {
+    const others = CHARACTERS.filter(c => c.id !== characterId).map(c => c.id);
+    return { S: characterId, N: others[0]!, W: others[1]!, E: others[2]! } as Record<Seat, string>;
+  }, [characterId]);
 
   return (
     <div className="tutorial">
@@ -484,6 +556,33 @@ export function Tutorial() {
       </div>
 
       <div className="tut-body">
+        {recap ? (
+          <div className="sim-review recap-card">
+            <div className="sim-review-label">{t(lang, 'tut.recapTitle')}</div>
+            {recap.lines.map((l, i) => (
+              <div key={i} className="recap-line">
+                <span className="sim-caption-tag">{seatLabel(lang, l.seat)} · {bidLabelL(lang, l.bid)}</span>
+                {l.note && <span className="recap-text">{l.note}</span>}
+              </div>
+            ))}
+            <p className="sim-review-line recap-contract">
+              {(() => {
+                const lastBid = [...recap.lines].reverse().find(l => l.bid.type === 'bid');
+                const reached = !!lastBid && lastBid.bid.type === 'bid'
+                  && lastBid.bid.level === recap.contract.level
+                  && lastBid.bid.denom === recap.contract.denom;
+                return reached ? contractSummary(lang, recap.contract) : t(lang, 'tut.recapPractice');
+              })()}
+            </p>
+            <button
+              className="btn primary"
+              onClick={() => { audio.sfx('click'); setRecap(null); }}
+            >
+              {t(lang, 'tut.reviewNext')}
+            </button>
+          </div>
+        ) : (
+          <>
         {step?.kind === 'info' && (
           <CoachCard
             key={stepKey}
@@ -510,6 +609,7 @@ export function Tutorial() {
             hand={sortHand(lesson.hands.S)}
             hands={lesson.hands}
             handLabel={seatLabel(lang, 'S')}
+            seatChars={seatChars}
             interactive={false}
             onPlay={() => {}}
             hint={null}
@@ -590,6 +690,7 @@ export function Tutorial() {
             stepKey={stepKey}
             hands={playView.hands}
             dummySeat={dummySeat}
+            seatChars={seatChars}
             winSeat={review?.winner ?? null}
             trickStatic={!!review}
           />
@@ -652,6 +753,8 @@ export function Tutorial() {
             )}
             <span>{feedback}</span>
           </div>
+        )}
+          </>
         )}
       </div>
     </div>
