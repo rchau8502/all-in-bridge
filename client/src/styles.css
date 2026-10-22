@@ -492,6 +492,19 @@ select.input { appearance: auto; }
   0%, 100% { box-shadow: 0 0 0 3px var(--gold), 0 0 18px rgba(255, 171, 0, 0.95), 0 6px 14px rgba(0, 0, 0, 0.45); }
   50% { box-shadow: 0 0 0 5px var(--gold2), 0 0 32px rgba(255, 171, 0, 1), 0 6px 14px rgba(0, 0, 0, 0.45); }
 }
+/* The coach is talking about this card right now: lift and gild it so the
+ * learner can find it in their hand. Deliberately NOT the pulsing 👇 of
+ * .target — nothing here is asking to be played. */
+.card.focus {
+  transform: translateY(-10px);
+  z-index: 4;
+  border-color: var(--gold);
+  box-shadow: 0 0 0 3px var(--gold), 0 0 22px rgba(255, 209, 102, 0.75), 0 10px 22px rgba(2, 24, 48, 0.45);
+}
+.card.focus::after {
+  content: '👆'; position: absolute; top: -30px; left: 50%;
+  transform: translateX(-50%); font-size: 18px; z-index: 6; pointer-events: none;
+}
 @keyframes target-bounce {
   0%, 100% { margin-top: 0; }
   50% { margin-top: 6px; }
@@ -713,6 +726,51 @@ select.input { appearance: auto; }
   font-weight: 700; color: var(--accent); text-align: center; min-height: 24px;
   display: flex; align-items: center; gap: 10px; justify-content: center;
   margin-top: 10px; padding-bottom: 8px;
+}
+
+/* ---------- tutorial text floats above the table, never over the hand ----------
+ * Info steps used to REPLACE the table, so the hand vanished exactly when the
+ * coach had something to say. Now the table stays mounted for every teaching
+ * step and the text is an overlay pinned near the top of the felt. It may
+ * grow downward but is capped well above the bottom, where the hand lives. */
+.tut-stage-wrap {
+  position: relative; width: 100%; align-self: stretch; flex: 1 1 auto;
+  display: flex; min-height: 0;
+}
+.tut-stage-wrap > .sim-felt { flex: 1 1 auto; }
+.tut-overlay {
+  position: absolute;
+  left: 50%; top: 10px; transform: translateX(-50%);
+  width: min(760px, 94%);
+  max-height: 58%;
+  overflow-y: auto; overscroll-behavior: contain;
+  z-index: 30;
+  pointer-events: none; /* taps fall through to the table and the hand */
+  display: flex; flex-direction: column; align-items: stretch; gap: 10px;
+}
+.tut-overlay > * { pointer-events: auto; }
+/* tighter, translucent panels: readable, but the table shows through */
+.tut-overlay .tut-coach-card { width: 100%; gap: 10px; }
+.tut-overlay .coach-avatar { width: 60px; height: 60px; }
+.tut-overlay .coach-bubble {
+  padding: 14px 16px; border-radius: 16px;
+  background: rgba(255, 255, 255, 0.94);
+  backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);
+}
+.tut-overlay .tut-text { font-size: 16px; line-height: 1.55; }
+.tut-overlay .sim-review, .tut-overlay .sim-caption { width: 100%; margin: 0; }
+.tut-overlay .sim-review {
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);
+}
+.tut-overlay .btn { min-height: 40px; }
+/* Narrow screens: the stage flows instead of scaling, so the panel gets
+ * less height and slightly smaller type — the hand stays clear either way. */
+@media (max-width: 720px) {
+  .tut-overlay { top: 6px; width: 96%; max-height: 50%; }
+  .tut-overlay .tut-text { font-size: 15px; }
+  .tut-overlay .coach-avatar { width: 46px; height: 46px; }
+  .tut-overlay .coach-bubble { padding: 12px 13px; }
 }
 
 /* ---------- home syllabus (teaching front door) ---------- */

@@ -21,15 +21,18 @@ export function cardName(card: Card): string {
 }
 
 export function CardView({
-  card, small, dim, onClick, playable, selected, target,
+  card, small, dim, onClick, playable, selected, target, focus,
 }: {
   card: Card; small?: boolean; dim?: boolean;
   onClick?: () => void; playable?: boolean; selected?: boolean; target?: boolean;
+  /** The coach is talking about this card right now — highlight it so the
+   *  learner can find it in their hand, without implying "click to play". */
+  focus?: boolean;
 }) {
   const cls = [
     'card', SUIT_CLASS[card.suit], small ? 'small' : '',
     dim ? 'dim' : '', playable ? 'playable' : '', selected ? 'selected' : '',
-    target ? 'target' : '',
+    target ? 'target' : '', focus && !target ? 'focus' : '',
     onClick ? 'clickable' : '',
   ].join(' ');
   const handleKey = (e: KeyboardEvent<HTMLDivElement>) => {

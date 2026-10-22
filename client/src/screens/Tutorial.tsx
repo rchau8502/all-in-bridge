@@ -196,6 +196,10 @@ function SimTable(props: {
   dummySeat?: Seat | null;
   /** Card label (e.g. 'AH') of the card the learner should play — it pulses with a pointer. */
   highlight?: string | null;
+  /** Card labels the coach is TALKING ABOUT right now (parsed out of the
+   *  lesson text). These get a soft spotlight in whichever hand holds them,
+   *  so the learner can look from the words down to the actual card. */
+  focus?: string[] | null;
   /** Seat that won the displayed (review) trick — its card and plate glow gold. */
   winSeat?: Seat | null;
   /** Render trick cards instantly, no entrance animation (review replays). */
@@ -261,7 +265,12 @@ function SimTable(props: {
             {props.hands?.[s.seat] ? (
               <div className="sim-faceup" aria-label={seatLabel(lang, s.seat)}>
                 {sortHand(props.hands[s.seat]!).map((c, i) => (
-                  <CardView key={`${c.suit}${c.rank}-${i}`} card={c} small />
+                  <CardView
+                    key={`${c.suit}${c.rank}-${i}`}
+                    card={c}
+                    small
+                    focus={props.focus?.includes(cardLabel(c)) ?? false}
+                  />
                 ))}
               </div>
             ) : (
@@ -317,6 +326,7 @@ function SimTable(props: {
                   card={c}
                   playable={props.interactive}
                   target={props.interactive && props.highlight === cardLabel(c)}
+                  focus={props.focus?.includes(cardLabel(c)) ?? false}
                   onClick={props.interactive ? () => props.onPlay(c) : undefined}
                 />
               ))}
@@ -334,6 +344,16 @@ const SUIT_WORD: Record<Lang, Record<string, string>> = {
   en: { S: 'spades', H: 'hearts', D: 'diamonds', C: 'clubs' },
   zh: { S: '黑桃', H: '红桃', D: '方块', C: '梅花' },
 };
+
+/** Card labels the current line of coach text is talking about, e.g.
+ *  "…(AS)…" or "你的梅花J (JC)" → ['AS', 'JC']. Lets us spotlight those
+ *  exact cards in the hand while the coach explains them, so the learner
+ *  can look from the words down to the card. Full-width （） are ignored. */
+function cardTagsIn(text: string): string[] {
+  const out = new Set<string>();
+  for (const m of text.matchAll(/\(([AKQJT2-9])([SHDC])\)/g)) out.add(`${m[1]}${m[2]}`);
+  return [...out];
+}
 
 /** One-line "what it all added up to" at the foot of an auction recap. */
 function contractSummary(lang: Lang, c: Lesson['contract']): string {
@@ -469,6 +489,21 @@ export function Tutorial() {
   const playView = runner.playView();
   const trickNo = runner.trickNumber();
   const result = runner.getResult();
+
+  // The engine only exposes the live play state while a 'play' step is on,
+  // but the coach keeps talking during 'info' steps — and the learner needs
+  // their hand on screen to follow the explanation. Remember the last live
+  // view and keep showing it; it shrinks correctly as cards get played.
+  // Before the first play step, fall back to the dealt hands.
+  const lastPlayRef = useRef<ReturnType<TutorialRunner['playView']>>(null);
+  const lastRunnerRef = useRef<TutorialRunner | null>(null);
+  if (lastRunnerRef.current !== runner) {
+    lastRunnerRef.current = runner;
+    lastPlayRef.current = null;
+  }
+  if (playView) lastPlayRef.current = playView;
+  const handView = playView ?? lastPlayRef.current;
+  const handHands = handView?.hands ?? lesson.hands;
   const done = !step;
   const stepKey = `${lang}:${lesson.id}:${runner.stepIndex}`;
   // Paused at a scripted bid/play (not the learner's turn): offer a Next tap
@@ -533,6 +568,22 @@ export function Tutorial() {
     return { S: characterId, N: others[0]!, W: others[1]!, E: others[2]! } as Record<Seat, string>;
   }, [characterId]);
 
+  // Spotlight the cards the coach is naming right now (lesson text on an
+  // info step, or the hint line on a play step).
+  const focusCards = useMemo(() => {
+    const src = step?.kind === 'info' ? step.text
+      : step?.kind === 'play' ? (pending?.hint ?? '')
+      : '';
+    return cardTagsIn(src);
+  }, [step, pending]);
+
+  // The table (with the hand) is shown for every teaching step — info,
+  // auction and play alike. Text steps used to REPLACE the table, which is
+  // why the hand vanished exactly when the coach had something to say.
+  const showTable = step?.kind === 'info' || step?.kind === 'auction' || step?.kind === 'play';
+  const captionOpen = step?.kind === 'auction' && !!lastEntry && !!captionNote;
+  const overlayOpen = !!recap || step?.kind === 'info' || captionOpen || (!!review && step?.kind === 'play');
+
   return (
     <div className="tutorial">
       <div className="tut-header">
@@ -556,44 +607,32 @@ export function Tutorial() {
       </div>
 
       <div className="tut-body">
-        {recap ? (
-          <div className="sim-review recap-card">
-            <div className="sim-review-label">{t(lang, 'tut.recapTitle')}</div>
-            {recap.lines.map((l, i) => (
-              <div key={i} className="recap-line">
-                <span className="sim-caption-tag">{seatLabel(lang, l.seat)} · {bidLabelL(lang, l.bid)}</span>
-                {l.note && <span className="recap-text">{l.note}</span>}
-              </div>
-            ))}
-            <p className="sim-review-line recap-contract">
-              {(() => {
-                const lastBid = [...recap.lines].reverse().find(l => l.bid.type === 'bid');
-                const reached = !!lastBid && lastBid.bid.type === 'bid'
-                  && lastBid.bid.level === recap.contract.level
-                  && lastBid.bid.denom === recap.contract.denom;
-                return reached ? contractSummary(lang, recap.contract) : t(lang, 'tut.recapPractice');
-              })()}
-            </p>
-            <button
-              className="btn primary"
-              onClick={() => { audio.sfx('click'); setRecap(null); }}
-            >
-              {t(lang, 'tut.reviewNext')}
-            </button>
-          </div>
-        ) : (
-          <>
+        {showTable && (
+        <div className="tut-stage-wrap">
         {step?.kind === 'info' && (
-          <CoachCard
-            key={stepKey}
+          <SimTable
             lang={lang}
-            characterId={characterId}
-            text={step.text}
-            nextLabel={t(lang, 'tut.next')}
-            onAdvance={doAdvance}
+            title={lesson.title}
+            contractLabel={null}
+            seats={(Object.keys(handHands) as Seat[]).map(s => ({
+              seat: s,
+              count: handHands[s].length,
+              active: false,
+            }))}
+            trick={handView?.trick ?? []}
+            hand={sortHand(handHands.S)}
+            hands={handHands}
+            handLabel={seatLabel(lang, 'S')}
+            seatChars={seatChars}
+            interactive={false}
+            onPlay={() => {}}
+            hint={null}
+            stepKey={stepKey}
+            dummySeat={dummySeat}
+            focus={focusCards}
+            trickStatic
           />
         )}
-
         {step?.kind === 'auction' && auctionView && (
           <SimTable
             lang={lang}
@@ -687,6 +726,7 @@ export function Tutorial() {
             onPlay={doPlay}
             hint={pending?.hint ?? null}
             highlight={pending && pending.kind === 'play' ? pending.expected : null}
+            focus={focusCards}
             stepKey={stepKey}
             hands={playView.hands}
             dummySeat={dummySeat}
@@ -695,8 +735,44 @@ export function Tutorial() {
             trickStatic={!!review}
           />
         )}
-        {step?.kind === 'play' && awaitingTap && !review && (
-          <div className="tut-tap-row">{tapNext}</div>
+
+        {overlayOpen && (
+          <div className="tut-overlay">
+        {recap && (
+          <div className="sim-review recap-card">
+            <div className="sim-review-label">{t(lang, 'tut.recapTitle')}</div>
+            {recap.lines.map((l, i) => (
+              <div key={i} className="recap-line">
+                <span className="sim-caption-tag">{seatLabel(lang, l.seat)} · {bidLabelL(lang, l.bid)}</span>
+                {l.note && <span className="recap-text">{l.note}</span>}
+              </div>
+            ))}
+            <p className="sim-review-line recap-contract">
+              {(() => {
+                const lastBid = [...recap.lines].reverse().find(l => l.bid.type === 'bid');
+                const reached = !!lastBid && lastBid.bid.type === 'bid'
+                  && lastBid.bid.level === recap.contract.level
+                  && lastBid.bid.denom === recap.contract.denom;
+                return reached ? contractSummary(lang, recap.contract) : t(lang, 'tut.recapPractice');
+              })()}
+            </p>
+            <button
+              className="btn primary"
+              onClick={() => { audio.sfx('click'); setRecap(null); }}
+            >
+              {t(lang, 'tut.reviewNext')}
+            </button>
+          </div>
+        )}
+        {step?.kind === 'info' && (
+          <CoachCard
+            key={stepKey}
+            lang={lang}
+            characterId={characterId}
+            text={step.text}
+            nextLabel={t(lang, 'tut.next')}
+            onAdvance={doAdvance}
+          />
         )}
 
         {step?.kind === 'auction' && lastEntry && captionNote && (
@@ -725,6 +801,10 @@ export function Tutorial() {
           );
         })()}
 
+        </div>
+        )}
+        </div>
+        )}
         {step?.kind === 'result' && result && (
           <ResultCard
             key={stepKey}
@@ -745,7 +825,9 @@ export function Tutorial() {
             onHome={() => go('home')}
           />
         )}
-
+        {step?.kind === 'play' && awaitingTap && !review && (
+          <div className="tut-tap-row">{tapNext}</div>
+        )}
         {feedback && (
           <div key={fbNonce} className={`tut-feedback${fbMood ? ` ${fbMood}` : ''}`}>
             {fbMood && (
@@ -753,8 +835,6 @@ export function Tutorial() {
             )}
             <span>{feedback}</span>
           </div>
-        )}
-          </>
         )}
       </div>
     </div>
