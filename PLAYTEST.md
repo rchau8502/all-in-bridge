@@ -1,93 +1,26 @@
 # All-In Bridge — Club Playtest Guide
 
-How to host a playtest session for the bridge club from a Mac on the same Wi-Fi.
+The bootcamp is a teaching app now — no hosting, no server, no setup.
+Playtesting means: send people the link and watch them learn.
 
-## One-time setup (host Mac)
+## The link
 
-```bash
-# Node 18+ required (https://nodejs.org)
-cd ~/workspace/all-in-bridge   # or wherever you cloned the repo
-npm install
-cd client && npm install
-```
+https://rchau8502.github.io/all-in-bridge/
 
-## Hosting a session
+Works on phones and computers, EN/中文 toggle at the top, no account.
 
-**Terminal 1 — game server (port 8080):**
-```bash
-cd ~/workspace/all-in-bridge
-npm run server
-```
+## What to ask testers to do
 
-**Terminal 2 — web client, exposed to the LAN:**
-```bash
-cd ~/workspace/all-in-bridge/client
-npm run dev -- --host
-```
+1. Pick a coach character on the home page.
+2. Start Lesson 1 and keep going as far as they get in ~20 minutes.
+3. Pay attention to the **trick reviews** — after every trick the app
+   stops and explains who won and why. Did they read them, or tap through?
 
-**Find the Mac's Wi-Fi IP** (share this with players):
-```bash
-ipconfig getifaddr en0
-```
+## Feedback worth collecting
 
-Players on the same Wi-Fi open `http://<THAT-IP>:5173` on their phones or
-laptops. The game connects to the server automatically — no config needed.
+- Where did they get stuck or tap the wrong card/bid repeatedly?
+- Any bubble whose wording confused them (note the lesson + line).
+- Did the "why" explanations actually make the rule click?
+- Phone or computer? Anything too small to read or tap?
 
-> macOS may ask to allow Node through the firewall — click Allow.
-> Everyone must be on the same Wi-Fi network (a phone hotspot works too).
-
-## Playing
-
-1. Enter your name, pick a character, choose language (EN/中文).
-2. **Quick Play** — jump into matchmaking; when 4 players are waiting, a table forms automatically.
-3. **Create** a room → you get a 6-character share code. Or **Join** with a code.
-4. The first 4 people in play N/E/S/W; anyone after that auto-joins as an observer.
-5. Bid, play, score. "Next board" deals again.
-6. **Claiming:** when the rest are yours, the declarer can tap ✋ Claim and name
-   how many of the remaining tricks they'll win — both defenders must accept.
-6b. **Mis-tap?** Tap ↩️ Undo to take back your own last bid or card — as long
-   as nobody has played after you.
-7. **Dropped?** If your connection dies mid-game, the app auto-reconnects and
-   puts you back in your seat (within 60s) — if you were the host, you get
-   host back too.
-8. Your results are tracked automatically — tap **📊 Stats** on the home screen
-   for your boards, win rate, recent games, and the club leaderboard.
-9. **Review:** after each board, tap 📋 **Review** on the results card to see
-   the full auction, every trick, and all four hands.
-
-## Duplicate competition (club night mode)
-
-1. Create competition → you get a `Txxxxx` code. Tick **Public** and pick a duration
-   (1/3/7 days, or no limit) to run an async club event — players join tables
-   whenever they're free during the window.
-2. Create 2+ tables under it — every table plays the *same* pre-shuffled boards.
-3. Players can also tap **Refresh** under Duplicate Competition to see all open
-   public competitions and **Join a table** directly — no share code needed.
-4. Live matchpoint standings update as tables finish.
-
-## Test checklist
-
-- [ ] 4-player game start to finish (bidding → play → score → next board)
-- [ ] Bidding: pass, suit bids, NT, double, redouble
-- [ ] Disconnect mid-game and rejoin within 60 seconds (hand should restore)
-- [ ] Observer joins mid-game and sees the table
-- [ ] Mixed-language table (some players EN, some 中文)
-- [ ] Bridge Bootcamp tutorial on a phone
-- [ ] Duplicate: 2 tables finish a board, standings page updates
-
-## Reporting a bug
-
-Paste into the group chat:
-
-```
-What happened:
-What I expected:
-My seat + character:
-Room code:
-Phone or desktop + browser:
-Screenshot (if visual):
-```
-
-## Stopping
-
-Ctrl+C both terminals. Competition results persist in `./data/competitions.json`.
+Send notes back and the lessons get revised — wording fixes are cheap.

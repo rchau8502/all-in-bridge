@@ -4,8 +4,8 @@ export type Lang = 'en' | 'zh';
 
 const en = {
   'app.title': 'All-In Bridge',
-  'app.subtitle': 'Full contract bridge. Zero mercy.',
-  'app.footer': 'PVP only · No bots · Built for bridge clubs',
+  'app.subtitle': 'Learn contract bridge — the fun way.',
+  'app.footer': 'Learn bridge step by step · Built for bridge clubs',
 
   'home.namePh': 'Your name',
   'home.character': 'Pick your fighter',
@@ -123,8 +123,11 @@ const en = {
   'ann.defeat': 'DEFEATED',
 
   'tut.title': 'Bridge Bootcamp',
+  'tut.lessonsUnit': 'lessons',
   'tut.back': 'Back',
   'tut.next': 'Next',
+  'tut.reviewTitle': '📖 Trick review — let\'s look at those four cards',
+  'tut.reviewNext': 'Got it — keep going ▸',
   'tut.tryAgain': 'Not quite — try again!',
   'tut.tapToSkip': 'tap to skip ▸▸',
   'tut.correct': 'Nice!',
@@ -155,8 +158,8 @@ const en = {
 
 const zh: typeof en = {
   'app.title': '全民桥牌',
-  'app.subtitle': '完整桥牌规则，火力全开。',
-  'app.footer': '纯PVP · 无机器人 · 为桥牌俱乐部打造',
+  'app.subtitle': '轻松学桥牌，一步一步来。',
+  'app.footer': '一步一步学桥牌 · 为桥牌俱乐部打造',
 
   'home.namePh': '你的名字',
   'home.character': '选择你的角色',
@@ -274,8 +277,11 @@ const zh: typeof en = {
   'ann.defeat': '失败',
 
   'tut.title': '桥牌新兵营',
+  'tut.lessonsUnit': '课',
   'tut.back': '返回',
   'tut.next': '继续',
+  'tut.reviewTitle': '📖 这一墩复盘 —— 仔细看这四张牌',
+  'tut.reviewNext': '看懂了，继续 ▸',
   'tut.tryAgain': '不对哦 — 再试一次！',
   'tut.tapToSkip': '点击跳过 ▸▸',
   'tut.correct': '漂亮！',

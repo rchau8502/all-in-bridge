@@ -1,78 +1,67 @@
 # All-In Bridge / 全民桥牌
 
-Full contract bridge with arcade energy — dramatic banners, card slams,
-character reactions, flying-coin results, music and punchy SFX.
-Western cartoon presentation, PVP-only, no bots. Bilingual EN/中文 from the ground up:
-the server speaks language-neutral event codes, and every client renders
-in its own language, so English and Chinese players can sit at the same table.
+A bridge **teaching** app with arcade energy — a conversational coach,
+card slams, character reactions, music and punchy SFX. Western cartoon
+presentation, bilingual EN/中文 from the ground up (both language versions
+hand-written in parallel, never machine-translated).
+
+**Play it:** https://rchau8502.github.io/all-in-bridge/ — the full
+10-lesson Bridge Bootcamp runs right in the browser, no account, no install.
 
 ## Layout
 
 - `shared/` — pure game logic, no I/O: deck, bidding, play, scoring,
-  language-neutral events, tutorial engine + bilingual lessons, duplicate
-  matchpoint scoring, character roster, voice-line registry.
-- `server/` — authoritative WebSocket server: rooms by share code,
-  observers, reconnects, hidden hands; duplicate competitions with shared
-  boards, live matchpoint standings, and JSON persistence.
-- `client/` — Vite + React web app: home, lobby, table, tutorial,
-  competition standings. All music/SFX synthesized with the Web Audio API;
-  voice packs are the only external assets (`voices/{lang}/{character}/{line}.mp3`)
-  and the game tolerates missing files.
+  tutorial engine + bilingual lessons, character roster, voice-line registry.
+- `client/` — Vite + React web app: home (pick your coach) and the
+  Bridge Bootcamp tutorial. All music/SFX synthesized with the Web Audio
+  API; voice packs are the only external assets
+  (`voices/{lang}/{character}/{line}.mp3`) and missing files fall back
+  to silence.
 
 ## Tutorial — Bridge Bootcamp (ACBL Series 1)
 
-Scripted, bilingual (EN/中文) lessons following the ACBL Intro to Bridge
-Series 1 progression — from "52 cards in a deck" to playing complete hands.
-Lessons teach visually through guided bids and plays (no multiple-choice);
-wrong actions get hints without advancing.
+Scripted, bilingual lessons following the ACBL Intro to Bridge Series 1
+progression — play first, then bidding. The coach teaches like a friend
+at the table: short chat bubbles, everyday analogies, and the HOW and WHY
+of every single step. All four hands are face-up (open book) so learners
+can see exactly what is happening and why it works.
 
-1. The Deck / 认识纸牌 — suits, colors, ranks, suit ranking for bidding
-2. Winning Tricks / 赢墩 — follow suit, highest wins, winner leads
-3. Trump / 将牌 — ruffing, trump beats everything
-4. The Auction / 叫牌基础 — turn order, outranking, declarer
-5. Bidding Conversation / 叫牌交流 — high-card points, opening, responding,
-   rebidding, overcalls
-6. Contracts & Scoring / 定约与计分 — what a contract means, scoring
-7. Plan Your Play / 打牌计划 — count sure winners, cash them first
-8. Play a Full Hand / 打一整副牌 — a complete 2♥ hand, declarer + dummy
+After **every trick**, play pauses for a review: the four cards stay on
+the table, the winning card glows, and the coach explains — card by card —
+who won, who lost, and why (follow suit, biggest card wins, trumps beat
+everything, and a throw-away card can never win a trick).
+
+1. Say Hi to the Cards — suits, colors, ranks; play your first trick
+2. Win the Tricks — follow suit, highest card wins, winner leads next
+3. Count and Plan — sure winners, the finesse, entries between hands
+4. Trump Power — ruffing: any trump beats any card of the led suit
+5. Bidding Is Talking — bids as messages, high-card points, fits
+6. Answer Partner — responding to a minor-suit opening
+7. Raise and Play — a complete 2♥ hand as declarer, dummy face-up
+8. Opener Tells More — opener's rebid after a major response
+9. Go for Game! — scoring, partscore vs game, the ~25-point rule
+10. Jump In! — overcalling when the other side opens first
 
 ## Run it
 
 ```bash
-# 1. game server (port 8080)
-npm run server
+cd client && npm install
+npm run dev        # → http://localhost:5173
 
-# 2. web client (dev)
-cd client && npm run dev
-# → http://localhost:5173 (connects to ws://<host>:8080)
-
-# production client build
-cd client && npm run build   # → client/dist, serve statically
+# production build (GitHub Pages variant)
+GH_PAGES=1 npm run build   # → client/dist, serve statically
 ```
 
 ## Test
 
 ```bash
-npm test                 # all unit + integration tests (vitest)
-npx tsc --noEmit -p tsconfig.json              # server/shared type-check
-cd client && npx tsc -p tsconfig.app.json --noEmit   # client type-check
+npm test                                # engine + tutorial + explainer tests (vitest)
+npx tsc --noEmit -p tsconfig.json       # shared type-check
+cd client && npm run build              # client type-check + bundle
 ```
-
-## Protocol
-
-Clients speak JSON over WebSocket (`server/protocol.ts`); the server
-replies with language-neutral `GameEvent`s (`shared/events.ts`).
-One share code = one room: first four joiners play N/E/S/W, the rest watch
-kibitzer-style. Seats survive disconnects for 60s with full state snapshots
-on rejoin.
-
-Competitions: `create_competition` → `Txxxxx` code; `create_table` adds
-tables that all play the same pre-shuffled boards; `standings_update`
-events carry live matchpoint standings. Competitions persist to
-`./data/competitions.json` (override with `DATA_PATH`).
 
 ## Voice packs
 
-Record per `voice-recording-script.md` (in `~/workspace/your_files/codex-anime-bridge/`)
-and drop mp3s at `client/public/voices/{en,zh}/{cowboy,gamer,grandma,robot}/{line}.mp3`.
-Missing files fall back to silence — never break the game.
+AI-generated EN/ZH placeholder voices ship in `client/public/voices/`;
+club recordings can replace them file-for-file
+(`voices/{en,zh}/{cowboy,gamer,grandma,robot}/{line}.mp3`).

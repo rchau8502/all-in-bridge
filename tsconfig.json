@@ -43,6 +43,6 @@
 
     "moduleResolution": "nodenext"
   },
-  "include": ["shared", "server"],
+  "include": ["shared"],
   "exclude": ["node_modules", "dist", "client"]
 }

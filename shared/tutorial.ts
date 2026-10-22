@@ -14,7 +14,7 @@ import { parseCard } from './deck.js';
 import type { Card, Seat, Hands } from './deck.js';
 import type { Bid, Contract } from './bidding.js';
 import { Auction, parseBid, bidLabel } from './bidding.js';
-import { PlayState } from './play.js';
+import { PlayState, trickWinner } from './play.js';
 import { scoreContract } from './scoring.js';
 import type { ScoreBreakdown } from './scoring.js';
 
@@ -184,6 +184,33 @@ export class TutorialRunner {
     play.play(card);
     this.actionIdx++;
     return { ok: true };
+  }
+
+  /** How many tricks have been completed in the current play state. */
+  completedTrickCount(): number {
+    return this.playState ? this.playState.completedTricks.length : 0;
+  }
+
+  /**
+   * The most recently completed trick, for the post-trick review pause:
+   * all four plays in order, who won, the trump suit (null at no-trump)
+   * and the running trick score per side.
+   */
+  lastCompletedTrick(): {
+    plays: Array<{ seat: Seat; card: Card }>;
+    winner: Seat;
+    trump: Card['suit'] | null;
+    tricksWon: Record<'NS' | 'EW', number>;
+  } | null {
+    if (!this.playState || this.playState.completedTricks.length === 0) return null;
+    const plays = this.playState.completedTricks[this.playState.completedTricks.length - 1]!;
+    const trump = this.playState.contract.denom === 'NT' ? null : (this.playState.contract.denom as Card['suit']);
+    return {
+      plays: plays.map(p => ({ seat: p.seat, card: { ...p.card } })),
+      winner: trickWinner(plays, trump),
+      trump,
+      tricksWon: { ...this.playState.tricksWon },
+    };
   }
 
   /** Score of the completed hand, or null if play isn't finished. */

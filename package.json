@@ -6,8 +6,6 @@
   "scripts": {
     "test": "vitest run",
     "build": "tsc -p tsconfig.json --noEmit",
-    "build:server": "tsc -p tsconfig.json",
-    "server": "node dist/server/index.js",
     "typecheck": "tsc --noEmit -p tsconfig.json"
   },
   "keywords": [],
@@ -15,12 +13,8 @@
   "license": "ISC",
   "devDependencies": {
     "@types/node": "^26.6.4",
-    "@types/ws": "^8.18.2",
     "typescript": "^7.0.2",
     "vitest": "^5.0.3"
   },
-  "type": "module",
-  "dependencies": {
-    "ws": "^8.22.0"
-  }
+  "type": "module"
 }

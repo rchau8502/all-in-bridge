@@ -4,6 +4,7 @@ import { t, bidLabelL, seatLabel, type Lang } from '../i18n.js';
 import { CardView, Avatar } from '../components/ui.js';
 import { audio } from '../audio.js';
 import { TutorialRunner } from '../../../shared/tutorial.js';
+import { explainTrick, type TrickReviewData } from '../trickExplain.js';
 import { getLessons } from '../../../shared/lessons.js';
 import type { Bid } from '../../../shared/bidding.js';
 import { cardLabel, sortHand } from '../../../shared/deck.js';
@@ -186,6 +187,10 @@ function SimTable(props: {
   dummySeat?: Seat | null;
   /** Card label (e.g. 'AH') of the card the learner should play — it pulses with a pointer. */
   highlight?: string | null;
+  /** Seat that won the displayed (review) trick — its card and plate glow gold. */
+  winSeat?: Seat | null;
+  /** Render trick cards instantly, no entrance animation (review replays). */
+  trickStatic?: boolean;
 }) {
   const { lang } = props;
   const sigs = props.trick.map(t => `${t.seat}${t.card.suit}${t.card.rank}`);
@@ -210,7 +215,7 @@ function SimTable(props: {
       {props.seats
         .filter(s => s.seat !== 'S')
         .map(s => (
-          <div key={s.seat} className={`sim-seat sim-${s.seat.toLowerCase()}${s.active ? ' active-turn' : ''}`}>
+          <div key={s.seat} className={`sim-seat sim-${s.seat.toLowerCase()}${s.active ? ' active-turn' : ''}${props.winSeat === s.seat ? ' seat-win' : ''}`}>
             {props.hands?.[s.seat] ? (
               <div className="sim-faceup" aria-label={seatLabel(lang, s.seat)}>
                 {sortHand(props.hands[s.seat]!).map((c, i) => (
@@ -239,11 +244,11 @@ function SimTable(props: {
         <div className="sim-trick">
           {props.trick.map(t => {
             const sig = `${t.seat}${t.card.suit}${t.card.rank}`;
-            const ord = fresh.get(sig);
+            const ord = props.trickStatic ? undefined : fresh.get(sig);
             return (
               <div
                 key={sig}
-                className={`sim-tcard pos-${simPos(t.seat)}${ord === undefined ? ' noanim' : ''}`}
+                className={`sim-tcard pos-${simPos(t.seat)}${ord === undefined ? ' noanim' : ''}${props.winSeat === t.seat ? ' trick-win' : ''}`}
                 style={ord === undefined ? undefined : { animationDelay: `${ord * 0.38}s` }}
               >
                 <CardView card={t.card} />
@@ -286,6 +291,10 @@ export function Tutorial() {
   const [fbNonce, setFbNonce] = useState(0);
   const fbTimer = useRef<number | undefined>(undefined);
   const runnerRef = useRef<TutorialRunner | null>(null);
+  // Post-trick review pause: after every completed trick, the four cards
+  // stay on the table while the coach explains who won and why.
+  const [review, setReview] = useState<TrickReviewData | null>(null);
+  const reviewedRef = useRef(0);
 
   const lessons = useMemo(() => getLessons(lang), [lang]);
   const lesson = lessons[lessonIdx]!;
@@ -299,19 +308,40 @@ export function Tutorial() {
   const step = useMemo(() => runner.currentStep(), [runner, tick]);
   const refresh = () => setTick(x => x + 1);
 
+  // A trick completed since the last review → open the review pause.
+  const checkReview = () => {
+    if (runner.completedTrickCount() > reviewedRef.current) {
+      const data = runner.lastCompletedTrick();
+      if (data) setReview(data);
+    }
+  };
+  const dismissReview = () => {
+    reviewedRef.current = runner.completedTrickCount();
+    setReview(null);
+  };
+  useEffect(() => {
+    // New runner (lesson or language switch): forget old review state.
+    reviewedRef.current = 0;
+    setReview(null);
+  }, [runner]);
+
   const startLesson = (i: number) => {
     setLessonIdx(i);
     runnerRef.current = new TutorialRunner(lessons[i]!);
+    reviewedRef.current = 0;
+    setReview(null);
     setFeedback('');
     setFbMood(null);
     refresh();
   };
 
   const doAdvance = () => {
+    if (review) return; // the review pause must be dismissed first
     setFeedback('');
     setFbMood(null);
     runner.advance();
     refresh();
+    checkReview();
   };
 
   const praise = () => {
@@ -340,6 +370,7 @@ export function Tutorial() {
   };
 
   const doPlay = (card: Card) => {
+    if (review) return; // review pause is open — cards are frozen
     const r = runner.submitPlay(cardLabel(card));
     if (r.ok) {
       audio.sfx('card');
@@ -352,6 +383,7 @@ export function Tutorial() {
       setFbNonce(n => n + 1);
     }
     refresh();
+    if (r.ok) checkReview();
   };
 
   const pending = runner.pendingLearnerAction();
@@ -500,25 +532,46 @@ export function Tutorial() {
               count: playView.hands[s].length,
               active: playView.turn === s,
             }))}
-            trick={playView.trick}
+            trick={review ? review.plays : playView.trick}
             hand={sortHand(pending && pending.kind === 'play' ? playView.hands[pending.seat] : playView.hands.S)}
             handLabel={
               pending && pending.kind === 'play'
                 ? `${seatLabel(lang, pending.seat)}${pending.seat === 'N' ? (lang === 'zh' ? '（明手）' : ' (dummy)') : ''}`
                 : seatLabel(lang, 'S')
             }
-            interactive={!!pending}
+            interactive={!!pending && !review}
             onPlay={doPlay}
             hint={pending?.hint ?? null}
             highlight={pending && pending.kind === 'play' ? pending.expected : null}
             stepKey={stepKey}
             hands={playView.hands}
             dummySeat={dummySeat}
+            winSeat={review?.winner ?? null}
+            trickStatic={!!review}
           />
         )}
-        {step?.kind === 'play' && awaitingTap && (
+        {step?.kind === 'play' && awaitingTap && !review && (
           <div className="tut-tap-row">{tapNext}</div>
         )}
+
+        {review && step?.kind === 'play' && (() => {
+          const ex = explainTrick(review, lang);
+          return (
+            <div className="sim-review">
+              <div className="sim-review-label">{t(lang, 'tut.reviewTitle')}</div>
+              <div className="sim-review-title">{ex.title}</div>
+              {ex.lines.map((l, i) => (
+                <p key={i} className="sim-review-line">{l}</p>
+              ))}
+              <button
+                className="btn primary"
+                onClick={() => { audio.sfx('click'); dismissReview(); }}
+              >
+                {t(lang, 'tut.reviewNext')}
+              </button>
+            </div>
+          );
+        })()}
 
         {step?.kind === 'result' && result && (
           <ResultCard

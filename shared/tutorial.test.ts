@@ -53,6 +53,33 @@ describe('all lessons', () => {
   });
 });
 
+describe('post-trick review data', () => {
+  it('lesson 1 trick 1: exposes all four plays in order, South wins with the ace', () => {
+    const lesson = LESSONS.find(l => l.id === 'deck')!;
+    const r = new TutorialRunner(lesson);
+    // Advance to the first play step, then reveal plays until trick 1 completes.
+    let guard = 0;
+    while (r.completedTrickCount() === 0 && guard++ < 200) {
+      const s = r.currentStep()!;
+      if (s.kind === 'info' || s.kind === 'result') r.advance();
+      else {
+        const p = r.pendingLearnerAction();
+        if (p) expect(r.submitPlay(p.expected).ok).toBe(true);
+        else r.advance();
+      }
+    }
+    expect(r.completedTrickCount()).toBe(1);
+    const review = r.lastCompletedTrick();
+    expect(review).not.toBeNull();
+    expect(review!.plays.map(p => `${p.seat}:${p.card.rank}${p.card.suit}`)).toEqual([
+      'W:4H', 'N:5H', 'E:2H', 'S:14H',
+    ]);
+    expect(review!.winner).toBe('S');
+    expect(review!.trump).toBeNull(); // lesson 1 preset contract is 1NT
+    expect(review!.tricksWon).toEqual({ NS: 1, EW: 0 });
+  });
+});
+
 describe('TutorialRunner mistakes', () => {
   /** Tap through scripted bids/plays until it's the learner's turn. */
   function tapToLearner(r: TutorialRunner): void {
