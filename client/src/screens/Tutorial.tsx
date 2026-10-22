@@ -443,6 +443,15 @@ export function Tutorial() {
     return m;
   }, [auctionView]);
 
+  // Per-bid explainer caption: what the latest bid SAID and why (the
+  // auction counterpart of the post-trick review).
+  const lastEntry = auctionView && auctionView.entries.length > 0
+    ? auctionView.entries[auctionView.entries.length - 1]
+    : undefined;
+  const captionNote = step && step.kind === 'auction' && auctionView && auctionView.entries.length > 0
+    ? (step.script[auctionView.entries.length - 1]?.note ?? null)
+    : null;
+
   // Lessons past the auction introduce the dummy (明手): declarer's partner,
   // whose cards lie face-up on the table for the declarer to play.
   const DUMMY_LESSON_IDS: ReadonlySet<string> = useMemo(
@@ -587,6 +596,13 @@ export function Tutorial() {
         )}
         {step?.kind === 'play' && awaitingTap && !review && (
           <div className="tut-tap-row">{tapNext}</div>
+        )}
+
+        {step?.kind === 'auction' && lastEntry && captionNote && (
+          <div className="sim-caption" key={auctionView!.entries.length}>
+            <span className="sim-caption-tag">{seatLabel(lang, lastEntry.seat)} · {bidLabelL(lang, lastEntry.bid)}</span>
+            <span className="sim-caption-text">{captionNote}</span>
+          </div>
         )}
 
         {review && step?.kind === 'play' && (() => {

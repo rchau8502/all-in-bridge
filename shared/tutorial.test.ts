@@ -53,6 +53,22 @@ describe('all lessons', () => {
   });
 });
 
+describe('bid explanations', () => {
+  it('every bid in every auction carries a note, in both languages', () => {
+    for (const lang of ['en', 'zh'] as const) {
+      for (const lesson of getLessons(lang)) {
+        for (const s of lesson.steps) {
+          if (s.kind !== 'auction') continue;
+          for (const a of s.script) {
+            expect(a.note, `${lesson.id} (${lang})`).toBeTruthy();
+            expect(a.note!.length).toBeGreaterThan(10);
+          }
+        }
+      }
+    }
+  });
+});
+
 describe('post-trick review data', () => {
   it('lesson 1 trick 1: exposes all four plays in order, South wins with the ace', () => {
     const lesson = LESSONS.find(l => l.id === 'deck')!;

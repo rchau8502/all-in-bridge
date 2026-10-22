@@ -19,8 +19,8 @@ import { scoreContract } from './scoring.js';
 import type { ScoreBreakdown } from './scoring.js';
 
 export type BidAction =
-  | { seat: Seat; bid: string }
-  | { seat: Seat; learner: true; expected: string; hint: string };
+  | { seat: Seat; bid: string; note?: string }
+  | { seat: Seat; learner: true; expected: string; hint: string; note?: string };
 
 export type PlayAction =
   | { seat: Seat; card: string }

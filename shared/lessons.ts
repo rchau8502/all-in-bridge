@@ -80,8 +80,8 @@ const MINOR_DEAL: Hands = makeHands({
 });
 
 type RawBidAction =
-  | { seat: Seat; bid: string }
-  | { seat: Seat; learner: true; expected: string; hint: LText };
+  | { seat: Seat; bid: string; note?: LText }
+  | { seat: Seat; learner: true; expected: string; hint: LText; note?: LText };
 type RawPlayAction =
   | { seat: Seat; card: string }
   | { seat: Seat; learner: true; expected: string; hint: LText };
@@ -504,13 +504,23 @@ const RAW_LESSONS: RawLesson[] = [
       {
         kind: 'auction',
         script: [
-          { seat: 'N', bid: 'P' },
-          { seat: 'E', bid: '1D' },
+          { seat: 'N', bid: 'P', note: T(
+            'North passes. A pass is a message too: "Nothing worth announcing — a weak hand, or no suit I want to show."',
+            '北家不叫。不叫也是一条消息："没什么值得宣布的 —— 牌弱，或者没有想展示的花色。"'
+          ) },
+          { seat: 'E', bid: '1D', note: T(
+            'East opens the talk with 1♦: "I have a real hand — about 12 points or more — and diamonds are one of my suits." First message sent!',
+            '东家用1♦开启对话："我有真材实料 —— 大约12点以上 —— 方块是我的花色之一。"第一条消息发出！'
+          ) },
           {
             seat: 'S', learner: true, expected: '1H',
             hint: T(
               "East said 1♦. You've got 5 hearts — answer: 1 heart (1H)!",
               '东家说了1♦。你有5张红桃 —— 回答：1红桃 (1H)！'
+            ),
+            note: T(
+              'Your 1♥ — and it counts as a BIGGER bid, because hearts outrank diamonds. Your message: "I have hearts — five of them!"',
+              '你的1♥ —— 而且它是更大的叫牌，因为红桃比方块高级。你的消息是："我有红桃 —— 有5张！"'
             ),
           },
         ],
@@ -525,14 +535,27 @@ const RAW_LESSONS: RawLesson[] = [
       {
         kind: 'auction',
         script: [
-          { seat: 'W', bid: 'P' },
-          { seat: 'N', bid: 'P' },
-          { seat: 'E', bid: '2D' },
+          { seat: 'W', bid: 'P', note: T(
+            'West passes — nothing to add to the talk.',
+            '西家不叫 —— 没什么要补充的。'
+          ) },
+          { seat: 'N', bid: 'P', note: T(
+            'North passes again — still no news worth sharing.',
+            '北家又不叫 —— 还是没有值得分享的新闻。'
+          ) },
+          { seat: 'E', bid: '2D', note: T(
+            'East says diamonds AGAIN, at the 2-level: "My diamonds are real — long enough to mention twice." It also raises the price: beating this now costs a 2-level bid.',
+            '东家把方块再说一次，还升到2阶："我的方块是真的 —— 长到值得说两次。"这还抬高了价格：想压过它，现在得叫到2阶。'
+          ) },
           {
             seat: 'S', learner: true, expected: '2H',
             hint: T(
               'East pushed to 2♦. Say hearts again, louder: 2 hearts (2H)!',
               '东家加到2♦。把红桃再说一遍，大声点：2红桃 (2H)！'
+            ),
+            note: T(
+              'Your 2♥: "Still hearts — and I am not backing down." You win the level-2 fight because hearts outrank diamonds.',
+              '你的2♥："还是红桃 —— 我可不退让。"你在2阶的较量里赢了，因为红桃比方块高级。'
             ),
           },
         ],
@@ -599,20 +622,45 @@ const RAW_LESSONS: RawLesson[] = [
       {
         kind: 'auction',
         script: [
-          { seat: 'N', bid: '1D' },
-          { seat: 'E', bid: 'P' },
+          { seat: 'N', bid: '1D', note: T(
+            'North opens 1♦: "Partner, I have a real hand — about 12 points or more — and diamonds are one of my suits." The talk has started.',
+            '北家开叫1♦："搭档，我有真材实料 —— 大约12点以上 —— 方块是我的花色之一。"对话开始了。'
+          ) },
+          { seat: 'E', bid: 'P', note: T(
+            'East passes. Silence is information too: probably a weak hand, or no suit worth showing.',
+            '东家不叫。沉默也是信息：多半是牌弱，或者没有值得展示的花色。'
+          ) },
           {
             seat: 'S', learner: true, expected: '1H',
             hint: T(
               'Answer with your longest suit: 1 heart (1H).',
               '用你最长的花色回答：1红桃 (1H)。'
             ),
+            note: T(
+              'Your answer — 1♥: "I hear you, partner! I have hearts — five of them — and 11 points." Answering with your longest suit tells partner your shape.',
+              '你的回答 —— 1♥："我听到了，搭档！我有红桃 —— 5张 —— 还有11点。"用最长的花色回答，就是在告诉搭档你的牌型。'
+            ),
           },
-          { seat: 'W', bid: 'P' },
-          { seat: 'N', bid: '2H' },
-          { seat: 'E', bid: 'P' },
-          { seat: 'S', bid: 'P' },
-          { seat: 'W', bid: 'P' },
+          { seat: 'W', bid: 'P', note: T(
+            'West passes too — the other team stays quiet for now.',
+            '西家也不叫 —— 对方暂时保持安静。'
+          ) },
+          { seat: 'N', bid: '2H', note: T(
+            'North RAISES to 2♥: "Hearts? I like them — I hold three myself!" Your 5 plus North\'s 3 makes an 8-card fit.',
+            '北家把红桃加叫到2♥："红桃？我喜欢 —— 我自己就有三张！"你的5张加北家的3张，正好8张配合。'
+          ) },
+          { seat: 'E', bid: 'P', note: T(
+            'East passes again — still nothing to add.',
+            '东家再不叫 —— 还是没什么可补充的。'
+          ) },
+          { seat: 'S', bid: 'P', note: T(
+            'You pass — correctly! North\'s raise told the whole story, and your hand has nothing NEW to say. Knowing when to stop talking is a real skill.',
+            '你不叫 —— 完全正确！北家的加叫已经把故事讲完了，你的牌没有新东西可说。知道什么时候停口，是一项真本事。'
+          ) },
+          { seat: 'W', bid: 'P', note: T(
+            'West\'s pass makes three in a row — three passes end the talk. 2♥ is the contract.',
+            '西家的不叫凑满连续三个 —— 谈话结束。2♥就是定约。'
+          ) },
         ],
       },
       {
@@ -663,26 +711,52 @@ const RAW_LESSONS: RawLesson[] = [
       {
         kind: 'auction',
         script: [
-          { seat: 'N', bid: '1C' },
-          { seat: 'E', bid: 'P' },
+          { seat: 'N', bid: '1C', note: T(
+            'North opens 1♣: "A real hand — 12 points or more — and clubs are one of my suits." A minor opening carries the same starting message as 1♦.',
+            '北家开叫1♣："有真材实料 —— 12点以上 —— 梅花是我的花色之一。"小花色开叫，和1♦的开场白是一个意思。'
+          ) },
+          { seat: 'E', bid: 'P', note: T(
+            'East passes — no suit worth showing, and not enough to jump into the talk.',
+            '东家不叫 —— 没有值得展示的花色，也不够格抢进对话。'
+          ) },
           {
             seat: 'S', learner: true, expected: '1H',
             hint: T(
               'North opened 1♣. Answer with your longest suit: 1 heart (1H).',
               '北家开叫1♣。用你最长的花色回答：1红桃 (1H)。'
             ),
+            note: T(
+              'You answer 1♥ with your longest suit: "Hearts — five of them — and a strong hand to back them." Partner is listening.',
+              '你用最长的花色回答1♥："红桃 —— 5张 —— 背后还有一手强牌。"搭档在听着呢。'
+            ),
           },
-          { seat: 'W', bid: 'P' },
-          { seat: 'N', bid: '2H' },
-          { seat: 'E', bid: 'P' },
+          { seat: 'W', bid: 'P', note: T(
+            'West passes — the opponents stay out of this conversation.',
+            '西家不叫 —— 对方不掺和这场对话。'
+          ) },
+          { seat: 'N', bid: '2H', note: T(
+            'North raises your hearts — 2♥! Look at North\'s open hand: FOUR hearts waiting for you. With your five, that is 9 together — a giant fit.',
+            '北家加叫你的红桃 —— 2♥！看北家翻开的牌：整整四张红桃在等你。加上你的五张，一共9张 —— 巨大的配合。'
+          ) },
+          { seat: 'E', bid: 'P', note: T(
+            'East passes again — the story is all on your side of the table.',
+            '东家再不叫 —— 故事完全在你们这边。'
+          ) },
           {
             seat: 'S', learner: true, expected: 'P',
             hint: T(
               'North raised to 2♥ — fit found (9 hearts together)! Your job is done: pass.',
               '北家加叫到2♥ —— 找到配合了（两家9张红桃）！你的任务完成了：不叫。'
             ),
+            note: T(
+              'You pass. The fit is found, the story is told, your job in the talk is done. Now your 21 points go to work at the table.',
+              '你不叫。配合找到了，故事讲完了，你在对话里的任务结束了。接下来，你的21点到牌桌上干活。'
+            ),
           },
-          { seat: 'W', bid: 'P' },
+          { seat: 'W', bid: 'P', note: T(
+            'West\'s pass is the third in a row — talk over. The contract: 2♥, and YOU are the declarer.',
+            '西家的不叫是连续第三个 —— 谈话结束。定约：2♥，庄家是你。'
+          ) },
         ],
       },
       {
@@ -943,9 +1017,19 @@ const RAW_LESSONS: RawLesson[] = [
           {
             seat: 'S', learner: true, expected: '1H',
             hint: T('Open the talk with your longest suit: 1♥.', '用你最长的花色开启对话：1♥。'),
+            note: T(
+              'Your opening bid — 1♥: "About 12 points or more, and hearts, at least five." First message of the conversation.',
+              '你的开叫 —— 1♥："大约12点以上，红桃至少5张。"对话的第一条消息。'
+            ),
           },
-          { seat: 'W', bid: 'P' },
-          { seat: 'N', bid: '1S' },
+          { seat: 'W', bid: 'P', note: T(
+            'West passes — nothing to say. One less voice in the talk.',
+            '西家不叫 —— 没什么可说的。对话里少了一个声音。'
+          ) },
+          { seat: 'N', bid: '1S', note: T(
+            'North answers 1♠: "My news: spades — at least four — and at least 6 points." One little bid, a whole postcard of information.',
+            '北家回答1♠："我的新闻是：黑桃至少4张，至少6点。"一个小小的叫牌，一整张明信片的信息。'
+          ) },
         ],
       },
       {
@@ -965,14 +1049,30 @@ const RAW_LESSONS: RawLesson[] = [
       {
         kind: 'auction',
         script: [
-          { seat: 'E', bid: 'P' },
+          { seat: 'E', bid: 'P', note: T(
+            'East passes — the fourth chair stays silent too.',
+            '东家不叫 —— 第四位也保持沉默。'
+          ) },
           {
             seat: 'S', learner: true, expected: '2H',
             hint: T('Rebid your six hearts: 2♥.', '再叫你的6张红桃：2♥。'),
+            note: T(
+              'Your rebid — 2♥. THIS is the new news: your hearts are SIX long. One heart bid could have been five; saying them again guarantees the sixth.',
+              '你的再叫 —— 2♥。这就是新消息：你的红桃有6张。叫一次红桃可能只有5张；再说一次，等于保证有第6张。'
+            ),
           },
-          { seat: 'W', bid: 'P' },
-          { seat: 'N', bid: 'P' },
-          { seat: 'E', bid: 'P' },
+          { seat: 'W', bid: 'P', note: T(
+            'West passes — heard enough.',
+            '西家不叫 —— 听够了。'
+          ) },
+          { seat: 'N', bid: 'P', note: T(
+            'North passes. North has the full picture now — six hearts in your hand, no better home than 2♥. Passing is North saying "deal."',
+            '北家不叫。北家现在全清楚了 —— 你有6张红桃，没有比2♥更好的归宿。不叫，就是北家在说"成交"。'
+          ) },
+          { seat: 'E', bid: 'P', note: T(
+            'East\'s pass is the third in a row — conversation over. Contract: 2♥.',
+            '东家的不叫是连续第三个 —— 对话结束。定约：2♥。'
+          ) },
         ],
       },
       {
@@ -1040,20 +1140,46 @@ const RAW_LESSONS: RawLesson[] = [
           {
             seat: 'S', learner: true, expected: '1H',
             hint: T('Open 1♥ — longest and strongest first.', '开叫1♥ —— 先说最长最强的。'),
+            note: T(
+              'You open 1♥ — 21 points and five hearts. That is the strongest opening hand you have held in the whole bootcamp.',
+              '你开叫1♥ —— 21点、五张红桃。这是你在整个训练营里拿过的最强开叫牌。'
+            ),
           },
-          { seat: 'W', bid: 'P' },
-          { seat: 'N', bid: '2H' },
-          { seat: 'E', bid: 'P' },
+          { seat: 'W', bid: 'P', note: T(
+            'West passes — no answer to that opening yet.',
+            '西家不叫 —— 对这样的开叫暂时没什么回应。'
+          ) },
+          { seat: 'N', bid: '2H', note: T(
+            'North raises to 2♥: "I have hearts too — four of them — and real points of my own." Support, loud and clear.',
+            '北家加叫2♥："我也有红桃 —— 四张 —— 还有我自己的真点数。"支持，清清楚楚。'
+          ) },
+          { seat: 'E', bid: 'P', note: T(
+            'East passes — watching your team\'s conversation.',
+            '东家不叫 —— 看着你们队的对话。'
+          ) },
           {
             seat: 'S', learner: true, expected: '4H',
             hint: T(
               'Partner raised — hearts are shared! You hold 21 points. Jump straight to game: 4♥!',
               '搭档加叫了 —— 红桃是共享的！你有21点。直接跳到成局：4♥！'
             ),
+            note: T(
+              'Your jump — 4♥! Why so high? The math sings: your 21 plus partner\'s promised points sail past 25 combined, and hearts are shared. When the numbers say game, you SAY game.',
+              '你的跳叫 —— 4♥！为什么这么高？算术在唱歌：你的21点加上搭档承诺的点数，合计轻松越过25，红桃又是共享的。数字说能成局，你就说成局。'
+            ),
           },
-          { seat: 'W', bid: 'P' },
-          { seat: 'N', bid: 'P' },
-          { seat: 'E', bid: 'P' },
+          { seat: 'W', bid: 'P', note: T(
+            'West passes — no challenge to the game bid.',
+            '西家不叫 —— 对成局叫牌没有挑战。'
+          ) },
+          { seat: 'N', bid: 'P', note: T(
+            'North passes — happy to let your jump stand. "Deal."',
+            '北家不叫 —— 乐意让你的跳叫成立。"成交。"'
+          ) },
+          { seat: 'E', bid: 'P', note: T(
+            'East\'s pass makes three in a row — the talk is done. Contract: 4♥. GAME!',
+            '东家的不叫凑满连续三个 —— 谈话结束。定约：4♥。成局！'
+          ) },
         ],
       },
       {
@@ -1130,16 +1256,38 @@ const RAW_LESSONS: RawLesson[] = [
       {
         kind: 'auction',
         script: [
-          { seat: 'E', bid: '1D' },
+          { seat: 'E', bid: '1D', note: T(
+            'East opens 1♦ — the OTHER team grabs the microphone first: "A real hand, and diamonds to show."',
+            '东家开叫1♦ —— 对方先抢走了话筒："有真材实料，还有方块要展示。"'
+          ) },
           {
             seat: 'S', learner: true, expected: '1H',
             hint: T('Overcall: 1♥ — your suit earns it!', '争叫：1♥ —— 你的花色配得上！'),
+            note: T(
+              'Your overcall — 1♥. Same label, different job: after an enemy opening it announces "MY suit is genuinely strong — five hearts, A K Q J on top." Entry fee paid in full.',
+              '你的争叫 —— 1♥。同样的标签，不同的工作：对方开叫之后，它宣布的是"我的花色是真的强 —— 五张红桃，A K Q J坐镇。"入场费，全额付清。'
+            ),
           },
-          { seat: 'W', bid: 'P' },
-          { seat: 'N', bid: '2H' },
-          { seat: 'E', bid: 'P' },
-          { seat: 'S', bid: 'P' },
-          { seat: 'W', bid: 'P' },
+          { seat: 'W', bid: 'P', note: T(
+            'West passes — no support to show for East yet.',
+            '西家不叫 —— 暂时没有给东家的支持可展示。'
+          ) },
+          { seat: 'N', bid: '2H', note: T(
+            'North ADVANCES — 2♥: "I back your hearts! I hold FOUR of them, and points on top." Your 5 plus North\'s 4: nine hearts together.',
+            '北家进叫 —— 2♥："我挺你的红桃！我有四张，上面还有点数。"你的5张加北家的4张：一共九张红桃。'
+          ) },
+          { seat: 'E', bid: 'P', note: T(
+            'East passes — their opening story did not scare your team off.',
+            '东家不叫 —— 他们的开叫故事没吓住你们队。'
+          ) },
+          { seat: 'S', bid: 'P', note: T(
+            'You pass. North\'s advance told you the fit is real, and 2♥ is already a happy steal — no need to push higher.',
+            '你不叫。北家的进叫告诉你配合是真的，2♥已经是漂亮的一"偷" —— 不需要再往高推。'
+          ) },
+          { seat: 'W', bid: 'P', note: T(
+            'West\'s pass ends it — three in a row. Your team walks away with the contract: 2♥!',
+            '西家的不叫结束了这一切 —— 连续三个。你们队带走了定约：2♥！'
+          ) },
         ],
       },
       {
@@ -1182,9 +1330,12 @@ function resolveStep(s: RawStep, lang: LessonLang) {
     case 'auction':
       return {
         kind: 'auction' as const,
-        script: s.script.map(a =>
-          'learner' in a ? { ...a, hint: a.hint[lang] } : a
-        ),
+        script: s.script.map(a => {
+          const note = a.note ? { note: a.note[lang] } : {};
+          return 'learner' in a
+            ? { seat: a.seat, learner: true as const, expected: a.expected, hint: a.hint[lang], ...note }
+            : { seat: a.seat, bid: a.bid, ...note };
+        }),
       };
     case 'play':
       return {
