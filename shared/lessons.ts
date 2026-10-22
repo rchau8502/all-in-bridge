@@ -329,7 +329,7 @@ const RAW_LESSONS: RawLesson[] = [
         kind: 'info',
         text: T(
           'Pro secret: before playing a single card, good players COUNT. They count their sure winners — tricks that are already theirs, 100%.',
-          '高手的秘密：出第一张牌之前，先数一数。数稳赢墩 —— 已经百分之百属于你的墩。'
+          '高手的秘密：出第一张牌之前，先数一数。数稳赢墩 —— 已经100%属于你的墩。'
         ),
       },
       {
@@ -356,7 +356,7 @@ const RAW_LESSONS: RawLesson[] = [
       {
         kind: 'info',
         text: T(
-          "Add them up: 2 + 1 + 1 + 2 = 6 sure winners. Your contract is 1NT — you need 7 tricks. ONE short! Don't panic. Those two queens we skipped? Each becomes a winner IF the enemy king sits in the right chair. Hunting that extra winner is our next magic trick: the finesse （飞牌）. West leads a small club. Take it with dummy's king — and watch what happens to your jack…",
+          "Add them up: 2 + 1 + 1 + 2 = 6 sure winners. Your contract is 1NT — you need 7 tricks. ONE short! Don't panic. Those two queens we skipped? Each becomes a winner IF the enemy king sits in the right chair. Hunting that extra winner is our next magic trick: the finesse. West leads a small club. Take it with dummy's king — and watch what happens to your jack…",
           '加起来：2 + 1 + 1 + 2 = 6个稳赢墩。你的定约是1NT —— 需要7墩。少了1个！别慌。我们跳过的那两个Q呢？只要敌人的K坐在正确的位置上，每个Q都能变成赢墩。把多出来的赢墩猎回来，就是下一个魔法：飞牌。西家领出一张小梅花。用明手的K拿下 —— 注意看你的J会怎么样……'
         ),
       },
@@ -378,7 +378,7 @@ const RAW_LESSONS: RawLesson[] = [
       {
         kind: 'info',
         text: T(
-          "Did you see that? Four top clubs, but your jack just fell under dummy's king — one trick, two honors spent. THAT is why clubs counted 2, not 4. Now, the hunt. Look at your diamonds: you hold A–Q. That pair is called a tenace （坎张） — two big cards with a gap exactly where the king would sit, and the king is missing. If partner leads a SMALL diamond toward it, East — who must play before your A–Q — is trapped…",
+          "Did you see that? Four top clubs, but your jack just fell under dummy's king — one trick, two honors spent. THAT is why clubs counted 2, not 4. Now, the hunt. Look at your diamonds: you hold A–Q. That pair is called a tenace — two big cards with a gap exactly where the king would sit, and the king is missing. If partner leads a SMALL diamond toward it, East — who must play before your A–Q — is trapped…",
           '看见了吗？四张顶张梅花，但你的J只能压在明手的K下面 —— 一墩用掉两张大牌。这就是梅花只能算2、不能算4的原因。现在，去打猎。看你手里的方块：你拿着A–Q。这一对叫坎张 —— 两张大牌中间空着一个正好放K的位置，而K不见了。如果搭档朝它领出一张小方块，坐在中间、必须在你的A–Q之前出牌的东家，就被困住了……'
         ),
       },
@@ -468,7 +468,7 @@ const RAW_LESSONS: RawLesson[] = [
         kind: 'info',
         text: T(
           "Numbers worth remembering: with 5 cards missing out there, they usually split 3 and 2 (about 68 times in 100). With 4 missing, a 2-2 split happens about 41 times in 100. And the old proverb: '8 cards? Finesse! 9 or more? Play ace-king and let the queen drop.'",
-          "几个数字值得记住：外面少5张牌时，通常分成3张和2张（100次里约68次）。少4张时，分成2张和2张大约41次。还有句老话：'8张牌就飞，9张以上打A和K，等Q自己掉下来。'"
+          "几个数字值得记住：外面少5张牌时，通常分成3张和2张（100次里约68次）。少4张时，分成2张和2张大约41次。还有句老话：'8张牌就用飞牌，9张以上打A和K，等Q自己掉下来。'"
         ),
       },
       {
@@ -568,7 +568,7 @@ const RAW_LESSONS: RawLesson[] = [
         kind: 'info',
         text: T(
           "Count from the hand with the LONG trumps — that's you, 4 spades to partner's 3. Go suit by suit. Rule: look at your top 3 cards in the suit; every one that is NOT the ace, king or queen is a loser. Then peek at dummy: each ace, king or queen there knocks out one of your losers.",
-          '从将牌长的那只手数起 —— 就是你，黑桃 4 张对搭档 3 张。逐门数。规则：看你这门最大的三张牌，不是 A、K、Q 的，每一张都是输墩。再偷看一眼明手：明手里的 A、K、Q，每一张能抵掉你的一个输墩。'
+          '从将牌长的那只手数起 —— 就是你，黑桃 4 张对搭档 3 张。逐门数。规则：看你这门最大的三张牌，不是 A、K、Q 的，每一张都是输墩。再偷看一眼明手：那里的 A、K、Q，每一张能抵掉你的一个输墩。'
         ),
       },
       {
@@ -595,8 +595,8 @@ const RAW_LESSONS: RawLesson[] = [
       {
         kind: 'info',
         text: T(
-          "The plan: look at dummy's clubs — A-K-Q-J, FOUR of them, while you hold only three. After the A, K and Q are played, the jack is a spare winner, and you can throw a loser on it. West leads the diamond king — take it with dummy's ace!",
-          '计划：看明手的梅花 —— A、K、Q、J 四张，而你只有三张。A、K、Q 打完之后，J 是多出来的一个赢墩，你可以把一张输墩垫在上面。西家首攻方块 K —— 用明手的 A 拿下！'
+          "The plan: look at dummy's clubs — A-K-Q-J, FOUR of them, while you hold only three. After the A, K and Q are played, the jack is a spare winner, and you can throw a loser on it. West leads the king of diamonds — take it with dummy's ace!",
+          '计划：看明手的梅花 —— A、K、Q、J 四张，而你只有三张。A、K、Q 打完之后，J 是多出来的一个赢墩，你可以把一张输墩垫在上面。西家首攻方块K —— 用明手的 A 拿下！'
         ),
       },
       {
@@ -625,7 +625,7 @@ const RAW_LESSONS: RawLesson[] = [
           { seat: 'E', card: '4S' },
           {
             seat: 'S', learner: true, expected: 'AS',
-            hint: T('Ace of spades (AS).', '黑桃 A (AS)。'),
+            hint: T('Ace of spades (AS).', '黑桃A (AS)。'),
           },
           { seat: 'W', card: '2S' },
         ],
@@ -635,7 +635,7 @@ const RAW_LESSONS: RawLesson[] = [
         script: [
           {
             seat: 'S', learner: true, expected: 'KS',
-            hint: T('King of spades (KS) — keep drawing!', '黑桃 K (KS) —— 继续清！'),
+            hint: T('King of spades (KS) — keep drawing!', '黑桃K (KS) —— 继续清！'),
           },
           { seat: 'W', card: '3S' },
           { seat: 'N', card: '6S' },
@@ -647,7 +647,7 @@ const RAW_LESSONS: RawLesson[] = [
         script: [
           {
             seat: 'S', learner: true, expected: 'JS',
-            hint: T('Jack of spades (JS) — one more round.', '黑桃 J (JS) —— 再清一轮。'),
+            hint: T('Jack of spades (JS) — one more round.', '黑桃J (JS) —— 再清一轮。'),
           },
           { seat: 'W', card: 'QS' },
           { seat: 'N', card: '9S' },
@@ -687,7 +687,7 @@ const RAW_LESSONS: RawLesson[] = [
           { seat: 'W', card: 'QH' },
           {
             seat: 'N', learner: true, expected: 'AH',
-            hint: T('Ace of hearts (AH) — right over the queen!', '红桃 A (AH) —— 直接盖掉 Q！'),
+            hint: T('Ace of hearts (AH) — right over the queen!', '红桃A (AH) —— 直接盖掉 Q！'),
           },
           { seat: 'E', card: '6H' },
           { seat: 'S', card: '8H' },
@@ -724,7 +724,7 @@ const RAW_LESSONS: RawLesson[] = [
           { seat: 'E', card: '5D' },
           {
             seat: 'S', learner: true, expected: '5H',
-            hint: T('Throw the heart 5 (5H) — your loser, gone!', '垫掉红桃 5 (5H) —— 你的输墩，没了！'),
+            hint: T('Throw the heart 5 (5H) — your loser, gone!', '垫掉红桃5 (5H) —— 你的输墩，没了！'),
           },
           { seat: 'W', card: '9H' },
         ],
@@ -733,7 +733,7 @@ const RAW_LESSONS: RawLesson[] = [
         kind: 'info',
         text: T(
           'POOF — the heart loser vanished on the spare club! Two tricks left: cash your king of hearts, and your last trump is suddenly the biggest card in the world.',
-          '噗 —— 红桃输墩在多出来的梅花上消失了！还剩两墩：兑现你的红桃 K，你最后一张将牌现在是全场最大的牌。'
+          '噗 —— 红桃输墩在多出来的梅花上消失了！还剩两墩：兑现你的红桃K，你最后一张将牌现在是全场最大的牌。'
         ),
       },
       {
@@ -743,7 +743,7 @@ const RAW_LESSONS: RawLesson[] = [
           { seat: 'E', card: '3H' },
           {
             seat: 'S', learner: true, expected: 'KH',
-            hint: T('King of hearts (KH).', '红桃 K (KH)。'),
+            hint: T('King of hearts (KH).', '红桃K (KH)。'),
           },
           { seat: 'W', card: 'JH' },
         ],
@@ -753,7 +753,7 @@ const RAW_LESSONS: RawLesson[] = [
         script: [
           {
             seat: 'S', learner: true, expected: 'TS',
-            hint: T('Ten of spades (TS) — the last trump takes it home.', '黑桃 10 (TS) —— 最后一张将牌，带它回家。'),
+            hint: T('10 of spades (TS) — the last trump takes it home.', '黑桃10 (TS) —— 最后一张将牌，带它回家。'),
           },
           { seat: 'W', card: '8S' },
           { seat: 'N', card: '7H' },
@@ -795,8 +795,8 @@ const RAW_LESSONS: RawLesson[] = [
       {
         kind: 'info',
         text: T(
-          "Two losers must vanish. Vanishing trick #1 hides in the clubs: dummy holds K-Q-J — three honors in a row, like a staircase — and you are VOID in clubs. The only card that can beat the staircase is the ace, and East is hiding it. Remember the finesse from Lesson 3? Meet its big cousin — the RUFFING FINESSE （将吃飞牌）. First, West leads the spade queen — dummy's ace, please!",
-          '两个输墩必须消失。第一招藏在梅花里：明手有 K、Q、J —— 三张连张大牌，像一段楼梯，而你在梅花是空门。唯一能压住这段楼梯的只有 A，而 A 躲在东家手里。还记得第 3 课的飞牌吗？认识一下它的表哥 —— 将吃飞牌。先看首攻：西家领出黑桃 Q —— 请明手出 A！'
+          "Two losers must vanish. Vanishing trick #1 hides in the clubs: dummy holds K-Q-J — three honors in a row, like a staircase — and you are VOID in clubs. The only card that can beat the staircase is the ace, and East is hiding it. Remember the finesse from Lesson 3? Meet its big cousin — the RUFFING FINESSE. First, West leads the queen of spades — dummy's ace, please!",
+          '两个输墩必须消失。第一招藏在梅花里：明手有 K、Q、J —— 三张连张大牌，像一段楼梯，而你在梅花是空门。唯一能压住这段楼梯的只有 A，而 A 躲在东家手里。还记得第 3 课的飞牌吗？认识一下它的表哥 —— 将吃飞牌。先看首攻：西家领出黑桃Q —— 请明手出 A！'
         ),
       },
       {
@@ -805,7 +805,7 @@ const RAW_LESSONS: RawLesson[] = [
           { seat: 'W', card: 'QS' },
           {
             seat: 'N', learner: true, expected: 'AS',
-            hint: T('Ace of spades (AS) — take it!', '黑桃 A (AS) —— 拿下！'),
+            hint: T('Ace of spades (AS) — take it!', '黑桃A (AS) —— 拿下！'),
           },
           { seat: 'E', card: '4S' },
           { seat: 'S', card: '2S' },
@@ -814,8 +814,8 @@ const RAW_LESSONS: RawLesson[] = [
       {
         kind: 'info',
         text: T(
-          "Now lead dummy's club QUEEN — the first step of the staircase. If East plays the ace, you RUFF it on the spot, and dummy's K and J become winners. If East ducks… you throw a loser away, the queen wins, and you climb the next step and ask again. The ace can hide, but it can't hide forever!",
-          '现在领出明手的梅花 Q —— 楼梯的第一级。如果东家打出 A，你当场将吃，明手的 K 和 J 就都变成赢墩。如果东家躲开……你就垫掉一张输墩，Q 照样赢，然后爬上第二级再问一次。A 能躲一时，躲不了一世！'
+          "Now lead dummy's queen of clubs — the first step of the staircase. If East plays the ace, you RUFF it on the spot, and dummy's K and J become winners. If East ducks… you throw a loser away, the queen wins, and you climb the next step and ask again. The ace can hide, but it can't hide forever!",
+          '现在领出明手的梅花Q —— 楼梯的第一级。如果东家打出 A，你当场将吃，明手的 K 和 J 就都变成赢墩。如果东家躲开……你就垫掉一张输墩，Q 照样赢，然后爬上第二级再问一次。A 能躲一时，躲不了一世！'
         ),
       },
       {
@@ -823,7 +823,7 @@ const RAW_LESSONS: RawLesson[] = [
         script: [
           {
             seat: 'N', learner: true, expected: 'QC',
-            hint: T('Queen of clubs (QC) — first step of the staircase!', '梅花 Q (QC) —— 楼梯的第一级！'),
+            hint: T('Queen of clubs (QC) — first step of the staircase!', '梅花Q (QC) —— 楼梯的第一级！'),
           },
           { seat: 'E', card: '5C' },
           {
@@ -845,12 +845,12 @@ const RAW_LESSONS: RawLesson[] = [
         script: [
           {
             seat: 'N', learner: true, expected: 'JC',
-            hint: T('Jack of clubs (JC) — ask again!', '梅花 J (JC) —— 再问一次！'),
+            hint: T('Jack of clubs (JC) — ask again!', '梅花J (JC) —— 再问一次！'),
           },
           { seat: 'E', card: '8C' },
           {
             seat: 'S', learner: true, expected: '5S',
-            hint: T('Ducked again! Throw the 5 of spades (5S)!', '又躲了！垫掉黑桃 5 (5S)！'),
+            hint: T('Ducked again! Throw the 5 of spades (5S)!', '又躲了！垫掉黑桃5 (5S)！'),
           },
           { seat: 'W', card: '4C' },
         ],
@@ -867,12 +867,12 @@ const RAW_LESSONS: RawLesson[] = [
         script: [
           {
             seat: 'N', learner: true, expected: 'KC',
-            hint: T('King of clubs (KC) — the last step!', '梅花 K (KC) —— 最后一级！'),
+            hint: T('King of clubs (KC) — the last step!', '梅花K (KC) —— 最后一级！'),
           },
           { seat: 'E', card: 'AC' },
           {
             seat: 'S', learner: true, expected: '2H',
-            hint: T("THERE'S the ace — RUFF IT with the 2 of hearts (2H)!", 'A 出现了 —— 用红桃 2 将吃它 (2H)！'),
+            hint: T("THERE'S the ace — RUFF IT with the 2 of hearts (2H)!", 'A 出现了 —— 用红桃2将吃它 (2H)！'),
           },
           { seat: 'W', card: 'TC' },
         ],
@@ -889,7 +889,7 @@ const RAW_LESSONS: RawLesson[] = [
         script: [
           {
             seat: 'S', learner: true, expected: '4D',
-            hint: T('Lead your little 4 of diamonds (4D) — feed the suit.', '领出你的小方块 4 (4D) —— 喂这门牌。'),
+            hint: T('Lead your little 4 of diamonds (4D) — feed the suit.', '领出你的小方块4 (4D) —— 喂这门牌。'),
           },
           { seat: 'W', card: 'QD' },
           { seat: 'N', card: '9D' },
@@ -904,7 +904,7 @@ const RAW_LESSONS: RawLesson[] = [
           { seat: 'E', card: 'AD' },
           {
             seat: 'S', learner: true, expected: '6D',
-            hint: T('Your 6 of diamonds (6D) — dummy is now EMPTY of diamonds.', '你的方块 6 (6D) —— 明手现在没有方块了。'),
+            hint: T('Your 6 of diamonds (6D) — dummy is now EMPTY of diamonds.', '你的方块6 (6D) —— 明手现在没有方块了。'),
           },
         ],
       },
@@ -925,7 +925,7 @@ const RAW_LESSONS: RawLesson[] = [
           { seat: 'W', card: '7D' },
           {
             seat: 'N', learner: true, expected: '4H',
-            hint: T("RUFF with dummy's 4 of hearts (4H)!", '用明手的红桃 4 将吃 (4H)！'),
+            hint: T("RUFF with dummy's 4 of hearts (4H)!", '用明手的红桃4将吃 (4H)！'),
           },
           { seat: 'E', card: '5D' },
           { seat: 'S', card: '3H' },
@@ -945,7 +945,7 @@ const RAW_LESSONS: RawLesson[] = [
           { seat: 'E', card: 'TS' },
           {
             seat: 'S', learner: true, expected: '6H',
-            hint: T('Ruff the spade (6H) and take the lead — time to draw trumps.', '将吃这张黑桃 (6H)，拿到出牌权 —— 该清将了。'),
+            hint: T('Ruff the spade (6H) and take the lead — time to draw trumps.', '将吃这张黑桃 (6H)，拿到出牌权 —— 该清将牌了。'),
           },
           { seat: 'W', card: '9S' },
         ],
@@ -955,7 +955,7 @@ const RAW_LESSONS: RawLesson[] = [
         script: [
           {
             seat: 'S', learner: true, expected: 'AH',
-            hint: T('Ace of hearts (AH) — draw their trumps!', '红桃 A (AH) —— 清掉他们的将牌！'),
+            hint: T('Ace of hearts (AH) — draw their trumps!', '红桃A (AH) —— 清掉他们的将牌！'),
           },
           { seat: 'W', card: 'JH' },
           { seat: 'N', card: '8H' },
@@ -967,7 +967,7 @@ const RAW_LESSONS: RawLesson[] = [
         script: [
           {
             seat: 'S', learner: true, expected: 'KH',
-            hint: T('King of hearts (KH) — one more round.', '红桃 K (KH) —— 再清一轮。'),
+            hint: T('King of hearts (KH) — one more round.', '红桃K (KH) —— 再清一轮。'),
           },
           { seat: 'W', card: '9C' },
           { seat: 'N', card: '5H' },
@@ -1637,7 +1637,7 @@ const RAW_LESSONS: RawLesson[] = [
       {
         kind: 'info',
         text: T(
-          'Now the magic line: if your contract itself scores 100 points or more, it is called GAME （成局） — and the game pays a fat bonus: +300 points on top! Do the math with me: 4♥ = 4 × 30 = 120. Over 100 — GAME. 3NT = 40 + 30 + 30 = 100. Exactly 100 — GAME. The game contracts are: 3NT, 4♥, 4♠, 5♣, 5♦. (Minors need 5 because 4 × 20 = 80 — not enough!)',
+          'Now the magic line: if your contract itself scores 100 points or more, it is called GAME — and the game pays a fat bonus: +300 points on top! Do the math with me: 4♥ = 4 × 30 = 120. Over 100 — GAME. 3NT = 40 + 30 + 30 = 100. Exactly 100 — GAME. The game contracts are: 3NT, 4♥, 4♠, 5♣, 5♦. (Minors need 5 because 4 × 20 = 80 — not enough!)',
           '现在看神奇的线：如果你的定约本身达到100分或以上，就叫成局 —— 成局还有一份厚厚的奖励：额外+300分！跟我算：4♥ = 4 × 30 = 120。超过100 —— 成局。3NT = 40 + 30 + 30 = 100。正好100 —— 成局。成局的定约有：3NT、4♥、4♠、5♣、5♦。（小花色需要到5，因为4 × 20 = 80 —— 不够！）'
         ),
       },
@@ -1651,7 +1651,7 @@ const RAW_LESSONS: RawLesson[] = [
       {
         kind: 'info',
         text: T(
-          'How do you know? Add BOTH hands\' points together. Years of bridge wisdom say: about 25 combined points makes game （25点进局）. Why 25? Game needs 9–10 tricks, and 25 of the 40 total points — almost two-thirds of all the strength at the table — usually builds those tricks. Under 25? Take the partscore and be happy.',
+          'How do you know? Add BOTH hands\' points together. Years of bridge wisdom say: about 25 combined points makes game. Why 25? Game needs 9–10 tricks, and 25 of the 40 total points — almost two-thirds of all the strength at the table — usually builds those tricks. Under 25? Take the partscore and be happy.',
           '怎么知道？把两只手的点数加起来。多年的桥牌智慧说：两家合计约25点就能成局（25点进局）。为什么是25？成局需要9到10墩，而25点 —— 占全桌40点的将近三分之二 —— 通常足够搭起这些墩。不到25？拿下部分定约，开开心心就好。'
         ),
       },
@@ -1763,7 +1763,7 @@ const RAW_LESSONS: RawLesson[] = [
       {
         kind: 'info',
         text: T(
-          'Bidding after the enemy opens is an OVERCALL （争叫）. Why do it? Three reasons: your team might own this hand too; even if not, your bid steals their talking space; and it tells partner where your strength lives, in case THEY win the contract and must defend.',
+          'Bidding after the enemy opens is an OVERCALL. Why do it? Three reasons: your team might own this hand too; even if not, your bid steals their talking space; and it tells partner where your strength lives, in case THEY win the contract and must defend.',
           '对方开叫之后你的叫牌，叫争叫。为什么要争？三个理由：这副牌可能也是你们队的；就算不是，你的叫牌也能抢走他们的说话空间；而且它告诉搭档你的力量在哪 —— 万一他们拿到定约要防守，这个信息至关重要。'
         ),
       },
