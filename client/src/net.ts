@@ -8,6 +8,10 @@ function wsUrl(): string {
   const proto = location.protocol === 'https:' ? 'wss:' : 'ws:';
   const override = localStorage.getItem('aib-ws');
   if (override) return override;
+  // Deployed builds can bake in the public game server (e.g. the GitHub
+  // Pages demo pointing at the hosted WebSocket server).
+  const baked = (import.meta.env['VITE_WS_URL'] as string | undefined)?.trim();
+  if (baked) return baked;
   return `${proto}//${location.hostname}:8080`;
 }
 

@@ -53,7 +53,7 @@ export function Home() {
       await client.connect();
       return true;
     } catch {
-      setErr(t(lang, 'home.connFailed'));
+      setErr(t(lang, import.meta.env.VITE_DEMO === '1' ? 'home.connFailedDemo' : 'home.connFailed'));
       return false;
     } finally {
       setBusy(false);
