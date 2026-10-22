@@ -520,7 +520,7 @@ export function Tutorial() {
   // Lessons past the auction introduce the dummy (明手): declarer's partner,
   // whose cards lie face-up on the table for the declarer to play.
   const DUMMY_LESSON_IDS: ReadonlySet<string> = useMemo(
-    () => new Set(['strategy', 'bidding', 'minor-responses', 'full-hand', 'conversation', 'scoring', 'overcall']), []
+    () => new Set(['strategy', 'losers', 'eliminate', 'bidding', 'minor-responses', 'full-hand', 'conversation', 'scoring', 'overcall']), []
   );
   const dummySeat: Seat | null = DUMMY_LESSON_IDS.has(lesson.id)
     ? (lesson.contract.declarer === 'N' ? 'S' : lesson.contract.declarer === 'S' ? 'N' : lesson.contract.declarer === 'E' ? 'W' : 'E')

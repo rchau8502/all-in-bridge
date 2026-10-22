@@ -6,7 +6,7 @@ presentation, bilingual EN/中文 from the ground up (both language versions
 hand-written in parallel, never machine-translated).
 
 **Play it:** https://rchau8502.github.io/all-in-bridge/ — the full
-10-lesson Bridge Bootcamp runs right in the browser, no account, no install.
+12-lesson Bridge Bootcamp runs right in the browser, no account, no install.
 
 ## Layout
 
@@ -35,12 +35,14 @@ everything, and a throw-away card can never win a trick).
 2. Win the Tricks — follow suit, highest card wins, winner leads next
 3. Count and Plan — sure winners, the finesse, entries between hands
 4. Trump Power — ruffing: any trump beats any card of the led suit
-5. Bidding Is Talking — bids as messages, high-card points, fits
-6. Answer Partner — responding to a minor-suit opening
-7. Raise and Play — a complete 2♥ hand as declarer, dummy face-up
-8. Opener Tells More — opener's rebid after a major response
-9. Go for Game! — scoring, partscore vs game, the ~25-point rule
-10. Jump In! — overcalling when the other side opens first
+5. Count Your Losers — trump contracts flip the script: count losers from the long hand, then plan
+6. Make Losers Vanish — ruff in dummy, throw losers on spare winners, the ruffing finesse
+7. Bidding Is Talking — bids as messages, high-card points, fits
+8. Answer Partner — responding to a minor-suit opening
+9. Raise and Play — a complete 2♥ hand as declarer, dummy face-up
+10. Opener Tells More — opener's rebid after a major response
+11. Go for Game! — scoring, partscore vs game, the ~25-point rule
+12. Jump In! — overcalling when the other side opens first
 
 ## Run it
 

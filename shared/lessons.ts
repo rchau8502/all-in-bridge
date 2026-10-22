@@ -70,7 +70,30 @@ const STRAT_DEAL: Hands = makeHands({
   W: ['2S', '3S', '4S', 'KH', '9H', '4H', '3H', 'AD', 'KD', 'QD', '6C', '7C', '8C'],
 });
 
-/** Lesson 6 deal: North opens 1♦ (13 pts), South answers 1♥ (5 hearts, 11 pts),
+/** Lesson 5 deal: South declares 4♠. Losers from South (long trumps):
+ *  ♠1 (the J) ♥1 ♦2 ♣0 = 4 — one too many. Plan: draw trumps, then throw the
+ *  heart loser on dummy's spare ♣J (dummy has 4 clubs, South only 3).
+ *  Simulator-verified: NS take exactly 10 tricks. */
+const LOSERS_DEAL: Hands = makeHands({
+  N: ['9S', '6S', '5S', 'AH', '7H', '4H', 'AD', '7D', '2D', 'AC', 'KC', 'QC', 'JC'],
+  E: ['7S', '4S', 'TH', '6H', '3H', '2H', 'TD', '8D', '5D', '4D', '7C', '6C', '3C'],
+  S: ['AS', 'KS', 'JS', 'TS', 'KH', '8H', '5H', '9D', '6D', '3D', '8C', '4C', '2C'],
+  W: ['QS', '8S', '3S', '2S', 'QH', 'JH', '9H', 'KD', 'QD', 'JD', 'TC', '9C', '5C'],
+});
+
+/** Lesson 6 deal: South declares 4♥. Losers from South (long trumps):
+ *  ♠2 ♥0 ♦3 ♣0 (void) = 5 — two too many. Plan: ruffing finesse with dummy's
+ *  ♣K-Q-J staircase against East's hidden ace (ducks twice, ruffed on the K)
+ *  sheds both small spades; dummy ruffs the third diamond. Only THEN draw
+ *  trumps. Simulator-verified: NS take exactly 10 tricks. */
+const ELIM_DEAL: Hands = makeHands({
+  N: ['AS', '8S', '6S', '3S', '8H', '5H', '4H', '9D', '2D', 'KC', 'QC', 'JC', '6C'],
+  E: ['JS', 'TS', '4S', 'TH', '7H', 'AD', 'JD', '5D', '3D', 'AC', '8C', '5C', '3C'],
+  S: ['AH', 'KH', 'QH', '9H', '6H', '3H', '2H', '7S', '5S', '2S', '8D', '6D', '4D'],
+  W: ['KS', 'QS', '9S', 'JH', 'KD', 'QD', 'TD', '7D', 'TC', '9C', '7C', '4C', '2C'],
+});
+
+/** Lesson 8 deal: North opens 1♦ (13 pts), South answers 1♥ (5 hearts, 11 pts),
  *  North raises with 3 hearts. Verified: every suit A–2 exactly once. */
 const MINOR_DEAL: Hands = makeHands({
   N: ['AS', '7S', '2S', 'QH', '6H', '4H', 'AD', 'KD', '8D', '3D', '9C', '5C', '2C'],
@@ -466,10 +489,461 @@ const RAW_LESSONS: RawLesson[] = [
       {
         kind: 'info',
         text: T(
-          "North's ace grabbed it — biggest trump wins, as promised. You've got trump power now. Next: we learn to TALK — with bids.",
-          '北家的A抓住了它 —— 说到做到，最大的将牌赢。将牌你已经会了。下一课：我们学"说话" —— 用叫牌。'
+          "North's ace grabbed it — biggest trump wins, as promised. You've got trump power now. Next: how to PLAN a trump contract — by counting losers.",
+          '北家的A抓住了它 —— 说到做到，最大的将牌赢。将牌你已经会了。下一课：怎么给有将定约做计划 —— 数输墩。'
         ),
       },
+    ],
+  },
+  {
+    id: 'losers',
+    title: T('Count Your Losers', '有将数输墩'),
+    dealer: 'N',
+    hands: LOSERS_DEAL,
+    contract: { level: 4, denom: 'S', declarer: 'S', doubled: 0 },
+    vulnerable: false,
+    steps: [
+      {
+        kind: 'info',
+        text: T(
+          'New rule for trump contracts! In no-trump you counted WINNERS (Lesson 3). With a trump suit, flip the scorebook: count your LOSERS — the tricks you expect to lose.',
+          '有将定约，新规矩！无将时我们数赢墩（第 3 课）。有了将牌，把记分本翻过来：数输墩 —— 你预计会输掉的墩。'
+        ),
+      },
+      {
+        kind: 'info',
+        text: T(
+          "Count from the hand with the LONG trumps — that's you, 4 spades to partner's 3. Go suit by suit. Rule: look at your top 3 cards in the suit; every one that is NOT the ace, king or queen is a loser. Then peek at dummy: each ace, king or queen there knocks out one of your losers.",
+          '从将牌长的那只手数起 —— 就是你，黑桃 4 张对搭档 3 张。逐门数。规则：看你这门最大的三张牌，不是 A、K、Q 的，每一张都是输墩。再偷看一眼明手：明手里的 A、K、Q，每一张能抵掉你的一个输墩。'
+        ),
+      },
+      {
+        kind: 'info',
+        text: T(
+          "Spades: your A-K-J-10. The jack is not A, K or Q — that's 1 loser. Dummy has no spade honor to help. ♠ = 1 loser.",
+          '黑桃：你的 A、K、J、10。J 不是 A、K、Q —— 1 个输墩。明手没有黑桃大牌帮忙。♠ = 1 个输墩。'
+        ),
+      },
+      {
+        kind: 'info',
+        text: T(
+          "Hearts: your K-8-5. The 8 and 5 are losers… but dummy's ace knocks one out. ♥ = 1 loser. Diamonds: your 9-6-3 are all losers; dummy's ace saves one. ♦ = 2 losers. Clubs: your 8-4-2 all look lost — but dummy holds A-K-Q! All three covered. ♣ = 0.",
+          '红桃：你的 K、8、5。8 和 5 是输墩……但明手的 A 抵掉一个。♥ = 1 个。方块：你的 9、6、3 全是输墩，明手的 A 救回一个。♦ = 2 个。梅花：你的 8、4、2 看着全要输 —— 但明手有 A、K、Q！三个全盖掉。♣ = 0 个。'
+        ),
+      },
+      {
+        kind: 'info',
+        text: T(
+          'Total: 1 + 1 + 2 + 0 = 4 losers. Your contract is 4♠ — you need 10 tricks, so you can only afford to lose 3. One loser too many! Before touching a card, make a plan to make one loser VANISH.',
+          '总账：1 + 1 + 2 + 0 = 4 个输墩。你的定约是 4♠ —— 需要赢 10 墩，只能输 3 墩。多出来 1 个！在碰任何一张牌之前，先做计划：让一个输墩消失。'
+        ),
+      },
+      {
+        kind: 'info',
+        text: T(
+          "The plan: look at dummy's clubs — A-K-Q-J, FOUR of them, while you hold only three. After the A, K and Q are played, the jack is a spare winner, and you can throw a loser on it. West leads the diamond king — take it with dummy's ace!",
+          '计划：看明手的梅花 —— A、K、Q、J 四张，而你只有三张。A、K、Q 打完之后，J 是多出来的一个赢墩，你可以把一张输墩垫在上面。西家首攻方块 K —— 用明手的 A 拿下！'
+        ),
+      },
+      {
+        kind: 'play',
+        script: [
+          { seat: 'W', card: 'KD' },
+          {
+            seat: 'N', learner: true, expected: 'AD',
+            hint: T("Dummy's ace (AD) — take the king!", '明手的 A (AD) —— 吃掉 K！'),
+          },
+          { seat: 'E', card: '4D' },
+          { seat: 'S', card: '3D' },
+        ],
+      },
+      {
+        kind: 'info',
+        text: T(
+          "First: draw trumps — pull out the enemy's spades, so nobody can ruff dummy's club winners later. Lead a little spade from dummy toward your big ones.",
+          '第一步：清将 —— 把对方的黑桃拔掉，免得一会儿有人将吃明手的梅花赢墩。从明手领出一张小黑桃，朝你的大将牌打。'
+        ),
+      },
+      {
+        kind: 'play',
+        script: [
+          { seat: 'N', card: '5S' },
+          { seat: 'E', card: '4S' },
+          {
+            seat: 'S', learner: true, expected: 'AS',
+            hint: T('Ace of spades (AS).', '黑桃 A (AS)。'),
+          },
+          { seat: 'W', card: '2S' },
+        ],
+      },
+      {
+        kind: 'play',
+        script: [
+          {
+            seat: 'S', learner: true, expected: 'KS',
+            hint: T('King of spades (KS) — keep drawing!', '黑桃 K (KS) —— 继续清！'),
+          },
+          { seat: 'W', card: '3S' },
+          { seat: 'N', card: '6S' },
+          { seat: 'E', card: '7S' },
+        ],
+      },
+      {
+        kind: 'play',
+        script: [
+          {
+            seat: 'S', learner: true, expected: 'JS',
+            hint: T('Jack of spades (JS) — one more round.', '黑桃 J (JS) —— 再清一轮。'),
+          },
+          { seat: 'W', card: 'QS' },
+          { seat: 'N', card: '9S' },
+          { seat: 'E', card: '2H' },
+        ],
+      },
+      {
+        kind: 'info',
+        text: T(
+          "West's queen wins — that is EXACTLY the 1 spade loser we counted. And the enemy trumps are all gone now. West keeps attacking diamonds.",
+          '西家的 Q 赢了 —— 这正是我们数到的那 1 个黑桃输墩。而且对方的将牌已经全部清完了。西家继续攻方块。'
+        ),
+      },
+      {
+        kind: 'play',
+        script: [
+          { seat: 'W', card: 'QD' },
+          { seat: 'N', card: '7D' },
+          { seat: 'E', card: '8D' },
+          { seat: 'S', card: '9D' },
+          { seat: 'W', card: 'JD' },
+          { seat: 'N', card: '2D' },
+          { seat: 'E', card: 'TD' },
+          { seat: 'S', card: '6D' },
+        ],
+      },
+      {
+        kind: 'info',
+        text: T(
+          "Two diamond losers paid — also exactly what we counted. West tries hearts now; dummy's ace is waiting. After that… club time!",
+          '两个方块输墩付掉了 —— 和我们数的分毫不差。西家改攻红桃；明手的 A 正等着呢。接下来……梅花时间！'
+        ),
+      },
+      {
+        kind: 'play',
+        script: [
+          { seat: 'W', card: 'QH' },
+          {
+            seat: 'N', learner: true, expected: 'AH',
+            hint: T('Ace of hearts (AH) — right over the queen!', '红桃 A (AH) —— 直接盖掉 Q！'),
+          },
+          { seat: 'E', card: '6H' },
+          { seat: 'S', card: '8H' },
+        ],
+      },
+      {
+        kind: 'info',
+        text: T(
+          "Now cash dummy's club winners: A, K, Q — you follow suit each time. Then the spare jack shows up… get your little heart loser ready to throw away!",
+          '现在兑现明手的梅花赢墩：A、K、Q —— 你每次都跟牌。然后，多出来的 J 就要出现了……把你的小红桃输墩准备好，要扔掉它了！'
+        ),
+      },
+      {
+        kind: 'play',
+        script: [
+          { seat: 'N', card: 'AC' },
+          { seat: 'E', card: '3C' },
+          { seat: 'S', card: '8C' },
+          { seat: 'W', card: '5C' },
+          { seat: 'N', card: 'KC' },
+          { seat: 'E', card: '6C' },
+          { seat: 'S', card: '4C' },
+          { seat: 'W', card: '9C' },
+          { seat: 'N', card: 'QC' },
+          { seat: 'E', card: '7C' },
+          { seat: 'S', card: '2C' },
+          { seat: 'W', card: 'TC' },
+        ],
+      },
+      {
+        kind: 'play',
+        script: [
+          { seat: 'N', card: 'JC' },
+          { seat: 'E', card: '5D' },
+          {
+            seat: 'S', learner: true, expected: '5H',
+            hint: T('Throw the heart 5 (5H) — your loser, gone!', '垫掉红桃 5 (5H) —— 你的输墩，没了！'),
+          },
+          { seat: 'W', card: '9H' },
+        ],
+      },
+      {
+        kind: 'info',
+        text: T(
+          'POOF — the heart loser vanished on the spare club! Two tricks left: cash your king of hearts, and your last trump is suddenly the biggest card in the world.',
+          '噗 —— 红桃输墩在多出来的梅花上消失了！还剩两墩：兑现你的红桃 K，你最后一张将牌现在是全场最大的牌。'
+        ),
+      },
+      {
+        kind: 'play',
+        script: [
+          { seat: 'N', card: '4H' },
+          { seat: 'E', card: '3H' },
+          {
+            seat: 'S', learner: true, expected: 'KH',
+            hint: T('King of hearts (KH).', '红桃 K (KH)。'),
+          },
+          { seat: 'W', card: 'JH' },
+        ],
+      },
+      {
+        kind: 'play',
+        script: [
+          {
+            seat: 'S', learner: true, expected: 'TS',
+            hint: T('Ten of spades (TS) — the last trump takes it home.', '黑桃 10 (TS) —— 最后一张将牌，带它回家。'),
+          },
+          { seat: 'W', card: '8S' },
+          { seat: 'N', card: '7H' },
+          { seat: 'E', card: 'TH' },
+        ],
+      },
+      {
+        kind: 'info',
+        text: T(
+          'Count the damage: you lost exactly 3 tricks — 1 spade, 2 diamonds — right on budget. 4♠ made! The trump-contract routine: COUNT your losers, compare with what you can afford, then make the extras vanish. Next lesson: a whole bag of vanishing tricks.',
+          '清点战损：你正好输了 3 墩 —— 黑桃 1、方块 2 —— 分毫不差，刚好在预算内。4♠ 达成！有将定约的流程：数输墩、和能输的墩数对比、再让多余的输墩消失。下一课：一整袋消去输墩的招数。'
+        ),
+      },
+      { kind: 'result' },
+    ],
+  },
+  {
+    id: 'eliminate',
+    title: T('Make Losers Vanish', '输墩消去'),
+    dealer: 'N',
+    hands: ELIM_DEAL,
+    contract: { level: 4, denom: 'H', declarer: 'S', doubled: 0 },
+    vulnerable: false,
+    steps: [
+      {
+        kind: 'info',
+        text: T(
+          'Last lesson you made ONE loser vanish. Today: a full disappearing act. This 4♥ contract has work to do — count first, like always.',
+          '上一课你让一个输墩消失了。今天来一整套消失魔术。这副 4♥ 有活儿要干 —— 老规矩，先数输墩。'
+        ),
+      },
+      {
+        kind: 'info',
+        text: T(
+          "Count from your hand — your 7 hearts are the long trumps. Spades: your 7-5-2 are 3 losers; dummy's ace covers one → 2. Diamonds: your 8-6-4 are 3 losers; dummy has no diamond honor → still 3. Clubs: you have NONE — a void suit can't lose a trick → 0. Hearts: A-K-Q on top → 0. Total: 5 losers. But 4♥ can only afford 3!",
+          '从你的手数起 —— 你的 7 张红桃是长将牌。黑桃：你的 7、5、2 是 3 个输墩，明手的 A 抵掉 1 个 → 2 个。方块：你的 8、6、4 是 3 个输墩，明手没有方块大牌 → 还是 3 个。梅花：你一张都没有 —— 空门输不了墩 → 0 个。红桃：A、K、Q 打头 → 0 个。总共 5 个输墩，可 4♥ 只能输 3 个！'
+        ),
+      },
+      {
+        kind: 'info',
+        text: T(
+          "Two losers must vanish. Vanishing trick #1 hides in the clubs: dummy holds K-Q-J — three honors in a row, like a staircase — and you are VOID in clubs. The only card that can beat the staircase is the ace, and East is hiding it. Remember the finesse from Lesson 3? Meet its big cousin — the RUFFING FINESSE （将吃飞牌）. First, West leads the spade queen — dummy's ace, please!",
+          '两个输墩必须消失。第一招藏在梅花里：明手有 K、Q、J —— 三张连张大牌，像一段楼梯，而你在梅花是空门。唯一能压住这段楼梯的只有 A，而 A 躲在东家手里。还记得第 3 课的飞牌吗？认识一下它的表哥 —— 将吃飞牌。先看首攻：西家领出黑桃 Q —— 请明手出 A！'
+        ),
+      },
+      {
+        kind: 'play',
+        script: [
+          { seat: 'W', card: 'QS' },
+          {
+            seat: 'N', learner: true, expected: 'AS',
+            hint: T('Ace of spades (AS) — take it!', '黑桃 A (AS) —— 拿下！'),
+          },
+          { seat: 'E', card: '4S' },
+          { seat: 'S', card: '2S' },
+        ],
+      },
+      {
+        kind: 'info',
+        text: T(
+          "Now lead dummy's club QUEEN — the first step of the staircase. If East plays the ace, you RUFF it on the spot, and dummy's K and J become winners. If East ducks… you throw a loser away, the queen wins, and you climb the next step and ask again. The ace can hide, but it can't hide forever!",
+          '现在领出明手的梅花 Q —— 楼梯的第一级。如果东家打出 A，你当场将吃，明手的 K 和 J 就都变成赢墩。如果东家躲开……你就垫掉一张输墩，Q 照样赢，然后爬上第二级再问一次。A 能躲一时，躲不了一世！'
+        ),
+      },
+      {
+        kind: 'play',
+        script: [
+          {
+            seat: 'N', learner: true, expected: 'QC',
+            hint: T('Queen of clubs (QC) — first step of the staircase!', '梅花 Q (QC) —— 楼梯的第一级！'),
+          },
+          { seat: 'E', card: '5C' },
+          {
+            seat: 'S', learner: true, expected: '7S',
+            hint: T('East ducked! Throw a spade loser (7S)!', '东家躲了！垫掉一张黑桃输墩 (7S)！'),
+          },
+          { seat: 'W', card: '2C' },
+        ],
+      },
+      {
+        kind: 'info',
+        text: T(
+          'East ducked — the queen won AND a spade loser rode away on it. Climb to the second step: the JACK. Same question: if the ace appears, ruff it; if East hides again, throw your other spade.',
+          '东家躲开了 —— Q 赢了，一个黑桃输墩还顺路被带走了。爬上第二级：J。同样的问题：A 出现就将吃；东家再躲，就把另一张黑桃垫掉。'
+        ),
+      },
+      {
+        kind: 'play',
+        script: [
+          {
+            seat: 'N', learner: true, expected: 'JC',
+            hint: T('Jack of clubs (JC) — ask again!', '梅花 J (JC) —— 再问一次！'),
+          },
+          { seat: 'E', card: '8C' },
+          {
+            seat: 'S', learner: true, expected: '5S',
+            hint: T('Ducked again! Throw the 5 of spades (5S)!', '又躲了！垫掉黑桃 5 (5S)！'),
+          },
+          { seat: 'W', card: '4C' },
+        ],
+      },
+      {
+        kind: 'info',
+        text: T(
+          "Twice hidden! One step remains — the KING. The ace is running out of places to hide. If it finally shows its face this time… you know exactly what to do.",
+          '躲了两次！只剩最后一级 —— K。A 快没地方躲了。如果它这次终于露面……你非常清楚该怎么做。'
+        ),
+      },
+      {
+        kind: 'play',
+        script: [
+          {
+            seat: 'N', learner: true, expected: 'KC',
+            hint: T('King of clubs (KC) — the last step!', '梅花 K (KC) —— 最后一级！'),
+          },
+          { seat: 'E', card: 'AC' },
+          {
+            seat: 'S', learner: true, expected: '2H',
+            hint: T("THERE'S the ace — RUFF IT with the 2 of hearts (2H)!", 'A 出现了 —— 用红桃 2 将吃它 (2H)！'),
+          },
+          { seat: 'W', card: 'TC' },
+        ],
+      },
+      {
+        kind: 'info',
+        text: T(
+          'You ATE the ace! That is the ruffing finesse in full: while East hid, two losers rode away; when the ace finally showed, your little trump ate it. Both small spades are gone — spades can only cost you one trick now. Vanishing trick #2: the RUFF. Dummy holds only TWO diamonds. Play the suit twice and dummy is empty — then dummy can ruff the third diamond round. But careful: dummy needs a little heart for that ruff, so do NOT draw trumps yet! The ruff just gave YOU the lead — start feeding diamonds.',
+          '你把 A 吃掉了！这就是完整的将吃飞牌：东家躲藏的时候，两个输墩顺路溜走；A 终于露面时，被你的小将牌一口吃掉。两张小黑桃都没了 —— 黑桃现在最多让你输 1 墩。第二招：将吃。明手只有两张方块。这门打两轮，明手就空了 —— 然后明手就能将吃第三轮方块。但注意：明手需要一张小红桃来将吃，所以现在还不能清将！刚才的将吃让你拿到了出牌权 —— 开始喂方块。'
+        ),
+      },
+      {
+        kind: 'play',
+        script: [
+          {
+            seat: 'S', learner: true, expected: '4D',
+            hint: T('Lead your little 4 of diamonds (4D) — feed the suit.', '领出你的小方块 4 (4D) —— 喂这门牌。'),
+          },
+          { seat: 'W', card: 'QD' },
+          { seat: 'N', card: '9D' },
+          { seat: 'E', card: '3D' },
+        ],
+      },
+      {
+        kind: 'play',
+        script: [
+          { seat: 'W', card: 'TD' },
+          { seat: 'N', card: '2D' },
+          { seat: 'E', card: 'AD' },
+          {
+            seat: 'S', learner: true, expected: '6D',
+            hint: T('Your 6 of diamonds (6D) — dummy is now EMPTY of diamonds.', '你的方块 6 (6D) —— 明手现在没有方块了。'),
+          },
+        ],
+      },
+      {
+        kind: 'info',
+        text: T(
+          "Two diamond losers paid. East switches to spades and West's king takes the trick — that is the one spade loser left in the budget. And now West leads his last diamond, while dummy has NONE…",
+          '两个方块输墩付掉了。东家转攻黑桃，西家的 K 赢下这一墩 —— 这是预算里剩下的那一个黑桃输墩。现在西家领出他最后一张方块，而明手一张方块都没有……'
+        ),
+      },
+      {
+        kind: 'play',
+        script: [
+          { seat: 'E', card: 'JS' },
+          { seat: 'S', card: '8D' },
+          { seat: 'W', card: 'KS' },
+          { seat: 'N', card: '8S' },
+          { seat: 'W', card: '7D' },
+          {
+            seat: 'N', learner: true, expected: '4H',
+            hint: T("RUFF with dummy's 4 of hearts (4H)!", '用明手的红桃 4 将吃 (4H)！'),
+          },
+          { seat: 'E', card: '5D' },
+          { seat: 'S', card: '3H' },
+        ],
+      },
+      {
+        kind: 'info',
+        text: T(
+          "RUFFED! The third diamond loser — gone, eaten by dummy's baby trump. Both vanishing tricks are complete. NOW you may draw trumps — dummy's work is done. First, ruff your way back to your own hand.",
+          '将吃成功！第三个方块输墩没了 —— 被明手的小将牌吃掉。两招都完成了。现在可以清将了 —— 明手的活儿干完了。先将吃一张，回到自己手里。'
+        ),
+      },
+      {
+        kind: 'play',
+        script: [
+          { seat: 'N', card: '6S' },
+          { seat: 'E', card: 'TS' },
+          {
+            seat: 'S', learner: true, expected: '6H',
+            hint: T('Ruff the spade (6H) and take the lead — time to draw trumps.', '将吃这张黑桃 (6H)，拿到出牌权 —— 该清将了。'),
+          },
+          { seat: 'W', card: '9S' },
+        ],
+      },
+      {
+        kind: 'play',
+        script: [
+          {
+            seat: 'S', learner: true, expected: 'AH',
+            hint: T('Ace of hearts (AH) — draw their trumps!', '红桃 A (AH) —— 清掉他们的将牌！'),
+          },
+          { seat: 'W', card: 'JH' },
+          { seat: 'N', card: '8H' },
+          { seat: 'E', card: '7H' },
+        ],
+      },
+      {
+        kind: 'play',
+        script: [
+          {
+            seat: 'S', learner: true, expected: 'KH',
+            hint: T('King of hearts (KH) — one more round.', '红桃 K (KH) —— 再清一轮。'),
+          },
+          { seat: 'W', card: '9C' },
+          { seat: 'N', card: '5H' },
+          { seat: 'E', card: 'TH' },
+        ],
+      },
+      {
+        kind: 'play',
+        script: [
+          { seat: 'S', card: 'QH' },
+          { seat: 'W', card: '7C' },
+          { seat: 'N', card: '6C' },
+          { seat: 'E', card: '3C' },
+          {
+            seat: 'S', learner: true, expected: '9H',
+            hint: T('Your last trump (9H) — bring it home.', '你的最后一张将牌 (9H) —— 带它回家。'),
+          },
+          { seat: 'W', card: 'KD' },
+          { seat: 'N', card: '3S' },
+          { seat: 'E', card: 'JD' },
+        ],
+      },
+      {
+        kind: 'info',
+        text: T(
+          "Final count: you lost exactly 3 tricks — two diamonds, one spade. 5 losers counted, 2 vanished, 4♥ made! Your vanishing toolkit: RUFF in the short hand, THROW losers on spare winners, and the RUFFING FINESSE — march the K-Q-J staircase at the hidden ace when you're void. Count first — then pick your trick!",
+          '最终清点：你正好输了 3 墩 —— 方块 2、黑桃 1。数到 5 个输墩，消掉 2 个，4♥ 达成！你的消去工具箱：在短将牌一侧将吃、在多余赢墩上垫输墩、还有将吃飞牌 —— 空门时，用 K、Q、J 楼梯一步步逼出藏着的 A。先数 —— 再选招！'
+        ),
+      },
+      { kind: 'result' },
     ],
   },
   {
@@ -1300,8 +1774,8 @@ const RAW_LESSONS: RawLesson[] = [
       {
         kind: 'info',
         text: T(
-          'The other team opened the hand — and your team walks away with the contract. That steal felt good, right? You have now learned the whole circle: play tricks, count winners, make a plan, use trump, talk with bids, answer, raise, rebid, hunt for game, and even jump into enemy auctions.',
-          '对方开的局 —— 定约却被你们队拿走了。这种"偷"感觉很好吧？你现在已经学完了整个循环：打墩、数赢墩、做计划、用将牌、用叫牌对话、回答、加叫、再叫、猎逐成局，甚至抢进对方的叫牌。'
+          'The other team opened the hand — and your team walks away with the contract. That steal felt good, right? You have now learned the whole circle: play tricks, count winners, make a plan, use trump, count losers, make them vanish, talk with bids, answer, raise, rebid, hunt for game, and even jump into enemy auctions.',
+          '对方开的局 —— 定约却被你们队拿走了。这种"偷"感觉很好吧？你现在已经学完了整个循环：打墩、数赢墩、做计划、用将牌、数输墩、消去输墩、用叫牌对话、回答、加叫、再叫、猎逐成局，甚至抢进对方的叫牌。'
         ),
       },
       {
