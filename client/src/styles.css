@@ -754,22 +754,39 @@ select.input { appearance: auto; }
 .sim-felt {
   position: relative;
   width: 100%;
+  overflow: hidden;
   background:
     radial-gradient(ellipse at 50% 28%, rgba(255, 255, 255, 0.14) 0%, transparent 55%),
     linear-gradient(160deg, #15b9d1 0%, var(--felt2) 48%, var(--felt3) 100%);
   border: 1px solid rgba(255, 255, 255, 0.20);
   border-radius: 28px;
-  padding: 14px;
-  display: grid;
-  /* The game itself stays a readable size and centers on huge monitors —
-     the felt still fills the screen, but seats never drift to far edges. */
-  grid-template-columns: 148px minmax(0, 940px) 148px;
-  justify-content: center;
-  grid-template-rows: auto 1fr auto;
-  grid-template-areas: ". simn ." "simw simc sime" ". simme .";
   box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.18), inset 0 0 90px rgba(0, 43, 54, 0.35), 0 24px 60px rgba(2, 24, 48, 0.5);
   min-height: 560px;
 }
+/* The stage is the actual card table, designed once at 1180x740 and
+   scaled by JS (transform) to fit whatever screen the learner has —
+   seats, trick and hand are ALWAYS in the same sensible proportions,
+   on a laptop, a classroom projector or an ultrawide monitor.
+   On narrow screens (<721px) the stage drops the transform and flows
+   with the hand-tuned mobile grid instead. */
+.sim-stage {
+  display: grid;
+  grid-template-columns: 148px 1fr 148px;
+  grid-template-rows: auto 1fr auto;
+  grid-template-areas: ". simn ." "simw simc sime" ". simme .";
+  width: 100%;
+  height: 100%;
+  padding: 14px;
+  box-sizing: border-box;
+}
+.sim-stage.scaled {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform-origin: center center;
+}
+/* Portrait-ish screens: narrower side columns buy the middle more room. */
+.sim-stage.compact { grid-template-columns: 112px 1fr 112px; }
 /* the tutorial table fills the body's free height — no dead space below */
 .tut-body > .sim-felt { align-self: stretch; flex: 1 1 auto; }
 .sim-topbar { grid-column: 1 / -1; display: flex; justify-content: center; gap: 10px; align-items: center; margin-bottom: 6px; }
@@ -924,8 +941,9 @@ table.standings tr.leader td { color: var(--accent); font-weight: 800; }
   .room-code { font-size: 34px; }
   .pod-avatar { width: 60px; height: 60px; }
   .opp-emoji { font-size: 34px; }
-  /* simulated tutorial table fits phones */
-  .sim-felt { grid-template-columns: 112px 1fr 112px; min-height: 440px; padding: 8px; }
+  /* simulated tutorial table fits phones (stage flows, no scaling) */
+  .sim-felt { min-height: 440px; }
+  .sim-stage { grid-template-columns: 112px 1fr 112px; padding: 8px; }
   .sim-trick { width: 110px; height: 150px; --toff: 54px; }
   .sim-tcard { --card-w: 52px; --card-h: 74px; }
   .sim-tcard .pip { font-size: 26px; }
@@ -962,12 +980,4 @@ table.standings tr.leader td { color: var(--accent); font-weight: 800; }
   }
 }
 
-/* big screens: use the space — larger cards, roomier table */
-@media (min-width: 1500px) and (min-height: 820px) {
-  :root { --card-w: 88px; --card-h: 124px; }
-  .card.small { --card-w: 60px; --card-h: 84px; }
-  .sim-trick { --toff: 96px; }
-  .sim-faceup .card { --card-w: 40px; --card-h: 56px; }
-  .sim-faceup .card .pip { font-size: 20px; }
-  .sim-faceup .card .corner { font-size: 10px; }
-}
+/* (No big-screen upscale rules: the sim stage scales itself to fit.) */

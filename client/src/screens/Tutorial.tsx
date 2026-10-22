@@ -165,6 +165,13 @@ interface SimSeatInfo {
   active?: boolean;
 }
 
+/** The sim table is designed once at this size and scaled to fit the
+ *  learner's screen (see .sim-stage in styles.css). Portrait-ish screens
+ *  get the compact stage (narrower side columns, same height). */
+const STAGE_W = 1180;
+const STAGE_W_COMPACT = 940;
+const STAGE_H = 740;
+
 /** A compact simulated card table: seats with card backs around a felt,
  *  the live trick as real cards in the middle, and the interactive hand
  *  at the bottom. Scripted plays appear one-by-one like a real deal. */
@@ -196,6 +203,29 @@ function SimTable(props: {
   const sigs = props.trick.map(t => `${t.seat}${t.card.suit}${t.card.rank}`);
   const fresh = useFreshOrder(sigs, props.stepKey);
 
+  // Auto-fit: measure the felt and scale the fixed-size stage to fit it.
+  // Narrow screens (<721px) get scale 0 = the flowing mobile layout.
+  const feltRef = useRef<HTMLDivElement>(null);
+  const [fit, setFit] = useState({ scale: 0, w: STAGE_W, compact: false });
+  useEffect(() => {
+    const el = feltRef.current;
+    if (!el) return;
+    const update = () => {
+      const r = el.getBoundingClientRect();
+      if (r.width < 721) {
+        setFit({ scale: 0, w: STAGE_W, compact: false });
+        return;
+      }
+      const compact = r.width / r.height < 1.15;
+      const w = compact ? STAGE_W_COMPACT : STAGE_W;
+      setFit({ scale: Math.min((r.width - 4) / w, (r.height - 4) / STAGE_H, 2.2), w, compact });
+    };
+    update();
+    const ro = new ResizeObserver(update);
+    ro.observe(el);
+    return () => ro.disconnect();
+  }, []);
+
   useEffect(() => {
     const timers: number[] = [];
     fresh.forEach(ord => {
@@ -206,7 +236,11 @@ function SimTable(props: {
   }, [sigs.join('|')]);
 
   return (
-    <div className="sim-felt">
+    <div className="sim-felt" ref={feltRef}>
+      <div
+        className={`sim-stage${fit.scale > 0 ? ' scaled' : ''}${fit.compact ? ' compact' : ''}`}
+        style={fit.scale > 0 ? { width: fit.w, height: STAGE_H, transform: `translate(-50%, -50%) scale(${fit.scale})` } : undefined}
+      >
       <div className="sim-topbar">
         <span className="sim-trickno">{props.title}</span>
         {props.contractLabel && <span className="contract-pill">{props.contractLabel}</span>}
@@ -277,6 +311,7 @@ function SimTable(props: {
           </>
         )}
         {props.bottomExtra}
+      </div>
       </div>
     </div>
   );
