@@ -63,11 +63,21 @@ const CONV_DEAL: Hands = makeHands({
   W: ['5S', '7S', '9S', '4H', '7H', '9H', '3D', '7D', 'QD', 'AD', '8C', 'TC', 'QC'],
 });
 
+/** Lesson 3 deal: South declares 1NT. Combined top winners (count BOTH
+ *  hands together; per suit winners = min(longer hand's length, top honors
+ *  in an unbroken row from the ace)): ♠2 ♥1 ♦1 ♣2 = 6 — one short of 7.
+ *  The two uncounted queens are the hunters: the ♦A-Q tenace sits in
+ *  South's hand with the K in East (dummy leads small toward it — finesse
+ *  example 1); the ♥Q sits in dummy with the A in South's hand and the K
+ *  in West (lead small toward the queen — finesse example 2). Script:
+ *  West leads ♣3, dummy's K wins and South's J falls under it (the club
+ *  cap, live), then both finesses succeed with ♠A K cashed in between.
+ *  Simulator-verified for legality. */
 const STRAT_DEAL: Hands = makeHands({
-  N: ['5S', '6S', '7S', '2D', '3D', 'QH', '8H', '9C', 'TC', 'JC', 'QC', 'KC', 'AC'],
-  E: ['8S', '9S', 'TS', 'JS', 'JH', 'TH', '7H', '5H', '7D', '8D', '9D', 'TD', 'JD'],
-  S: ['AS', 'KS', 'QS', 'AH', '6H', '2H', '4D', '5D', '6D', '2C', '3C', '4C', '5C'],
-  W: ['2S', '3S', '4S', 'KH', '9H', '4H', '3H', 'AD', 'KD', 'QD', '6C', '7C', '8C'],
+  N: ['9S', '5S', '3S', '2S', 'QH', '8H', '7H', '9D', '8D', '5D', '2D', 'AC', 'KC'],
+  E: ['JS', 'TS', 'JH', 'TH', '5H', 'KD', 'TD', '7D', '6D', '9C', '7C', '4C', '2C'],
+  S: ['AS', 'KS', '8S', '6S', '4S', 'AH', '6H', '2H', 'AD', 'QD', '3D', 'QC', 'JC'],
+  W: ['QS', '7S', 'KH', '9H', '4H', '3H', 'JD', '4D', 'TC', '8C', '6C', '5C', '3C'],
 });
 
 /** Lesson 5 deal: South declares 4♠. Losers from South (long trumps):
@@ -318,42 +328,100 @@ const RAW_LESSONS: RawLesson[] = [
       {
         kind: 'info',
         text: T(
-          'Pro secret: before playing a single card, good players COUNT. They count their sure winners — tricks they will win, 100%.',
-          '高手的秘密：出第一张牌之前，先数一数。数你的稳赢墩 —— 百分之百能赢的墩。'
+          'Pro secret: before playing a single card, good players COUNT. They count their sure winners — tricks that are already theirs, 100%.',
+          '高手的秘密：出第一张牌之前，先数一数。数稳赢墩 —— 已经百分之百属于你的墩。'
         ),
       },
       {
         kind: 'info',
         text: T(
-          'An ace is always a sure winner. A king counts too, if you hold the ace with it. Count yours: ♠A K Q — that is 3. Plus ♥A — 4 sure winners!',
-          'A永远是稳赢墩。有A在手，K也算。数数你的：♠A K Q —— 3个。再加上♥A —— 一共4个稳赢墩！'
+          "And here's the key: you never count alone. Your winners live in BOTH hands — yours and dummy's, together. For each suit, ask two questions. One: how many cards does the LONGER hand hold? That is the most tricks this suit can ever give you. Two: how many top cards do you hold between you, in an unbroken row from the ace — A, then K, then Q…? If the enemy holds the ace, the answer is zero. Your winners in the suit are the SMALLER of the two numbers.",
+          '关键在这里：你从来不是一个人在数。赢墩在两只手里 —— 你和明手的，要合在一起数。每一门花色，问两个问题。一：较长的那只手有几张牌？这就是这门花色最多能给你的墩数。二：你们联手从A开始、连续有几张顶张 —— A，然后K，然后Q……？如果A在敌人手里，答案是零。这门花色的赢墩，是这两个数字里较小的那个。'
         ),
       },
       {
         kind: 'info',
         text: T(
-          "Your contract is 1NT — you need 7 tricks. You've already got 4 in the bag. West leads. Take it with your ace!",
-          '你的定约是1NT —— 需要7墩。你已经有4个在口袋里了。西家首攻。用你的A拿下！'
+          "Let's count. Spades: you hold 5 cards, dummy 4 — the longer hand has 5. Your top cards: the A and the K (the queen sits with West — x-ray eyes, remember!), so 2 winners. Hearts: the longer hand has 3 cards, but your only top card is the ace — the king is missing — so just 1 winner. Dummy's queen does NOT count… yet. Keep an eye on her.",
+          '来数一数。黑桃：你有5张，明手4张 —— 较长的手有5张。你们的顶张：A和K（Q在西家手里 —— 透视眼，别忘了！），所以是2个赢墩。红桃：较长的手有3张，但顶张只有A —— K不见了 —— 只有1个赢墩。明手的Q暂时还不算……记住她。'
+        ),
+      },
+      {
+        kind: 'info',
+        text: T(
+          "Diamonds: dummy is the longer hand, with 4. Top cards: again just the ace — 1 winner — plus another hopeful queen, this time in YOUR hand, right next to the ace. Clubs are the funny one: your top cards are A, K, Q, J — four of them! But you hold only 2 clubs and dummy holds only 2 — after two rounds, one of you runs out, and the extra honors just fall under each other. Capped: 2 winners.",
+          '方块：明手是较长的手，有4张。顶张：又只有A —— 1个赢墩 —— 还有一个有希望的Q，这次在你手里，就挨着A。梅花最好笑：你们的顶张有A、K、Q、J —— 足足四张！但你只有2张梅花，明手也只有2张 —— 打两轮之后就有一方没牌了，多出来的大牌只能互相压掉。封顶：2个赢墩。'
+        ),
+      },
+      {
+        kind: 'info',
+        text: T(
+          "Add them up: 2 + 1 + 1 + 2 = 6 sure winners. Your contract is 1NT — you need 7 tricks. ONE short! Don't panic. Those two queens we skipped? Each becomes a winner IF the enemy king sits in the right chair. Hunting that extra winner is our next magic trick: the finesse （飞牌）. West leads a small club. Take it with dummy's king — and watch what happens to your jack…",
+          '加起来：2 + 1 + 1 + 2 = 6个稳赢墩。你的定约是1NT —— 需要7墩。少了1个！别慌。我们跳过的那两个Q呢？只要敌人的K坐在正确的位置上，每个Q都能变成赢墩。把多出来的赢墩猎回来，就是下一个魔法：飞牌。西家领出一张小梅花。用明手的K拿下 —— 注意看你的J会怎么样……'
         ),
       },
       {
         kind: 'play',
         script: [
-          { seat: 'W', card: '2S' },
-          { seat: 'N', card: '5S' },
-          { seat: 'E', card: '8S' },
+          { seat: 'W', card: '3C' },
           {
-            seat: 'S', learner: true, expected: 'AS',
-            hint: T('Ace of spades (AS). Take it!', '黑桃A (AS)，拿下！'),
+            seat: 'N', learner: true, expected: 'KC',
+            hint: T("Dummy's king of clubs (KC). Take the trick!", '明手的梅花K (KC)，拿下这一墩！'),
+          },
+          { seat: 'E', card: '2C' },
+          {
+            seat: 'S', learner: true, expected: 'JC',
+            hint: T('Your jack of clubs (JC) — it has to fall under the king!', '你的梅花J (JC) —— 只能压在K下面了！'),
           },
         ],
       },
       {
         kind: 'info',
         text: T(
-          'One in the bag! Keep cashing your winners before the other team wakes up. King of spades — go!',
-          '一墩到手！趁对方还没醒过神，继续把赢墩兑现。黑桃K，上！'
+          "Did you see that? Four top clubs, but your jack just fell under dummy's king — one trick, two honors spent. THAT is why clubs counted 2, not 4. Now, the hunt. Look at your diamonds: you hold A–Q. That pair is called a tenace （坎张） — two big cards with a gap exactly where the king would sit, and the king is missing. If partner leads a SMALL diamond toward it, East — who must play before your A–Q — is trapped…",
+          '看见了吗？四张顶张梅花，但你的J只能压在明手的K下面 —— 一墩用掉两张大牌。这就是梅花只能算2、不能算4的原因。现在，去打猎。看你手里的方块：你拿着A–Q。这一对叫坎张 —— 两张大牌中间空着一个正好放K的位置，而K不见了。如果搭档朝它领出一张小方块，坐在中间、必须在你的A–Q之前出牌的东家，就被困住了……'
         ),
+      },
+      {
+        kind: 'info',
+        text: T(
+          "Here's the trap: if East plays the king, your ace swallows it — and the queen is a winner forever after. If East ducks and plays small, you play the queen and she wins right now. East cannot escape… as long as the king sits with East. Peek with your x-ray eyes: it does! Partner — lead that little diamond.",
+          '陷阱是这样的：如果东家出K，你的A一口吞掉它 —— Q从此就是赢墩。如果东家躲开、出小牌，你就打出Q，她当场赢下这一墩。东家无处可逃……只要K在他手里。用透视眼偷看一下：真的在！搭档 —— 出那张小方块吧。'
+        ),
+      },
+      {
+        kind: 'play',
+        script: [
+          {
+            seat: 'N', learner: true, expected: '2D',
+            hint: T("Dummy's little 2 of diamonds (2D) — the bait.", '明手的小方块2 (2D) —— 诱饵。'),
+          },
+          { seat: 'E', card: '6D' },
+          {
+            seat: 'S', learner: true, expected: 'QD',
+            hint: T('The queen (QD)! Spring the trap!', 'Q (QD)！合上陷阱！'),
+          },
+          { seat: 'W', card: '4D' },
+        ],
+      },
+      {
+        kind: 'info',
+        text: T(
+          "SNAP! East ducked, and the queen won. That is winner number 7 — your contract is safe! Queen number one is home. Now cash your two counted spade winners, then we go meet queen number two.",
+          '咔嚓！东家躲开了，Q赢了！这是第7个赢墩 —— 定约稳了！第一个Q已经到手。现在把你数过的两个黑桃赢墩兑现，然后去见第二个Q。'
+        ),
+      },
+      {
+        kind: 'play',
+        script: [
+          {
+            seat: 'S', learner: true, expected: 'AS',
+            hint: T('Ace of spades (AS) — a counted winner. Cash it!', '黑桃A (AS) —— 数过的赢墩，兑现！'),
+          },
+          { seat: 'W', card: '7S' },
+          { seat: 'N', card: '2S' },
+          { seat: 'E', card: 'TS' },
+        ],
       },
       {
         kind: 'play',
@@ -362,30 +430,16 @@ const RAW_LESSONS: RawLesson[] = [
             seat: 'S', learner: true, expected: 'KS',
             hint: T('King of spades (KS).', '黑桃K (KS)。'),
           },
-          { seat: 'W', card: '3S' },
-          { seat: 'N', card: '6S' },
-          { seat: 'E', card: '9S' },
+          { seat: 'W', card: 'QS' },
+          { seat: 'N', card: '3S' },
+          { seat: 'E', card: 'JS' },
         ],
       },
       {
         kind: 'info',
         text: T(
-          "See the plan? Count first, then cash. Easy! But what if you're MISSING a winner? Time for a magic trick…",
-          '看到计划的威力了吧？先数，再兑现。简单！但如果你少一个赢墩怎么办？是时候学个魔法了……'
-        ),
-      },
-      {
-        kind: 'info',
-        text: T(
-          "The magic is called a finesse （飞牌）. Look at hearts: you hold A-6-2, partner holds Q-8, and the enemy king… well, with our x-ray eyes you can SEE it: the king sits in West's hand, together with the 9, 4 and 3. In a real game it would be hidden — that's the whole game. Here's the trick: lead a SMALL heart toward partner's queen…",
-          '这个魔法叫飞牌。看红桃：你有A-6-2，搭档有Q-8，敌人的K……嗯，用我们的透视眼你能看见：K就在西家手里，和9、4、3在一起。真正的牌局里它是藏着的 —— 这正是游戏的关键。诀窍是：朝着搭档的Q，领出一张小红桃……'
-        ),
-      },
-      {
-        kind: 'info',
-        text: T(
-          "Why does this trap work? Play goes clockwise, so West must play BEFORE North's queen shows. If West plays the king now, your ace eats it next and the queen still wins a trick later. If West plays small (watch — West will duck with the 3), the queen wins THIS trick and the king is still stuck behind your ace. Heads you win, tails you win — as long as the king sits on THIS side. Try it: lead your little 2 of hearts.",
-          '这个陷阱为什么有效？出牌是顺时针的，西家必须在北家的Q亮出来之前出牌。如果西家现在出K，你的A回头就吃掉它，Q之后还能赢一墩。如果西家出小牌（看着 —— 西家会用3躲开），Q就赢下这一墩，而K还卡在你的A后面。正面反面你都赢 —— 只要K在这一边。试试看：领出你的小红桃2。'
+          "Second shape, same trick. Hearts: this time the ace is in YOUR hand and the queen is in dummy's — the pair is split up. West holds the king, sitting right in front of dummy's queen. Lead a SMALL heart toward the queen: if West plays the king, your ace eats it next and the queen still scores. If West ducks… the queen wins on the spot. Try it — your little 2 of hearts.",
+          '第二个形状，同样的魔法。红桃：这次A在你手里，Q在明手 —— 这一对是分开的。K在西家手里，正好坐在明手Q的前面。朝着Q领出一张小红桃：如果西家出K，你的A回头就吃掉它，Q照样能赢。如果西家躲开……Q当场获胜。试试 —— 你的小红桃2。'
         ),
       },
       {
@@ -393,12 +447,12 @@ const RAW_LESSONS: RawLesson[] = [
         script: [
           {
             seat: 'S', learner: true, expected: '2H',
-            hint: T('The little 2 of hearts (2H) — bait!', '小红桃2 (2H) —— 诱饵！'),
+            hint: T('The little 2 of hearts (2H) — bait again!', '小红桃2 (2H) —— 又是诱饵！'),
           },
           { seat: 'W', card: '3H' },
           {
             seat: 'N', learner: true, expected: 'QH',
-            hint: T("Now partner's queen (QH) — snap the trap shut!", '现在打出搭档的Q (QH) —— 合上陷阱！'),
+            hint: T("Dummy's queen (QH) — snap the trap shut!", '明手的Q (QH) —— 合上陷阱！'),
           },
           { seat: 'E', card: '5H' },
         ],
@@ -406,15 +460,8 @@ const RAW_LESSONS: RawLesson[] = [
       {
         kind: 'info',
         text: T(
-          "SNAP! The queen won! West's king never got a chance. That's a finesse — a clever little trap.",
-          '咔嚓！Q赢了！西家的K根本没机会。这就是飞牌 —— 一个聪明的小陷阱。'
-        ),
-      },
-      {
-        kind: 'info',
-        text: T(
-          "Honest truth: here you could SEE the king sitting pretty. In a real game it's hidden, and the trap works half the time — 50%. If the king hides BEHIND the queen instead (in East's hand), East plays it after the queen and catches you. A smart guess, not a sure thing — and now you understand exactly what you're guessing about.",
-          '说句实话：这次你能看见K好好地坐在那里。真正的牌局里它藏着，这个陷阱一半时间成功 —— 50%。如果K藏在Q的后面（在东家手里），东家会在Q之后打出它，把你抓住。这是聪明的猜测，不是稳赢 —— 而现在你完全明白自己在猜什么了。'
+          "SNAP again! Both queens came home: 6 counted winners + 2 hunted queens = 8, for a contract that needed 7. Honest truth, though: you could SEE both kings sitting in the losing chairs. In a real game they are hidden, and each finesse works about half the time — 50%. If the king hides BEHIND the queen instead, it pounces on her. A finesse is a smart guess, not a sure thing — and now you know exactly what you are guessing about.",
+          '又咔嚓一声！两个Q都到手了：6个数出来的赢墩 + 2个猎回来的Q = 8个，定约只需要7个。不过说句实话：这次你能看见两个K都坐在输的位置上。真正的牌局里它们是藏着的，每次飞牌大约一半成功 —— 50%。如果K藏在Q的后面，它就会跳出来抓住Q。飞牌是聪明的猜测，不是稳赢 —— 而现在你完全清楚自己在猜什么了。'
         ),
       },
       {
@@ -422,6 +469,13 @@ const RAW_LESSONS: RawLesson[] = [
         text: T(
           "Numbers worth remembering: with 5 cards missing out there, they usually split 3 and 2 (about 68 times in 100). With 4 missing, a 2-2 split happens about 41 times in 100. And the old proverb: '8 cards? Finesse! 9 or more? Play ace-king and let the queen drop.'",
           "几个数字值得记住：外面少5张牌时，通常分成3张和2张（100次里约68次）。少4张时，分成2张和2张大约41次。还有句老话：'8张牌就飞，9张以上打A和K，等Q自己掉下来。'"
+        ),
+      },
+      {
+        kind: 'info',
+        text: T(
+          "So here is the pro's routine: (1) Count top winners TOGETHER with dummy, suit by suit — the longer hand's length caps the suit, and top cards in a row from the ace are what you can bank. (2) If you are short, go hunting: queens and finesses are where the extra winners hide. Next lesson: a whole new superpower — trumps!",
+          '所以高手的流程是：(1) 和明手一起，一门一门数顶张赢墩 —— 较长手的张数是这门花色的上限，从A开始连续的顶张才是能存进银行的赢墩。(2) 如果不够，就去打猎：Q和飞牌是额外赢墩藏身的地方。下一课：一个全新的超能力 —— 将牌！'
         ),
       },
     ],
