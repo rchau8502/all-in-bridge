@@ -567,6 +567,17 @@ select.input { appearance: auto; }
 .sim-faceup .card .pip { font-size: 17px; }
 .sim-faceup .card .corner { font-size: 9px; }
 .sim-w .sim-faceup, .sim-e .sim-faceup { max-width: 140px; }
+/* When it is the dummy's turn, its face-up hand IS the play surface: the
+ * learner clicks the card in place (top of the table), never dragging it
+ * down into the declarer's own hand. Ring the hand and let the cards lift. */
+.sim-faceup.playable-seat {
+  padding: 5px 6px; border-radius: 12px;
+  background: rgba(255, 171, 0, 0.07);
+  box-shadow: 0 0 0 2px var(--gold2), 0 0 18px rgba(255, 171, 0, 0.55);
+}
+.sim-faceup .card.playable { cursor: pointer; }
+.sim-faceup .card.playable:hover { transform: translateY(-8px); }
+.sim-hint.up { margin-top: 4px; width: 100%; }
 .bid-btn {
   font: inherit; font-weight: 800; font-size: 14px; padding: 6px 4px; border-radius: 10px;
   background: rgba(255, 255, 255, 0.10);

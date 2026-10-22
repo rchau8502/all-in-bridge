@@ -213,6 +213,12 @@ function SimTable(props: {
   /** Tutorial overlay (coach text / recap / review) — floated over the centre
    *  felt so it never covers the North (top) / South (bottom) hands. */
   overlaySlot?: React.ReactNode;
+  /** Whose turn it is to choose a card: 'S' (declarer — the bottom hand) or
+   *  the dummy seat (its face-up hand, played in place at the top of the
+   *  table). Null when it is not the learner's turn to pick a card. This lets
+   *  us play the dummy from its OWN seat instead of dragging its cards down
+   *  into the declarer's hand. */
+  playSeat?: Seat | null;
 }) {
   const { lang } = props;
   const sigs = props.trick.map(t => `${t.seat}${t.card.suit}${t.card.rank}`);
@@ -263,21 +269,32 @@ function SimTable(props: {
 
       {props.seats
         .filter(s => s.seat !== 'S')
-        .map(s => (
+        .map(s => {
+          // The dummy's face-up hand is the play surface on its turn: the
+          // learner clicks the card in place at the top of the table, never
+          // dragging it down to the declarer's own hand at the bottom.
+          const dPlay = props.interactive && props.playSeat === s.seat && props.dummySeat === s.seat;
+          return (
           <div key={s.seat} className={`sim-seat sim-${s.seat.toLowerCase()}${s.active ? ' active-turn' : ''}${props.winSeat === s.seat ? ' seat-win' : ''}`}>
             {props.seatChars?.[s.seat] && (
               <Avatar id={props.seatChars[s.seat]!} className="sim-seat-avatar" />
             )}
             {props.hands?.[s.seat] ? (
-              <div className="sim-faceup" aria-label={seatLabel(lang, s.seat)}>
+              <div className={`sim-faceup${dPlay ? ' playable-seat' : ''}`} aria-label={seatLabel(lang, s.seat)}>
                 {sortHand(props.hands[s.seat]!, props.trump ?? null).map((c, i) => (
                   <CardView
                     key={`${c.suit}${c.rank}-${i}`}
                     card={c}
                     small
+                    playable={dPlay}
+                    target={dPlay && props.highlight === cardLabel(c)}
                     focus={props.focus?.includes(cardLabel(c)) ?? false}
+                    onClick={dPlay ? () => props.onPlay(c) : undefined}
                   />
                 ))}
+                {dPlay && props.hint && (
+                  <div className="sim-hint up">🫵 {props.hint}</div>
+                )}
               </div>
             ) : (
               <div className="sim-backs" aria-hidden>
@@ -295,7 +312,8 @@ function SimTable(props: {
             )}
             {s.badge && <div className="sim-badge">{s.badge}</div>}
           </div>
-        ))}
+          );
+        })}
 
       <div className="sim-center">
         <div className="sim-trick">
@@ -317,7 +335,7 @@ function SimTable(props: {
       </div>
 
       <div className="sim-me">
-        {props.hint && <div className="sim-hint">🫵 {props.hint}</div>}
+        {props.hint && props.playSeat === 'S' && <div className="sim-hint">🫵 {props.hint}</div>}
         {props.hand && (
           <>
             {props.handLabel && (
@@ -331,10 +349,10 @@ function SimTable(props: {
                 <CardView
                   key={`${c.suit}${c.rank}-${i}`}
                   card={c}
-                  playable={props.interactive}
-                  target={props.interactive && props.highlight === cardLabel(c)}
+                  playable={props.interactive && props.playSeat === 'S'}
+                  target={props.playSeat === 'S' && props.highlight === cardLabel(c)}
                   focus={props.focus?.includes(cardLabel(c)) ?? false}
-                  onClick={props.interactive ? () => props.onPlay(c) : undefined}
+                  onClick={props.playSeat === 'S' ? () => props.onPlay(c) : undefined}
                 />
               ))}
             </div>
@@ -805,14 +823,11 @@ export function Tutorial() {
               active: playView.turn === s,
             }))}
             trick={review ? review.plays : playView.trick}
-            hand={sortHand(pending && pending.kind === 'play' ? playView.hands[pending.seat] : playView.hands.S, playTrump)}
-            handLabel={
-              pending && pending.kind === 'play'
-                ? `${seatLabel(lang, pending.seat)}${pending.seat === 'N' ? (lang === 'zh' ? '（明手）' : ' (dummy)') : ''}`
-                : seatLabel(lang, 'S')
-            }
+            hand={sortHand(playView.hands.S, playTrump)}
+            handLabel={seatLabel(lang, 'S')}
             trump={playTrump}
             interactive={!!pending && !review}
+            playSeat={pending && pending.kind === 'play' ? pending.seat : null}
             onPlay={doPlay}
             hint={pending?.hint ?? null}
             highlight={pending && pending.kind === 'play' ? pending.expected : null}
