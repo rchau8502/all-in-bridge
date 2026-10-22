@@ -623,13 +623,15 @@ export function Tutorial() {
     // felt — the caption for the previous bid has already been read (its
     // "next" tap led here), so don't fight the box for the same space.
     && !(pending && pending.kind === 'bid');
-  const overlayOpen = !!recap || step?.kind === 'info' || captionOpen || (!!review && step?.kind === 'play');
+  const overlayOpen = !!recap || step?.kind === 'info' || (!!review && step?.kind === 'play');
 
-  // The tutorial overlay (coach text / recap / review) is floated over the
-  // centre felt — NEVER over the North/South hands. It is passed into SimTable
-  // as overlaySlot and rendered inside .sim-center, so the grid row for the
-  // hands stays clear; on narrow screens it may spill a little onto the East/
-  // West seats, which is fine.
+  // The tutorial overlay (coach text / recap / post-trick review) is floated
+  // over the centre felt — NEVER over the North/South hands. Auction content
+  // (the bidding box and its per-bid caption) lives in the bidding box panel
+  // on the felt instead, so during the auction the centre holds exactly one
+  // element and nothing floats over it. It is passed into SimTable as
+  // overlaySlot and rendered inside .sim-center; on narrow screens it may spill
+  // a little onto the East/West seats, which is fine.
   const tutorialOverlay = overlayOpen ? (
     <div className="tut-overlay">
       {recap && (
@@ -667,14 +669,6 @@ export function Tutorial() {
           nextLabel={t(lang, 'tut.next')}
           onAdvance={doAdvance}
         />
-      )}
-
-      {step?.kind === 'auction' && lastEntry && captionNote && (
-        <div className="sim-caption" key={auctionView!.entries.length}>
-          <span className="sim-caption-tag">{seatLabel(lang, lastEntry.seat)} · {bidLabelL(lang, lastEntry.bid)}</span>
-          <span className="sim-caption-text">{captionNote}</span>
-          {awaitingTap && <div className="tut-tap-row">{tapNext}</div>}
-        </div>
       )}
 
       {review && step?.kind === 'play' && (() => {
@@ -772,52 +766,62 @@ export function Tutorial() {
             hint={null}
             stepKey={stepKey}
             centreExtra={
-              pending && pending.kind === 'bid' ? (
-                /* The bidding box lives ON the table (centre felt) — like a
-                 * real bidding box — instead of under the South hand where it
-                 * used to overflow past the bottom edge of the table. */
-                <div className="sim-bidbox on-felt">
-                  <div className="sim-hint">🫵 {pending.hint}</div>
-                  <div className="bid-rows">
-                    <div className="bid-row">
-                      {(['pass', 'double', 'redouble'] as const).map(k => {
-                        const b: Bid = { type: k };
-                        const lbl = bidToLabel(b);
-                        return (
-                          <button key={k} className={`bid-btn special${pending.expected === lbl ? ' hint-target' : ''}`} onClick={() => doBid(lbl)}>
-                            {bidLabelL(lang, b)}
-                          </button>
-                        );
-                      })}
-                    </div>
-                    {[1, 2, 3, 4, 5, 6, 7].map(level => (
-                      <div className="bid-row level-row" key={level}>
-                        <span className="bid-lvl">{level}</span>
-                        {DENOM_ORDER.map(d => {
-                          const b: Bid = { type: 'bid', level, denom: d };
+              /* The bidding box is ONE unified panel on the centre felt: the
+               * per-bid explanation (caption) and the running auction trail
+               * live INSIDE it, so the centre never holds both this panel and
+               * a separate floating overlay at the same time. */
+              <div className="sim-bidbox on-felt">
+                {captionOpen && lastEntry && (
+                  <div className="sim-caption" key={auctionView!.entries.length}>
+                    <span className="sim-caption-tag">{seatLabel(lang, lastEntry.seat)} · {bidLabelL(lang, lastEntry.bid)}</span>
+                    <span className="sim-caption-text">{captionNote}</span>
+                    {awaitingTap && <div className="tut-tap-row">{tapNext}</div>}
+                  </div>
+                )}
+                {pending && pending.kind === 'bid' ? (
+                  <>
+                    <div className="sim-hint">🫵 {pending.hint}</div>
+                    <div className="bid-rows">
+                      <div className="bid-row">
+                        {(['pass', 'double', 'redouble'] as const).map(k => {
+                          const b: Bid = { type: k };
                           const lbl = bidToLabel(b);
                           return (
-                            <button key={d} className={`bid-btn denom-${d}${pending.expected === lbl ? ' hint-target' : ''}`} onClick={() => doBid(lbl)}>
+                            <button key={k} className={`bid-btn special${pending.expected === lbl ? ' hint-target' : ''}`} onClick={() => doBid(lbl)}>
                               {bidLabelL(lang, b)}
                             </button>
                           );
                         })}
                       </div>
-                    ))}
-                  </div>
-                </div>
-              ) : !captionOpen ? (
-                <div className="sim-bidbox on-felt">
-                  <div className="sim-trail">
-                    {auctionView.entries.map((e, i) => (
-                      <span key={i} className="trail-bid">
-                        {seatLabel(lang, e.seat)} {bidLabelL(lang, e.bid)}
-                      </span>
-                    ))}
-                  </div>
-                  {awaitingTap && <div className="tut-tap-row">{tapNext}</div>}
-                </div>
-              ) : null
+                      {[1, 2, 3, 4, 5, 6, 7].map(level => (
+                        <div className="bid-row level-row" key={level}>
+                          <span className="bid-lvl">{level}</span>
+                          {DENOM_ORDER.map(d => {
+                            const b: Bid = { type: 'bid', level, denom: d };
+                            const lbl = bidToLabel(b);
+                            return (
+                              <button key={d} className={`bid-btn denom-${d}${pending.expected === lbl ? ' hint-target' : ''}`} onClick={() => doBid(lbl)}>
+                                {bidLabelL(lang, b)}
+                              </button>
+                            );
+                          })}
+                        </div>
+                      ))}
+                    </div>
+                  </>
+                ) : (
+                  <>
+                    <div className="sim-trail">
+                      {auctionView.entries.map((e, i) => (
+                        <span key={i} className="trail-bid">
+                          {seatLabel(lang, e.seat)} {bidLabelL(lang, e.bid)}
+                        </span>
+                      ))}
+                    </div>
+                    {awaitingTap && !captionOpen && <div className="tut-tap-row">{tapNext}</div>}
+                  </>
+                )}
+              </div>
             }
           />
         )}
