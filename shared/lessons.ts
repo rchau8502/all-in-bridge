@@ -40,6 +40,35 @@ export const PRACTICE_DEAL: Hands = makeHands({
   W: ['5S', '3S', '2S', 'QD', '8D', '7D', '6D', '5D', '4D', 'TC', '9C', '8C', '2C'],
 });
 
+/** Bidding-lesson variant of the practice deal. The shared PRACTICE_DEAL
+ *  stacks N-S 36-4 (it exists so South's play in full-hand/scoring runs
+ *  over weak defenders) — but this lesson's script has North PASS twice
+ *  and East OPEN 1♦ and rebid 2♦, which those hands flatly contradict
+ *  (North held 15 HCP, East 2 HCP and three diamonds). South and West are
+ *  untouched; North and East are re-dealt from their own combined cards:
+ *  North is now a genuine pass (4 HCP), East a genuine opener
+ *  (13 HCP, five diamonds K-J-T-9-3). */
+const BIDDING_DEAL: Hands = makeHands({
+  S: ['AH', 'KH', 'QH', 'JH', '5H', 'AS', 'KS', 'AD', '7C', '6C', '5C', '4C', '3C'],
+  N: ['QS', 'JS', '7S', '6S', '4S', '9H', '8H', '7H', '6H', '3H', '2H', '2D', 'JC'],
+  E: ['TS', '9S', '8S', 'TH', '4H', 'KD', 'JD', 'TD', '9D', '3D', 'AC', 'KC', 'QC'],
+  W: ['5S', '3S', '2S', 'QD', '8D', '7D', '6D', '5D', '4D', 'TC', '9C', '8C', '2C'],
+});
+
+/** Overcall-lesson variant: the premise is "East opened 1♦", so East
+ *  needs a real opening hand — impossible inside PRACTICE_DEAL's 36-4
+ *  split. South's spade A-K (never mentioned by the lesson — its story
+ *  is the heart suit) and North's diamond K fund East's opener instead:
+ *  East 14 HCP with ♦K-Q-J-T-9; South still holds the ♥A-K-Q-J-5
+ *  overcall (14 HCP); North keeps four hearts and 12 points for the
+ *  advance; West is a broke pass, as scripted. */
+const OVERCALL_DEAL: Hands = makeHands({
+  S: ['AH', 'KH', 'QH', 'JH', '5H', 'AD', '7C', '6C', '5C', '4C', '3C', '5S', '3S'],
+  N: ['9H', '8H', '7H', '6H', 'QS', 'JS', '4S', '4D', '3D', '2D', 'AC', 'KC', 'QC'],
+  E: ['AS', 'KS', '9S', '7S', 'TH', '4H', 'KD', 'QD', 'JD', 'TD', '9D', 'JC', '2C'],
+  W: ['TS', '8S', '6S', '2S', '3H', '2H', '8D', '7D', '6D', '5D', 'TC', '9C', '8C'],
+});
+
 const FULL_HAND_CONTRACT = { level: 2, denom: 'H' as const, declarer: 'S' as Seat, doubled: 0 as const };
 
 const DECK_DEAL: Hands = makeHands({
@@ -429,8 +458,8 @@ const RAW_LESSONS: RawLesson[] = [
       {
         kind: 'info',
         text: T(
-          "Diamonds: dummy is the longer hand, with 4. Top cards: again just the ace — 1 winner — plus another hopeful queen, this time in YOUR hand, right next to the ace. Clubs are the funny one: your top cards are A, K, Q, J — four of them! But you hold only 2 clubs and dummy holds only 2 — after two rounds, one of you runs out, and the extra honors just fall under each other. Capped: 2 winners.",
-          '方块：明手是较长的手，有4张。顶张：又只有A —— 1个赢墩 —— 还有一个有希望的Q，这次在你手里，就挨着A。梅花最好笑：你们的顶张有A、K、Q、J —— 足足四张！但你只有2张梅花，明手也只有2张 —— 打两轮之后就有一方没牌了，多出来的大牌只能互相压掉。封顶：2个赢墩。'
+          "Diamonds: dummy is the longer hand, with 4. Top cards: again just the ace — 1 winner — plus another hopeful queen, this time in YOUR hand, right next to the ace. Clubs are the funny one: your top cards are A, K, Q, J — four of them! But look where they sit: A and K in dummy, Q and J in your hand — and you hold only 2 clubs, so your honors must fall UNDER dummy's in the very same rounds. Dummy's third club is just a baby 4 — it can never beat the clubs the defenders still hold. Capped: 2 winners.",
+          '方块：明手是较长的手，有4张。顶张：又只有A —— 1个赢墩 —— 还有一个有希望的Q，这次在你手里，就挨着A。梅花最好笑：你们的顶张有A、K、Q、J —— 足足四张！但看看它们坐在哪：A和K在明手，Q和J在你手里 —— 而你只有2张梅花，你的大牌只能在同样的两轮里压在明手的大牌下面。明手的第三张梅花只是个小4 —— 永远大不过防守方手里剩下的梅花。封顶：2个赢墩。'
         ),
       },
       {
@@ -754,8 +783,8 @@ const RAW_LESSONS: RawLesson[] = [
       {
         kind: 'info',
         text: T(
-          "Harvest complete: FIVE tricks from one suit — A, K, 9, 8, 7 — where the top count only promised 2. Two spade winners are still in the bank from our count. Cash your ace, then let dummy's queen and king bring the last tricks home.",
-          '收获完成：一门花色拿下五墩 —— A、K、9、8、7 —— 而顶张计数当初只承诺了2墩。数过的黑桃赢墩还剩两个在银行里。兑现你的A，然后让明手的Q和K把最后两墩带回家。'
+          "Harvest complete: FIVE tricks from one suit — A, K, 9, 8, 7 — where the top count only promised 2. Three spade winners are still in the bank from our count. Cash your ace, then let dummy's queen and king bring the last tricks home.",
+          '收获完成：一门花色拿下五墩 —— A、K、9、8、7 —— 而顶张计数当初只承诺了2墩。数过的黑桃赢墩还剩三个在银行里。兑现你的A，然后让明手的Q和K把最后的墩带回家。'
         ),
       },
       {
@@ -1504,8 +1533,8 @@ const RAW_LESSONS: RawLesson[] = [
       {
         kind: 'info',
         text: T(
-          "Still defending — but today you sit EAST, and partner West makes the opening lead. South plays 4♠: your side needs FOUR tricks to beat it. Defending is mostly about WHERE you sit in each trick. You are THIRD hand when partner leads (two cards are down before you), SECOND hand when the player on your right leads, and FOURTH — last — when the lead comes around to you. Each chair has one golden rule. Partner leads a small heart, the 6. Dummy plays the 2. You are third hand, holding K-9-4. The rule for third hand: play HIGH — your biggest card. Go: the king!",
-          '继续防守 —— 但今天你坐东家，首攻由搭档西家来打。南家打 4♠：你们需要四墩才能击宕。防守的关键，是每一墩里你坐哪个位置。搭档领牌时你是第三家（你出牌前已有两张牌落地），右手方领牌时你是第二家，牌转到你这里时你是第四家 —— 最后出牌。每把椅子都有一条黄金法则。搭档领出小红桃 6，明手跟了 2。你是第三家，手里是 K-9-4。第三家的法则：出大牌 —— 你最大的那张。来吧：K！'
+          "Still defending — but today you sit EAST, and partner West makes the opening lead. South plays 4♠: your side needs FOUR tricks to beat it. Defending is mostly about WHERE you sit in each trick. You are THIRD hand when partner leads (two cards are down before you), SECOND hand when the player on your right leads, and FOURTH — last — when the lead comes around to you. Each chair has one golden rule. Partner leads a small heart, the 6. Dummy plays the 2. You are third hand, holding K-9-4-3. The rule for third hand: play HIGH — your biggest card. Go: the king!",
+          '继续防守 —— 但今天你坐东家，首攻由搭档西家来打。南家打 4♠：你们需要四墩才能击宕。防守的关键，是每一墩里你坐哪个位置。搭档领牌时你是第三家（你出牌前已有两张牌落地），右手方领牌时你是第二家，牌转到你这里时你是第四家 —— 最后出牌。每把椅子都有一条黄金法则。搭档领出小红桃 6，明手跟了 2。你是第三家，手里是 K-9-4-3。第三家的法则：出大牌 —— 你最大的那张。来吧：K！'
         ),
       },
       {
@@ -1956,7 +1985,7 @@ const RAW_LESSONS: RawLesson[] = [
     id: 'bidding',
     title: T('Bidding Is Talking', '叫牌就是说话'),
     dealer: 'N',
-    hands: PRACTICE_DEAL,
+    hands: BIDDING_DEAL,
     contract: { level: 2, denom: 'H', declarer: 'S', doubled: 0 },
     vulnerable: false,
     steps: [
@@ -2701,7 +2730,7 @@ const RAW_LESSONS: RawLesson[] = [
     id: 'overcall',
     title: T('Jump In!', '争叫，抢进来'),
     dealer: 'E',
-    hands: PRACTICE_DEAL,
+    hands: OVERCALL_DEAL,
     contract: { level: 2, denom: 'H', declarer: 'S', doubled: 0 },
     vulnerable: false,
     steps: [

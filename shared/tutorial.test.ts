@@ -69,8 +69,38 @@ describe('bid explanations', () => {
   });
 });
 
-describe('post-trick review data', () => {
-  it('lesson 1 trick 1: exposes all four plays in order, South wins with the ace', () => {
+describe('hands match the story the script tells', () => {
+  const HCP: Record<string, number> = { '14': 4, '13': 3, '12': 2, '11': 1 };
+  const hcpOf = (lessonId: string, seat: 'N' | 'E' | 'S' | 'W') =>
+    LESSONS.find(l => l.id === lessonId)!.hands[seat].reduce((n, c) => n + (HCP[c.rank] ?? 0), 0);
+  const suitLen = (lessonId: string, seat: 'N' | 'E' | 'S' | 'W', suit: string) =>
+    LESSONS.find(l => l.id === lessonId)!.hands[seat].filter(c => c.suit === suit).length;
+
+  it('bidding: North passes on a real pass hand; East opens and rebids diamonds on a real opener', () => {
+    expect(hcpOf('bidding', 'N')).toBeLessThan(12);
+    expect(hcpOf('bidding', 'E')).toBeGreaterThanOrEqual(12);
+    expect(suitLen('bidding', 'E', 'D')).toBeGreaterThanOrEqual(5);
+  });
+
+  it('overcall: East opens 1D on a real opener; South overcalls on the A-K-Q-J-5 of hearts', () => {
+    expect(hcpOf('overcall', 'E')).toBeGreaterThanOrEqual(12);
+    expect(suitLen('overcall', 'E', 'D')).toBeGreaterThanOrEqual(4);
+    expect(suitLen('overcall', 'S', 'H')).toBe(5);
+    expect(suitLen('overcall', 'N', 'H')).toBe(4);
+  });
+
+  it('every lesson deals a legal deck: 52 unique cards, 13 per seat', () => {
+    for (const lesson of LESSONS) {
+      const all = (['N', 'E', 'S', 'W'] as const).flatMap(seat => {
+        expect(lesson.hands[seat]).toHaveLength(13);
+        return lesson.hands[seat].map(c => `${c.suit}${c.rank}`);
+      });
+      expect(new Set(all).size, lesson.id).toBe(52);
+    }
+  });
+});
+
+describe('post-trick review data', () => {  it('lesson 1 trick 1: exposes all four plays in order, South wins with the ace', () => {
     const lesson = LESSONS.find(l => l.id === 'deck')!;
     const r = new TutorialRunner(lesson);
     // Advance to the first play step, then reveal plays until trick 1 completes.
