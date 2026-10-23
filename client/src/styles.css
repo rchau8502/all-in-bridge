@@ -780,13 +780,26 @@ select.input { appearance: auto; }
   backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);
 }
 .tut-overlay .btn { min-height: 40px; }
-/* Narrow screens: the stage flows instead of scaling, so the panel gets
- * less height and slightly smaller type — the hand stays clear either way. */
+/* Narrow screens: the stage flows instead of scaling. The overlay's
+ * containing block is .sim-center — only ~116px wide on a phone — so the
+ * percentage sizes above squeeze it into an unreadable ribbon, and its
+ * min-content spills over the W/E hands (avatar on West's cards, text and
+ * the Next button cut off). Size it from the VIEWPORT instead: a proper
+ * centred sheet over the middle of the felt — left/top 50% still anchor it
+ * to the centre cell, whose centre is the felt's centre (the side columns
+ * are equal), while vw/vh sizing makes it wide and tall enough to read. */
 @media (max-width: 720px) {
-  .tut-overlay { top: 50%; width: 96%; max-height: 100%; transform: translate(-50%, -50%); }
+  .tut-overlay {
+    top: 50%; transform: translate(-50%, -50%);
+    width: min(560px, calc(100vw - 40px));
+    max-height: min(78vh, 560px);
+  }
   .tut-overlay .tut-text { font-size: 15px; }
   .tut-overlay .coach-avatar { width: 46px; height: 46px; }
   .tut-overlay .coach-bubble { padding: 12px 13px; }
+  .tut-overlay .coach-bubble, .tut-overlay .sim-review {
+    box-shadow: 0 18px 44px rgba(2, 24, 48, 0.45);
+  }
 }
 
 /* ---------- home syllabus (teaching front door) ---------- */
