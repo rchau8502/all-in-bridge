@@ -13,6 +13,7 @@
  */
 
 import { isValidCharacterId } from './characters.js';
+import type { Bid } from './bidding.js';
 
 export type Lang = 'en' | 'zh';
 
@@ -48,6 +49,18 @@ export type VoiceLineId = (typeof VOICE_LINE_IDS)[number];
 
 export function isVoiceLineId(id: string): id is VoiceLineId {
   return (VOICE_LINE_IDS as readonly string[]).includes(id);
+}
+
+/** Map an auction Bid to its matching voice line ID. */
+export function bidToVoiceLine(bid: Bid): VoiceLineId | null {
+  if (bid.type === 'pass') return 'pass';
+  if (bid.type === 'double') return 'double';
+  if (bid.type === 'redouble') return 'redouble';
+  if (bid.type === 'bid') {
+    const id = `bid_${bid.level}${bid.denom.toLowerCase()}`;
+    return isVoiceLineId(id) ? id : null;
+  }
+  return null;
 }
 
 /** URL for a voice clip. Does NOT check existence — use VoicePack for that. */

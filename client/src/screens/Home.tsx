@@ -7,11 +7,18 @@ import { getLessons } from '../../../shared/lessons.js';
 
 /**
  * Home — the bootcamp front door. This app is a teaching tool now:
- * pick your coach character, then jump straight into the lessons.
+ * pick your coach character, track progress, then jump straight into lessons.
  */
 export function Home() {
-  const { lang, characterId, setCharacterId, go } = useApp();
+  const { lang, characterId, setCharacterId, currentLessonIdx, goToLesson, completedLessons } = useApp();
   const lessons = getLessons(lang);
+
+  const completedCount = completedLessons.size;
+  const progressPercent = Math.round((completedCount / lessons.length) * 100);
+  const nextUpIdx = Math.min(
+    currentLessonIdx < lessons.length ? currentLessonIdx : 0,
+    lessons.length - 1
+  );
 
   return (
     <div className="home">
@@ -42,19 +49,37 @@ export function Home() {
       </div>
 
       <div className="menu">
-        <button className="btn primary big menu-btn" onClick={() => go('tutorial')}>
-          🎓 {t(lang, 'home.tutorial')}
+        <button className="btn primary big menu-btn" onClick={() => goToLesson(nextUpIdx)}>
+          {completedCount > 0
+            ? `▶ ${t(lang, 'home.continue')} ${nextUpIdx + 1}: ${lessons[nextUpIdx]!.title}`
+            : `🎓 ${t(lang, 'home.tutorial')}`}
         </button>
       </div>
 
-      <div className="section-label">{t(lang, 'tut.title')} · {lessons.length} {t(lang, 'tut.lessonsUnit')}</div>
+      <div className="section-label">
+        {t(lang, 'tut.title')} · {t(lang, 'home.progress', { done: completedCount, total: lessons.length })}
+      </div>
+
+      <div className="home-progress-bar">
+        <div className="home-progress-fill" style={{ width: `${progressPercent}%` }} />
+      </div>
+
       <div className="home-syllabus">
-        {lessons.map((l, i) => (
-          <button key={l.id} className="home-syllabus-item" onClick={() => go('tutorial')}>
-            <span className="home-syllabus-no">{i + 1}</span>
-            <span>{l.title}</span>
-          </button>
-        ))}
+        {lessons.map((l, i) => {
+          const isDone = completedLessons.has(l.id);
+          const isCurrent = i === currentLessonIdx;
+          return (
+            <button
+              key={l.id}
+              className={`home-syllabus-item ${isDone ? 'completed' : ''} ${isCurrent ? 'current' : ''}`}
+              onClick={() => goToLesson(i)}
+            >
+              <span className="home-syllabus-no">{isDone ? '✓' : i + 1}</span>
+              <span className="home-syllabus-title">{l.title}</span>
+              {isDone && <span className="home-syllabus-badge">✓</span>}
+            </button>
+          );
+        })}
       </div>
     </div>
   );

@@ -9,6 +9,8 @@ const en = {
 
   'home.namePh': 'Your name',
   'home.character': 'Pick your fighter',
+  'home.continue': 'Continue Lesson',
+  'home.progress': '{done} of {total} lessons complete',
   'home.createRoom': 'Create Room',
   'home.joinPh': 'Room code',
   'home.join': 'Join',
@@ -135,6 +137,9 @@ const en = {
   'tut.correct': 'Nice!',
   'tut.lesson': 'Lesson',
   'tut.of': 'of',
+  'tut.prevLesson': 'Previous',
+  'tut.nextLesson': 'Next',
+  'tut.syllabus': 'Syllabus',
   'tut.done': 'Bootcamp complete! Hit the tables.',
 
   'comp.standings': 'Live Standings',
@@ -165,6 +170,8 @@ const zh: typeof en = {
 
   'home.namePh': '你的名字',
   'home.character': '选择你的角色',
+  'home.continue': '继续学习',
+  'home.progress': '已完成 {done} / {total} 课',
   'home.createRoom': '创建房间',
   'home.joinPh': '房间号',
   'home.join': '加入',
@@ -291,6 +298,9 @@ const zh: typeof en = {
   'tut.correct': '漂亮！',
   'tut.lesson': '第',
   'tut.of': '课 / 共',
+  'tut.prevLesson': '上一课',
+  'tut.nextLesson': '下一课',
+  'tut.syllabus': '目录',
   'tut.done': '教程完成！去牌桌大杀四方吧。',
 
   'comp.standings': '实时排名',
@@ -318,8 +328,14 @@ export type I18nKey = keyof typeof en;
 
 const dicts: Record<Lang, typeof en> = { en, zh };
 
-export function t(lang: Lang, key: I18nKey): string {
-  return dicts[lang][key] ?? dicts.en[key] ?? key;
+export function t(lang: Lang, key: I18nKey, params?: Record<string, string | number>): string {
+  let str = dicts[lang][key] ?? dicts.en[key] ?? key;
+  if (params) {
+    for (const [k, v] of Object.entries(params)) {
+      str = str.replace(new RegExp(`\\{${k}\\}`, 'g'), String(v));
+    }
+  }
+  return str;
 }
 
 /** '3NT' → '3NT'; Bid → localized label. */

@@ -1,18 +1,23 @@
 /**
- * audio.ts — all sound is synthesized with the Web Audio API.
- * Zero external files: SFX + an original background groove.
+ * audio.ts — SFX synthesized with the Web Audio API + character voice pack playback.
+ * All SFX and ambient music are pure Web Audio synthesis; voice lines play pre-rendered
+ * character audio packs when available, falling back to silence gracefully.
  */
 
 export type SfxName =
   | 'click' | 'bid' | 'card' | 'trick' | 'win' | 'lose'
   | 'coin' | 'deal' | 'yourturn' | 'join' | 'slam' | 'blip';
 
+export type Lang = 'en' | 'zh';
+
 class AudioEngine {
   private ctx: AudioContext | null = null;
   private musicTimer: number | null = null;
   private musicStep = 0;
+  private currentVoice: HTMLAudioElement | null = null;
   soundOn = true;
   musicOn = true;
+  voiceOn = true;
 
   /** Must be called from a user gesture at least once. */
   unlock(): void {
@@ -96,25 +101,65 @@ class AudioEngine {
     }
   }
 
+  /**
+   * Play a character voice line (MP3). Stops any previous voice playback.
+   * Resolves silently if voice is off, missing, or blocked by browser policy.
+   */
+  async playVoice(characterId: string, lang: Lang, lineId: string): Promise<void> {
+    if (!this.soundOn || !this.voiceOn) return;
+    this.unlock();
+
+    this.stopVoice();
+
+    try {
+      const base = (typeof import.meta !== 'undefined' && import.meta.env && import.meta.env.BASE_URL) || '/';
+      const cleanBase = base.endsWith('/') ? base : `${base}/`;
+      const url = `${cleanBase}voices/${lang}/${characterId}/${lineId}.mp3`;
+      const a = new Audio(url);
+      a.volume = 0.95;
+      this.currentVoice = a;
+
+      a.onended = () => {
+        if (this.currentVoice === a) this.currentVoice = null;
+      };
+      a.onerror = () => {
+        if (this.currentVoice === a) this.currentVoice = null;
+      };
+
+      await a.play().catch(() => {});
+    } catch {
+      // Graceful fallback: silent failure
+    }
+  }
+
+  stopVoice(): void {
+    if (this.currentVoice) {
+      try {
+        this.currentVoice.pause();
+        this.currentVoice.currentTime = 0;
+      } catch {
+        // ignore
+      }
+      this.currentVoice = null;
+    }
+  }
+
   /** Original chiptune-ish groove: I–V–vi–IV-ish bounce at 132 BPM. */
   startMusic(): void {
     this.unlock();
     if (this.musicTimer !== null || !this.ctx) return;
-    const bassLine = [110, 110, 165, 165, 130.8, 130.8, 146.8, 146.8]; // A F D? original pattern
+    const bassLine = [110, 110, 165, 165, 130.8, 130.8, 146.8, 146.8];
     const arpNotes = [220, 261.6, 329.6, 440, 329.6, 261.6];
     const stepDur = 60 / 132 / 2; // 8th notes
     const tick = () => {
       if (!this.musicOn || !this.ctx) return;
       const s = this.musicStep++;
-      // bass on beats
       if (s % 2 === 0) {
         const f = bassLine[(s / 2) % bassLine.length]!;
         this.musicTone(f, stepDur * 1.8, 'triangle', 0.05);
       }
-      // sparkle arp
       const a = arpNotes[s % arpNotes.length]! * (s % 16 >= 8 ? 2 : 1);
       this.musicTone(a, stepDur * 0.9, 'square', 0.018);
-      // hat tick
       if (s % 2 === 1) this.musicNoise(0.03, 0.012);
     };
     this.musicTimer = window.setInterval(tick, stepDur * 1000);

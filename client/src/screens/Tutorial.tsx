@@ -5,10 +5,12 @@ import { CardView, Avatar } from '../components/ui.js';
 import { audio } from '../audio.js';
 import { TutorialRunner } from '../../../shared/tutorial.js';
 import type { Lesson } from '../../../shared/tutorial.js';
-import { explainTrick, type TrickReviewData } from '../trickExplain.js';
+import { explainTrick, type TrickReviewData } from '../../../shared/trick-explain.js';
 import { CHARACTERS } from '../../../shared/characters.js';
 import { getLessons } from '../../../shared/lessons.js';
 import type { Bid } from '../../../shared/bidding.js';
+import { parseBid } from '../../../shared/bidding.js';
+import { bidToVoiceLine } from '../../../shared/voices.js';
 import { cardLabel, sortHand, partnerOf } from '../../../shared/deck.js';
 import type { Card, Seat, Suit } from '../../../shared/deck.js';
 
@@ -401,8 +403,26 @@ function contractSummary(lang: Lang, c: Lesson['contract']): string {
 }
 
 export function Tutorial() {
-  const { lang, go, characterId } = useApp();
-  const [lessonIdx, setLessonIdx] = useState(0);
+  const {
+    lang,
+    go,
+    characterId,
+    currentLessonIdx,
+    setCurrentLessonIdx,
+    completedLessons,
+    markLessonCompleted,
+  } = useApp();
+
+  const lessons = useMemo(() => getLessons(lang), [lang]);
+  const [lessonIdx, setLessonIdx] = useState(() => Math.min(Math.max(0, currentLessonIdx), lessons.length - 1));
+
+  // The four characters are the four players: your pick is YOU (South +
+  // coach voice); the other three sit as partner and opponents.
+  const seatChars = useMemo(() => {
+    const others = CHARACTERS.filter(c => c.id !== characterId).map(c => c.id);
+    return { S: characterId, N: others[0]!, W: others[1]!, E: others[2]! } as Record<Seat, string>;
+  }, [characterId]);
+
   const [tick, setTick] = useState(0);
   const [feedback, setFeedback] = useState('');
   const [fbMood, setFbMood] = useState<'bad' | 'good' | null>(null);
@@ -424,7 +444,6 @@ export function Tutorial() {
   const recapShownForRef = useRef('');
   const prevKindRef = useRef<string | null>(null);
 
-  const lessons = useMemo(() => getLessons(lang), [lang]);
   const lesson = lessons[lessonIdx]!;
   const runnerKey = `${lang}:${lesson.id}`;
   const runnerKeyRef = useRef('');
@@ -440,7 +459,13 @@ export function Tutorial() {
   const checkReview = () => {
     if (runner.completedTrickCount() > reviewedRef.current) {
       const data = runner.lastCompletedTrick();
-      if (data) setReview(data);
+      if (data) {
+        setReview(data);
+        const winChar = seatChars[data.winner];
+        if (data.winner === 'S' || data.winner === 'N') {
+          void audio.playVoice(winChar, lang, 'trick_win');
+        }
+      }
     }
   };
   const dismissReview = () => {
@@ -454,7 +479,9 @@ export function Tutorial() {
   }, [runner]);
 
   const startLesson = (i: number) => {
+    if (i < 0 || i >= lessons.length) return;
     setLessonIdx(i);
+    setCurrentLessonIdx(i);
     runnerRef.current = new TutorialRunner(lessons[i]!);
     reviewedRef.current = 0;
     setReview(null);
@@ -462,13 +489,34 @@ export function Tutorial() {
     setFeedback('');
     setFbMood(null);
     refresh();
+    void audio.playVoice(characterId, lang, 'hello');
   };
+
+  useEffect(() => {
+    if (currentLessonIdx !== lessonIdx && currentLessonIdx >= 0 && currentLessonIdx < lessons.length) {
+      startLesson(currentLessonIdx);
+    }
+  }, [currentLessonIdx]);
 
   const doAdvance = () => {
     if (review) return; // the review pause must be dismissed first
     setFeedback('');
     setFbMood(null);
-    runner.advance();
+
+    if (step?.kind === 'auction') {
+      const prevLen = runner.auction.entries.length;
+      runner.advance();
+      const newLen = runner.auction.entries.length;
+      if (newLen > prevLen) {
+        const last = runner.auction.entries[newLen - 1]!;
+        const speakerChar = seatChars[last.seat];
+        const line = bidToVoiceLine(last.bid);
+        if (line) void audio.playVoice(speakerChar, lang, line);
+      }
+    } else {
+      runner.advance();
+    }
+
     refresh();
     checkReview();
   };
@@ -487,9 +535,17 @@ export function Tutorial() {
     const r = runner.submitBid(label);
     if (r.ok) {
       audio.sfx('bid');
+      try {
+        const parsed = parseBid(label);
+        const line = bidToVoiceLine(parsed);
+        if (line) void audio.playVoice(characterId, lang, line);
+      } catch {
+        // ignore
+      }
       praise();
     } else {
       audio.sfx('lose');
+      void audio.playVoice(characterId, lang, 'oops');
       window.clearTimeout(fbTimer.current);
       setFeedback(`${t(lang, 'tut.tryAgain')} ${r.hint ?? ''}`);
       setFbMood('bad');
@@ -506,6 +562,7 @@ export function Tutorial() {
       praise();
     } else {
       audio.sfx('lose');
+      void audio.playVoice(characterId, lang, 'oops');
       window.clearTimeout(fbTimer.current);
       setFeedback(`${t(lang, 'tut.tryAgain')} ${r.hint ?? ''}`);
       setFbMood('bad');
@@ -545,6 +602,47 @@ export function Tutorial() {
       {t(lang, 'tut.next')} ▸
     </button>
   );
+
+  useEffect(() => {
+    if (done) {
+      markLessonCompleted(lesson.id);
+      void audio.playVoice(characterId, lang, 'win_game');
+    }
+  }, [done, lesson.id, markLessonCompleted, characterId, lang]);
+
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.target instanceof HTMLInputElement || e.target instanceof HTMLTextAreaElement) return;
+
+      if (e.key === ' ' || e.key === 'Enter') {
+        e.preventDefault();
+        if (review) {
+          audio.sfx('click');
+          dismissReview();
+        } else if (recap) {
+          audio.sfx('click');
+          setRecap(null);
+        } else if (step?.kind === 'info' || awaitingTap) {
+          audio.sfx('click');
+          doAdvance();
+        } else if (done) {
+          audio.sfx('click');
+          if (lessonIdx + 1 < lessons.length) startLesson(lessonIdx + 1);
+          else go('home');
+        }
+      } else if (e.key === 'Escape') {
+        e.preventDefault();
+        go('home');
+      } else if (e.key === 'ArrowLeft' && (e.altKey || e.metaKey)) {
+        if (lessonIdx > 0) startLesson(lessonIdx - 1);
+      } else if (e.key === 'ArrowRight' && (e.altKey || e.metaKey)) {
+        if (lessonIdx < lessons.length - 1) startLesson(lessonIdx + 1);
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [review, recap, step, awaitingTap, done, lessonIdx, lessons.length]);
 
   const lastBidBySeat = useMemo(() => {
     const m = new Map<Seat, Bid>();
@@ -591,13 +689,6 @@ export function Tutorial() {
   const dummySeat: Seat | null = DUMMY_LESSON_IDS.has(lesson.id)
     ? (lesson.contract.declarer === 'N' ? 'S' : lesson.contract.declarer === 'S' ? 'N' : lesson.contract.declarer === 'E' ? 'W' : 'E')
     : null;
-
-  // The four characters are the four players: your pick is YOU (South +
-  // coach voice); the other three sit as partner and opponents.
-  const seatChars = useMemo(() => {
-    const others = CHARACTERS.filter(c => c.id !== characterId).map(c => c.id);
-    return { S: characterId, N: others[0]!, W: others[1]!, E: others[2]! } as Record<Seat, string>;
-  }, [characterId]);
 
   // Spotlight the cards the coach is naming right now (lesson text on an
   // info step, or the hint line on a play step).
@@ -695,23 +786,44 @@ export function Tutorial() {
   return (
     <div className="tutorial">
       <div className="tut-header">
-        <button className="btn ghost" onClick={() => go('home')}>{t(lang, 'tut.back')}</button>
-        <div className="tut-title">🎓 {t(lang, 'tut.title')}</div>
-        <div className="tut-progress">
-          {t(lang, 'tut.lesson')}{lessonIdx + 1}{t(lang, 'tut.of')}{lessons.length}
+        <button className="btn ghost" onClick={() => go('home')}>◀ {t(lang, 'tut.back')}</button>
+        <div className="tut-header-center">
+          <button
+            className="chip tut-nav-arrow"
+            disabled={lessonIdx === 0}
+            onClick={() => { audio.sfx('click'); startLesson(lessonIdx - 1); }}
+            title={t(lang, 'tut.prevLesson')}
+          >
+            ◀
+          </button>
+          <div className="tut-progress">
+            {t(lang, 'tut.lesson')} {lessonIdx + 1} {t(lang, 'tut.of')} {lessons.length}
+          </div>
+          <button
+            className="chip tut-nav-arrow"
+            disabled={lessonIdx >= lessons.length - 1}
+            onClick={() => { audio.sfx('click'); startLesson(lessonIdx + 1); }}
+            title={t(lang, 'tut.nextLesson')}
+          >
+            ▶
+          </button>
         </div>
+        <div className="tut-title">🎓 {lessons[lessonIdx]?.title}</div>
       </div>
 
       <div className="tut-lessons">
-        {lessons.map((l, i) => (
-          <button
-            key={l.id}
-            className={`chip ${i === lessonIdx ? 'active' : ''}`}
-            onClick={() => { audio.sfx('click'); startLesson(i); }}
-          >
-            {i + 1}. {l.title}
-          </button>
-        ))}
+        {lessons.map((l, i) => {
+          const isDone = completedLessons.has(l.id);
+          return (
+            <button
+              key={l.id}
+              className={`chip ${i === lessonIdx ? 'active' : ''} ${isDone ? 'completed-chip' : ''}`}
+              onClick={() => { audio.sfx('click'); startLesson(i); }}
+            >
+              {isDone ? '✓ ' : ''}{i + 1}. {l.title}
+            </button>
+          );
+        })}
       </div>
 
       <div className="tut-body">

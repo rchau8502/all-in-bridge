@@ -5,6 +5,7 @@ import {
   isVoiceLineId,
   voiceUrl,
   loadVoicePack,
+  bidToVoiceLine,
   CharacterSelect,
 } from './voices.js';
 
@@ -52,6 +53,16 @@ describe('voice line registry', () => {
   it('covers all 35 level+denomination bids', () => {
     const bids = VOICE_LINE_IDS.filter(id => id.startsWith('bid_'));
     expect(bids).toHaveLength(35);
+  });
+
+  it('maps Auction bids to voice line IDs correctly', () => {
+    expect(bidToVoiceLine({ type: 'pass' })).toBe('pass');
+    expect(bidToVoiceLine({ type: 'double' })).toBe('double');
+    expect(bidToVoiceLine({ type: 'redouble' })).toBe('redouble');
+    expect(bidToVoiceLine({ type: 'bid', level: 1, denom: 'C' })).toBe('bid_1c');
+    expect(bidToVoiceLine({ type: 'bid', level: 3, denom: 'NT' })).toBe('bid_3nt');
+    expect(bidToVoiceLine({ type: 'bid', level: 4, denom: 'S' })).toBe('bid_4s');
+    expect(bidToVoiceLine({ type: 'bid', level: 8, denom: 'C' } as any)).toBeNull();
   });
 });
 
