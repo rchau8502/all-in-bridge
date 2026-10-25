@@ -3,6 +3,7 @@ import { t, type Lang } from './i18n.js';
 import { audio } from './audio.js';
 import { Home } from './screens/Home.js';
 import { Tutorial } from './screens/Tutorial.js';
+import { GlossaryModal } from './components/GlossaryModal.js';
 import './styles.css';
 
 export type ScreenName = 'home' | 'tutorial';
@@ -47,6 +48,7 @@ export function App() {
   });
   const [fourColor, setFourColor] = useState<boolean>(() => localStorage.getItem('aib-four-color') === '1');
   const [feltTheme, setFeltTheme] = useState<FeltTheme>(() => (localStorage.getItem('aib-felt-theme') as FeltTheme) || 'teal');
+  const [glossaryOpen, setGlossaryOpen] = useState(false);
   const [screen, setScreen] = useState<ScreenName>('home');
   const [tick, setTick] = useState(0);
 
@@ -161,6 +163,13 @@ export function App() {
               {feltTheme === 'teal' ? '🌊' : feltTheme === 'green' ? '🌲' : '🌌'}
             </button>
             <button
+              className="chip"
+              onClick={() => { audio.sfx('click'); setGlossaryOpen(true); }}
+              title={t(lang, 'home.glossary')}
+            >
+              📖 {t(lang, 'home.glossary')}
+            </button>
+            <button
               className={`chip ${audio.musicOn ? 'active' : ''}`}
               onClick={() => { audio.musicOn = !audio.musicOn; if (audio.musicOn) audio.startMusic(); else audio.stopMusic(); bump(); }}
               title={t(lang, 'home.music')}
@@ -176,6 +185,11 @@ export function App() {
         {screen === 'tutorial' && <Tutorial />}
         <footer className="footer">{t(lang, 'app.footer')}</footer>
       </div>
+      <GlossaryModal
+        lang={lang}
+        isOpen={glossaryOpen}
+        onClose={() => setGlossaryOpen(false)}
+      />
     </Ctx.Provider>
   );
 }
