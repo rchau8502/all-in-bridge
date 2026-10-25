@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest';
-import { explainTrick } from '../client/src/trickExplain.js';
-import type { TrickReviewData } from '../client/src/trickExplain.js';
+import { explainTrick } from './trick-explain.js';
+import type { TrickReviewData } from './trick-explain.js';
 
 const T = (o: Partial<TrickReviewData>): TrickReviewData => ({
   plays: [],
