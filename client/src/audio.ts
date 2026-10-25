@@ -6,7 +6,8 @@
 
 export type SfxName =
   | 'click' | 'bid' | 'card' | 'trick' | 'win' | 'lose'
-  | 'coin' | 'deal' | 'yourturn' | 'join' | 'slam' | 'blip';
+  | 'coin' | 'deal' | 'yourturn' | 'join' | 'slam' | 'blip'
+  | 'shuffle' | 'fanfare';
 
 export type Lang = 'en' | 'zh';
 
@@ -97,6 +98,18 @@ class AudioEngine {
         break;
       case 'lose':
         [400, 340, 280, 200].forEach((f, i) => this.tone(f, 0.2, 'sawtooth', 0.06, i * 0.13));
+        break;
+      case 'shuffle':
+        for (let i = 0; i < 14; i++) {
+          this.noise(0.025, 0.09, i * 0.032 + Math.random() * 0.006, 3200 + Math.random() * 600);
+        }
+        this.noise(0.06, 0.12, 0.48, 2000);
+        break;
+      case 'fanfare':
+        [523.25, 659.25, 783.99, 1046.5].forEach((f, i) => {
+          this.tone(f, 0.32, 'triangle', 0.08, i * 0.08);
+          this.tone(f * 1.5, 0.28, 'sine', 0.03, i * 0.08 + 0.02);
+        });
         break;
     }
   }

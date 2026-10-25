@@ -183,6 +183,7 @@ describe('TutorialRunner mistakes', () => {
     while (r.currentStep()!.kind === 'info') r.advance(); // infos → now at a play step, nothing revealed yet
     expect(r.pendingLearnerAction()).toBeNull();
     expect(r.playView()!.trick.length).toBe(0);
+    expect(r.playView()!.tricksWon).toEqual({ NS: 0, EW: 0 });
     r.advance(); // reveal W's lead
     expect(r.playView()!.trick.length).toBe(1);
     r.advance(); // reveal N

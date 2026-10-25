@@ -90,7 +90,7 @@ body {
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.35);
   vertical-align: -6px; margin-right: 8px;
 }
-.topbar-right { display: flex; gap: 8px; }
+.topbar-right { display: flex; gap: 6px; align-items: center; flex-wrap: wrap; justify-content: flex-end; }
 .footer { margin-top: auto; padding-top: 24px; text-align: center; color: rgba(255,255,255,0.65); font-size: 12px; font-weight: 600; }
 
 /* ---------- generic ---------- */
@@ -527,6 +527,11 @@ select.input { appearance: auto; }
 .card .pip { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; font-size: 40px; }
 .card.heart, .card.diamond { color: #d21f3c; }
 .card.spade, .card.club { color: #1c1c1c; }
+/* four-color deck accessibility: ♠ black, ♥ red, ♦ orange, ♣ green */
+.four-color .card.diamond { color: #e65100; }
+.four-color .card.club { color: #1b8a47; }
+.four-color .bid-btn.denom-D { background: #e65100; }
+.four-color .bid-btn.denom-C { background: #1b8a47; }
 .card.clickable { cursor: pointer; }
 .card.clickable:focus-visible { outline: 3px solid var(--gold); outline-offset: 2px; }
 .card.playable {
@@ -977,6 +982,19 @@ select.input { appearance: auto; }
   box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.18), inset 0 0 90px rgba(0, 43, 54, 0.35), 0 24px 60px rgba(2, 24, 48, 0.5);
   min-height: 560px;
 }
+/* Table felt themes: ocean teal (default), classic casino green, midnight navy */
+.theme-felt-green .sim-felt, .theme-felt-green .felt {
+  background:
+    radial-gradient(ellipse at 50% 28%, rgba(255, 255, 255, 0.16) 0%, transparent 55%),
+    linear-gradient(160deg, #27ae60 0%, #196f3d 48%, #0f4826 100%);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.18), inset 0 0 90px rgba(5, 34, 18, 0.42), 0 24px 60px rgba(2, 24, 48, 0.5);
+}
+.theme-felt-navy .sim-felt, .theme-felt-navy .felt {
+  background:
+    radial-gradient(ellipse at 50% 28%, rgba(255, 255, 255, 0.14) 0%, transparent 55%),
+    linear-gradient(160deg, #2a4365 0%, #172a45 48%, #0d1b30 100%);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.18), inset 0 0 90px rgba(4, 11, 23, 0.5), 0 24px 60px rgba(2, 24, 48, 0.5);
+}
 /* The stage is the actual card table, designed once at 1180x740 and
    scaled by JS (transform) to fit whatever screen the learner has —
    seats, trick and hand are ALWAYS in the same sensible proportions,
@@ -1008,6 +1026,32 @@ select.input { appearance: auto; }
   background: rgba(8, 16, 38, 0.78); border: 1px solid var(--gold2); color: var(--gold);
   font-weight: 900; border-radius: 999px; padding: 2px 14px; font-size: 14px;
   text-shadow: 0 1px 2px rgba(0,0,0,0.6);
+}
+.sim-tricks-hud {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: rgba(8, 16, 38, 0.85);
+  border: 1px solid rgba(255, 216, 61, 0.4);
+  border-radius: 999px;
+  padding: 2px 12px;
+  font-size: 13px;
+  color: #fff;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.4);
+}
+.hud-side b { color: var(--gold); font-size: 14px; margin-left: 2px; }
+.hud-sep { opacity: 0.4; }
+.hud-target { color: #8fa3bd; font-size: 12px; margin-left: 2px; font-weight: 700; }
+.tut-restart-btn {
+  font-size: 12px;
+  padding: 3px 10px;
+  background: rgba(255, 255, 255, 0.08);
+  border-color: rgba(255, 255, 255, 0.2);
+}
+.tut-restart-btn:hover {
+  background: rgba(255, 216, 61, 0.2);
+  border-color: var(--gold);
+  color: var(--gold);
 }
 .sim-seat { display: flex; flex-direction: column; align-items: center; gap: 4px; }
 .sim-n { grid-area: simn; }

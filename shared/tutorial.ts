@@ -240,6 +240,7 @@ export class TutorialRunner {
     trick: Array<{ seat: Seat; card: Card }>;
     contract: Contract | null;
     turn: Seat;
+    tricksWon: Record<'NS' | 'EW', number>;
   } | null {
     const s = this.currentStep();
     if (!s || s.kind !== 'play') return null;
@@ -249,6 +250,7 @@ export class TutorialRunner {
       trick: ps.currentTrick.map(t => ({ seat: t.seat, card: { ...t.card } })),
       contract: this.lesson.contract,
       turn: ps.turn,
+      tricksWon: { ...ps.tricksWon },
     };
   }
 

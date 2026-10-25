@@ -119,7 +119,7 @@ function ResultCard(props: {
 }) {
   const { text, made, nextLabel, onAdvance } = props;
   const { shown, done, skip } = useTypewriter(text);
-  useEffect(() => { audio.sfx(made ? 'win' : 'lose'); }, []); // eslint-disable-line react-hooks/exhaustive-deps
+  useEffect(() => { audio.sfx(made ? 'fanfare' : 'lose'); }, []); // eslint-disable-line react-hooks/exhaustive-deps
   const tap = () => {
     if (!done) skip();
     else { audio.sfx('click'); onAdvance(); }
@@ -238,6 +238,10 @@ function SimTable(props: {
    *  us play the dummy from its OWN seat instead of dragging its cards down
    *  into the declarer's hand. */
   playSeat?: Seat | null;
+  /** Current tricks won by NS and EW for the live play HUD. */
+  tricksWon?: Record<'NS' | 'EW', number> | null;
+  /** Target tricks needed to make contract (e.g. 6 + level). */
+  targetTricks?: number | null;
 }) {
   const { lang } = props;
   const sigs = props.trick.map(t => `${t.seat}${t.card.suit}${t.card.rank}`);
@@ -302,6 +306,16 @@ function SimTable(props: {
       <div className="sim-topbar">
         <span className="sim-trickno">{props.title}</span>
         {props.contractLabel && <span className="contract-pill">{props.contractLabel}</span>}
+        {props.tricksWon && (
+          <span className="sim-tricks-hud" title={t(lang, 'tut.tricksWon')}>
+            <span className="hud-side hud-ns">{lang === 'zh' ? '北南' : 'NS'}: <b>{props.tricksWon.NS}</b></span>
+            <span className="hud-sep">·</span>
+            <span className="hud-side hud-ew">{lang === 'zh' ? '东西' : 'EW'}: <b>{props.tricksWon.EW}</b></span>
+            {typeof props.targetTricks === 'number' && (
+              <span className="hud-target">({t(lang, 'tut.need')} {props.targetTricks})</span>
+            )}
+          </span>
+        )}
       </div>
 
       {props.seats
@@ -542,6 +556,7 @@ export function Tutorial() {
     setFeedback('');
     setFbMood(null);
     refresh();
+    audio.sfx('shuffle');
     void audio.playVoice(characterId, lang, 'hello');
   };
 
@@ -686,6 +701,10 @@ export function Tutorial() {
       } else if (e.key === 'Escape') {
         e.preventDefault();
         go('home');
+      } else if (e.key === 'r' || e.key === 'R') {
+        e.preventDefault();
+        audio.sfx('click');
+        startLesson(lessonIdx);
       } else if (e.key === 'ArrowLeft' && (e.altKey || e.metaKey)) {
         if (lessonIdx > 0) startLesson(lessonIdx - 1);
       } else if (e.key === 'ArrowRight' && (e.altKey || e.metaKey)) {
@@ -860,6 +879,13 @@ export function Tutorial() {
           >
             ▶
           </button>
+          <button
+            className="chip tut-restart-btn"
+            onClick={() => { audio.sfx('click'); startLesson(lessonIdx); }}
+            title={`${t(lang, 'tut.restart')} (R)`}
+          >
+            ↺ {t(lang, 'tut.restart')}
+          </button>
         </div>
         <div className="tut-title">🎓 {lessons[lessonIdx]?.title}</div>
       </div>
@@ -1021,6 +1047,8 @@ export function Tutorial() {
             seatChars={seatChars}
             winSeat={review?.winner ?? null}
             trickStatic={!!review}
+            tricksWon={playView.tricksWon}
+            targetTricks={lesson.id === 'tricks' ? null : 6 + lesson.contract.level}
             overlaySlot={tutorialOverlay}
           />
         )}

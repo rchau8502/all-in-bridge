@@ -78,6 +78,8 @@ const en = {
   'home.demo': 'Demo build — the tutorial is fully playable offline. Live multiplayer needs the game server (see README).',
   'home.music': 'Music',
   'home.sound': 'Sound',
+  'home.fourColor': 'Four-color deck (♣ green, ♦ orange)',
+  'home.theme': 'Table theme (Teal / Green / Navy)',
 
   'lobby.roomCode': 'Room code',
   'lobby.copied': 'Copied!',
@@ -139,6 +141,9 @@ const en = {
   'tut.of': 'of',
   'tut.prevLesson': 'Previous',
   'tut.nextLesson': 'Next',
+  'tut.restart': 'Restart',
+  'tut.tricksWon': 'Tricks',
+  'tut.need': 'Need',
   'tut.syllabus': 'Syllabus',
   'tut.done': 'Bootcamp complete! Hit the tables.',
 
@@ -239,6 +244,8 @@ const zh: typeof en = {
   'home.demo': '演示版本 —— 新手教程可离线完整游玩。多人对战需要游戏服务器（见 README）。',
   'home.music': '音乐',
   'home.sound': '音效',
+  'home.fourColor': '四色扑克（♣绿色 ♦橙色）',
+  'home.theme': '牌桌主题（海蓝 / 经典绿 / 午夜蓝）',
 
   'lobby.roomCode': '房间号',
   'lobby.copied': '已复制！',
@@ -300,6 +307,9 @@ const zh: typeof en = {
   'tut.of': '课 / 共',
   'tut.prevLesson': '上一课',
   'tut.nextLesson': '下一课',
+  'tut.restart': '重来',
+  'tut.tricksWon': '胜墩',
+  'tut.need': '需',
   'tut.syllabus': '目录',
   'tut.done': '教程完成！去牌桌大杀四方吧。',
 

@@ -6,6 +6,7 @@ import { Tutorial } from './screens/Tutorial.js';
 import './styles.css';
 
 export type ScreenName = 'home' | 'tutorial';
+export type FeltTheme = 'teal' | 'green' | 'navy';
 
 interface AppCtx {
   lang: Lang;
@@ -19,6 +20,10 @@ interface AppCtx {
   goToLesson: (idx: number) => void;
   completedLessons: Set<string>;
   markLessonCompleted: (id: string) => void;
+  fourColor: boolean;
+  toggleFourColor: () => void;
+  feltTheme: FeltTheme;
+  cycleFeltTheme: () => void;
 }
 
 const Ctx = createContext<AppCtx>(null as unknown as AppCtx);
@@ -40,8 +45,28 @@ export function App() {
       return new Set<string>();
     }
   });
+  const [fourColor, setFourColor] = useState<boolean>(() => localStorage.getItem('aib-four-color') === '1');
+  const [feltTheme, setFeltTheme] = useState<FeltTheme>(() => (localStorage.getItem('aib-felt-theme') as FeltTheme) || 'teal');
   const [screen, setScreen] = useState<ScreenName>('home');
   const [tick, setTick] = useState(0);
+
+  const toggleFourColor = useCallback(() => {
+    setFourColor(prev => {
+      const next = !prev;
+      localStorage.setItem('aib-four-color', next ? '1' : '0');
+      audio.sfx('click');
+      return next;
+    });
+  }, []);
+
+  const cycleFeltTheme = useCallback(() => {
+    setFeltTheme(prev => {
+      const next: FeltTheme = prev === 'teal' ? 'green' : prev === 'green' ? 'navy' : 'teal';
+      localStorage.setItem('aib-felt-theme', next);
+      audio.sfx('click');
+      return next;
+    });
+  }, []);
 
   const setLang = (l: Lang) => {
     setLangState(l);
@@ -102,16 +127,20 @@ export function App() {
       goToLesson,
       completedLessons,
       markLessonCompleted,
+      fourColor,
+      toggleFourColor,
+      feltTheme,
+      cycleFeltTheme,
     }),
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    [lang, characterId, screen, currentLessonIdx, completedLessons, tick]
+    [lang, characterId, screen, currentLessonIdx, completedLessons, fourColor, feltTheme, tick]
   );
 
   const bump = () => setTick(x => x + 1);
 
   return (
     <Ctx.Provider value={ctx}>
-      <div className="app">
+      <div className={`app ${fourColor ? 'four-color' : ''} theme-felt-${feltTheme}`}>
         <header className="topbar">
           <div className="logo" onClick={() => go('home')}>
             <span className="logo-suit">♠</span> {t(lang, 'app.title')}
@@ -119,6 +148,18 @@ export function App() {
           <div className="topbar-right">
             <button className={`chip ${lang === 'en' ? 'active' : ''}`} onClick={() => setLang('en')}>EN</button>
             <button className={`chip ${lang === 'zh' ? 'active' : ''}`} onClick={() => setLang('zh')}>中文</button>
+            <button
+              className={`chip ${fourColor ? 'active' : ''}`}
+              onClick={toggleFourColor}
+              title={t(lang, 'home.fourColor')}
+            >🃏 4C</button>
+            <button
+              className="chip theme-chip"
+              onClick={cycleFeltTheme}
+              title={t(lang, 'home.theme')}
+            >
+              {feltTheme === 'teal' ? '🌊' : feltTheme === 'green' ? '🌲' : '🌌'}
+            </button>
             <button
               className={`chip ${audio.musicOn ? 'active' : ''}`}
               onClick={() => { audio.musicOn = !audio.musicOn; if (audio.musicOn) audio.startMusic(); else audio.stopMusic(); bump(); }}
