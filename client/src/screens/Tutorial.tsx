@@ -179,6 +179,19 @@ const STAGE_H = 740;
 /** A compact simulated card table: seats with card backs around a felt,
  *  the live trick as real cards in the middle, and the interactive hand
  *  at the bottom. Scripted plays appear one-by-one like a real deal. */
+function groupHandBySuit(cards: Card[]): Array<{ suit: Suit; cards: Card[] }> {
+  const groups: Array<{ suit: Suit; cards: Card[] }> = [];
+  for (const c of cards) {
+    const last = groups[groups.length - 1];
+    if (last && last.suit === c.suit) {
+      last.cards.push(c);
+    } else {
+      groups.push({ suit: c.suit, cards: [c] });
+    }
+  }
+  return groups;
+}
+
 function SimTable(props: {
   lang: Lang;
   title: string;
@@ -229,6 +242,24 @@ function SimTable(props: {
   const { lang } = props;
   const sigs = props.trick.map(t => `${t.seat}${t.card.suit}${t.card.rank}`);
   const fresh = useFreshOrder(sigs, props.stepKey);
+
+  const [selectedCard, setSelectedCard] = useState<string | null>(null);
+
+  useEffect(() => {
+    setSelectedCard(null);
+  }, [props.stepKey, props.trick.length]);
+
+  const handleCardClick = (c: Card, isTarget: boolean) => {
+    const isCoarseTouch = typeof window !== 'undefined' && window.matchMedia && window.matchMedia('(pointer: coarse)').matches;
+    const label = cardLabel(c);
+    if (!isCoarseTouch || isTarget || selectedCard === label) {
+      setSelectedCard(null);
+      props.onPlay(c);
+    } else {
+      setSelectedCard(label);
+      audio.sfx('click');
+    }
+  };
 
   // Auto-fit: measure the felt and scale the fixed-size stage to fit it.
   // Narrow screens (<721px) get scale 0 = the flowing mobile layout.
@@ -286,17 +317,29 @@ function SimTable(props: {
               <Avatar id={props.seatChars[s.seat]!} className="sim-seat-avatar" />
             )}
             {props.hands?.[s.seat] ? (
-              <div className={`sim-faceup${dPlay ? ' playable-seat' : ''}`} aria-label={seatLabel(lang, s.seat)}>
-                {sortHand(props.hands[s.seat]!, props.trump ?? null).map((c, i) => (
-                  <CardView
-                    key={`${c.suit}${c.rank}-${i}`}
-                    card={c}
-                    small
-                    playable={dPlay}
-                    target={dPlay && props.highlight === cardLabel(c)}
-                    focus={props.focus?.includes(cardLabel(c)) ?? false}
-                    onClick={dPlay ? () => props.onPlay(c) : undefined}
-                  />
+              <div
+                className={`sim-faceup${dPlay ? ' playable-seat' : ''}${props.dummySeat === s.seat ? ' dummy-faceup' : ''}`}
+                aria-label={seatLabel(lang, s.seat)}
+              >
+                {groupHandBySuit(sortHand(props.hands[s.seat]!, props.trump ?? null)).map(group => (
+                  <div key={group.suit} className="suit-cluster faceup-cluster">
+                    {group.cards.map((c, i) => {
+                      const isTarget = dPlay && props.highlight === cardLabel(c);
+                      const isSelected = selectedCard === cardLabel(c);
+                      return (
+                        <CardView
+                          key={`${c.suit}${c.rank}-${i}`}
+                          card={c}
+                          small={!dPlay}
+                          playable={dPlay}
+                          target={isTarget}
+                          selected={isSelected}
+                          focus={props.focus?.includes(cardLabel(c)) ?? false}
+                          onClick={dPlay ? () => handleCardClick(c, isTarget) : undefined}
+                        />
+                      );
+                    })}
+                  </div>
                 ))}
                 {dPlay && props.hint && (
                   <div className="sim-hint up">🫵 {props.hint}</div>
@@ -334,6 +377,7 @@ function SimTable(props: {
                   style={ord === undefined ? undefined : { animationDelay: `${ord * 0.38}s` }}
                 >
                   <CardView card={t.card} />
+                  <span className="sim-tcard-seat">{seatLabel(lang, t.seat)}</span>
                 </div>
               );
             })}
@@ -353,16 +397,25 @@ function SimTable(props: {
                 <span>{props.handLabel}</span>
               </div>
             )}
-            <div className="hand">
-              {props.hand.map((c, i) => (
-                <CardView
-                  key={`${c.suit}${c.rank}-${i}`}
-                  card={c}
-                  playable={props.interactive && props.playSeat === 'S'}
-                  target={props.playSeat === 'S' && props.highlight === cardLabel(c)}
-                  focus={props.focus?.includes(cardLabel(c)) ?? false}
-                  onClick={props.playSeat === 'S' ? () => props.onPlay(c) : undefined}
-                />
+            <div className="hand" role="region" aria-label={props.handLabel ?? 'Hand'}>
+              {groupHandBySuit(props.hand).map(group => (
+                <div key={group.suit} className={`suit-cluster suit-${group.suit.toLowerCase()}`}>
+                  {group.cards.map((c, i) => {
+                    const isTarget = props.playSeat === 'S' && props.highlight === cardLabel(c);
+                    const isSelected = selectedCard === cardLabel(c);
+                    return (
+                      <CardView
+                        key={`${c.suit}${c.rank}-${i}`}
+                        card={c}
+                        playable={props.interactive && props.playSeat === 'S'}
+                        target={isTarget}
+                        selected={isSelected}
+                        focus={props.focus?.includes(cardLabel(c)) ?? false}
+                        onClick={props.playSeat === 'S' ? () => handleCardClick(c, isTarget) : undefined}
+                      />
+                    );
+                  })}
+                </div>
               ))}
             </div>
           </>

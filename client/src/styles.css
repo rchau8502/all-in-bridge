@@ -52,7 +52,15 @@ body {
   -webkit-font-smoothing: antialiased;
 }
 
-.app { max-width: 1500px; margin: 0 auto; padding: 0 16px 40px; min-height: 100vh; display: flex; flex-direction: column; }
+.app {
+  max-width: 1500px;
+  margin: 0 auto;
+  padding: 0 max(12px, env(safe-area-inset-right)) max(24px, env(safe-area-inset-bottom)) max(12px, env(safe-area-inset-left));
+  min-height: 100vh;
+  min-height: 100dvh;
+  display: flex;
+  flex-direction: column;
+}
 
 /* game screens break out of the centered column and fill the viewport,
  * like a real game scene instead of a web page */
@@ -61,8 +69,8 @@ body {
   position: relative;
   left: 50%;
   margin-left: -50vw;
-  padding-left: 16px;
-  padding-right: 16px;
+  padding-left: max(12px, env(safe-area-inset-left));
+  padding-right: max(12px, env(safe-area-inset-right));
 }
 .lobby, .tutorial, .compete { min-height: calc(100dvh - 70px); }
 
@@ -448,12 +456,53 @@ select.input { appearance: auto; }
   box-shadow: 0 2px 8px rgba(245, 182, 46, 0.35);
 }
 
-.hand { display: flex; justify-content: center; flex-wrap: wrap; gap: 0; padding: 8px 4px 4px; }
-.hand .card { margin: 0 -14px; transition: transform 0.12s; }
-.hand .card:first-child { margin-left: 0; }
-.hand .card:last-child { margin-right: 0; }
+.hand {
+  display: flex;
+  justify-content: center;
+  align-items: flex-end;
+  gap: 12px;
+  padding: 8px 4px 6px;
+  user-select: none;
+}
+.suit-cluster {
+  display: flex;
+  align-items: flex-end;
+  position: relative;
+}
+.suit-cluster .card {
+  margin: 0 -18px;
+  transition: transform 0.16s cubic-bezier(0.2, 0.8, 0.4, 1.2), box-shadow 0.15s;
+}
+.suit-cluster .card:first-child { margin-left: 0; }
+.suit-cluster .card:last-child { margin-right: 0; }
 .hand .card.playable:hover { transform: translateY(-20px); }
-.hand .card.selected { transform: translateY(-20px); }
+.hand .card.selected {
+  transform: translateY(-22px) !important;
+  z-index: 9;
+  border-color: var(--gold) !important;
+  box-shadow: 0 0 0 3px var(--gold), 0 0 20px rgba(255, 215, 0, 0.7), 0 12px 24px rgba(0, 0, 0, 0.45);
+}
+.card.selected::before {
+  content: '✓';
+  position: absolute;
+  top: -24px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: var(--gold);
+  color: #1a1a1a;
+  border-radius: 50%;
+  width: 20px;
+  height: 20px;
+  font-size: 13px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 900;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.4);
+  pointer-events: none;
+  z-index: 10;
+  animation: pop-in 0.2s ease-out;
+}
 
 /* cards */
 .card {
@@ -462,6 +511,8 @@ select.input { appearance: auto; }
   border: 1px solid rgba(15, 30, 60, 0.14); position: relative; color: #1a1a1a;
   font-weight: 900; box-shadow: 0 4px 12px rgba(2, 24, 48, 0.35);
   user-select: none;
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
 }
 .card.small { --card-w: 52px; --card-h: 74px; font-size: 12px; }
 .card.small .pip { font-size: 26px; }
@@ -566,17 +617,51 @@ select.input { appearance: auto; }
 .sim-faceup .card { --card-w: 34px; --card-h: 48px; }
 .sim-faceup .card .pip { font-size: 17px; }
 .sim-faceup .card .corner { font-size: 9px; }
+.faceup-cluster {
+  gap: 0;
+  margin: 0 3px;
+}
+.faceup-cluster .card {
+  margin: 0 -10px;
+}
+.faceup-cluster .card:first-child { margin-left: 0; }
+.faceup-cluster .card:last-child { margin-right: 0; }
 .sim-w .sim-faceup, .sim-e .sim-faceup { max-width: 140px; }
 /* When it is the dummy's turn, its face-up hand IS the play surface: the
  * learner clicks the card in place (top of the table), never dragging it
  * down into the declarer's own hand. Ring the hand and let the cards lift. */
 .sim-faceup.playable-seat {
-  padding: 5px 6px; border-radius: 12px;
-  background: rgba(255, 171, 0, 0.07);
-  box-shadow: 0 0 0 2px var(--gold2), 0 0 18px rgba(255, 171, 0, 0.55);
+  padding: 8px 12px; border-radius: 14px;
+  background: rgba(255, 171, 0, 0.12);
+  box-shadow: 0 0 0 3px var(--gold2), 0 0 24px rgba(255, 171, 0, 0.65);
+  max-width: 520px;
+  z-index: 10;
+}
+.sim-faceup.playable-seat .card {
+  --card-w: 48px;
+  --card-h: 68px;
+}
+.sim-faceup.playable-seat .faceup-cluster .card {
+  margin: 0 -13px;
+}
+.sim-faceup.playable-seat .faceup-cluster .card:first-child { margin-left: 0; }
+.sim-faceup.playable-seat .faceup-cluster .card:last-child { margin-right: 0; }
+.sim-faceup.playable-seat .card .pip {
+  display: flex !important;
+  font-size: 24px;
+}
+.sim-faceup.playable-seat .card .corner {
+  font-size: 13px;
 }
 .sim-faceup .card.playable { cursor: pointer; }
 .sim-faceup .card.playable:hover { transform: translateY(-8px); }
+.sim-faceup.playable-seat .card.playable:hover { transform: translateY(-12px); }
+.sim-faceup.playable-seat .card.selected {
+  transform: translateY(-16px) !important;
+  z-index: 9;
+  border-color: var(--gold) !important;
+  box-shadow: 0 0 0 3px var(--gold), 0 0 20px rgba(255, 215, 0, 0.7);
+}
 .sim-hint.up { margin-top: 4px; width: 100%; }
 .bid-btn {
   font: inherit; font-weight: 800; font-size: 14px; padding: 6px 4px; border-radius: 10px;
@@ -956,6 +1041,30 @@ select.input { appearance: auto; }
 .sim-tcard.pos-bottom { margin-left: calc(var(--card-w) / -2); margin-top: calc(var(--card-h) / -2 + var(--toff)); }
 .sim-tcard.pos-left { margin-left: calc(var(--card-w) / -2 - var(--toff)); margin-top: calc(var(--card-h) / -2); }
 .sim-tcard.pos-right { margin-left: calc(var(--card-w) / -2 + var(--toff)); margin-top: calc(var(--card-h) / -2); }
+.sim-tcard-seat {
+  position: absolute;
+  bottom: -10px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: rgba(8, 16, 38, 0.92);
+  border: 1px solid var(--gold-dim);
+  border-radius: 999px;
+  padding: 1px 8px;
+  font-size: 11px;
+  font-weight: 800;
+  color: var(--gold);
+  white-space: nowrap;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.5);
+  pointer-events: none;
+  z-index: 3;
+}
+.sim-tcard.trick-win .sim-tcard-seat {
+  background: var(--gold);
+  color: #1a1a1a;
+  border-color: #fff;
+  font-weight: 900;
+  box-shadow: 0 0 10px rgba(255, 215, 0, 0.8);
+}
 .sim-me { grid-area: simme; display: flex; flex-direction: column; align-items: center; gap: 6px; }
 .sim-hint { color: #fff; font-weight: 800; text-shadow: 0 2px 3px rgba(0,0,0,0.65); text-align: center; }
 .sim-handlabel { color: var(--gold); font-weight: 900; font-size: 14px; text-shadow: 0 2px 3px rgba(0,0,0,0.6); display: flex; align-items: center; gap: 8px; justify-content: center; }
@@ -1091,12 +1200,24 @@ table.standings th { color: var(--text-dim); text-transform: uppercase; font-siz
 table.standings tr.leader td { color: var(--accent); font-weight: 800; }
 
 @media (max-width: 720px) {
-  :root { --card-w: 60px; --card-h: 86px; }
+  :root {
+    --card-w: clamp(42px, calc((100vw - 32px) / 8.2), 56px);
+    --card-h: calc(var(--card-w) * 1.42);
+  }
   .felt { grid-template-columns: 84px 1fr 84px; min-height: 400px; padding: 10px; }
   /* real game table: hand spans full width, tight fan, compact trick */
   .me-area { grid-column: 1 / -1; }
-  .hand { flex-wrap: nowrap; }
-  .hand .card { margin: 0 -19px; }
+  .hand {
+    gap: 6px;
+    padding: 6px 2px 4px;
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    scrollbar-width: none;
+  }
+  .hand::-webkit-scrollbar { display: none; }
+  .suit-cluster .card { margin: 0 calc(var(--card-w) * -0.42); }
+  .suit-cluster .card:first-child { margin-left: 0; }
+  .suit-cluster .card:last-child { margin-right: 0; }
   .trick-card.pos-left { transform: translateX(-48px); }
   .trick-card.pos-right { transform: translateX(48px); }
   .trick-card.pos-top { transform: translateY(-48px); }
@@ -1113,16 +1234,29 @@ table.standings tr.leader td { color: var(--accent); font-weight: 800; }
   .sim-tcard { --card-w: 52px; --card-h: 74px; }
   .sim-tcard .pip { font-size: 26px; }
   .sim-faceup { max-width: 200px; }
-  .sim-n .sim-faceup { max-width: 110px; }
-  .sim-faceup .card { --card-w: 26px; --card-h: 37px; }
-  .sim-faceup .card .pip { display: none; }
+  .sim-n .sim-faceup:not(.playable-seat) { max-width: 110px; }
+  .sim-faceup:not(.playable-seat) .card { --card-w: 26px; --card-h: 37px; }
+  .sim-faceup:not(.playable-seat) .card .pip { display: none; }
   .sim-w .sim-faceup, .sim-e .sim-faceup { max-width: 110px; }
+  .sim-faceup.playable-seat {
+    max-width: 95vw !important;
+    padding: 6px 8px;
+  }
+  .sim-faceup.playable-seat .card {
+    --card-w: clamp(34px, calc((100vw - 20px) / 9.6), 46px) !important;
+    --card-h: calc(var(--card-w) * 1.42) !important;
+  }
+  .sim-faceup.playable-seat .faceup-cluster .card {
+    margin: 0 calc(var(--card-w) * -0.32);
+  }
   .sim-plate { padding: 2px 6px; }
   .sim-seatname { font-size: 11px; }
   .sim-count { font-size: 10px; margin-left: 3px; }
-  .sim-me .hand { flex-wrap: nowrap; }
+  .sim-me .hand { flex-wrap: nowrap; gap: 4px; }
   .sim-me { grid-column: 1 / -1; }
-  .sim-me .hand .card { margin: 0 -19px; }
+  .sim-me .suit-cluster .card { margin: 0 calc(var(--card-w) * -0.42); }
+  .sim-me .suit-cluster .card:first-child { margin-left: 0; }
+  .sim-me .suit-cluster .card:last-child { margin-right: 0; }
   /* performance: backdrop blur is a GPU hog on phones — the translucent
    * backgrounds read fine without it */
   * { backdrop-filter: none !important; -webkit-backdrop-filter: none !important; }
@@ -1134,6 +1268,21 @@ table.standings tr.leader td { color: var(--accent); font-weight: 800; }
   .bid-btn { padding: 10px 4px; }
   /* voice-line bubbles can be long — wrap them on narrow screens */
   .bubble { white-space: normal; max-width: 62vw; text-align: center; }
+}
+
+@media (max-width: 380px) {
+  :root {
+    --card-w: clamp(34px, calc((100vw - 16px) / 8.6), 42px);
+    --card-h: calc(var(--card-w) * 1.42);
+  }
+  .sim-stage {
+    grid-template-columns: 86px 1fr 86px;
+    padding: 4px 2px;
+  }
+  .sim-trick { width: 90px; height: 130px; --toff: 44px; }
+  .sim-tcard { --card-w: 44px; --card-h: 62px; }
+  .tut-title { font-size: 17px; }
+  .home-syllabus-item { padding: 7px 10px; font-size: 14px; }
 }
 
 /* accessibility: honor the OS reduced-motion setting */
