@@ -106,7 +106,7 @@ function CoachCard(props: {
           className="btn primary"
           onClick={e => { e.stopPropagation(); tap(); }}
         >
-          {nextLabel}
+          {nextLabel} <span className="kbd-hint">Space</span>
         </button>
       </div>
     </div>
@@ -599,7 +599,7 @@ export function Tutorial() {
   const awaitingTap = !pending && !done && (step?.kind === 'auction' || step?.kind === 'play');
   const tapNext = (
     <button className="btn primary tut-tap-next" onClick={() => { audio.sfx('click'); doAdvance(); }}>
-      {t(lang, 'tut.next')} ▸
+      {t(lang, 'tut.next')} ▸ <span className="kbd-hint">Space</span>
     </button>
   );
 

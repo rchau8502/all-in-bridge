@@ -989,6 +989,20 @@ select.input { appearance: auto; }
 }
 .tut-tap-row { display: flex; justify-content: center; margin-top: 10px; }
 .tut-tap-next { min-height: 44px; animation: fade-in 0.25s backwards; }
+.kbd-hint {
+  display: inline-block;
+  margin-left: 6px;
+  font-size: 11px;
+  background: rgba(0, 0, 0, 0.28);
+  border: 1px solid rgba(255, 255, 255, 0.35);
+  border-radius: 4px;
+  padding: 1px 6px;
+  font-weight: 700;
+  vertical-align: middle;
+}
+@media (max-width: 720px) {
+  .kbd-hint { display: none; }
+}
 
 /* coach card: your fighter explains the lesson */
 .tut-coach-card { display: flex; gap: 14px; align-items: flex-start; width: min(760px, 96%); }
