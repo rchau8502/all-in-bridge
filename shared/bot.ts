@@ -10,13 +10,66 @@
  *   otherwise play the lowest card.
  */
 
-import type { Card, Seat, Suit } from './deck.js';
+import type { Card, Seat, Suit, Hands } from './deck.js';
 import { partnerOf } from './deck.js';
 import { type PlayState, beats } from './play.js';
+import { type Auction, type Bid, parseBid } from './bidding.js';
+import { evaluateHand, evaluateResponse, type PartnerOpeningBid } from './evaluator.js';
 
 export interface BotDecision {
   card: Card;
   ruleReason: string;
+}
+
+/**
+ * Select a standard ACBL bid for the bot at its auction turn.
+ */
+export function chooseBotBid(auction: Auction, hands: Hands): Bid {
+  const seat = auction.turn;
+  const hand = hands[seat];
+  const partner = partnerOf(seat);
+
+  // Find non-pass actions in auction
+  const nonPassEntries = auction.entries.filter(e => e.bid.type !== 'pass');
+
+  // Case 1: Nobody has opened yet
+  if (nonPassEntries.length === 0) {
+    const ev = evaluateHand(hand);
+    if (ev.recommendedBid === 'Pass') {
+      return { type: 'pass' };
+    }
+    try {
+      const bid = parseBid(ev.recommendedBid);
+      if (auction.isLegal(bid)) return bid;
+    } catch {
+      // fallback
+    }
+    return { type: 'pass' };
+  }
+
+  // Case 2: Partner opened the bidding (first bid)
+  const opener = nonPassEntries[0]!;
+  if (opener.seat === partner && opener.bid.type === 'bid') {
+    const pLabel = `${opener.bid.level}${opener.bid.denom}`;
+    const valid1Openings: PartnerOpeningBid[] = ['1NT', '1S', '1H', '1D', '1C'];
+    if (valid1Openings.includes(pLabel as PartnerOpeningBid)) {
+      // Check if we haven't responded yet
+      const myPreviousBids = auction.entries.filter(e => e.seat === seat && e.bid.type !== 'pass');
+      if (myPreviousBids.length === 0) {
+        const resp = evaluateResponse(hand, pLabel as PartnerOpeningBid);
+        if (resp.recommendedBid === 'Pass') return { type: 'pass' };
+        try {
+          const rBid = parseBid(resp.recommendedBid);
+          if (auction.isLegal(rBid)) return rBid;
+        } catch {
+          // fallback
+        }
+      }
+    }
+  }
+
+  // Case 3: Advanced auction or passing out
+  return { type: 'pass' };
 }
 
 /**
