@@ -59,6 +59,9 @@ export function Home() {
         <button className="btn ghost big menu-btn drill-launch-btn" onClick={() => go('drill')}>
           🎯 {t(lang, 'drill.title')}
         </button>
+        <button className="btn ghost big menu-btn freeplay-launch-btn" onClick={() => go('freeplay')}>
+          🃏 {t(lang, 'freeplay.title')}
+        </button>
       </div>
 
       <div className="section-label">

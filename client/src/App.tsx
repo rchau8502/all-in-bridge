@@ -4,10 +4,11 @@ import { audio } from './audio.js';
 import { Home } from './screens/Home.js';
 import { Tutorial } from './screens/Tutorial.js';
 import { Drill } from './screens/Drill.js';
+import { FreePlay } from './screens/FreePlay.js';
 import { GlossaryModal } from './components/GlossaryModal.js';
 import './styles.css';
 
-export type ScreenName = 'home' | 'tutorial' | 'drill';
+export type ScreenName = 'home' | 'tutorial' | 'drill' | 'freeplay';
 export type FeltTheme = 'teal' | 'green' | 'navy';
 
 interface AppCtx {
@@ -180,6 +181,13 @@ export function App() {
               🎯 {t(lang, 'drill.title')}
             </button>
             <button
+              className={`chip ${screen === 'freeplay' ? 'active' : ''}`}
+              onClick={() => go('freeplay')}
+              title={t(lang, 'freeplay.title')}
+            >
+              🃏 {t(lang, 'freeplay.title')}
+            </button>
+            <button
               className="chip"
               onClick={() => openGlossaryWithQuery('')}
               title={t(lang, 'home.glossary')}
@@ -201,6 +209,7 @@ export function App() {
         {screen === 'home' && <Home />}
         {screen === 'tutorial' && <Tutorial />}
         {screen === 'drill' && <Drill />}
+        {screen === 'freeplay' && <FreePlay />}
         <footer className="footer">{t(lang, 'app.footer')}</footer>
       </div>
       <GlossaryModal

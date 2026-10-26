@@ -335,6 +335,391 @@ export function dealRandomHand(rng: () => number = Math.random): Card[] {
  */
 export type DrillCategory = 'all' | 'pass' | '1nt' | 'major' | 'minor' | 'strong';
 
+export type PartnerOpeningBid = '1NT' | '1S' | '1H' | '1D' | '1C';
+
+export interface ResponseEvaluation {
+  partnerBid: PartnerOpeningBid;
+  hcp: number;
+  supportPoints: number;
+  totalPoints: number;
+  supportLength: number;
+  hasGoldenFit: boolean;
+  recommendedBid: string;
+  ruleId: string;
+  trafficLight?: 'stop' | 'invite' | 'go' | undefined;
+  explanation: {
+    en: string;
+    zh: string;
+  };
+  mnemonic?: {
+    en: string;
+    zh: string;
+  } | undefined;
+}
+
+/**
+ * ACBL Dummy Points when supporting partner's trump suit:
+ * Doubleton = 1 pt, Singleton = 2 pts, Void = 3 pts.
+ */
+export function calculateDummyPoints(suitLengths: Record<Suit, number>, trumpSuit: Suit): number {
+  let pts = 0;
+  for (const s of ['C', 'D', 'H', 'S'] as const) {
+    if (s === trumpSuit) continue;
+    const len = suitLengths[s];
+    if (len === 0) pts += 3; // Void
+    else if (len === 1) pts += 2; // Singleton
+    else if (len === 2) pts += 1; // Doubleton
+  }
+  return pts;
+}
+
+/**
+ * Evaluate responder's hand based on ACBL Class 6 & Class 7 rules.
+ */
+export function evaluateResponse(hand: Card[], partnerBid: PartnerOpeningBid): ResponseEvaluation {
+  const hcp = calculateHcp(hand);
+  const suitLengths = getSuitLengths(hand);
+
+  // -------------------------------------------------------------
+  // 1. Partner Opened 1NT (15–17 HCP, Balanced) — ACBL Class 7
+  // -------------------------------------------------------------
+  if (partnerBid === '1NT') {
+    // Traffic Light rule:
+    // 0–7 HCP: STOP (Pass)
+    if (hcp <= 7) {
+      return {
+        partnerBid,
+        hcp,
+        supportPoints: 0,
+        totalPoints: hcp,
+        supportLength: 0,
+        hasGoldenFit: false,
+        recommendedBid: 'Pass',
+        ruleId: 'resp_1nt_stop',
+        trafficLight: 'stop',
+        explanation: {
+          en: `With 0–7 HCP (${hcp} HCP), partnership total is at most 15+7 = 22 pts (not enough for 25-pt game). Traffic light: RED (STOP) → Pass.`,
+          zh: `手握 0–7 大牌点（本手 ${hcp} 点），与同伴合计最多 22 点，无法达到成局线（25点）。红绿灯法则：红灯停（STOP）→ 应当 Pass。`,
+        },
+        mnemonic: {
+          en: '1NT Response Traffic Light: 0-7 Stop (Pass)',
+          zh: '1NT 应叫红绿灯口诀：0-7 点红灯停（Pass）',
+        },
+      };
+    }
+
+    // 8–9 HCP: INVITE (2NT)
+    if (hcp <= 9) {
+      return {
+        partnerBid,
+        hcp,
+        supportPoints: 0,
+        totalPoints: hcp,
+        supportLength: 0,
+        hasGoldenFit: false,
+        recommendedBid: '2NT',
+        ruleId: 'resp_1nt_invite',
+        trafficLight: 'invite',
+        explanation: {
+          en: `With 8–9 HCP (${hcp} HCP), partnership total is 23–26 pts. If partner has 16 or 17, 3NT is on! Traffic light: YELLOW (INVITE) → 2NT.`,
+          zh: `手握 8–9 大牌点（本手 ${hcp} 点），双方合计 23–26 点。若同伴是 16 或 17 点的高限则可成局。红绿灯法则：黄灯邀叫（INVITE）→ 叫 2NT。`,
+        },
+        mnemonic: {
+          en: '1NT Response Traffic Light: 8-9 Invite (2NT)',
+          zh: '1NT 应叫红绿灯口诀：8-9 点黄灯邀叫（2NT）',
+        },
+      };
+    }
+
+    // 10–15 HCP: GO (3NT)
+    return {
+      partnerBid,
+      hcp,
+      supportPoints: 0,
+      totalPoints: hcp,
+      supportLength: 0,
+      hasGoldenFit: false,
+      recommendedBid: '3NT',
+      ruleId: 'resp_1nt_go',
+      trafficLight: 'go',
+      explanation: {
+        en: `With 10+ HCP (${hcp} HCP), partnership total is at least 15+10 = 25 pts (game guaranteed!). Traffic light: GREEN (GO) → 3NT.`,
+        zh: `手握 10 点及以上（本手 ${hcp} 点），双方合计至少 25 点确保成局！红绿灯法则：绿灯冲局（GO）→ 直叫 3NT。`,
+      },
+      mnemonic: {
+        en: '1NT Response Traffic Light: 10+ Go (3NT)',
+        zh: '1NT 应叫红绿灯口诀：10 点以上绿灯行（直叫 3NT）',
+      },
+    };
+  }
+
+  // -------------------------------------------------------------
+  // 2. Partner Opened 1 Major (1♠ or 1♥) — ACBL Class 6
+  // -------------------------------------------------------------
+  if (partnerBid === '1S' || partnerBid === '1H') {
+    const trumpSuit: Suit = partnerBid === '1S' ? 'S' : 'H';
+    const supportLen = suitLengths[trumpSuit];
+    const hasGoldenFit = supportLen >= 3; // Partner has 5+, so 3+ gives 8+ Golden Fit
+
+    if (hasGoldenFit) {
+      const dummyPts = calculateDummyPoints(suitLengths, trumpSuit);
+      const totalPoints = hcp + dummyPts;
+
+      if (totalPoints < 6) {
+        return {
+          partnerBid,
+          hcp,
+          supportPoints: dummyPts,
+          totalPoints,
+          supportLength: supportLen,
+          hasGoldenFit: true,
+          recommendedBid: 'Pass',
+          ruleId: 'resp_major_sub_6',
+          explanation: {
+            en: `Even with support (${supportLen} cards), hand has fewer than 6 points (${totalPoints} pts). Pass.`,
+            zh: `即使持有 ${supportLen} 张支持，点力不足 6 点（${totalPoints} 点）。应当 Pass。`,
+          },
+        };
+      }
+
+      // 6–9 pts: Simple Raise (2-level)
+      if (totalPoints <= 9) {
+        const bid = `2${trumpSuit}`;
+        return {
+          partnerBid,
+          hcp,
+          supportPoints: dummyPts,
+          totalPoints,
+          supportLength: supportLen,
+          hasGoldenFit: true,
+          recommendedBid: bid,
+          ruleId: 'resp_major_raise_2',
+          explanation: {
+            en: `Golden Fit (${supportLen}-card support) with 6–9 points (${hcp} HCP + ${dummyPts} dummy = ${totalPoints} pts). Make a simple raise to ${bid}.`,
+            zh: `黄金配合（持 ${supportLen} 张支持）且有 6–9 点（${hcp} HCP + ${dummyPts} 短门 = ${totalPoints} 点）。简单加叫至 ${bid}。`,
+          },
+          mnemonic: {
+            en: 'Golden Fit (8+ cards): 6-9 pts = Raise to 2',
+            zh: '8 张黄金配合口诀：6-9 点加叫 2 阶',
+          },
+        };
+      }
+
+      // 10–12 pts: Limit Raise (3-level)
+      if (totalPoints <= 12) {
+        const bid = `3${trumpSuit}`;
+        return {
+          partnerBid,
+          hcp,
+          supportPoints: dummyPts,
+          totalPoints,
+          supportLength: supportLen,
+          hasGoldenFit: true,
+          recommendedBid: bid,
+          ruleId: 'resp_major_raise_3',
+          explanation: {
+            en: `Golden Fit (${supportLen}-card support) with 10–12 points (${hcp} HCP + ${dummyPts} dummy = ${totalPoints} pts). Limit raise to ${bid} (invitational).`,
+            zh: `黄金配合（持 ${supportLen} 张支持）且有 10–12 邀请点（${hcp} HCP + ${dummyPts} 短门 = ${totalPoints} 点）。进逼性加叫至 ${bid}。`,
+          },
+          mnemonic: {
+            en: 'Golden Fit (8+ cards): 10-12 pts = Limit Raise to 3',
+            zh: '8 张黄金配合口诀：10-12 点邀叫加叫 3 阶',
+          },
+        };
+      }
+
+      // 13+ pts: Game Raise (4-level)
+      const bid = `4${trumpSuit}`;
+      return {
+        partnerBid,
+        hcp,
+        supportPoints: dummyPts,
+        totalPoints,
+        supportLength: supportLen,
+        hasGoldenFit: true,
+        recommendedBid: bid,
+        ruleId: 'resp_major_raise_4',
+        explanation: {
+          en: `Golden Fit (${supportLen}-card support) with 13+ points (${hcp} HCP + ${dummyPts} dummy = ${totalPoints} pts). Jump directly to game: ${bid}!`,
+          zh: `黄金配合（持 ${supportLen} 张支持）且手握 13 点及以上进局实力（${totalPoints} 点）。直接跳叫成局：${bid}！`,
+        },
+        mnemonic: {
+          en: 'Golden Fit (8+ cards): 13+ pts = Game Raise to 4',
+          zh: '8 张黄金配合口诀：13 点以上直接加叫到 4 阶成局',
+        },
+      };
+    }
+
+    // No golden fit in partner's major
+    const lengthPts = calculateLengthPoints(suitLengths);
+    const totalPoints = hcp + lengthPts;
+
+    if (totalPoints < 6) {
+      return {
+        partnerBid,
+        hcp,
+        supportPoints: 0,
+        totalPoints,
+        supportLength: supportLen,
+        hasGoldenFit: false,
+        recommendedBid: 'Pass',
+        ruleId: 'resp_major_unfit_pass',
+        explanation: {
+          en: `No support and fewer than 6 points (${totalPoints} pts). Pass.`,
+          zh: `无将牌配合且点力不足 6 点（${totalPoints} 点）。应当 Pass。`,
+        },
+      };
+    }
+
+    // Partner opened 1H: with 4+ Spades and 6+ pts, bid 1S!
+    if (partnerBid === '1H' && suitLengths.S >= 4) {
+      return {
+        partnerBid,
+        hcp,
+        supportPoints: 0,
+        totalPoints,
+        supportLength: supportLen,
+        hasGoldenFit: false,
+        recommendedBid: '1S',
+        ruleId: 'resp_1h_bid_1s',
+        explanation: {
+          en: `No Heart fit, but holding a 4+ card Spade suit (${suitLengths.S}♠) with 6+ points. Bid your 4-card major at the 1-level: 1♠.`,
+          zh: `红心无配合，但持有 4 张以上黑桃（${suitLengths.S}♠）且点力达到 6 点以上。在 1 阶应叫你的高花新套：1♠。`,
+        },
+      };
+    }
+
+    // Otherwise with 6–9 pts and no major: bid 1NT
+    return {
+      partnerBid,
+      hcp,
+      supportPoints: 0,
+      totalPoints,
+      supportLength: supportLen,
+      hasGoldenFit: false,
+      recommendedBid: '1NT',
+      ruleId: 'resp_major_unfit_1nt',
+      explanation: {
+        en: `No fit in partner's major and no other 1-level major to bid. With 6–9 points, bid 1NT.`,
+        zh: `高花无配合且无其它 1 阶高花可叫。在 6–9 点区间应叫 1NT。`,
+      },
+    };
+  }
+
+  // -------------------------------------------------------------
+  // 3. Partner Opened 1 Minor (1♣ or 1♦) — ACBL Class 6
+  // -------------------------------------------------------------
+  const lengthPts = calculateLengthPoints(suitLengths);
+  const totalPoints = hcp + lengthPts;
+
+  if (totalPoints < 6) {
+    return {
+      partnerBid,
+      hcp,
+      supportPoints: 0,
+      totalPoints,
+      supportLength: suitLengths[partnerBid === '1C' ? 'C' : 'D'],
+      hasGoldenFit: false,
+      recommendedBid: 'Pass',
+      ruleId: 'resp_minor_sub_6',
+      explanation: {
+        en: `Fewer than 6 points (${totalPoints} pts). Pass.`,
+        zh: `点力不足 6 点（${totalPoints} 点）。应当 Pass。`,
+      },
+    };
+  }
+
+  const spades = suitLengths.S;
+  const hearts = suitLengths.H;
+
+  // Holding both 4-card majors: Four on the Floor rule -> bid 1H first!
+  if (spades >= 4 && hearts >= 4) {
+    return {
+      partnerBid,
+      hcp,
+      supportPoints: 0,
+      totalPoints,
+      supportLength: suitLengths[partnerBid === '1C' ? 'C' : 'D'],
+      hasGoldenFit: false,
+      recommendedBid: '1H',
+      ruleId: 'resp_minor_four_on_floor',
+      explanation: {
+        en: `Holding both 4-card majors (${spades}♠ and ${hearts}♥). Apply the "Four on the Floor" rule: bid the lower-ranking major (1♥) first so partner can bid 1♠ if they hold it!`,
+        zh: `同时持有两门 4 张高花（${spades}♠ 与 ${hearts}♥）。遵从 "Four on the Floor" 经典口诀：先叫级别更低的 1♥，方便同伴若持黑桃能顺畅叫出 1♠！`,
+      },
+      mnemonic: {
+        en: 'Four on the Floor: With two 4-card majors, bid 1♥ first',
+        zh: 'Four on the Floor 口诀：双 4 张高花，先应叫 1♥',
+      },
+    };
+  }
+
+  // Single 4-card major: bid it up the line
+  if (hearts >= 4) {
+    return {
+      partnerBid,
+      hcp,
+      supportPoints: 0,
+      totalPoints,
+      supportLength: suitLengths[partnerBid === '1C' ? 'C' : 'D'],
+      hasGoldenFit: false,
+      recommendedBid: '1H',
+      ruleId: 'resp_minor_1h',
+      explanation: {
+        en: `Search for a major fit first! With 4+ hearts (${hearts}♥) and 6+ points, bid 1♥.`,
+        zh: `优先寻找高花配合！持有 4 张以上红心（${hearts}♥）且点力达到 6 点以上，应叫 1♥。`,
+      },
+    };
+  }
+
+  if (spades >= 4) {
+    return {
+      partnerBid,
+      hcp,
+      supportPoints: 0,
+      totalPoints,
+      supportLength: suitLengths[partnerBid === '1C' ? 'C' : 'D'],
+      hasGoldenFit: false,
+      recommendedBid: '1S',
+      ruleId: 'resp_minor_1s',
+      explanation: {
+        en: `Search for a major fit first! With 4+ spades (${spades}♠) and 6+ points, bid 1♠.`,
+        zh: `优先寻找高花配合！持有 4 张以上黑桃（${spades}♠）且点力达到 6 点以上，应叫 1♠。`,
+      },
+    };
+  }
+
+  // No 4-card major: with 6-9 pts, bid 1NT
+  return {
+    partnerBid,
+    hcp,
+    supportPoints: 0,
+    totalPoints,
+    supportLength: suitLengths[partnerBid === '1C' ? 'C' : 'D'],
+    hasGoldenFit: false,
+    recommendedBid: '1NT',
+    ruleId: 'resp_minor_1nt',
+    explanation: {
+      en: `No 4-card major to show. With 6–9 points (${hcp} HCP), bid 1NT.`,
+      zh: `无 4 张高花可叫。持 6–9 点（${hcp} HCP）应叫 1NT。`,
+    },
+  };
+}
+
+/**
+ * Generate a response drill problem.
+ */
+export function generateResponseDrillHand(
+  partnerBid?: PartnerOpeningBid,
+  rng: () => number = Math.random
+): { hand: Card[]; evaluation: ResponseEvaluation } {
+  const options: PartnerOpeningBid[] = ['1NT', '1S', '1H', '1D', '1C'];
+  const activePartner = partnerBid ?? options[Math.floor(rng() * options.length)]!;
+  const hand = dealRandomHand(rng);
+  const evaluation = evaluateResponse(hand, activePartner);
+  return { hand, evaluation };
+}
+
 /**
  * Generate a drill problem, optionally targeting a specific lesson category.
  */

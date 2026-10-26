@@ -2113,4 +2113,226 @@ table.standings tr.leader td { color: var(--accent); font-weight: 800; }
   border-color: var(--gold);
 }
 
+/* Mode Switcher Tabs */
+.drill-mode-tabs {
+  display: flex;
+  gap: 8px;
+  background: rgba(255, 255, 255, 0.06);
+  padding: 4px;
+  border-radius: 12px;
+  align-self: flex-start;
+}
+.drill-mode-tab {
+  all: unset;
+  padding: 8px 18px;
+  font-size: 14px;
+  font-weight: 800;
+  color: var(--text-dim);
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+.drill-mode-tab:hover {
+  color: #fff;
+  background: rgba(255, 255, 255, 0.08);
+}
+.drill-mode-tab.active {
+  background: var(--gold);
+  color: #0b192e;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.35);
+}
+
+/* Partner Opening Badge & Scenarios */
+.drill-partner-scenarios {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.drill-partner-label {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--text-dim);
+}
+.drill-partner-badge {
+  background: rgba(0, 0, 0, 0.65);
+  border: 1px solid rgba(255, 215, 0, 0.45);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.4);
+  border-radius: 20px;
+  padding: 6px 16px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 12px;
+  animation: pop-in 0.2s ease-out;
+}
+.partner-avatar-icon {
+  font-size: 16px;
+}
+.partner-bid-lead {
+  font-size: 13px;
+  color: var(--tan);
+}
+.partner-bid-val {
+  font-size: 16px;
+  font-weight: 900;
+  color: #fbbf24;
+}
+.partner-bid-desc {
+  font-size: 12px;
+  color: #94a3b8;
+}
+.metric-chip.fit-gold {
+  background: rgba(255, 215, 0, 0.18);
+  border-color: #f59e0b;
+  color: #fef08a;
+  font-weight: 800;
+}
+.drill-bid-grid.responding-grid {
+  grid-template-columns: repeat(4, 1fr);
+}
+@media (min-width: 600px) {
+  .drill-bid-grid.responding-grid {
+    grid-template-columns: repeat(7, 1fr);
+  }
+}
+
+/* ---------- Free Play Sandbox Styles ---------- */
+.freeplay-screen {
+  width: min(1200px, 98vw);
+  margin: 12px auto 30px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  animation: fade-in 0.25s ease-out;
+}
+.freeplay-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 12px;
+  padding: 0 8px;
+}
+.freeplay-nav {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+.freeplay-title-wrap {
+  display: flex;
+  flex-direction: column;
+}
+.freeplay-title {
+  margin: 0;
+  font-size: 24px;
+  font-weight: 900;
+  color: var(--gold);
+}
+.freeplay-subtitle {
+  font-size: 13px;
+  color: var(--text-dim);
+}
+.freeplay-controls {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+.freeplay-presets {
+  display: flex;
+  gap: 6px;
+  background: rgba(255, 255, 255, 0.06);
+  padding: 4px;
+  border-radius: 12px;
+}
+.freeplay-preset-btn {
+  all: unset;
+  padding: 6px 12px;
+  font-size: 13px;
+  font-weight: 800;
+  color: var(--tan);
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+.freeplay-preset-btn:hover {
+  background: rgba(255, 255, 255, 0.1);
+  color: #fff;
+}
+.freeplay-preset-btn.active {
+  background: var(--gold);
+  color: #0b192e;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.35);
+}
+.freeplay-deal-btn {
+  padding: 8px 16px;
+  font-size: 14px;
+}
+.freeplay-table-wrap {
+  width: 100%;
+}
+.freeplay-launch-btn {
+  border-color: rgba(56, 189, 248, 0.4);
+  color: #7dd3fc;
+}
+.freeplay-launch-btn:hover {
+  background: rgba(56, 189, 248, 0.15);
+  border-color: #38bdf8;
+}
+
+/* Free Play Result Modal */
+.freeplay-modal-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(4, 12, 28, 0.8);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  z-index: 1300;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 16px;
+  animation: fade-in 0.25s ease-out;
+}
+.freeplay-result-card {
+  background: rgba(11, 25, 54, 0.96);
+  border: 1px solid var(--gold-dim);
+  border-radius: 24px;
+  padding: 30px;
+  max-width: 500px;
+  width: 100%;
+  text-align: center;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.7), 0 0 40px rgba(255, 215, 0, 0.2);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  animation: pop-in 0.25s ease-out;
+}
+.result-title {
+  margin: 6px 0 0;
+  font-size: 22px;
+  font-weight: 900;
+  color: #fff;
+}
+.result-score-tag {
+  font-size: 32px;
+  font-weight: 900;
+  color: var(--gold);
+  text-shadow: 0 0 20px rgba(255, 215, 0, 0.4);
+}
+.result-stats-line {
+  font-size: 14.5px;
+  line-height: 1.5;
+  color: var(--tan);
+  margin: 0;
+}
+.result-actions {
+  display: flex;
+  gap: 12px;
+  margin-top: 14px;
+  width: 100%;
+  justify-content: center;
+}
+
 /* (No big-screen upscale rules: the sim stage scales itself to fit.) */

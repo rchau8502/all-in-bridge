@@ -173,7 +173,7 @@ function DoneCard(props: {
   );
 }
 
-interface SimSeatInfo {
+export interface SimSeatInfo {
   seat: Seat;
   count: number;
   badge?: string;
@@ -203,7 +203,7 @@ function groupHandBySuit(cards: Card[]): Array<{ suit: Suit; cards: Card[] }> {
   return groups;
 }
 
-function SimTable(props: {
+export function SimTable(props: {
   lang: Lang;
   title: string;
   contractLabel: string | null;

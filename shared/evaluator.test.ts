@@ -7,6 +7,8 @@ import {
   evaluateHand,
   dealRandomHand,
   generateDrillHand,
+  calculateDummyPoints,
+  evaluateResponse,
 } from './evaluator.js';
 import { buildDeck, type Card } from './deck.js';
 
@@ -200,5 +202,108 @@ describe('Hand Evaluator — ACBL Standards', () => {
 
     const majorHand = generateDrillHand('major');
     expect(['1H', '1S']).toContain(majorHand.evaluation.recommendedBid);
+  });
+});
+
+describe('Responder Evaluation — ACBL Class 6 & 7 Standards', () => {
+  it('calculates dummy points correctly (Void=3, Singleton=2, Doubleton=1)', () => {
+    // Trump is S; H: 0 (Void=3), D: 1 (Singleton=2), C: 2 (Doubleton=1) -> total 6
+    const lengths = { S: 10, H: 0, D: 1, C: 2 };
+    expect(calculateDummyPoints(lengths, 'S')).toBe(6);
+  });
+
+  it('1NT response: 0-7 HCP passes (traffic light RED)', () => {
+    // 6 HCP
+    const hand: Card[] = [
+      { suit: 'S', rank: 13 }, { suit: 'S', rank: 8 }, { suit: 'S', rank: 4 }, // 3
+      { suit: 'H', rank: 12 }, { suit: 'H', rank: 5 }, { suit: 'H', rank: 3 }, // 2
+      { suit: 'D', rank: 11 }, { suit: 'D', rank: 4 }, { suit: 'D', rank: 2 }, // 1
+      { suit: 'C', rank: 8 }, { suit: 'C', rank: 7 }, { suit: 'C', rank: 5 }, { suit: 'C', rank: 2 }, // 0
+    ];
+    const ev = evaluateResponse(hand, '1NT');
+    expect(ev.hcp).toBe(6);
+    expect(ev.recommendedBid).toBe('Pass');
+    expect(ev.trafficLight).toBe('stop');
+  });
+
+  it('1NT response: 8-9 HCP invites with 2NT (traffic light YELLOW)', () => {
+    // 9 HCP
+    const hand: Card[] = [
+      { suit: 'S', rank: 14 }, { suit: 'S', rank: 8 }, { suit: 'S', rank: 4 }, // 4
+      { suit: 'H', rank: 13 }, { suit: 'H', rank: 5 }, { suit: 'H', rank: 3 }, // 3
+      { suit: 'D', rank: 12 }, { suit: 'D', rank: 4 }, { suit: 'D', rank: 2 }, // 2
+      { suit: 'C', rank: 8 }, { suit: 'C', rank: 7 }, { suit: 'C', rank: 5 }, { suit: 'C', rank: 2 }, // 0
+    ];
+    const ev = evaluateResponse(hand, '1NT');
+    expect(ev.hcp).toBe(9);
+    expect(ev.recommendedBid).toBe('2NT');
+    expect(ev.trafficLight).toBe('invite');
+  });
+
+  it('1NT response: 10+ HCP bids game 3NT (traffic light GREEN)', () => {
+    // 11 HCP
+    const hand: Card[] = [
+      { suit: 'S', rank: 14 }, { suit: 'S', rank: 8 }, { suit: 'S', rank: 4 }, // 4
+      { suit: 'H', rank: 14 }, { suit: 'H', rank: 5 }, { suit: 'H', rank: 3 }, // 4
+      { suit: 'D', rank: 13 }, { suit: 'D', rank: 4 }, { suit: 'D', rank: 2 }, // 3
+      { suit: 'C', rank: 8 }, { suit: 'C', rank: 7 }, { suit: 'C', rank: 5 }, { suit: 'C', rank: 2 }, // 0
+    ];
+    const ev = evaluateResponse(hand, '1NT');
+    expect(ev.hcp).toBe(11);
+    expect(ev.recommendedBid).toBe('3NT');
+    expect(ev.trafficLight).toBe('go');
+  });
+
+  it('1S response: 3+ support & 6-9 pts makes simple raise to 2S', () => {
+    // 3 Spades, 7 HCP, no short suits
+    const hand: Card[] = [
+      { suit: 'S', rank: 13 }, { suit: 'S', rank: 8 }, { suit: 'S', rank: 4 }, // 3
+      { suit: 'H', rank: 12 }, { suit: 'H', rank: 8 }, { suit: 'H', rank: 3 }, // 2
+      { suit: 'D', rank: 12 }, { suit: 'D', rank: 4 }, { suit: 'D', rank: 2 }, // 2
+      { suit: 'C', rank: 8 }, { suit: 'C', rank: 7 }, { suit: 'C', rank: 5 }, { suit: 'C', rank: 2 }, // 0
+    ];
+    const ev = evaluateResponse(hand, '1S');
+    expect(ev.hasGoldenFit).toBe(true);
+    expect(ev.recommendedBid).toBe('2S');
+  });
+
+  it('1S response: 3+ support & 10-12 pts makes limit raise to 3S', () => {
+    // 3 Spades, 11 HCP
+    const hand: Card[] = [
+      { suit: 'S', rank: 14 }, { suit: 'S', rank: 8 }, { suit: 'S', rank: 4 }, // 4
+      { suit: 'H', rank: 13 }, { suit: 'H', rank: 8 }, { suit: 'H', rank: 3 }, // 3
+      { suit: 'D', rank: 14 }, { suit: 'D', rank: 4 }, { suit: 'D', rank: 2 }, // 4
+      { suit: 'C', rank: 8 }, { suit: 'C', rank: 7 }, { suit: 'C', rank: 5 }, { suit: 'C', rank: 2 }, // 0
+    ];
+    const ev = evaluateResponse(hand, '1S');
+    expect(ev.hasGoldenFit).toBe(true);
+    expect(ev.recommendedBid).toBe('3S');
+  });
+
+  it('1S response: 3+ support & 13+ pts raises to game 4S', () => {
+    // 3 Spades, 14 HCP
+    const hand: Card[] = [
+      { suit: 'S', rank: 14 }, { suit: 'S', rank: 13 }, { suit: 'S', rank: 4 }, // 7
+      { suit: 'H', rank: 13 }, { suit: 'H', rank: 8 }, { suit: 'H', rank: 3 }, // 3
+      { suit: 'D', rank: 14 }, { suit: 'D', rank: 4 }, { suit: 'D', rank: 2 }, // 4
+      { suit: 'C', rank: 8 }, { suit: 'C', rank: 7 }, { suit: 'C', rank: 5 }, { suit: 'C', rank: 2 }, // 0
+    ];
+    const ev = evaluateResponse(hand, '1S');
+    expect(ev.hasGoldenFit).toBe(true);
+    expect(ev.recommendedBid).toBe('4S');
+  });
+
+  it('1C response: holding both 4-card majors follows "Four on the Floor" and bids 1H', () => {
+    // 4 Spades, 4 Hearts, 8 HCP
+    const hand: Card[] = [
+      { suit: 'S', rank: 13 }, { suit: 'S', rank: 8 }, { suit: 'S', rank: 5 }, { suit: 'S', rank: 2 }, // 3
+      { suit: 'H', rank: 13 }, { suit: 'H', rank: 8 }, { suit: 'H', rank: 5 }, { suit: 'H', rank: 2 }, // 3
+      { suit: 'D', rank: 12 }, { suit: 'D', rank: 4 }, { suit: 'D', rank: 2 }, // 2
+      { suit: 'C', rank: 8 }, { suit: 'C', rank: 2 }, // 0
+    ];
+    const ev = evaluateResponse(hand, '1C');
+    expect(ev.recommendedBid).toBe('1H');
+    expect(ev.ruleId).toBe('resp_minor_four_on_floor');
+    expect(ev.mnemonic?.en).toContain('Four on the Floor');
   });
 });

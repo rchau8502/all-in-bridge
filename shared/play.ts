@@ -111,7 +111,7 @@ export function trickWinner(trick: TrickPlay[], trump: Card['suit'] | null): Sea
   return best.seat;
 }
 
-function beats(challenger: Card, current: Card, led: Card['suit'], trump: Card['suit'] | null): boolean {
+export function beats(challenger: Card, current: Card, led: Card['suit'], trump: Card['suit'] | null): boolean {
   const cTrump = trump !== null && challenger.suit === trump;
   const bTrump = trump !== null && current.suit === trump;
   if (cTrump && !bTrump) return true;
