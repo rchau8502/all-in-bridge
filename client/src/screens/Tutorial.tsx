@@ -2,6 +2,7 @@ import { useEffect, useMemo, useRef, useState } from 'react';
 import { useApp } from '../App.js';
 import { t, bidLabelL, seatLabel, type Lang } from '../i18n.js';
 import { CardView, Avatar } from '../components/ui.js';
+import { InlineGlossaryText } from '../components/InlineGlossaryText.js';
 import { audio } from '../audio.js';
 import { TutorialRunner } from '../../../shared/tutorial.js';
 import type { Lesson } from '../../../shared/tutorial.js';
@@ -76,8 +77,9 @@ function useTypewriter(text: string) {
 function CoachCard(props: {
   lang: Lang; characterId: string; text: string; nextLabel: string;
   onAdvance: () => void;
+  onOpenFullGlossary?: (query: string) => void;
 }) {
-  const { lang, characterId, text, nextLabel, onAdvance } = props;
+  const { lang, characterId, text, nextLabel, onAdvance, onOpenFullGlossary } = props;
   const { shown, done, skip } = useTypewriter(text);
   const [mood, setMood] = useState<'happy' | null>(null);
   const moodTimer = useRef<number | undefined>(undefined);
@@ -88,7 +90,7 @@ function CoachCard(props: {
       window.clearTimeout(moodTimer.current);
       moodTimer.current = window.setTimeout(() => setMood(null), 800);
     }
-  }, [done ]);
+  }, [done]);
   useEffect(() => () => window.clearTimeout(moodTimer.current), []);
 
   const tap = () => {
@@ -98,9 +100,18 @@ function CoachCard(props: {
 
   return (
     <div className="tut-coach-card">
-      <Avatar id={characterId} className={`coach-avatar${mood ? ` react-${mood}` : ''}`} />
+      <Avatar id={characterId} className={`coach-avatar${mood ? ` react-${mood}` : !done ? ' react-talking' : ''}`} />
       <div className="coach-bubble" onClick={tap}>
-        <p className="tut-text">{shown}{!done && <span className="tw-caret" />}</p>
+        <div className="tut-text">
+          {done ? (
+            <InlineGlossaryText text={shown} lang={lang} onOpenFullGlossary={onOpenFullGlossary} />
+          ) : (
+            <>
+              {shown}
+              <span className="tw-caret" />
+            </>
+          )}
+        </div>
         {!done && <span className="tw-skip">{t(lang, 'tut.tapToSkip')}</span>}
         <button
           className="btn primary"
@@ -242,6 +253,10 @@ function SimTable(props: {
   tricksWon?: Record<'NS' | 'EW', number> | null;
   /** Target tricks needed to make contract (e.g. 6 + level). */
   targetTricks?: number | null;
+  /** Duplicate board sequence number for tournament realism. */
+  boardNo?: number;
+  /** Dealer seat for duplicate board widget. */
+  dealer?: Seat;
 }) {
   const { lang } = props;
   const sigs = props.trick.map(t => `${t.seat}${t.card.suit}${t.card.rank}`);
@@ -304,6 +319,17 @@ function SimTable(props: {
         style={fit.scale > 0 ? { width: fit.w, height: STAGE_H, transform: `translate(-50%, -50%) scale(${fit.scale})` } : undefined}
       >
       <div className="sim-topbar">
+        {props.boardNo && (
+          <div className="board-indicator" title={lang === 'zh' ? '比赛牌套信息' : 'Duplicate Board Info'}>
+            <span className="board-no">{lang === 'zh' ? `第 ${props.boardNo} 副` : `Board ${props.boardNo}`}</span>
+            {props.dealer && (
+              <span className="board-dlr">
+                {lang === 'zh' ? `庄: ${seatLabel(lang, props.dealer)}` : `Dlr: ${props.dealer}`}
+              </span>
+            )}
+            <span className="board-vul">{lang === 'zh' ? '无局' : 'None Vul'}</span>
+          </div>
+        )}
         <span className="sim-trickno">{props.title}</span>
         {props.contractLabel && <span className="contract-pill">{props.contractLabel}</span>}
         {props.tricksWon && (
@@ -379,6 +405,26 @@ function SimTable(props: {
         })}
 
       <div className="sim-center">
+        <div className="sim-compass" aria-hidden="true">
+          <svg viewBox="0 0 160 160" className="compass-svg">
+            <circle cx="80" cy="80" r="72" className="compass-ring-out" />
+            <circle cx="80" cy="80" r="62" className="compass-ring-mid" />
+            <circle cx="80" cy="80" r="28" className="compass-ring-inn" />
+            <path d="M80 14 L85 70 L136 75 L85 80 L80 136 L75 80 L24 75 L75 70 Z" className="compass-star-pri" />
+            <text x="80" y="24" className={`compass-lbl lbl-n ${props.seats.find(s=>s.seat==='N')?.active || props.playSeat==='N' ? 'lit' : ''}`}>
+              {lang === 'zh' ? '北' : 'N'}
+            </text>
+            <text x="140" y="85" className={`compass-lbl lbl-e ${props.seats.find(s=>s.seat==='E')?.active ? 'lit' : ''}`}>
+              {lang === 'zh' ? '东' : 'E'}
+            </text>
+            <text x="80" y="146" className={`compass-lbl lbl-s ${props.playSeat === 'S' || (!props.playSeat && props.seats.find(s=>s.seat==='S')?.active) ? 'lit' : ''}`}>
+              {lang === 'zh' ? '南' : 'S'}
+            </text>
+            <text x="20" y="85" className={`compass-lbl lbl-w ${props.seats.find(s=>s.seat==='W')?.active ? 'lit' : ''}`}>
+              {lang === 'zh' ? '西' : 'W'}
+            </text>
+          </svg>
+        </div>
         {props.trick.length > 0 && (
           <div className="sim-trick">
             {props.trick.map(t => {
@@ -412,25 +458,39 @@ function SimTable(props: {
               </div>
             )}
             <div className="hand" role="region" aria-label={props.handLabel ?? 'Hand'}>
-              {groupHandBySuit(props.hand).map(group => (
-                <div key={group.suit} className={`suit-cluster suit-${group.suit.toLowerCase()}`}>
-                  {group.cards.map((c, i) => {
-                    const isTarget = props.playSeat === 'S' && props.highlight === cardLabel(c);
-                    const isSelected = selectedCard === cardLabel(c);
-                    return (
-                      <CardView
-                        key={`${c.suit}${c.rank}-${i}`}
-                        card={c}
-                        playable={props.interactive && props.playSeat === 'S'}
-                        target={isTarget}
-                        selected={isSelected}
-                        focus={props.focus?.includes(cardLabel(c)) ?? false}
-                        onClick={props.playSeat === 'S' ? () => handleCardClick(c, isTarget) : undefined}
-                      />
-                    );
-                  })}
-                </div>
-              ))}
+              {groupHandBySuit(props.hand).map(group => {
+                const count = group.cards.length;
+                const mid = (count - 1) / 2;
+                return (
+                  <div key={group.suit} className={`suit-cluster suit-${group.suit.toLowerCase()}`}>
+                    {group.cards.map((c, i) => {
+                      const isTarget = props.playSeat === 'S' && props.highlight === cardLabel(c);
+                      const isSelected = selectedCard === cardLabel(c);
+                      const rotDeg = count > 1 ? (i - mid) * 1.5 : 0;
+                      const yOff = count > 1 ? Math.abs(i - mid) * 1.2 : 0;
+                      return (
+                        <div
+                          key={`${c.suit}${c.rank}-${i}`}
+                          className="card-fan-wrapper"
+                          style={{
+                            ['--fan-rot' as string]: `${rotDeg}deg`,
+                            ['--fan-y' as string]: `${yOff}px`,
+                          }}
+                        >
+                          <CardView
+                            card={c}
+                            playable={props.interactive && props.playSeat === 'S'}
+                            target={isTarget}
+                            selected={isSelected}
+                            focus={props.focus?.includes(cardLabel(c)) ?? false}
+                            onClick={props.playSeat === 'S' ? () => handleCardClick(c, isTarget) : undefined}
+                          />
+                        </div>
+                      );
+                    })}
+                  </div>
+                );
+              })}
             </div>
           </>
         )}
@@ -478,6 +538,7 @@ export function Tutorial() {
     setCurrentLessonIdx,
     completedLessons,
     markLessonCompleted,
+    openGlossaryWithQuery,
   } = useApp();
 
   const lessons = useMemo(() => getLessons(lang), [lang]);
@@ -831,6 +892,7 @@ export function Tutorial() {
           text={step.text}
           nextLabel={t(lang, 'tut.next')}
           onAdvance={doAdvance}
+          onOpenFullGlossary={openGlossaryWithQuery}
         />
       )}
 
@@ -911,6 +973,8 @@ export function Tutorial() {
         {step?.kind === 'info' && (
           <SimTable
             lang={lang}
+            boardNo={lessonIdx + 1}
+            dealer={lesson.dealer}
             title={lesson.title}
             contractLabel={null}
             seats={(Object.keys(handHands) as Seat[]).map(s => ({
@@ -937,6 +1001,8 @@ export function Tutorial() {
         {step?.kind === 'auction' && auctionView && (
           <SimTable
             lang={lang}
+            boardNo={lessonIdx + 1}
+            dealer={lesson.dealer}
             title={lang === 'zh' ? '叫牌' : 'Auction'}
             contractLabel={null}
             seats={(Object.keys(lesson.hands) as Seat[]).map(s => ({
@@ -1020,6 +1086,8 @@ export function Tutorial() {
         {step?.kind === 'play' && playView && trickNo !== null && (
           <SimTable
             lang={lang}
+            boardNo={lessonIdx + 1}
+            dealer={lesson.dealer}
             title={lang === 'zh' ? `第 ${trickNo} 墩` : `Trick ${trickNo}`}
             contractLabel={
               lesson.id === 'tricks'

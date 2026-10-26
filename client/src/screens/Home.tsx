@@ -4,6 +4,7 @@ import { CHARACTERS } from '../../../shared/characters.js';
 import { Avatar } from '../components/ui.js';
 import { audio } from '../audio.js';
 import { getLessons } from '../../../shared/lessons.js';
+import { ACBL_CHAPTERS } from '../../../shared/chapters.js';
 
 /**
  * Home — the bootcamp front door. This app is a teaching tool now:
@@ -12,6 +13,7 @@ import { getLessons } from '../../../shared/lessons.js';
 export function Home() {
   const { lang, characterId, setCharacterId, currentLessonIdx, goToLesson, completedLessons } = useApp();
   const lessons = getLessons(lang);
+  const lessonIdToIdx = new Map(lessons.map((l, idx) => [l.id, idx]));
 
   const completedCount = completedLessons.size;
   const progressPercent = Math.round((completedCount / lessons.length) * 100);
@@ -65,19 +67,49 @@ export function Home() {
       </div>
 
       <div className="home-syllabus">
-        {lessons.map((l, i) => {
-          const isDone = completedLessons.has(l.id);
-          const isCurrent = i === currentLessonIdx;
+        {ACBL_CHAPTERS.map(ch => {
+          const chLessons = ch.lessonIds
+            .map(id => {
+              const idx = lessonIdToIdx.get(id);
+              return idx !== undefined ? { lesson: lessons[idx]!, idx } : null;
+            })
+            .filter((item): item is { lesson: (typeof lessons)[0]; idx: number } => item !== null);
+
+          const chDone = chLessons.filter(item => completedLessons.has(item.lesson.id)).length;
+
           return (
-            <button
-              key={l.id}
-              className={`home-syllabus-item ${isDone ? 'completed' : ''} ${isCurrent ? 'current' : ''}`}
-              onClick={() => goToLesson(i)}
-            >
-              <span className="home-syllabus-no">{isDone ? '✓' : i + 1}</span>
-              <span className="home-syllabus-title">{l.title}</span>
-              {isDone && <span className="home-syllabus-badge">✓</span>}
-            </button>
+            <div key={ch.id} className="home-chapter-card">
+              <div className="home-chapter-header">
+                <div className="home-chapter-titles">
+                  <span className="home-chapter-tag">{ch.acblClasses}</span>
+                  <div className="home-chapter-title">{ch.title[lang]}</div>
+                  <div className="home-chapter-sub">{ch.subtitle[lang]}</div>
+                </div>
+                <div className="home-chapter-stat">
+                  {chDone} / {chLessons.length}
+                </div>
+              </div>
+
+              <div className="home-chapter-lessons">
+                {chLessons.map(({ lesson: l, idx }) => {
+                  const isDone = completedLessons.has(l.id);
+                  const isCurrent = idx === currentLessonIdx;
+                  return (
+                    <button
+                      key={l.id}
+                      className={`home-syllabus-item ${isDone ? 'completed' : ''} ${isCurrent ? 'current' : ''}`}
+                      onClick={() => goToLesson(idx)}
+                    >
+                      <span className="home-syllabus-no">{isDone ? '✓' : idx + 1}</span>
+                      <span className="home-syllabus-title">{l.title}</span>
+                      <span className="home-syllabus-stars" title={isDone ? 'Mastered' : 'Not yet completed'}>
+                        {isDone ? '★★★' : '☆☆☆'}
+                      </span>
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
           );
         })}
       </div>

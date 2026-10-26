@@ -25,6 +25,7 @@ interface AppCtx {
   toggleFourColor: () => void;
   feltTheme: FeltTheme;
   cycleFeltTheme: () => void;
+  openGlossaryWithQuery: (q?: string) => void;
 }
 
 const Ctx = createContext<AppCtx>(null as unknown as AppCtx);
@@ -49,8 +50,15 @@ export function App() {
   const [fourColor, setFourColor] = useState<boolean>(() => localStorage.getItem('aib-four-color') === '1');
   const [feltTheme, setFeltTheme] = useState<FeltTheme>(() => (localStorage.getItem('aib-felt-theme') as FeltTheme) || 'teal');
   const [glossaryOpen, setGlossaryOpen] = useState(false);
+  const [glossaryQuery, setGlossaryQuery] = useState('');
   const [screen, setScreen] = useState<ScreenName>('home');
   const [tick, setTick] = useState(0);
+
+  const openGlossaryWithQuery = useCallback((q?: string) => {
+    setGlossaryQuery(q ?? '');
+    setGlossaryOpen(true);
+    audio.sfx('click');
+  }, []);
 
   const toggleFourColor = useCallback(() => {
     setFourColor(prev => {
@@ -133,9 +141,10 @@ export function App() {
       toggleFourColor,
       feltTheme,
       cycleFeltTheme,
+      openGlossaryWithQuery,
     }),
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    [lang, characterId, screen, currentLessonIdx, completedLessons, fourColor, feltTheme, tick]
+    [lang, characterId, screen, currentLessonIdx, completedLessons, fourColor, feltTheme, openGlossaryWithQuery, tick]
   );
 
   const bump = () => setTick(x => x + 1);
@@ -164,7 +173,7 @@ export function App() {
             </button>
             <button
               className="chip"
-              onClick={() => { audio.sfx('click'); setGlossaryOpen(true); }}
+              onClick={() => openGlossaryWithQuery('')}
               title={t(lang, 'home.glossary')}
             >
               📖 {t(lang, 'home.glossary')}
@@ -188,6 +197,7 @@ export function App() {
       <GlossaryModal
         lang={lang}
         isOpen={glossaryOpen}
+        initialQuery={glossaryQuery}
         onClose={() => setGlossaryOpen(false)}
       />
     </Ctx.Provider>
