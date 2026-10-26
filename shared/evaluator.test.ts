@@ -1,0 +1,204 @@
+import { describe, it, expect } from 'vitest';
+import {
+  calculateHcp,
+  getSuitLengths,
+  calculateLengthPoints,
+  isBalancedHand,
+  evaluateHand,
+  dealRandomHand,
+  generateDrillHand,
+} from './evaluator.js';
+import { buildDeck, type Card } from './deck.js';
+
+describe('Hand Evaluator — ACBL Standards', () => {
+  it('entire 52-card deck totals 40 HCP', () => {
+    const deck = buildDeck();
+    expect(calculateHcp(deck)).toBe(40);
+  });
+
+  it('calculates HCP correctly for a sample hand', () => {
+    // ♠ AKQ (4+3+2=9), ♥ J (1), ♦ 10 (0), ♣ (0)
+    const hand: Card[] = [
+      { suit: 'S', rank: 14 },
+      { suit: 'S', rank: 13 },
+      { suit: 'S', rank: 12 },
+      { suit: 'H', rank: 11 },
+      { suit: 'D', rank: 10 },
+    ];
+    expect(calculateHcp(hand)).toBe(10);
+  });
+
+  it('calculates length points correctly for 5+ card suits', () => {
+    const lengths = { S: 5, H: 6, D: 2, C: 0 };
+    // S: 5-4 = 1 pt; H: 6-4 = 2 pts; total = 3 pts
+    expect(calculateLengthPoints(lengths)).toBe(3);
+  });
+
+  it('identifies balanced distributions (4-3-3-3, 4-4-3-2, 5-3-3-2)', () => {
+    expect(isBalancedHand({ S: 4, H: 3, D: 3, C: 3 })).toBe(true);
+    expect(isBalancedHand({ S: 4, H: 4, D: 3, C: 2 })).toBe(true);
+    expect(isBalancedHand({ S: 5, H: 3, D: 3, C: 2 })).toBe(true);
+
+    // Unbalanced: singleton
+    expect(isBalancedHand({ S: 5, H: 4, D: 3, C: 1 })).toBe(false);
+    // Unbalanced: void
+    expect(isBalancedHand({ S: 5, H: 5, D: 3, C: 0 })).toBe(false);
+    // Unbalanced: two doubletons (5-4-2-2)
+    expect(isBalancedHand({ S: 5, H: 4, D: 2, C: 2 })).toBe(false);
+  });
+
+  it('recommends Pass for hands under 12 total points', () => {
+    // 8 HCP, 4-3-3-3 balanced
+    const hand: Card[] = [
+      { suit: 'S', rank: 13 }, { suit: 'S', rank: 8 }, { suit: 'S', rank: 7 }, { suit: 'S', rank: 2 },
+      { suit: 'H', rank: 12 }, { suit: 'H', rank: 6 }, { suit: 'H', rank: 5 },
+      { suit: 'D', rank: 11 }, { suit: 'D', rank: 4 }, { suit: 'D', rank: 3 },
+      { suit: 'C', rank: 12 }, { suit: 'C', rank: 9 }, { suit: 'C', rank: 2 },
+    ];
+    const ev = evaluateHand(hand);
+    expect(ev.hcp).toBe(3 + 2 + 1 + 2); // 8 HCP
+    expect(ev.totalPoints).toBe(8);
+    expect(ev.recommendedBid).toBe('Pass');
+    expect(ev.ruleId).toBe('pass_sub_12');
+  });
+
+  it('recommends 1NT for 15-17 HCP balanced hands', () => {
+    // ♠ A K 4 2 (7), ♥ K Q 3 (5), ♦ Q 10 2 (2), ♣ K 5 2 (3) = 17 HCP, 4-3-3-3
+    const hand: Card[] = [
+      { suit: 'S', rank: 14 }, { suit: 'S', rank: 13 }, { suit: 'S', rank: 4 }, { suit: 'S', rank: 2 },
+      { suit: 'H', rank: 13 }, { suit: 'H', rank: 12 }, { suit: 'H', rank: 3 },
+      { suit: 'D', rank: 12 }, { suit: 'D', rank: 10 }, { suit: 'D', rank: 2 },
+      { suit: 'C', rank: 13 }, { suit: 'C', rank: 5 }, { suit: 'C', rank: 2 },
+    ];
+    const ev = evaluateHand(hand);
+    expect(ev.hcp).toBe(17);
+    expect(ev.isBalanced).toBe(true);
+    expect(ev.recommendedBid).toBe('1NT');
+    expect(ev.ruleId).toBe('open_1nt_15_17');
+    expect(ev.mnemonic?.en).toContain('15-17');
+  });
+
+  it('recommends 2NT for 20-21 HCP balanced hands', () => {
+    // 20 HCP, 4-4-3-2
+    const hand: Card[] = [
+      { suit: 'S', rank: 14 }, { suit: 'S', rank: 13 }, { suit: 'S', rank: 4 }, { suit: 'S', rank: 2 }, // 7
+      { suit: 'H', rank: 14 }, { suit: 'H', rank: 13 }, { suit: 'H', rank: 5 }, { suit: 'H', rank: 3 }, // 7
+      { suit: 'D', rank: 14 }, { suit: 'D', rank: 12 }, { suit: 'D', rank: 2 }, // 6
+      { suit: 'C', rank: 6 }, { suit: 'C', rank: 2 }, // 0
+    ];
+    const ev = evaluateHand(hand);
+    expect(ev.hcp).toBe(20);
+    expect(ev.isBalanced).toBe(true);
+    expect(ev.recommendedBid).toBe('2NT');
+    expect(ev.ruleId).toBe('open_2nt_20_21');
+  });
+
+  it('recommends 2C strong artificial for 22+ points', () => {
+    // 23 HCP
+    const hand: Card[] = [
+      { suit: 'S', rank: 14 }, { suit: 'S', rank: 13 }, { suit: 'S', rank: 12 }, { suit: 'S', rank: 11 }, // 10
+      { suit: 'H', rank: 14 }, { suit: 'H', rank: 13 }, { suit: 'H', rank: 12 }, // 9
+      { suit: 'D', rank: 14 }, { suit: 'D', rank: 3 }, // 4
+      { suit: 'C', rank: 5 }, { suit: 'C', rank: 4 }, { suit: 'C', rank: 3 }, { suit: 'C', rank: 2 }, // 0
+    ];
+    const ev = evaluateHand(hand);
+    expect(ev.totalPoints).toBeGreaterThanOrEqual(22);
+    expect(ev.recommendedBid).toBe('2C');
+    expect(ev.ruleId).toBe('open_2c_strong');
+  });
+
+  it('applies "High Five" rule with 5-5 in Spades and Hearts', () => {
+    // 13 HCP, 5 Spades, 5 Hearts, 2 Diamonds, 1 Club
+    const hand: Card[] = [
+      { suit: 'S', rank: 14 }, { suit: 'S', rank: 13 }, { suit: 'S', rank: 8 }, { suit: 'S', rank: 4 }, { suit: 'S', rank: 2 }, // 7
+      { suit: 'H', rank: 13 }, { suit: 'H', rank: 12 }, { suit: 'H', rank: 11 }, { suit: 'H', rank: 5 }, { suit: 'H', rank: 3 }, // 6
+      { suit: 'D', rank: 7 }, { suit: 'D', rank: 3 },
+      { suit: 'C', rank: 2 },
+    ];
+    const ev = evaluateHand(hand);
+    expect(ev.suitLengths.S).toBe(5);
+    expect(ev.suitLengths.H).toBe(5);
+    expect(ev.recommendedBid).toBe('1S');
+    expect(ev.ruleId).toBe('open_major_high_five');
+    expect(ev.mnemonic?.en).toContain('High Five');
+  });
+
+  it('opens 1S with 5 spades (and fewer hearts)', () => {
+    // 13 HCP, 5S, 3H, 3D, 2C
+    const hand: Card[] = [
+      { suit: 'S', rank: 14 }, { suit: 'S', rank: 13 }, { suit: 'S', rank: 8 }, { suit: 'S', rank: 4 }, { suit: 'S', rank: 2 }, // 7
+      { suit: 'H', rank: 13 }, { suit: 'H', rank: 5 }, { suit: 'H', rank: 3 }, // 3
+      { suit: 'D', rank: 13 }, { suit: 'D', rank: 5 }, { suit: 'D', rank: 2 }, // 3
+      { suit: 'C', rank: 6 }, { suit: 'C', rank: 2 }, // 0
+    ];
+    const ev = evaluateHand(hand);
+    expect(ev.recommendedBid).toBe('1S');
+    expect(ev.ruleId).toBe('open_1s_major');
+  });
+
+  it('opens 1H with 5 hearts', () => {
+    // 13 HCP, 3S, 5H, 3D, 2C
+    const hand: Card[] = [
+      { suit: 'S', rank: 13 }, { suit: 'S', rank: 5 }, { suit: 'S', rank: 2 }, // 3
+      { suit: 'H', rank: 14 }, { suit: 'H', rank: 13 }, { suit: 'H', rank: 8 }, { suit: 'H', rank: 4 }, { suit: 'H', rank: 2 }, // 7
+      { suit: 'D', rank: 13 }, { suit: 'D', rank: 5 }, { suit: 'D', rank: 2 }, // 3
+      { suit: 'C', rank: 6 }, { suit: 'C', rank: 2 }, // 0
+    ];
+    const ev = evaluateHand(hand);
+    expect(ev.recommendedBid).toBe('1H');
+    expect(ev.ruleId).toBe('open_1h_major');
+  });
+
+  it('opens 1D with 4-4 in minors and no 5-card major', () => {
+    // 2S, 3H, 4D, 4C, 13 HCP
+    const hand: Card[] = [
+      { suit: 'S', rank: 14 }, { suit: 'S', rank: 2 }, // 4
+      { suit: 'H', rank: 13 }, { suit: 'H', rank: 5 }, { suit: 'H', rank: 2 }, // 3
+      { suit: 'D', rank: 13 }, { suit: 'D', rank: 8 }, { suit: 'D', rank: 5 }, { suit: 'D', rank: 2 }, // 3
+      { suit: 'C', rank: 13 }, { suit: 'C', rank: 8 }, { suit: 'C', rank: 5 }, { suit: 'C', rank: 2 }, // 3
+    ];
+    const ev = evaluateHand(hand);
+    expect(ev.suitLengths.D).toBe(4);
+    expect(ev.suitLengths.C).toBe(4);
+    expect(ev.recommendedBid).toBe('1D');
+    expect(ev.ruleId).toBe('open_1d_equal_44');
+  });
+
+  it('opens 1C with 3-3 in minors and no 5-card major', () => {
+    // 4S, 3H, 3D, 3C (Wait: 4-3-3-3 = 13 cards), 13 HCP (not 15-17)
+    const hand: Card[] = [
+      { suit: 'S', rank: 14 }, { suit: 'S', rank: 13 }, { suit: 'S', rank: 5 }, { suit: 'S', rank: 2 }, // 7
+      { suit: 'H', rank: 12 }, { suit: 'H', rank: 5 }, { suit: 'H', rank: 2 }, // 2
+      { suit: 'D', rank: 12 }, { suit: 'D', rank: 5 }, { suit: 'D', rank: 2 }, // 2
+      { suit: 'C', rank: 12 }, { suit: 'C', rank: 5 }, { suit: 'C', rank: 2 }, // 2
+    ];
+    const ev = evaluateHand(hand);
+    expect(ev.hcp).toBe(13); // not 15-17
+    expect(ev.suitLengths.D).toBe(3);
+    expect(ev.suitLengths.C).toBe(3);
+    expect(ev.recommendedBid).toBe('1C');
+    expect(ev.ruleId).toBe('open_1c_equal_33');
+  });
+
+  it('deals random 13-card hand with no duplicate cards', () => {
+    const hand = dealRandomHand();
+    expect(hand.length).toBe(13);
+    const seen = new Set<string>();
+    for (const c of hand) {
+      const sig = `${c.suit}${c.rank}`;
+      expect(seen.has(sig)).toBe(false);
+      seen.add(sig);
+    }
+  });
+
+  it('generates drill hands matching requested category', () => {
+    const passHand = generateDrillHand('pass');
+    expect(passHand.evaluation.recommendedBid).toBe('Pass');
+
+    const ntHand = generateDrillHand('1nt');
+    expect(ntHand.evaluation.recommendedBid).toBe('1NT');
+
+    const majorHand = generateDrillHand('major');
+    expect(['1H', '1S']).toContain(majorHand.evaluation.recommendedBid);
+  });
+});

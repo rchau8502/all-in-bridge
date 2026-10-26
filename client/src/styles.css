@@ -1744,4 +1744,373 @@ table.standings tr.leader td { color: var(--accent); font-weight: 800; }
   color: #fff;
 }
 
+/* ---------- Trick Collection Animation ---------- */
+.sim-trick.collecting-to-top .sim-tcard {
+  transform: translateY(-220px) scale(0.35) rotate(0deg) !important;
+  opacity: 0;
+  transition: all 0.32s cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+.sim-trick.collecting-to-bottom .sim-tcard {
+  transform: translateY(220px) scale(0.35) rotate(0deg) !important;
+  opacity: 0;
+  transition: all 0.32s cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+.sim-trick.collecting-to-left .sim-tcard {
+  transform: translateX(-280px) scale(0.35) rotate(0deg) !important;
+  opacity: 0;
+  transition: all 0.32s cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+.sim-trick.collecting-to-right .sim-tcard {
+  transform: translateX(280px) scale(0.35) rotate(0deg) !important;
+  opacity: 0;
+  transition: all 0.32s cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+
+/* ---------- In-Table Tactical Hint Banner ---------- */
+.sim-hint-toggle-btn {
+  background: rgba(255, 216, 61, 0.16);
+  border: 1px solid rgba(255, 216, 61, 0.4);
+  color: var(--gold);
+  font-size: 11px;
+  font-weight: 700;
+  padding: 3px 8px;
+  border-radius: 12px;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+.sim-hint-toggle-btn:hover,
+.sim-hint-toggle-btn.active {
+  background: rgba(255, 216, 61, 0.32);
+  color: #fff;
+  border-color: var(--gold);
+}
+.sim-tactical-banner {
+  margin: 6px auto 0;
+  max-width: 92%;
+  background: rgba(15, 23, 42, 0.92);
+  border: 1px solid rgba(255, 215, 0, 0.45);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.4), 0 0 12px rgba(255, 215, 0, 0.15);
+  border-radius: 10px;
+  padding: 6px 12px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  animation: pop-in 0.2s ease-out;
+  cursor: pointer;
+}
+.tactical-icon {
+  font-size: 15px;
+  flex: none;
+}
+.tactical-text {
+  font-size: 12px;
+  color: #fde047;
+  line-height: 1.4;
+  font-weight: 600;
+  flex: 1;
+}
+.tactical-close {
+  all: unset;
+  color: #94a3b8;
+  font-size: 12px;
+  padding: 2px 6px;
+  border-radius: 4px;
+  cursor: pointer;
+}
+.tactical-close:hover {
+  color: #fff;
+}
+
+/* ---------- Drill Screen Styles ---------- */
+.drill-screen {
+  width: min(1040px, 96vw);
+  margin: 16px auto 40px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  animation: fade-in 0.25s ease-out;
+}
+.drill-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+.drill-nav {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+.drill-title-wrap {
+  display: flex;
+  flex-direction: column;
+}
+.drill-title {
+  margin: 0;
+  font-size: 24px;
+  font-weight: 900;
+  color: var(--gold);
+  letter-spacing: -0.5px;
+}
+.drill-subtitle {
+  font-size: 13px;
+  color: var(--text-dim);
+}
+.drill-stats {
+  display: flex;
+  gap: 12px;
+}
+.drill-stat-box {
+  background: var(--surface);
+  border: 1px solid var(--stroke);
+  border-radius: var(--r-md);
+  padding: 6px 14px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  min-width: 80px;
+}
+.stat-label {
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--text-dim);
+  text-transform: uppercase;
+}
+.stat-val {
+  font-size: 16px;
+  font-weight: 800;
+  color: #fff;
+}
+.stat-val.streak {
+  color: #fb923c;
+}
+.drill-categories {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+.drill-cat-pill {
+  all: unset;
+  padding: 6px 14px;
+  border-radius: 20px;
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--tan);
+  background: var(--surface);
+  border: 1px solid var(--stroke);
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+.drill-cat-pill:hover {
+  background: rgba(255, 255, 255, 0.1);
+  color: #fff;
+}
+.drill-cat-pill.active {
+  background: var(--gold);
+  color: #0b192e;
+  font-weight: 800;
+  border-color: var(--gold);
+  box-shadow: 0 0 12px rgba(255, 215, 0, 0.35);
+}
+.drill-table-container {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+.drill-felt {
+  background: var(--felt-grad);
+  border-radius: 20px;
+  padding: 30px 20px 20px;
+  box-shadow: inset 0 0 0 8px #2b1810, inset 0 0 0 10px #180b06, inset 0 12px 30px rgba(0, 0, 0, 0.7), 0 14px 40px rgba(0, 0, 0, 0.45);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  position: relative;
+}
+.drill-hand-display {
+  display: flex;
+  gap: 12px;
+  justify-content: center;
+  align-items: flex-end;
+  min-height: 130px;
+  flex-wrap: wrap;
+  padding: 10px 0;
+}
+.drill-metrics-bar {
+  margin-top: 14px;
+  width: 100%;
+  display: flex;
+  justify-content: center;
+}
+.drill-metrics-revealed {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  justify-content: center;
+  animation: pop-in 0.2s ease-out;
+}
+.metric-chip {
+  background: rgba(0, 0, 0, 0.45);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  padding: 5px 12px;
+  border-radius: 8px;
+  font-size: 13px;
+  color: var(--tan);
+}
+.metric-chip.highlight {
+  border-color: var(--gold);
+  color: var(--gold);
+  font-weight: 800;
+  background: rgba(255, 215, 0, 0.12);
+}
+.drill-reveal-hint-btn {
+  all: unset;
+  background: rgba(0, 0, 0, 0.35);
+  border: 1px dashed rgba(255, 215, 0, 0.5);
+  color: var(--gold);
+  padding: 6px 16px;
+  border-radius: 8px;
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+.drill-reveal-hint-btn:hover {
+  background: rgba(255, 215, 0, 0.15);
+}
+.drill-action-card {
+  background: var(--surface);
+  border: 1px solid var(--stroke);
+  border-radius: 18px;
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  box-shadow: var(--shadow-md);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+}
+.drill-question-row {
+  text-align: center;
+}
+.drill-question-text {
+  font-size: 16px;
+  font-weight: 800;
+  color: #fff;
+}
+.drill-bid-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 10px;
+  max-width: 680px;
+  margin: 0 auto;
+  width: 100%;
+}
+@media (min-width: 600px) {
+  .drill-bid-grid {
+    grid-template-columns: repeat(8, 1fr);
+  }
+}
+.drill-bid-btn {
+  all: unset;
+  cursor: pointer;
+  padding: 12px 6px;
+  text-align: center;
+  border-radius: 10px;
+  font-size: 17px;
+  font-weight: 800;
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  color: #fff;
+  transition: all 0.15s ease;
+  box-sizing: border-box;
+}
+.drill-bid-btn:hover:not(:disabled) {
+  background: rgba(255, 255, 255, 0.18);
+  border-color: var(--gold);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+}
+.drill-bid-btn.correct-bid {
+  background: #166534 !important;
+  border-color: #22c55e !important;
+  color: #bbf7d0 !important;
+  box-shadow: 0 0 16px rgba(34, 197, 94, 0.45);
+}
+.drill-bid-btn.wrong-bid {
+  background: #991b1b !important;
+  border-color: #ef4444 !important;
+  color: #fecaca !important;
+}
+.drill-bid-btn.muted-bid {
+  opacity: 0.35;
+}
+.drill-bid-btn:disabled {
+  cursor: default;
+}
+.drill-feedback-card {
+  margin-top: 10px;
+  border-radius: 14px;
+  padding: 16px;
+  animation: pop-in 0.2s ease-out;
+}
+.drill-feedback-card.correct {
+  background: rgba(22, 101, 52, 0.3);
+  border: 1px solid rgba(34, 197, 94, 0.4);
+}
+.drill-feedback-card.wrong {
+  background: rgba(153, 27, 27, 0.25);
+  border: 1px solid rgba(239, 68, 68, 0.35);
+}
+.feedback-header {
+  display: flex;
+  gap: 14px;
+  align-items: flex-start;
+}
+.feedback-title-wrap {
+  flex: 1;
+}
+.feedback-verdict {
+  margin: 0 0 6px;
+  font-size: 16px;
+  font-weight: 800;
+  color: #fff;
+}
+.feedback-explanation {
+  margin: 0;
+  font-size: 14.5px;
+  line-height: 1.5;
+  color: var(--tan);
+}
+.feedback-mnemonic {
+  margin-top: 10px;
+  padding: 8px 12px;
+  border-radius: 8px;
+  background: rgba(255, 215, 0, 0.12);
+  border: 1px solid rgba(255, 215, 0, 0.35);
+  color: #fde047;
+  font-size: 13.5px;
+}
+.feedback-action-row {
+  margin-top: 14px;
+  display: flex;
+  justify-content: flex-end;
+}
+.drill-next-btn {
+  padding: 10px 24px;
+  font-size: 16px;
+}
+.drill-launch-btn {
+  border-color: var(--gold-dim);
+  color: var(--gold);
+}
+.drill-launch-btn:hover {
+  background: rgba(255, 215, 0, 0.15);
+  border-color: var(--gold);
+}
+
 /* (No big-screen upscale rules: the sim stage scales itself to fit.) */

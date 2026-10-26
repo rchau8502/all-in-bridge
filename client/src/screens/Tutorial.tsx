@@ -257,12 +257,17 @@ function SimTable(props: {
   boardNo?: number;
   /** Dealer seat for duplicate board widget. */
   dealer?: Seat;
+  /** Seat that cards should fly towards during trick collection animation. */
+  collectingSeat?: Seat | null;
+  /** Strategic ACBL maxim/hint for the current trick context. */
+  tacticalHint?: string | null;
 }) {
   const { lang } = props;
   const sigs = props.trick.map(t => `${t.seat}${t.card.suit}${t.card.rank}`);
   const fresh = useFreshOrder(sigs, props.stepKey);
 
   const [selectedCard, setSelectedCard] = useState<string | null>(null);
+  const [showTacticalHint, setShowTacticalHint] = useState(false);
 
   useEffect(() => {
     setSelectedCard(null);
@@ -342,7 +347,35 @@ function SimTable(props: {
             )}
           </span>
         )}
+        {props.tacticalHint && (
+          <button
+            type="button"
+            className={`sim-hint-toggle-btn ${showTacticalHint ? 'active' : ''}`}
+            onClick={() => setShowTacticalHint(prev => !prev)}
+            title={showTacticalHint ? t(lang, 'tut.hideHint') : t(lang, 'tut.tacticalHint')}
+          >
+            {t(lang, 'tut.tacticalHint')}
+          </button>
+        )}
       </div>
+
+      {showTacticalHint && props.tacticalHint && (
+        <div className="sim-tactical-banner" onClick={() => setShowTacticalHint(false)}>
+          <span className="tactical-icon">💡</span>
+          <span className="tactical-text">{props.tacticalHint}</span>
+          <button
+            type="button"
+            className="tactical-close"
+            onClick={e => {
+              e.stopPropagation();
+              setShowTacticalHint(false);
+            }}
+            aria-label="Close hint"
+          >
+            ✕
+          </button>
+        </div>
+      )}
 
       {props.seats
         .filter(s => s.seat !== 'S')
@@ -426,7 +459,7 @@ function SimTable(props: {
           </svg>
         </div>
         {props.trick.length > 0 && (
-          <div className="sim-trick">
+          <div className={`sim-trick${props.collectingSeat ? ` collecting-to-${simPos(props.collectingSeat)}` : ''}`}>
             {props.trick.map(t => {
               const sig = `${t.seat}${t.card.suit}${t.card.rank}`;
               const ord = props.trickStatic ? undefined : fresh.get(sig);
@@ -529,6 +562,43 @@ function contractSummary(lang: Lang, c: Lesson['contract']): string {
   return `🎯 The contract: ${label} by ${dec}. The promise: win ${tricks} tricks${trump}. ${dec} is the declarer and plays both hands; ${dummy} lays their cards down as the dummy.`;
 }
 
+function getTacticalHint(
+  lessonId: string,
+  trickNo: number,
+  playSeat: Seat | null,
+  trump: Suit | null | undefined,
+  lang: Lang
+): string {
+  if (lessonId === 'finesse') {
+    return lang === 'zh'
+      ? '飞牌秘籍：由弱引强！从没有大牌的一手出小牌，向持有大牌的一手引，50% 概率捕获关键张。'
+      : 'Finesse Secret: Lead towards strength! Play low from the weak hand towards the honor in the other hand.';
+  }
+  if (lessonId === 'ruffing' || lessonId === 'trumps') {
+    return lang === 'zh'
+      ? '将牌做牌原则：13 - (赢墩 + 输墩) = 可将吃赢墩；在短将牌手（明手）将吃输墩，保留长将牌主控！'
+      : 'Trump Play Maxim: 13 - (winners + losers) = trumps to make; ruff losers in the short hand (dummy) to preserve trump control!';
+  }
+  if (trickNo === 1) {
+    return lang === 'zh'
+      ? '首攻准则：面对无将或长套，出第四大牌（长套攻长门）；持有连续大牌出顶张（如 Q-J-10 出 Q）！'
+      : 'Opening Lead: Lead 4th highest from length in no-trump, or top of touching honors (e.g. Q from Q-J-10)!';
+  }
+  if (playSeat === 'S' || playSeat === 'N') {
+    if (trump) {
+      return lang === 'zh'
+        ? '做牌策略：先算清输墩。若敌方将牌可能威胁旁套，尽早清拔敌方将牌！'
+        : 'Line of Play: Count your losers first. Pull defenders’ trumps early if they threaten your side-suit winners!';
+    }
+    return lang === 'zh'
+      ? '无将做牌：先算确凿赢墩，优先建立最长套额外赢墩，保持手中畅通桥路！'
+      : 'No-Trump Play: Count sure winners; establish length in your longest suit first while you still have entries!';
+  }
+  return lang === 'zh'
+    ? '防守守则：第二手出小牌让同伴掌控（二送），第三手出大牌夺墩或逼大（三抢）！'
+    : 'Defense Rule: Second hand low to preserve honors; third hand high to win the trick or force declarer’s high card!';
+}
+
 export function Tutorial() {
   const {
     lang,
@@ -560,6 +630,7 @@ export function Tutorial() {
   // Post-trick review pause: after every completed trick, the four cards
   // stay on the table while the coach explains who won and why.
   const [review, setReview] = useState<TrickReviewData | null>(null);
+  const [collectingTo, setCollectingTo] = useState<Seat | null>(null);
   const reviewedRef = useRef(0);
 
   // Auction recap: when an auction step ends, replay the WHOLE conversation
@@ -597,8 +668,19 @@ export function Tutorial() {
     }
   };
   const dismissReview = () => {
-    reviewedRef.current = runner.completedTrickCount();
-    setReview(null);
+    if (review) {
+      const winner = review.winner;
+      setCollectingTo(winner);
+      audio.sfx('card');
+      window.setTimeout(() => {
+        reviewedRef.current = runner.completedTrickCount();
+        setReview(null);
+        setCollectingTo(null);
+      }, 350);
+    } else {
+      reviewedRef.current = runner.completedTrickCount();
+      setReview(null);
+    }
   };
   useEffect(() => {
     // New runner (lesson or language switch): forget old review state.
@@ -837,6 +919,17 @@ export function Tutorial() {
   const lessonTrump: Suit | null = lesson.contract.denom === 'NT' ? null : lesson.contract.denom;
   const playContract = playView?.contract ?? null;
   const playTrump: Suit | null = playContract && playContract.denom !== 'NT' ? playContract.denom : null;
+
+  const tacticalHint = useMemo(() => {
+    if (step?.kind !== 'play' || !playView || trickNo === null) return null;
+    return getTacticalHint(
+      lesson.id,
+      trickNo,
+      pending?.kind === 'play' ? pending.seat : null,
+      playTrump,
+      lang
+    );
+  }, [step?.kind, playView, trickNo, lesson.id, pending, playTrump, lang]);
 
   // The table (with the hand) is shown for every teaching step — info,
   // auction and play alike. Text steps used to REPLACE the table, which is
@@ -1115,6 +1208,8 @@ export function Tutorial() {
             seatChars={seatChars}
             winSeat={review?.winner ?? null}
             trickStatic={!!review}
+            collectingSeat={collectingTo}
+            tacticalHint={tacticalHint}
             tricksWon={playView.tricksWon}
             targetTricks={lesson.id === 'tricks' ? null : 6 + lesson.contract.level}
             overlaySlot={tutorialOverlay}

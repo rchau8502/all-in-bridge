@@ -3,10 +3,11 @@ import { t, type Lang } from './i18n.js';
 import { audio } from './audio.js';
 import { Home } from './screens/Home.js';
 import { Tutorial } from './screens/Tutorial.js';
+import { Drill } from './screens/Drill.js';
 import { GlossaryModal } from './components/GlossaryModal.js';
 import './styles.css';
 
-export type ScreenName = 'home' | 'tutorial';
+export type ScreenName = 'home' | 'tutorial' | 'drill';
 export type FeltTheme = 'teal' | 'green' | 'navy';
 
 interface AppCtx {
@@ -172,6 +173,13 @@ export function App() {
               {feltTheme === 'teal' ? '🌊' : feltTheme === 'green' ? '🌲' : '🌌'}
             </button>
             <button
+              className={`chip ${screen === 'drill' ? 'active' : ''}`}
+              onClick={() => go('drill')}
+              title={t(lang, 'drill.title')}
+            >
+              🎯 {t(lang, 'drill.title')}
+            </button>
+            <button
               className="chip"
               onClick={() => openGlossaryWithQuery('')}
               title={t(lang, 'home.glossary')}
@@ -192,6 +200,7 @@ export function App() {
         </header>
         {screen === 'home' && <Home />}
         {screen === 'tutorial' && <Tutorial />}
+        {screen === 'drill' && <Drill />}
         <footer className="footer">{t(lang, 'app.footer')}</footer>
       </div>
       <GlossaryModal
