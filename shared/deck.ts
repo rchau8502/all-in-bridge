@@ -90,14 +90,21 @@ const isRedSuit = (s: Suit) => s === 'H' || s === 'D';
  * and the remaining suits continue the alternation from the opposite colour.
  * Pass null / omit for a deal with no trump (e.g. during the auction).
  */
-export function sortHand(hand: Card[], trump: Suit | null = null): Card[] {
+export type SuitOrderPref = 'standard' | 'reverse';
+
+export function sortHand(
+  hand: Card[],
+  trump: Suit | null = null,
+  pref: SuitOrderPref = 'standard'
+): Card[] {
+  const baseSuits = pref === 'reverse' ? (['C', 'D', 'H', 'S'] as Suit[]) : DISPLAY_SUITS;
   const order: Suit[] = [];
   let wantRed = false;
-  if (trump && DISPLAY_SUITS.includes(trump)) {
+  if (trump && baseSuits.includes(trump)) {
     order.push(trump);
     wantRed = !isRedSuit(trump);
   }
-  const rest = DISPLAY_SUITS.filter(s => !order.includes(s));
+  const rest = baseSuits.filter(s => !order.includes(s));
   while (rest.length) {
     const i = rest.findIndex(s => isRedSuit(s) === wantRed);
     const picked = i < 0 ? rest.shift()! : rest.splice(i, 1)[0]!;

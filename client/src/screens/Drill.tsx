@@ -7,17 +7,20 @@ import {
   generateDrillHand,
   generateResponseDrillHand,
   generateOvercallDrillHand,
+  generateOpeningLeadDrillHand,
+  calculateHcp,
   type DrillCategory,
   type HandEvaluation,
   type ResponseEvaluation,
   type OvercallEvaluation,
+  type OpeningLeadEvaluation,
   type PartnerOpeningBid,
   type OpponentOpeningBid,
 } from '../../../shared/evaluator.js';
 import type { Card, Suit } from '../../../shared/deck.js';
-import { sortHand } from '../../../shared/deck.js';
+import { sortHand, cardLabel } from '../../../shared/deck.js';
 
-type DrillMode = 'opening' | 'responding' | 'overcall';
+type DrillMode = 'opening' | 'responding' | 'overcall' | 'lead';
 
 const OPENING_BID_OPTIONS = [
   { id: 'Pass', label: 'Pass', denom: 'pass' },
@@ -84,7 +87,7 @@ function groupHandBySuit(cards: Card[]): Array<{ suit: Suit; cards: Card[] }> {
 }
 
 export function Drill() {
-  const { lang, go, characterId, unlockAchievement } = useApp();
+  const { lang, go, characterId, unlockAchievement, suitOrder } = useApp();
 
   const [mode, setMode] = useState<DrillMode>('opening');
 
@@ -106,6 +109,13 @@ export function Drill() {
     generateOvercallDrillHand('1D')
   );
 
+  // Opening Lead mode state
+  const [leadContractType, setLeadContractType] = useState<'NT' | 'suit'>('NT');
+  const [leadDeal, setLeadDeal] = useState<{ hand: Card[]; evaluation: OpeningLeadEvaluation }>(() =>
+    generateOpeningLeadDrillHand('NT')
+  );
+  const [userLeadCard, setUserLeadCard] = useState<Card | null>(null);
+
   const [userBid, setUserBid] = useState<string | null>(null);
   const [showBreakdown, setShowBreakdown] = useState(false);
   const [streak, setStreak] = useState(0);
@@ -116,42 +126,54 @@ export function Drill() {
     ? openingDeal.hand
     : mode === 'responding'
     ? respDeal.hand
-    : overcallDeal.hand;
+    : mode === 'overcall'
+    ? overcallDeal.hand
+    : leadDeal.hand;
 
   const targetBid = mode === 'opening'
     ? openingDeal.evaluation.recommendedBid
     : mode === 'responding'
     ? respDeal.evaluation.recommendedBid
-    : overcallDeal.evaluation.recommendedBid;
+    : mode === 'overcall'
+    ? overcallDeal.evaluation.recommendedBid
+    : cardLabel(leadDeal.evaluation.recommendedCard);
 
-  const sortedHand = useMemo(() => sortHand(activeHand, null), [activeHand]);
+  const targetLeadCard = leadDeal.evaluation.recommendedCard;
+
+  const sortedHand = useMemo(() => sortHand(activeHand, null, suitOrder), [activeHand, suitOrder]);
   const handGroups = useMemo(() => groupHandBySuit(sortedHand), [sortedHand]);
 
   const handleNextDeal = useCallback(() => {
     audio.sfx('shuffle');
     setUserBid(null);
+    setUserLeadCard(null);
     setShowBreakdown(false);
     if (mode === 'opening') {
       setOpeningDeal(generateDrillHand(category));
     } else if (mode === 'responding') {
       setRespDeal(generateResponseDrillHand(partnerBid));
-    } else {
+    } else if (mode === 'overcall') {
       setOvercallDeal(generateOvercallDrillHand(oppBid));
+    } else {
+      setLeadDeal(generateOpeningLeadDrillHand(leadContractType));
     }
-  }, [mode, category, partnerBid, oppBid]);
+  }, [mode, category, partnerBid, oppBid, leadContractType]);
 
   const handleModeChange = (newMode: DrillMode) => {
     if (newMode === mode) return;
     setMode(newMode);
     setUserBid(null);
+    setUserLeadCard(null);
     setShowBreakdown(false);
     audio.sfx('click');
     if (newMode === 'opening') {
       setOpeningDeal(generateDrillHand(category));
     } else if (newMode === 'responding') {
       setRespDeal(generateResponseDrillHand(partnerBid));
-    } else {
+    } else if (newMode === 'overcall') {
       setOvercallDeal(generateOvercallDrillHand(oppBid));
+    } else {
+      setLeadDeal(generateOpeningLeadDrillHand(leadContractType));
     }
   };
 
@@ -179,6 +201,14 @@ export function Drill() {
     setOvercallDeal(generateOvercallDrillHand(ob));
   };
 
+  const handleLeadContractChange = (type: 'NT' | 'suit') => {
+    setLeadContractType(type);
+    audio.sfx('shuffle');
+    setUserLeadCard(null);
+    setShowBreakdown(false);
+    setLeadDeal(generateOpeningLeadDrillHand(type));
+  };
+
   const handleSelectBid = (bidId: string) => {
     if (userBid !== null) return;
     setUserBid(bidId);
@@ -203,8 +233,34 @@ export function Drill() {
     }
   };
 
-  const isAnswered = userBid !== null;
-  const isCorrect = isAnswered && userBid === targetBid;
+  const handleSelectLeadCard = (card: Card) => {
+    if (userLeadCard !== null) return;
+    setUserLeadCard(card);
+    setShowBreakdown(true);
+    setTotalSolved(prev => prev + 1);
+
+    const isCorrect = card.suit === targetLeadCard.suit && card.rank === targetLeadCard.rank;
+    if (isCorrect) {
+      audio.sfx('win');
+      setStreak(prev => {
+        const next = prev + 1;
+        if (next >= 5) {
+          unlockAchievement('opening_pro');
+        }
+        return next;
+      });
+      setTotalCorrect(prev => prev + 1);
+    } else {
+      audio.sfx('lose');
+      setStreak(0);
+    }
+  };
+
+  const isLeadAnswered = mode === 'lead' && userLeadCard !== null;
+  const isLeadCorrect = isLeadAnswered && userLeadCard?.suit === targetLeadCard.suit && userLeadCard?.rank === targetLeadCard.rank;
+
+  const isAnswered = mode === 'lead' ? isLeadAnswered : userBid !== null;
+  const isCorrect = mode === 'lead' ? isLeadCorrect : isAnswered && userBid === targetBid;
 
   const activeEval = mode === 'opening'
     ? openingDeal.evaluation
@@ -243,7 +299,7 @@ export function Drill() {
         </div>
       </div>
 
-      {/* Main Mode Tabs: Opening vs Responding vs Overcall */}
+      {/* Main Mode Tabs: Opening vs Responding vs Overcall vs Opening Lead */}
       <div className="drill-mode-tabs">
         <button
           type="button"
@@ -265,6 +321,13 @@ export function Drill() {
           onClick={() => handleModeChange('overcall')}
         >
           ⚔️ {t(lang, 'drill.modeOvercall')}
+        </button>
+        <button
+          type="button"
+          className={`drill-mode-tab ${mode === 'lead' ? 'active' : ''}`}
+          onClick={() => handleModeChange('lead')}
+        >
+          🛡️ {t(lang, 'drill.modeOpeningLead')}
         </button>
       </div>
 
@@ -307,7 +370,7 @@ export function Drill() {
             ))}
           </div>
         </div>
-      ) : (
+      ) : mode === 'overcall' ? (
         <div className="drill-partner-scenarios">
           <span className="drill-partner-label">{t(lang, 'drill.oppOpened')}</span>
           <div className="drill-categories">
@@ -321,6 +384,26 @@ export function Drill() {
                 {oo.label} ({oo.desc[lang]})
               </button>
             ))}
+          </div>
+        </div>
+      ) : (
+        <div className="drill-partner-scenarios">
+          <span className="drill-partner-label">{lang === 'zh' ? '防守目标定约：' : 'Target Contract Defense:'}</span>
+          <div className="drill-categories">
+            <button
+              type="button"
+              className={`drill-cat-pill ${leadContractType === 'NT' ? 'active' : ''}`}
+              onClick={() => handleLeadContractChange('NT')}
+            >
+              3NT ({t(lang, 'drill.leadNtDef')})
+            </button>
+            <button
+              type="button"
+              className={`drill-cat-pill ${leadContractType === 'suit' ? 'active' : ''}`}
+              onClick={() => handleLeadContractChange('suit')}
+            >
+              4♠ / 4♥ ({t(lang, 'drill.leadSuitDef')})
+            </button>
           </div>
         </div>
       )}
@@ -352,6 +435,18 @@ export function Drill() {
             </div>
           )}
 
+          {/* Contract indicator in lead mode */}
+          {mode === 'lead' && (
+            <div className="drill-partner-badge lead-badge">
+              <span className="partner-avatar-icon">🛡️</span>
+              <span className="partner-bid-lead">{lang === 'zh' ? '庄家定约' : 'Opponent Contract'}:</span>
+              <span className="partner-bid-val">{leadDeal.evaluation.contract.level}{leadDeal.evaluation.contract.denom}</span>
+              <span className="partner-bid-desc">
+                ({lang === 'zh' ? '南家坐庄 · 轮到你首攻 (西家)' : 'by South · You are West on opening lead'})
+              </span>
+            </div>
+          )}
+
           {/* Dealt 13 Cards */}
           <div className="drill-hand-display" role="region" aria-label="13-card hand">
             {handGroups.map(group => {
@@ -362,6 +457,10 @@ export function Drill() {
                   {group.cards.map((c, i) => {
                     const rotDeg = count > 1 ? (i - mid) * 1.5 : 0;
                     const yOff = count > 1 ? Math.abs(i - mid) * 1.2 : 0;
+                    const isTargetLead = mode === 'lead' && isLeadAnswered && c.suit === targetLeadCard.suit && c.rank === targetLeadCard.rank;
+                    const isSelectedLead = mode === 'lead' && userLeadCard !== null && c.suit === userLeadCard.suit && c.rank === userLeadCard.rank;
+                    const isDimLead = mode === 'lead' && isLeadAnswered && !isTargetLead && !isSelectedLead;
+
                     return (
                       <div
                         key={`${c.suit}${c.rank}-${i}`}
@@ -371,7 +470,14 @@ export function Drill() {
                           ['--fan-y' as string]: `${yOff}px`,
                         }}
                       >
-                        <CardView card={c} />
+                        <CardView
+                          card={c}
+                          playable={mode === 'lead' && !isLeadAnswered}
+                          selected={isSelectedLead}
+                          target={isTargetLead}
+                          dim={isDimLead}
+                          onClick={mode === 'lead' && !isLeadAnswered ? () => handleSelectLeadCard(c) : undefined}
+                        />
                       </div>
                     );
                   })}
@@ -385,7 +491,7 @@ export function Drill() {
             {showBreakdown ? (
               <div className="drill-metrics-revealed">
                 <span className="metric-chip">
-                  <strong>{t(lang, 'drill.hcpLabel')}:</strong> {activeEval.hcp}
+                  <strong>{t(lang, 'drill.hcpLabel')}:</strong> {mode === 'lead' ? calculateHcp(leadDeal.hand) : activeEval.hcp}
                 </span>
                 {mode === 'opening' ? (
                   <>
@@ -414,7 +520,7 @@ export function Drill() {
                       </span>
                     )}
                   </>
-                ) : (
+                ) : mode === 'overcall' ? (
                   <>
                     <span className={`metric-chip ${(activeEval as OvercallEvaluation).breakdown.pointsOk ? 'highlight' : ''}`}>
                       {(activeEval as OvercallEvaluation).breakdown.pointsOk ? '✓' : '✗'} 10+ {t(lang, 'drill.hcpLabel')}
@@ -424,6 +530,15 @@ export function Drill() {
                     </span>
                     <span className={`metric-chip ${(activeEval as OvercallEvaluation).breakdown.honorsOk ? 'highlight' : ''}`}>
                       {(activeEval as OvercallEvaluation).breakdown.honorsOk ? '✓' : '✗'} 2 {lang === 'zh' ? '大牌' : 'Honors'}
+                    </span>
+                  </>
+                ) : (
+                  <>
+                    <span className="metric-chip highlight">
+                      <strong>{t(lang, 'drill.leadRuleTitle')}:</strong> {leadDeal.evaluation.ruleName[lang]}
+                    </span>
+                    <span className="metric-chip">
+                      <strong>{lang === 'zh' ? '标准首攻' : 'Optimal Lead'}:</strong> {cardLabel(targetLeadCard)}
                     </span>
                   </>
                 )}
@@ -440,7 +555,7 @@ export function Drill() {
           </div>
         </div>
 
-        {/* Action Panel: Question and Bid Options */}
+        {/* Action Panel: Question and Bid Options or Lead Card Prompt */}
         <div className="drill-action-card">
           <div className="drill-question-row">
             <span className="drill-question-text">
@@ -448,35 +563,57 @@ export function Drill() {
                 ? t(lang, 'drill.question')
                 : mode === 'responding'
                 ? t(lang, 'drill.respQuestion')
-                : t(lang, 'drill.overcallQuestion')}
+                : mode === 'overcall'
+                ? t(lang, 'drill.overcallQuestion')
+                : t(lang, 'drill.leadQuestion')}
             </span>
           </div>
 
-          <div className={`drill-bid-grid ${mode === 'responding' ? 'responding-grid' : mode === 'overcall' ? 'overcall-grid' : ''}`}>
-            {(mode === 'opening' ? OPENING_BID_OPTIONS : mode === 'responding' ? RESPONDING_BID_OPTIONS : OVERCALL_BID_OPTIONS).map(opt => {
-              let cls = `drill-bid-btn denom-${opt.denom}`;
-              if (isAnswered) {
-                if (opt.id === targetBid) {
-                  cls += ' correct-bid';
-                } else if (opt.id === userBid) {
-                  cls += ' wrong-bid';
-                } else {
-                  cls += ' muted-bid';
+          {mode === 'lead' ? (
+            !isAnswered && (
+              <div className="drill-lead-card-prompt">
+                <p className="lead-prompt-hint">👆 {t(lang, 'drill.leadSelectCardHint')}</p>
+                <div className="lead-quick-pick">
+                  {sortedHand.map(c => (
+                    <button
+                      key={`${c.suit}${c.rank}`}
+                      type="button"
+                      className={`lead-pick-btn suit-${c.suit.toLowerCase()}`}
+                      onClick={() => handleSelectLeadCard(c)}
+                    >
+                      {cardLabel(c)}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            )
+          ) : (
+            <div className={`drill-bid-grid ${mode === 'responding' ? 'responding-grid' : mode === 'overcall' ? 'overcall-grid' : ''}`}>
+              {(mode === 'opening' ? OPENING_BID_OPTIONS : mode === 'responding' ? RESPONDING_BID_OPTIONS : OVERCALL_BID_OPTIONS).map(opt => {
+                let cls = `drill-bid-btn denom-${opt.denom}`;
+                if (isAnswered) {
+                  if (opt.id === targetBid) {
+                    cls += ' correct-bid';
+                  } else if (opt.id === userBid) {
+                    cls += ' wrong-bid';
+                  } else {
+                    cls += ' muted-bid';
+                  }
                 }
-              }
-              return (
-                <button
-                  key={opt.id}
-                  type="button"
-                  className={cls}
-                  onClick={() => handleSelectBid(opt.id)}
-                  disabled={isAnswered}
-                >
-                  {opt.label}
-                </button>
-              );
-            })}
-          </div>
+                return (
+                  <button
+                    key={opt.id}
+                    type="button"
+                    className={cls}
+                    onClick={() => handleSelectBid(opt.id)}
+                    disabled={isAnswered}
+                  >
+                    {opt.label}
+                  </button>
+                );
+              })}
+            </div>
+          )}
 
           {/* Feedback Card */}
           {isAnswered && (
@@ -488,7 +625,15 @@ export function Drill() {
                 />
                 <div className="feedback-title-wrap">
                   <h3 className="feedback-verdict">
-                    {isCorrect
+                    {mode === 'lead'
+                      ? isCorrect
+                        ? lang === 'zh'
+                          ? `🎉 回答完全正确！首攻打出 ${cardLabel(targetLeadCard)}`
+                          : `🎉 Excellent Lead! You played ${cardLabel(targetLeadCard)}`
+                        : lang === 'zh'
+                        ? `💪 标准首攻应为 ${cardLabel(targetLeadCard)}（你打出了 ${userLeadCard ? cardLabel(userLeadCard) : ''}）`
+                        : `💪 Optimal Lead is ${cardLabel(targetLeadCard)} (you led ${userLeadCard ? cardLabel(userLeadCard) : ''})`
+                      : isCorrect
                       ? lang === 'zh'
                         ? '🎉 回答完全正确！'
                         : '🎉 Excellent Call!'
@@ -496,15 +641,20 @@ export function Drill() {
                       ? `💪 标准决策应为 ${targetBid}`
                       : `💪 Correct Call is ${targetBid}`}
                   </h3>
+                  {mode === 'lead' && (
+                    <div className="feedback-rule-badge">
+                      🛡️ <strong>{leadDeal.evaluation.ruleName[lang]}</strong>
+                    </div>
+                  )}
                   <p className="feedback-explanation">
-                    {activeEval.explanation[lang]}
+                    {mode === 'lead' ? leadDeal.evaluation.explanation[lang] : activeEval.explanation[lang]}
                   </p>
                 </div>
               </div>
 
-              {activeEval.mnemonic && (
+              {(mode === 'lead' ? leadDeal.evaluation.mnemonic : activeEval.mnemonic) && (
                 <div className="feedback-mnemonic">
-                  💡 <strong>ACBL 口诀：</strong> {activeEval.mnemonic[lang]}
+                  💡 <strong>ACBL 口诀：</strong> {(mode === 'lead' ? leadDeal.evaluation.mnemonic : activeEval.mnemonic)![lang]}
                 </div>
               )}
 

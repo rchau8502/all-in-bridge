@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { t, type Lang } from '../i18n.js';
 import { audio } from '../audio.js';
 import type { FeltTheme } from '../App.js';
+import type { SuitOrderPref } from '../../../shared/deck.js';
 
 interface SettingsModalProps {
   isOpen: boolean;
@@ -11,6 +12,8 @@ interface SettingsModalProps {
   onToggleFourColor: () => void;
   feltTheme: FeltTheme;
   onChangeFeltTheme: (t: FeltTheme) => void;
+  suitOrder: SuitOrderPref;
+  onChangeSuitOrder: (order: SuitOrderPref) => void;
   presentationMode: boolean;
   onTogglePresentationMode: () => void;
   completedCount: number;
@@ -161,6 +164,37 @@ export function SettingsModal(props: SettingsModalProps) {
                 <span className="toggle-text">{props.presentationMode ? 'ON' : 'OFF'}</span>
               </button>
             </div>
+
+            <div className="settings-item">
+              <div className="settings-item-info">
+                <strong className="settings-item-label">{t(lang, 'settings.suitOrder')}</strong>
+                <span className="settings-item-desc">
+                  {t(lang, 'settings.suitOrderDesc')}
+                </span>
+              </div>
+              <div className="suit-order-picker" style={{ display: 'flex', gap: '8px' }}>
+                <button
+                  type="button"
+                  className={`chip ${props.suitOrder === 'standard' ? 'active' : ''}`}
+                  onClick={() => {
+                    audio.sfx('click');
+                    props.onChangeSuitOrder('standard');
+                  }}
+                >
+                  {t(lang, 'settings.suitOrderStandard')}
+                </button>
+                <button
+                  type="button"
+                  className={`chip ${props.suitOrder === 'reverse' ? 'active' : ''}`}
+                  onClick={() => {
+                    audio.sfx('click');
+                    props.onChangeSuitOrder('reverse');
+                  }}
+                >
+                  {t(lang, 'settings.suitOrderReverse')}
+                </button>
+              </div>
+            </div>
           </div>
 
           {/* Audio & Haptics Section */}
@@ -268,6 +302,14 @@ export function SettingsModal(props: SettingsModalProps) {
                 </div>
                 <div className="shortcut-desc">
                   {lang === 'zh' ? '切换上一课 / 下一课' : 'Previous / next lesson navigation'}
+                </div>
+              </div>
+              <div className="shortcut-row">
+                <div className="shortcut-keys">
+                  <kbd>U</kbd> / <kbd>Ctrl+Z</kbd>
+                </div>
+                <div className="shortcut-desc">
+                  {t(lang, 'settings.shortcutUndo')}
                 </div>
               </div>
             </div>

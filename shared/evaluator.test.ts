@@ -11,6 +11,8 @@ import {
   evaluateResponse,
   evaluateOvercall,
   generateOvercallDrillHand,
+  evaluateOpeningLead,
+  generateOpeningLeadDrillHand,
 } from './evaluator.js';
 import { buildDeck, type Card } from './deck.js';
 
@@ -368,6 +370,57 @@ describe('Responder Evaluation — ACBL Class 6 & 7 Standards', () => {
       expect(problem.hand).toHaveLength(13);
       expect(problem.evaluation.oppBid).toBe('1D');
       expect(problem.evaluation.recommendedBid).toBeDefined();
+    });
+  });
+
+  describe('Opening Lead — ACBL Class 8 & 10 Rules', () => {
+    it('against 3NT: leads fourth-best from longest and strongest', () => {
+      // 5 Spades (KJ852 -> 4th best is 5), 3 Hearts, 3 Diamonds, 2 Clubs
+      const hand: Card[] = [
+        { suit: 'S', rank: 13 }, { suit: 'S', rank: 11 }, { suit: 'S', rank: 8 }, { suit: 'S', rank: 5 }, { suit: 'S', rank: 2 },
+        { suit: 'H', rank: 12 }, { suit: 'H', rank: 7 }, { suit: 'H', rank: 3 },
+        { suit: 'D', rank: 10 }, { suit: 'D', rank: 6 }, { suit: 'D', rank: 4 },
+        { suit: 'C', rank: 8 }, { suit: 'C', rank: 3 },
+      ];
+      const ev = evaluateOpeningLead(hand, { level: 3, denom: 'NT', declarer: 'S', doubled: 0 });
+      expect(ev.ruleId).toBe('lead_nt_fourth_best');
+      expect(ev.recommendedCard.suit).toBe('S');
+      expect(ev.recommendedCard.rank).toBe(5);
+      expect(ev.mnemonic.en).toContain('Fourth-Best');
+    });
+
+    it('against 3NT: leads top of touching honors sequence in long suit', () => {
+      // 4 Hearts (KQJT), 4 Spades (8642), 3 Diamonds, 2 Clubs
+      const hand: Card[] = [
+        { suit: 'H', rank: 13 }, { suit: 'H', rank: 12 }, { suit: 'H', rank: 11 }, { suit: 'H', rank: 10 },
+        { suit: 'S', rank: 8 }, { suit: 'S', rank: 6 }, { suit: 'S', rank: 4 }, { suit: 'S', rank: 2 },
+        { suit: 'D', rank: 9 }, { suit: 'D', rank: 5 }, { suit: 'D', rank: 3 },
+        { suit: 'C', rank: 7 }, { suit: 'C', rank: 2 },
+      ];
+      const ev = evaluateOpeningLead(hand, { level: 3, denom: 'NT', declarer: 'S', doubled: 0 });
+      expect(ev.ruleId).toBe('lead_nt_top_sequence');
+      expect(ev.recommendedCard.suit).toBe('H');
+      expect(ev.recommendedCard.rank).toBe(13); // King
+    });
+
+    it('against 4S suit contract: leads Ace from Ace-King', () => {
+      // Diamonds AK4, Spades 852 (trump), Hearts Q94, Clubs J762
+      const hand: Card[] = [
+        { suit: 'D', rank: 14 }, { suit: 'D', rank: 13 }, { suit: 'D', rank: 4 },
+        { suit: 'S', rank: 8 }, { suit: 'S', rank: 5 }, { suit: 'S', rank: 2 },
+        { suit: 'H', rank: 12 }, { suit: 'H', rank: 9 }, { suit: 'H', rank: 4 },
+        { suit: 'C', rank: 11 }, { suit: 'C', rank: 7 }, { suit: 'C', rank: 6 }, { suit: 'C', rank: 2 },
+      ];
+      const ev = evaluateOpeningLead(hand, { level: 4, denom: 'S', declarer: 'S', doubled: 0 });
+      expect(ev.ruleId).toBe('lead_suit_ak');
+      expect(ev.recommendedCard.suit).toBe('D');
+      expect(ev.recommendedCard.rank).toBe(14); // Ace
+    });
+
+    it('generates an opening lead drill problem', () => {
+      const problem = generateOpeningLeadDrillHand('NT');
+      expect(problem.hand).toHaveLength(13);
+      expect(problem.evaluation.recommendedCard).toBeDefined();
     });
   });
 });

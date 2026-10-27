@@ -86,6 +86,66 @@ export class PlayState {
     this.turn = winner; // winner leads the next trick
   }
 
+  /** Whether any play or trick can be rolled back. */
+  canUndo(): boolean {
+    return this.currentTrick.length > 0 || this.completedTricks.length > 0;
+  }
+
+  /**
+   * Undo the single last card played. Returns true if an action was undone.
+   */
+  undoPlay(): boolean {
+    if (this.currentTrick.length > 0) {
+      const last = this.currentTrick.pop()!;
+      this.hands[last.seat].push(last.card);
+      this.turn = last.seat;
+      return true;
+    }
+    if (this.completedTricks.length > 0) {
+      const lastTrick = this.completedTricks.pop()!;
+      const trump = this.contract.denom === 'NT' ? null : this.contract.denom;
+      const winner = trickWinner(lastTrick, trump);
+      this.tricksWon[seatSide(winner)]--;
+      for (let i = 1; i < 4; i++) {
+        this.hands[lastTrick[i]!.seat].push(lastTrick[i]!.card);
+      }
+      this.currentTrick = [lastTrick[0]!];
+      this.turn = lastTrick[1]!.seat;
+      return true;
+    }
+    return false;
+  }
+
+  /**
+   * Undo the entire last trick (or current in-progress trick back to trick lead).
+   * Returns true if a trick was rolled back.
+   */
+  undoTrick(): boolean {
+    if (this.currentTrick.length > 0) {
+      const leader = this.currentTrick[0]!.seat;
+      while (this.currentTrick.length > 0) {
+        const last = this.currentTrick.pop()!;
+        this.hands[last.seat].push(last.card);
+      }
+      this.turn = leader;
+      return true;
+    }
+
+    if (this.completedTricks.length > 0) {
+      const lastTrick = this.completedTricks.pop()!;
+      const trump = this.contract.denom === 'NT' ? null : this.contract.denom;
+      const winner = trickWinner(lastTrick, trump);
+      this.tricksWon[seatSide(winner)]--;
+      for (const play of lastTrick) {
+        this.hands[play.seat].push(play.card);
+      }
+      this.turn = lastTrick[0]!.seat;
+      return true;
+    }
+
+    return false;
+  }
+
   isComplete(): boolean {
     return this.completedTricks.length === 13;
   }

@@ -10,6 +10,7 @@ import { AchievementsModal } from './components/AchievementsModal.js';
 import { SettingsModal } from './components/SettingsModal.js';
 import { getLessons } from '../../shared/lessons.js';
 import { ACHIEVEMENTS, getAchievement, type Achievement } from '../../shared/achievements.js';
+import type { SuitOrderPref } from '../../shared/deck.js';
 import './styles.css';
 
 export type ScreenName = 'home' | 'tutorial' | 'drill' | 'freeplay';
@@ -31,6 +32,8 @@ interface AppCtx {
   toggleFourColor: () => void;
   feltTheme: FeltTheme;
   cycleFeltTheme: () => void;
+  suitOrder: SuitOrderPref;
+  setSuitOrder: (order: SuitOrderPref) => void;
   openGlossaryWithQuery: (q?: string) => void;
   presentationMode: boolean;
   togglePresentationMode: () => void;
@@ -62,6 +65,7 @@ export function App() {
   const [fourColor, setFourColor] = useState<boolean>(() => localStorage.getItem('aib-four-color') === '1');
   const [feltTheme, setFeltTheme] = useState<FeltTheme>(() => (localStorage.getItem('aib-felt-theme') as FeltTheme) || 'teal');
   const [presentationMode, setPresentationMode] = useState<boolean>(() => localStorage.getItem('aib-presentation-mode') === '1');
+  const [suitOrder, setSuitOrderState] = useState<SuitOrderPref>(() => (localStorage.getItem('aib-suit-order') as SuitOrderPref) || 'standard');
   const [glossaryOpen, setGlossaryOpen] = useState(false);
   const [glossaryQuery, setGlossaryQuery] = useState('');
   const [unlockedAchievements, setUnlockedAchievements] = useState<Set<string>>(() => {
@@ -137,6 +141,11 @@ export function App() {
       audio.sfx('click');
       return next;
     });
+  }, []);
+
+  const setSuitOrder = useCallback((order: SuitOrderPref) => {
+    setSuitOrderState(order);
+    localStorage.setItem('aib-suit-order', order);
   }, []);
 
   const setLang = (l: Lang) => {
@@ -216,6 +225,8 @@ export function App() {
       toggleFourColor,
       feltTheme,
       cycleFeltTheme,
+      suitOrder,
+      setSuitOrder,
       openGlossaryWithQuery,
       presentationMode,
       togglePresentationMode,
@@ -225,7 +236,7 @@ export function App() {
       openSettings,
     }),
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    [lang, characterId, screen, currentLessonIdx, completedLessons, fourColor, feltTheme, presentationMode, togglePresentationMode, openGlossaryWithQuery, unlockedAchievements, unlockAchievement, openAchievements, openSettings, tick]
+    [lang, characterId, screen, currentLessonIdx, completedLessons, fourColor, feltTheme, suitOrder, presentationMode, togglePresentationMode, openGlossaryWithQuery, unlockedAchievements, unlockAchievement, openAchievements, openSettings, tick]
   );
 
   const bump = () => setTick(x => x + 1);
@@ -335,6 +346,8 @@ export function App() {
           setFeltTheme(t);
           localStorage.setItem('aib-felt-theme', t);
         }}
+        suitOrder={suitOrder}
+        onChangeSuitOrder={setSuitOrder}
         presentationMode={presentationMode}
         onTogglePresentationMode={togglePresentationMode}
         completedCount={completedLessons.size}

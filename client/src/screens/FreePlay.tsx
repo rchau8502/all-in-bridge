@@ -31,7 +31,7 @@ const CONTRACT_PRESETS: Array<{ level: number; denom: Denom; label: string }> = 
 ];
 
 export function FreePlay() {
-  const { lang, go, characterId, unlockAchievement } = useApp();
+  const { lang, go, characterId, unlockAchievement, suitOrder } = useApp();
 
   const [mode, setMode] = useState<PlayMode>('quick');
   const [dealArchetype, setDealArchetype] = useState<DealArchetype>('random');
@@ -363,8 +363,16 @@ export function FreePlay() {
 
   // Table hands: normal (N dummy, S player) vs All-hands revealed
   const displayedHands = showAllHands
-    ? dealHands
-    : { N: playState.hands.N, S: playState.hands.S };
+    ? {
+        N: sortHand(dealHands.N, trump, suitOrder),
+        E: sortHand(dealHands.E, trump, suitOrder),
+        S: sortHand(dealHands.S, trump, suitOrder),
+        W: sortHand(dealHands.W, trump, suitOrder),
+      }
+    : {
+        N: sortHand(playState.hands.N, trump, suitOrder),
+        S: sortHand(playState.hands.S, trump, suitOrder),
+      };
 
   // Replay trick data if in replay mode
   const displayedTrick = replayTrickIdx !== null
@@ -393,6 +401,30 @@ export function FreePlay() {
   }, [isPlayPhase, currentPlaySeat, playState, tick]);
 
   const dealAnalysis = useMemo(() => analyzeDeal(dealHands), [dealHands]);
+
+  const handleUndo = useCallback(() => {
+    if (!isPlayPhase || replayTrickIdx !== null) return;
+    if (pauseReview) {
+      setPauseReview(null);
+    }
+    const success = playState.undoTrick();
+    if (success) {
+      audio.sfx('card');
+      setTick(t => t + 1);
+    }
+  }, [isPlayPhase, replayTrickIdx, pauseReview, playState]);
+
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent) => {
+      if (e.target instanceof HTMLInputElement || e.target instanceof HTMLTextAreaElement) return;
+      if (e.key === 'u' || e.key === 'U' || ((e.ctrlKey || e.metaKey) && (e.key === 'z' || e.key === 'Z'))) {
+        e.preventDefault();
+        handleUndo();
+      }
+    };
+    window.addEventListener('keydown', onKey);
+    return () => window.removeEventListener('keydown', onKey);
+  }, [handleUndo]);
 
   return (
     <div className="freeplay-screen">
@@ -475,6 +507,17 @@ export function FreePlay() {
           >
             🎯 {t(lang, 'challenges.button')}
           </button>
+
+          {isPlayPhase && playState.canUndo() && replayTrickIdx === null && (
+            <button
+              type="button"
+              className="btn ghost undo-btn"
+              onClick={handleUndo}
+              title={`${t(lang, 'freeplay.undo')} (Shortcut U)`}
+            >
+              ↺ {t(lang, 'freeplay.undo')}
+            </button>
+          )}
 
           <button
             type="button"
@@ -590,7 +633,7 @@ export function FreePlay() {
           contractLabel={isPlayPhase ? contractLabel : null}
           seats={seatsInfo}
           trick={displayedTrick}
-          hand={sortHand(playState.hands.S, trump)}
+          hand={sortHand(playState.hands.S, trump, suitOrder)}
           handLabel={mode === 'duo' ? `${seatLabel(lang, 'S')} (${t(lang, 'freeplay.duoP1')})` : seatLabel(lang, 'S')}
           trump={trump}
           interactive={currentPlaySeat !== null}

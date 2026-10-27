@@ -132,4 +132,35 @@ describe('PlayState', () => {
     ps.play(ps.legalPlays()[0]!);
     expect(JSON.stringify(hands)).toBe(before);
   });
+
+  it('can undo an in-progress card play or full completed trick', () => {
+    const ps = setup();
+    expect(ps.canUndo()).toBe(false);
+
+    // Play 1 card
+    const firstTurn = ps.turn;
+    const card1 = ps.legalPlays()[0]!;
+    ps.play(card1);
+    expect(ps.canUndo()).toBe(true);
+    expect(ps.currentTrick).toHaveLength(1);
+
+    // Undo single play
+    const undonePlay = ps.undoPlay();
+    expect(undonePlay).toBe(true);
+    expect(ps.currentTrick).toHaveLength(0);
+    expect(ps.turn).toBe(firstTurn);
+
+    // Play full trick
+    for (let i = 0; i < 4; i++) ps.play(ps.legalPlays()[0]!);
+    expect(ps.completedTricks).toHaveLength(1);
+    expect(ps.tricksWon.NS + ps.tricksWon.EW).toBe(1);
+
+    // Undo full trick
+    const undoneTrick = ps.undoTrick();
+    expect(undoneTrick).toBe(true);
+    expect(ps.completedTricks).toHaveLength(0);
+    expect(ps.tricksWon.NS + ps.tricksWon.EW).toBe(0);
+    expect(ps.turn).toBe(firstTurn);
+    expect(ps.hands[firstTurn]).toHaveLength(13);
+  });
 });

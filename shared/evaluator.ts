@@ -6,7 +6,8 @@
  * and standard opening bids.
  */
 
-import { buildDeck, shuffle, type Card, type Suit } from './deck.js';
+import { buildDeck, shuffle, cardLabel, type Card, type Suit } from './deck.js';
+import type { Contract } from './bidding.js';
 
 export interface HandEvaluation {
   hcp: number;
@@ -1053,4 +1054,293 @@ export function generateOvercallDrillHand(
 
   const hand = dealRandomHand(rng);
   return { hand, evaluation: evaluateOvercall(hand, activeOpp) };
+}
+
+// -------------------------------------------------------------
+// ACBL Class 8 & 10: Opening Lead Rules (Patty Tucker Series 1)
+// -------------------------------------------------------------
+
+export interface OpeningLeadEvaluation {
+  contract: Contract;
+  partnerSuit?: Suit | null | undefined;
+  recommendedCard: Card;
+  ruleId: string;
+  ruleName: { en: string; zh: string };
+  explanation: { en: string; zh: string };
+  mnemonic: { en: string; zh: string };
+}
+
+/**
+ * Evaluates the correct ACBL opening lead card for a defender's hand.
+ */
+export function evaluateOpeningLead(
+  hand: Card[],
+  contract: Contract,
+  partnerSuit?: Suit | null
+): OpeningLeadEvaluation {
+  const isNoTrump = contract.denom === 'NT';
+  const trump = isNoTrump ? null : (contract.denom as Suit);
+  const suits: Suit[] = ['S', 'H', 'D', 'C'];
+
+  // 1. Partner's Bid Suit
+  if (partnerSuit && hand.some(c => c.suit === partnerSuit)) {
+    const pCards = hand.filter(c => c.suit === partnerSuit).sort((a, b) => b.rank - a.rank);
+    if (pCards.length === 2) {
+      const leadCard = pCards[0]!;
+      return {
+        contract,
+        partnerSuit,
+        recommendedCard: leadCard,
+        ruleId: 'lead_partner_doubleton',
+        ruleName: { en: 'Top of Doubleton', zh: '同伴双张出大牌' },
+        explanation: {
+          en: `Holding two cards in partner's suit (${cardLabel(pCards[0]!)}-${cardLabel(pCards[1]!)}), lead HIGH to unblock and show count. Lead ${cardLabel(leadCard)}!`,
+          zh: `持有同伴花色的双张牌（${cardLabel(pCards[0]!)}-${cardLabel(pCards[1]!)}），应当出顶张（大牌）解封，帮助同伴辨识张数。首攻 ${cardLabel(leadCard)}！`,
+        },
+        mnemonic: {
+          en: 'Lead Partner’s Suit: High from Doubleton',
+          zh: '首攻同伴套口诀：双张出大牌',
+        },
+      };
+    } else if (pCards.length >= 3) {
+      const ranks = pCards.map(c => c.rank);
+      if (ranks[0]! - ranks[1]! === 1 && ranks[0]! >= 11) {
+        const leadCard = pCards[0]!;
+        return {
+          contract,
+          partnerSuit,
+          recommendedCard: leadCard,
+          ruleId: 'lead_partner_touching_honors',
+          ruleName: { en: 'Top of Touching Honors in Partner’s Suit', zh: '同伴花色连张出顶张' },
+          explanation: {
+            en: `Holding touching honors in partner's suit, lead the top of the sequence (${cardLabel(leadCard)})!`,
+            zh: `在同伴叫过的花色中持有连张大牌，首攻连张顶张（${cardLabel(leadCard)}）！`,
+          },
+          mnemonic: {
+            en: 'Top of Touching Honors in Partner’s Suit',
+            zh: '首攻同伴套连张出顶张',
+          },
+        };
+      }
+      const leadCard = pCards[pCards.length - 1]!;
+      return {
+        contract,
+        partnerSuit,
+        recommendedCard: leadCard,
+        ruleId: 'lead_partner_low',
+        ruleName: { en: 'Low from Length in Partner’s Suit', zh: '同伴长套出小牌' },
+        explanation: {
+          en: `Holding 3 or more cards in partner's suit without touching honors, lead LOW (Boston Rule: Bottom of Something). Lead ${cardLabel(leadCard)}!`,
+          zh: `持有同伴花色3张以上且无连张大牌，出小牌（波士顿首攻原则：有货出小）。首攻 ${cardLabel(leadCard)}！`,
+        },
+        mnemonic: {
+          en: 'Boston Rule: Bottom of Something, Top of Nothing',
+          zh: '波士顿首攻口诀：有货出小，无货出大',
+        },
+      };
+    }
+  }
+
+  // 2. Against No-Trump Contracts
+  if (isNoTrump) {
+    const suitGroups = suits.map(s => {
+      const cards = hand.filter(c => c.suit === s).sort((a, b) => b.rank - a.rank);
+      const hcp = calculateHcp(cards);
+      return { suit: s, cards, len: cards.length, hcp };
+    }).sort((a, b) => b.len - a.len || b.hcp - a.hcp);
+
+    for (const g of suitGroups) {
+      if (g.len >= 4) {
+        const ranks = g.cards.map(c => c.rank);
+        const isSequence = (ranks[0]! - ranks[1]! === 1 && (ranks[2] !== undefined && ranks[1]! - ranks[2]! === 1) && ranks[0]! >= 10) ||
+                           (ranks[0]! - ranks[1]! === 1 && ranks[0]! >= 12);
+        if (isSequence && ranks[0]! >= 11) {
+          const leadCard = g.cards[0]!;
+          return {
+            contract,
+            partnerSuit,
+            recommendedCard: leadCard,
+            ruleId: 'lead_nt_top_sequence',
+            ruleName: { en: 'Top of Sequence in Long Suit', zh: '长套连张出顶张' },
+            explanation: {
+              en: `Against No-Trump, holding touching honors in your 4+ card ${g.suit} suit, lead the TOP honor (${cardLabel(leadCard)}) to establish winners!`,
+              zh: `针对无将定约，在你的4张以上 ${g.suit} 长套中持有连张大牌，首攻顶张（${cardLabel(leadCard)}）来树立赢墩！`,
+            },
+            mnemonic: {
+              en: 'Top of Touching Honors in 4+ Card Suit',
+              zh: '长套连张首攻出顶张',
+            },
+          };
+        }
+      }
+    }
+
+    const longSuit = suitGroups.find(g => g.len >= 4 && g.hcp >= 1) ?? suitGroups[0]!;
+    if (longSuit.len >= 4) {
+      const leadCard = longSuit.cards[3]!;
+      return {
+        contract,
+        partnerSuit,
+        recommendedCard: leadCard,
+        ruleId: 'lead_nt_fourth_best',
+        ruleName: { en: 'Fourth-Best from Longest and Strongest', zh: '长四首攻（第四大牌）' },
+        explanation: {
+          en: `Against No-Trump, lead your fourth-highest card from your longest and strongest suit (${cardLabel(leadCard)}). Partner uses the Rule of Eleven to deduce card placements!`,
+          zh: `针对无将定约，从最长最强的花色中打出第四大牌（${cardLabel(leadCard)}）。同伴可通过“十一法则”迅速推演全场大牌分布！`,
+        },
+        mnemonic: {
+          en: 'Fourth-Best from Longest and Strongest (Rule of 11)',
+          zh: '无将首攻口诀：最长最强打长四，十一法则助同伴',
+        },
+      };
+    }
+
+    const leadCard = suitGroups[0]!.cards[0]!;
+    return {
+      contract,
+      partnerSuit,
+      recommendedCard: leadCard,
+      ruleId: 'lead_nt_top_nothing',
+      ruleName: { en: 'Top of Nothing', zh: '无大牌垫张首攻' },
+      explanation: {
+        en: `Without a clear long suit with honors, lead the top card of a short/unhonored suit (${cardLabel(leadCard)}).`,
+        zh: `没有带大牌的长套时，从无大牌的短套中首攻顶张（${cardLabel(leadCard)}）。`,
+      },
+      mnemonic: {
+        en: 'Top of Nothing (Safe Lead)',
+        zh: '无货出大，安全第一',
+      },
+    };
+  }
+
+  // 3. Against Suit Contracts
+  const sideSuits = suits.filter(s => s !== trump);
+  const sideGroups = sideSuits.map(s => {
+    const cards = hand.filter(c => c.suit === s).sort((a, b) => b.rank - a.rank);
+    const hcp = calculateHcp(cards);
+    return { suit: s, cards, len: cards.length, hcp };
+  }).sort((a, b) => b.len - a.len || b.hcp - a.hcp);
+
+  for (const g of sideGroups) {
+    if (g.cards.some(c => c.rank === 14) && g.cards.some(c => c.rank === 13)) {
+      const ace = g.cards.find(c => c.rank === 14)!;
+      return {
+        contract,
+        partnerSuit,
+        recommendedCard: ace,
+        ruleId: 'lead_suit_ak',
+        ruleName: { en: 'Ace from Ace-King', zh: 'AK 套首攻出 A' },
+        explanation: {
+          en: `Holding both the Ace and King in a side suit (${g.suit}), lead the Ace (${cardLabel(ace)})! It guarantees a trick, sees Dummy, and retains the lead.`,
+          zh: `在边花（${g.suit}）中同时持有 A 和 K，首攻打出 A（${cardLabel(ace)}）！确保拿墩、观摩明手并保留引牌权。`,
+        },
+        mnemonic: {
+          en: 'Ace from Ace-King: See Dummy and Keep the Lead',
+          zh: 'AK 连张出 A：看明手并保留引牌权',
+        },
+      };
+    }
+  }
+
+  for (const g of sideGroups) {
+    if (g.len >= 2) {
+      const ranks = g.cards.map(c => c.rank);
+      if (ranks[0]! - ranks[1]! === 1 && ranks[0]! >= 11 && ranks[0]! < 14) {
+        const topCard = g.cards[0]!;
+        return {
+          contract,
+          partnerSuit,
+          recommendedCard: topCard,
+          ruleId: 'lead_suit_touching_honors',
+          ruleName: { en: 'Top of Touching Honors in Side Suit', zh: '边花连张首攻出顶张' },
+          explanation: {
+            en: `Holding touching honors in a side suit (${cardLabel(g.cards[0]!)}-${cardLabel(g.cards[1]!)}), lead the TOP (${cardLabel(topCard)}) to knock out declarer's higher honors!`,
+            zh: `在边花中持有连张大牌（${cardLabel(g.cards[0]!)}-${cardLabel(g.cards[1]!)}），首攻打顶张（${cardLabel(topCard)}）击落庄家更大的大牌！`,
+          },
+          mnemonic: {
+            en: 'Top of Touching Honors (K from KQ, Q from QJ)',
+            zh: '连张出顶张：KQ 出 K，QJ 出 Q',
+          },
+        };
+      }
+    }
+  }
+
+  const trumpCards = hand.filter(c => c.suit === trump);
+  if (trumpCards.length >= 2) {
+    const singletonGroup = sideGroups.find(g => g.len === 1);
+    if (singletonGroup) {
+      const singleCard = singletonGroup.cards[0]!;
+      return {
+        contract,
+        partnerSuit,
+        recommendedCard: singleCard,
+        ruleId: 'lead_suit_singleton',
+        ruleName: { en: 'Singleton for Ruffing', zh: '边花单张首攻（谋求将吃）' },
+        explanation: {
+          en: `Holding a singleton in a side suit (${cardLabel(singleCard)}) and 2+ trumps, lead it immediately! Partner can return the suit for you to ruff.`,
+          zh: `持有边花单张（${cardLabel(singleCard)}）且手握 2 张以上将牌，果断首攻单张！同伴进手后回出该花色供你将吃。`,
+        },
+        mnemonic: {
+          en: 'Lead a Singleton to Get a Ruff',
+          zh: '单张首攻谋将吃，同伴回出建奇功',
+        },
+      };
+    }
+  }
+
+  for (const g of sideGroups) {
+    if (g.len >= 4 && !g.cards.some(c => c.rank === 14)) {
+      const leadCard = g.cards[3]!;
+      return {
+        contract,
+        partnerSuit,
+        recommendedCard: leadCard,
+        ruleId: 'lead_suit_fourth_best',
+        ruleName: { en: 'Fourth-Best from Safe Long Suit', zh: '安全长套出长四' },
+        explanation: {
+          en: `Leading fourth-best (${cardLabel(leadCard)}) from your 4-card ${g.suit} suit without an unsupported Ace.`,
+          zh: `从不含孤立 A 的 4 张 ${g.suit} 安全长套中首攻第四大牌（${cardLabel(leadCard)}）。`,
+        },
+        mnemonic: {
+          en: 'Never Lead Away from an Unsupported Ace in a Suit Contract',
+          zh: '有将定约大忌：绝不从孤立 A 套出小牌',
+        },
+      };
+    }
+  }
+
+  const safeGroup = sideGroups.find(g => !g.cards.some(c => c.rank === 14)) ?? sideGroups[0]!;
+  const leadCard = safeGroup.cards[safeGroup.cards.length - 1]!;
+  return {
+    contract,
+    partnerSuit,
+    recommendedCard: leadCard,
+    ruleId: 'lead_suit_safe',
+    ruleName: { en: 'Safe Passive Lead', zh: '安全被动首攻' },
+    explanation: {
+      en: `No aggressive honor sequence or singleton available. Lead a safe low card (${cardLabel(leadCard)}) to avoid giving declarer a free trick.`,
+      zh: `缺乏激进连张或单张时，首攻一张安全小牌（${cardLabel(leadCard)}），避免送给庄家免费赢墩。`,
+    },
+    mnemonic: {
+      en: 'When in Doubt, Lead Passive and Safe',
+      zh: '局势不明出被动，莫送庄家免费墩',
+    },
+  };
+}
+
+/**
+ * Generate an opening lead drill problem.
+ */
+export function generateOpeningLeadDrillHand(
+  contractType: 'NT' | 'suit' = 'NT',
+  rng: () => number = Math.random
+): { hand: Card[]; evaluation: OpeningLeadEvaluation } {
+  const contract: Contract = contractType === 'NT'
+    ? { level: 3, denom: 'NT', declarer: 'S', doubled: 0 }
+    : { level: 4, denom: rng() > 0.5 ? 'S' : 'H', declarer: 'S', doubled: 0 };
+
+  const hand = dealRandomHand(rng);
+  const evaluation = evaluateOpeningLead(hand, contract, null);
+  return { hand, evaluation };
 }

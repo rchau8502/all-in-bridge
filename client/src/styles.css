@@ -2232,6 +2232,65 @@ table.standings tr.leader td { color: var(--accent); font-weight: 800; }
   }
 }
 
+/* Opening Lead Drill styles */
+.drill-partner-badge.lead-badge {
+  border-color: #38bdf8;
+  background: rgba(12, 74, 110, 0.45);
+}
+.drill-partner-badge.lead-badge .partner-bid-val {
+  color: #38bdf8;
+}
+.drill-lead-card-prompt {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  align-items: center;
+  padding: 6px 0;
+}
+.lead-prompt-hint {
+  margin: 0;
+  font-size: 14.5px;
+  color: var(--gold);
+  font-weight: 700;
+  text-align: center;
+}
+.lead-quick-pick {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  justify-content: center;
+  max-width: 680px;
+}
+.lead-pick-btn {
+  all: unset;
+  cursor: pointer;
+  padding: 8px 13px;
+  border-radius: 8px;
+  font-size: 14.5px;
+  font-weight: 800;
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.22);
+  color: #fff;
+  transition: all 0.15s ease;
+  user-select: none;
+}
+.lead-pick-btn:hover {
+  background: rgba(255, 255, 255, 0.2);
+  border-color: var(--gold);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.35);
+}
+.feedback-rule-badge {
+  display: inline-block;
+  margin: 4px 0 8px;
+  padding: 4px 10px;
+  border-radius: 6px;
+  background: rgba(56, 189, 248, 0.15);
+  border: 1px solid rgba(56, 189, 248, 0.4);
+  color: #7dd3fc;
+  font-size: 13px;
+}
+
 /* ---------- Free Play Sandbox Styles ---------- */
 .freeplay-screen {
   width: min(1360px, 98vw);

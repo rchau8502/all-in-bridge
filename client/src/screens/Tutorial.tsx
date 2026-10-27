@@ -267,6 +267,7 @@ export function SimTable(props: {
   legalCardLabels?: Set<string> | null;
 }) {
   const { lang } = props;
+  const { suitOrder } = useApp();
   const sigs = props.trick.map(t => `${t.seat}${t.card.suit}${t.card.rank}`);
   const fresh = useFreshOrder(sigs, props.stepKey);
 
@@ -474,7 +475,7 @@ export function SimTable(props: {
                 className={`sim-faceup${dPlay ? ' playable-seat' : ''}${props.dummySeat === s.seat ? ' dummy-faceup' : ''}`}
                 aria-label={seatLabel(lang, s.seat)}
               >
-                {groupHandBySuit(sortHand(props.hands[s.seat]!, props.trump ?? null)).map(group => (
+                {groupHandBySuit(sortHand(props.hands[s.seat]!, props.trump ?? null, suitOrder)).map(group => (
                   <div key={group.suit} className="suit-cluster faceup-cluster">
                     {group.cards.map((c, i) => {
                       const cLabel = cardLabel(c);
@@ -739,6 +740,7 @@ export function Tutorial() {
     markLessonCompleted,
     openGlossaryWithQuery,
     unlockAchievement,
+    suitOrder,
   } = useApp();
 
   const lessons = useMemo(() => getLessons(lang), [lang]);
@@ -1217,7 +1219,7 @@ export function Tutorial() {
               active: false,
             }))}
             trick={handView?.trick ?? []}
-            hand={sortHand(handHands.S, lessonTrump)}
+            hand={sortHand(handHands.S, lessonTrump, suitOrder)}
             hands={handHands}
             handLabel={seatLabel(lang, 'S')}
             trump={lessonTrump}
@@ -1246,7 +1248,7 @@ export function Tutorial() {
               active: auctionView.turn === s,
             }))}
             trick={[]}
-            hand={sortHand(lesson.hands.S, null)}
+            hand={sortHand(lesson.hands.S, null, suitOrder)}
             hands={lesson.hands}
             handLabel={seatLabel(lang, 'S')}
             trump={null}
@@ -1334,7 +1336,7 @@ export function Tutorial() {
               active: playView.turn === s,
             }))}
             trick={review ? review.plays : playView.trick}
-            hand={sortHand(playView.hands.S, playTrump)}
+            hand={sortHand(playView.hands.S, playTrump, suitOrder)}
             handLabel={seatLabel(lang, 'S')}
             trump={playTrump}
             interactive={!!pending && !review}
