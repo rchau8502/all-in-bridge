@@ -16,14 +16,14 @@ const RANK_CHARS: Record<number, string> = {
 };
 
 const CHAR_RANKS: Record<string, number> = {
-  A: 14, K: 13, Q: 12, J: 11, T: 10, '10': 10,
+  A: 14, K: 13, Q: 12, J: 11, T: 10,
   '9': 9, '8': 8, '7': 7, '6': 6, '5': 5, '4': 4, '3': 3, '2': 2,
 };
 
 const SUITS_ORDER: Suit[] = ['S', 'H', 'D', 'C'];
 
 /**
- * Format a seat's hand into PBN suit representation: "AK5.T98.765.4322"
+ * Format a seat's hand into PBN suit representation: "AK5.T98.765.432"
  */
 export function formatHandPbn(cards: Card[]): string {
   const bySuit: Record<Suit, number[]> = { S: [], H: [], D: [], C: [] };
@@ -40,7 +40,7 @@ export function formatHandPbn(cards: Card[]): string {
 
 /**
  * Export full 4 hands into standard PBN Deal string.
- * Example: "N:AK5.T98.765.4322 QJT.K76.432.AKQ5 ..."
+ * Example: "N:AK5.T98.765.432 QJT.K76.432.AKQ5 ..."
  */
 export function exportDealToPbn(hands: Hands, firstSeat: Seat = 'N'): string {
   const parts: string[] = [];
@@ -53,7 +53,7 @@ export function exportDealToPbn(hands: Hands, firstSeat: Seat = 'N'): string {
 }
 
 /**
- * Parse a single seat's PBN hand string (e.g. "AK5.T98.765.4322") into Card[]
+ * Parse a single seat's PBN hand string (e.g. "AK5.T98.765.432") into Card[]
  */
 export function parseHandPbn(str: string): Card[] {
   const suits = str.split('.');
@@ -66,9 +66,13 @@ export function parseHandPbn(str: string): Card[] {
     for (let i = 0; i < chars.length; i++) {
       const ch = chars[i]!.toUpperCase();
       const rank = CHAR_RANKS[ch];
-      if (rank !== undefined) {
-        cards.push({ suit, rank });
+      if (rank === undefined) {
+        throw new Error(`Invalid rank in PBN hand: ${ch}`);
       }
+      if (cards.some(card => card.suit === suit && card.rank === rank)) {
+        throw new Error(`Duplicate card in PBN hand: ${suit}${ch}`);
+      }
+      cards.push({ suit, rank });
     }
   });
   return cards;
@@ -77,8 +81,8 @@ export function parseHandPbn(str: string): Card[] {
 /**
  * Parse PBN Deal string into Hands.
  * Accepts either:
- * - Raw deal string: "N:AK5.T98.765.4322 QJT.K76.432.AKQ5 ..."
- * - PBN tag: '[Deal "N:AK5.T98.765.4322 QJT.K76.432.AKQ5 ..."]'
+ * - Raw deal string: "N:AK5.T98.765.432 QJT.K76.432.AKQ5 ..."
+ * - PBN tag: '[Deal "N:AK5.T98.765.432 QJT.K76.432.AKQ5 ..."]'
  */
 export function importDealFromPbn(pbnInput: string): { hands: Hands; firstSeat: Seat } {
   let cleaned = pbnInput.trim();
@@ -107,8 +111,20 @@ export function importDealFromPbn(pbnInput: string): { hands: Hands; firstSeat: 
 
   const hands: Hands = { N: [], E: [], S: [], W: [] };
   let cur = firstSeat;
+  const seen = new Set<string>();
   for (let i = 0; i < 4; i++) {
-    hands[cur] = parseHandPbn(handTokens[i]!);
+    const hand = parseHandPbn(handTokens[i]!);
+    if (hand.length !== 13) {
+      throw new Error(`PBN hand for ${cur} must contain 13 cards, found ${hand.length}`);
+    }
+    for (const card of hand) {
+      const key = `${card.suit}${card.rank}`;
+      if (seen.has(key)) {
+        throw new Error(`Duplicate card in PBN deal: ${key}`);
+      }
+      seen.add(key);
+    }
+    hands[cur] = hand;
     cur = nextSeat(cur);
   }
 

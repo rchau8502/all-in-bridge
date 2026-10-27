@@ -28,6 +28,10 @@ export function PbnModal({
     setPasteText('');
     setCopied(false);
     setErrorMsg('');
+  }, [isOpen]);
+
+  useEffect(() => {
+    if (!isOpen) return;
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.key === 'Escape') {
         audio.sfx('click');
@@ -53,7 +57,12 @@ export function PbnModal({
 
   const handleImport = () => {
     if (!pasteText.trim()) return;
-    const ok = onLoadPbn(pasteText.trim());
+    let ok = false;
+    try {
+      ok = onLoadPbn(pasteText.trim());
+    } catch {
+      // Parser errors use the same localized feedback as rejected imports.
+    }
     if (ok) {
       audio.sfx('shuffle');
       onClose();
@@ -123,7 +132,7 @@ export function PbnModal({
           <label className="pbn-label">{t(lang, 'pbn.importDesc')}</label>
           <textarea
             className="pbn-textarea"
-            placeholder='e.g. N:AK5.T98.765.4322 QJT.K76.432.AKQ5 ... or [Deal "N:..."]'
+            placeholder='e.g. N:AK5.T98.765.432 QJT.K76.432.AKQ5 ... or [Deal "N:..."]'
             value={pasteText}
             onChange={e => {
               setPasteText(e.target.value);
@@ -131,7 +140,7 @@ export function PbnModal({
             }}
             rows={3}
           />
-          {errorMsg && <div className="pbn-error">{errorMsg}</div>}
+          {errorMsg && <div className="pbn-error" role="alert">{errorMsg}</div>}
           <div className="pbn-actions">
             <button
               type="button"

@@ -7,6 +7,8 @@ import { Drill } from './screens/Drill.js';
 import { FreePlay } from './screens/FreePlay.js';
 import { GlossaryModal } from './components/GlossaryModal.js';
 import { AchievementsModal } from './components/AchievementsModal.js';
+import { SettingsModal } from './components/SettingsModal.js';
+import { getLessons } from '../../shared/lessons.js';
 import { ACHIEVEMENTS, getAchievement, type Achievement } from '../../shared/achievements.js';
 import './styles.css';
 
@@ -35,6 +37,7 @@ interface AppCtx {
   unlockedAchievements: Set<string>;
   unlockAchievement: (id: string) => void;
   openAchievements: () => void;
+  openSettings: () => void;
 }
 
 const Ctx = createContext<AppCtx>(null as unknown as AppCtx);
@@ -70,9 +73,15 @@ export function App() {
     }
   });
   const [achievementsOpen, setAchievementsOpen] = useState(false);
+  const [settingsOpen, setSettingsOpen] = useState(false);
   const [recentAchievement, setRecentAchievement] = useState<Achievement | null>(null);
   const [screen, setScreen] = useState<ScreenName>('home');
   const [tick, setTick] = useState(0);
+
+  const openSettings = useCallback(() => {
+    audio.sfx('click');
+    setSettingsOpen(true);
+  }, []);
 
   const togglePresentationMode = useCallback(() => {
     setPresentationMode(prev => {
@@ -176,6 +185,20 @@ export function App() {
     setScreen(s);
   };
 
+  const handleResetProgress = useCallback(() => {
+    try {
+      localStorage.removeItem('aib-completed-lessons');
+      localStorage.removeItem('aib-achievements');
+      localStorage.removeItem('aib-lesson-idx');
+      setCompletedLessons(new Set());
+      setUnlockedAchievements(new Set());
+      setCurrentLessonIdx(0);
+      audio.sfx('coin');
+    } catch {
+      // ignore
+    }
+  }, [setCurrentLessonIdx]);
+
   const ctx = useMemo<AppCtx>(
     () => ({
       lang,
@@ -199,9 +222,10 @@ export function App() {
       unlockedAchievements,
       unlockAchievement,
       openAchievements,
+      openSettings,
     }),
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    [lang, characterId, screen, currentLessonIdx, completedLessons, fourColor, feltTheme, presentationMode, togglePresentationMode, openGlossaryWithQuery, unlockedAchievements, unlockAchievement, openAchievements, tick]
+    [lang, characterId, screen, currentLessonIdx, completedLessons, fourColor, feltTheme, presentationMode, togglePresentationMode, openGlossaryWithQuery, unlockedAchievements, unlockAchievement, openAchievements, openSettings, tick]
   );
 
   const bump = () => setTick(x => x + 1);
@@ -273,6 +297,13 @@ export function App() {
               onClick={() => { audio.soundOn = !audio.soundOn; bump(); }}
               title={t(lang, 'home.sound')}
             >🔊</button>
+            <button
+              className={`chip ${settingsOpen ? 'active' : ''}`}
+              onClick={openSettings}
+              title={t(lang, 'settings.title')}
+            >
+              ⚙️ {t(lang, 'settings.title')}
+            </button>
           </div>
         </header>
         {screen === 'home' && <Home />}
@@ -292,6 +323,25 @@ export function App() {
         isOpen={achievementsOpen}
         unlockedIds={unlockedAchievements}
         onClose={() => setAchievementsOpen(false)}
+      />
+      <SettingsModal
+        isOpen={settingsOpen}
+        onClose={() => setSettingsOpen(false)}
+        lang={lang}
+        fourColor={fourColor}
+        onToggleFourColor={toggleFourColor}
+        feltTheme={feltTheme}
+        onChangeFeltTheme={(t: FeltTheme) => {
+          setFeltTheme(t);
+          localStorage.setItem('aib-felt-theme', t);
+        }}
+        presentationMode={presentationMode}
+        onTogglePresentationMode={togglePresentationMode}
+        completedCount={completedLessons.size}
+        totalLessons={getLessons(lang).length}
+        achievementsCount={unlockedAchievements.size}
+        totalAchievements={ACHIEVEMENTS.length}
+        onResetProgress={handleResetProgress}
       />
       {recentAchievement && (
         <div

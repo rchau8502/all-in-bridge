@@ -16,12 +16,37 @@ class AudioEngine {
   private musicTimer: number | null = null;
   private musicStep = 0;
   private currentVoice: HTMLAudioElement | null = null;
-  soundOn = true;
-  musicOn = true;
-  voiceOn = true;
+  soundOn = typeof localStorage !== 'undefined' ? localStorage.getItem('aib-sound') !== '0' : true;
+  musicOn = typeof localStorage !== 'undefined' ? localStorage.getItem('aib-music') === '1' : false;
+  voiceOn = typeof localStorage !== 'undefined' ? localStorage.getItem('aib-voice') !== '0' : true;
+  hapticsOn = typeof localStorage !== 'undefined' ? localStorage.getItem('aib-haptics') !== '0' : true;
+
+  setSoundOn(on: boolean): void {
+    this.soundOn = on;
+    try { localStorage.setItem('aib-sound', on ? '1' : '0'); } catch {}
+  }
+
+  setMusicOn(on: boolean): void {
+    this.musicOn = on;
+    try { localStorage.setItem('aib-music', on ? '1' : '0'); } catch {}
+    if (on) this.startMusic();
+    else this.stopMusic();
+  }
+
+  setVoiceOn(on: boolean): void {
+    this.voiceOn = on;
+    try { localStorage.setItem('aib-voice', on ? '1' : '0'); } catch {}
+    if (!on) this.stopVoice();
+  }
+
+  setHapticsOn(on: boolean): void {
+    this.hapticsOn = on;
+    try { localStorage.setItem('aib-haptics', on ? '1' : '0'); } catch {}
+  }
 
   /** Light tactile haptic pulse on mobile devices (e.g. iPhone, Android). */
   haptic(pattern: number | number[] = 10): void {
+    if (!this.hapticsOn) return;
     if (typeof navigator !== 'undefined' && 'vibrate' in navigator) {
       try {
         navigator.vibrate(pattern);

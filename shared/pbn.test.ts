@@ -48,10 +48,52 @@ describe('Portable Bridge Notation (PBN) Parser & Formatter', () => {
   });
 
   it('imports deal with standard PBN tag format', () => {
-    const pbnTag = '[Deal "W:AK5.T98.765.4322 QJT.K76.432.AKQ5 987.543.AKQ.JT98 6432.AQJ.JT98.76"]';
+    const originalHands = deal(buildDeck());
+    const pbnTag = `[Deal "${exportDealToPbn(originalHands, 'W')}"]`;
     const { hands, firstSeat } = importDealFromPbn(pbnTag);
     expect(firstSeat).toBe('W');
-    expect(hands.W.length).toBe(13);
-    expect(formatHandPbn(hands.W)).toBe('AK5.T98.765.4322');
+    for (const seat of ['N', 'E', 'S', 'W'] as const) {
+      expect(formatHandPbn(hands[seat])).toBe(formatHandPbn(originalHands[seat]));
+    }
+  });
+});
+
+
+describe('PBN input validation', () => {
+  it.each(['AX..QJ.T', 'A10..QJ.T', 'A-..QJ.T', 'A?..QJ.T'])(
+    'rejects invalid rank characters in %s', hand => {
+      expect(() => parseHandPbn(hand)).toThrow('Invalid rank');
+    },
+  );
+
+  it('rejects duplicate cards within a hand', () => {
+    expect(() => parseHandPbn('AA..QJ.T')).toThrow('Duplicate card');
+  });
+
+  it('accepts lowercase ranks and void suits', () => {
+    expect(parseHandPbn('ak..qj.t')).toEqual(parseHandPbn('AK..QJ.T'));
+  });
+
+  it('rejects incomplete deals', () => {
+    expect(() => importDealFromPbn('N:A... K... Q... J...')).toThrow('13 cards');
+  });
+
+  it('rejects duplicate cards across otherwise full hands', () => {
+    const hand = 'AKQJ.T98.765.432';
+    expect(() => importDealFromPbn(`N:${hand} ${hand} ${hand} ${hand}`)).toThrow('Duplicate card');
+  });
+
+  it.each(['N:... ... ...', 'X:... ... ... ...', '... ... ... ...'])(
+    'rejects invalid deal structure: %s', pbn => {
+      expect(() => importDealFromPbn(pbn)).toThrow();
+    },
+  );
+
+  it.each(['N', 'E', 'S', 'W'] as const)('round-trips a full deal starting at %s', seat => {
+    const original = deal(buildDeck());
+    const pbn = exportDealToPbn(original, seat);
+    const imported = importDealFromPbn(pbn.toLowerCase());
+    expect(imported.firstSeat).toBe(seat);
+    expect(exportDealToPbn(imported.hands, seat)).toBe(pbn);
   });
 });

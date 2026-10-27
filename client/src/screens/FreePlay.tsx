@@ -7,6 +7,7 @@ import { CHARACTERS } from '../../../shared/characters.js';
 import { Avatar } from '../components/ui.js';
 import { PbnModal } from '../components/PbnModal.js';
 import { ChallengesModal } from '../components/ChallengesModal.js';
+import { DealBuilderModal } from '../components/DealBuilderModal.js';
 import { type Challenge } from '../../../shared/challenges.js';
 import { exportDealToPbn, importDealFromPbn } from '../../../shared/pbn.js';
 import { sortHand, partnerOf, type Card, type Seat, type Suit, type Hands } from '../../../shared/deck.js';
@@ -39,6 +40,7 @@ export function FreePlay() {
   const [dealHands, setDealHands] = useState<Hands>(() => generateArchetypeDeal('random'));
   const [pbnOpen, setPbnOpen] = useState(false);
   const [challengesOpen, setChallengesOpen] = useState(false);
+  const [builderOpen, setBuilderOpen] = useState(false);
   const [activeChallenge, setActiveChallenge] = useState<Challenge | null>(null);
   const [showChallengeHint, setShowChallengeHint] = useState(false);
   const [solvedChallenges, setSolvedChallenges] = useState<Set<string>>(() => {
@@ -473,6 +475,18 @@ export function FreePlay() {
             📋 PBN
           </button>
 
+          <button
+            type="button"
+            className="btn ghost"
+            onClick={() => {
+              audio.sfx('click');
+              setBuilderOpen(true);
+            }}
+            title={t(lang, 'builder.button')}
+          >
+            🛠️ {t(lang, 'builder.button')}
+          </button>
+
           {/* Targeted Deal Archetype Generator */}
           <div className="deal-archetype-wrap">
             <select
@@ -858,7 +872,9 @@ export function FreePlay() {
         currentDealPbn={exportDealToPbn(dealHands, 'N')}
         onLoadPbn={(pbnStr) => {
           const imported = importDealFromPbn(pbnStr);
-          if (!imported) return false;
+          setActiveChallenge(null);
+          setShowChallengeHint(false);
+          setHoveredBid(null);
           setDealHands(imported.hands);
           setBoardNo(b => b + 1);
           setAuction(new Auction(imported.firstSeat));
@@ -887,6 +903,29 @@ export function FreePlay() {
         solvedIds={solvedChallenges}
         onSelectChallenge={handleSelectChallenge}
         onClose={() => setChallengesOpen(false)}
+      />
+
+      {/* Custom Deal Studio & Hand Builder Modal */}
+      <DealBuilderModal
+        lang={lang}
+        isOpen={builderOpen}
+        initialHands={dealHands}
+        initialContract={contract}
+        onLoadDeal={(custom) => {
+          setActiveChallenge(null);
+          setShowChallengeHint(false);
+          setDealHands(custom.hands);
+          setBoardNo(b => b + 1);
+          setAuction(new Auction('N'));
+          setAuctionContract(null);
+          setAuctionPassedOut(false);
+          setPauseReview(null);
+          setCollectingTo(null);
+          setShowAllHands(false);
+          setReplayTrickIdx(null);
+          setPlayState(new PlayState(custom.hands, custom.contract));
+        }}
+        onClose={() => setBuilderOpen(false)}
       />
     </div>
   );
