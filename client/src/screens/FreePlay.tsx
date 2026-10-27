@@ -5,6 +5,8 @@ import { audio } from '../audio.js';
 import { SimTable, type SimSeatInfo } from './Tutorial.js';
 import { CHARACTERS } from '../../../shared/characters.js';
 import { Avatar } from '../components/ui.js';
+import { PbnModal } from '../components/PbnModal.js';
+import { exportDealToPbn, importDealFromPbn } from '../../../shared/pbn.js';
 import { buildDeck, shuffle, deal, sortHand, type Card, type Seat, type Suit, type Hands } from '../../../shared/deck.js';
 import { PlayState, trickWinner } from '../../../shared/play.js';
 import { chooseBotPlay, chooseBotBid } from '../../../shared/bot.js';
@@ -21,11 +23,12 @@ const CONTRACT_PRESETS: Array<{ level: number; denom: Denom; label: string }> = 
 ];
 
 export function FreePlay() {
-  const { lang, go, characterId } = useApp();
+  const { lang, go, characterId, unlockAchievement } = useApp();
 
   const [mode, setMode] = useState<PlayMode>('quick');
   const [boardNo, setBoardNo] = useState(1);
   const [dealHands, setDealHands] = useState<Hands>(() => deal(shuffle(buildDeck())));
+  const [pbnOpen, setPbnOpen] = useState(false);
 
   // Quick mode preset
   const [contractPreset, setContractPreset] = useState<{ level: number; denom: Denom }>(CONTRACT_PRESETS[0]!);
@@ -241,6 +244,24 @@ export function FreePlay() {
   const targetTricks = contract.level + 6;
   const isMade = declarerTricks >= targetTricks;
 
+  useEffect(() => {
+    if (!isComplete) return;
+    if (declarerTricks > 0) {
+      unlockAchievement('first_trick');
+    }
+    if (isMade) {
+      const isGame = (contract.denom === 'NT' && contract.level >= 3) ||
+        ((contract.denom === 'S' || contract.denom === 'H') && contract.level >= 4) ||
+        ((contract.denom === 'D' || contract.denom === 'C') && contract.level >= 5);
+      if (isGame) {
+        unlockAchievement('game_maker');
+      }
+      if (declarerTricks >= 12) {
+        unlockAchievement('slam_grandee');
+      }
+    }
+  }, [isComplete, isMade, declarerTricks, contract, unlockAchievement]);
+
   const currentPlaySeat = isPlayPhase && (playState.turn === 'S' || playState.turn === 'N') && !pauseReview && !collectingTo && replayTrickIdx === null
     ? playState.turn
     : null;
@@ -316,6 +337,18 @@ export function FreePlay() {
               ))}
             </div>
           )}
+
+          <button
+            type="button"
+            className="btn ghost"
+            onClick={() => {
+              audio.sfx('click');
+              setPbnOpen(true);
+            }}
+            title="PBN Deal"
+          >
+            📋 PBN
+          </button>
 
           <button type="button" className="btn primary freeplay-deal-btn" onClick={handleNewDeal}>
             🔀 {t(lang, 'freeplay.newDeal')}
@@ -535,6 +568,35 @@ export function FreePlay() {
           </div>
         </div>
       )}
+
+      {/* PBN Import/Export Modal */}
+      <PbnModal
+        lang={lang}
+        isOpen={pbnOpen}
+        currentDealPbn={exportDealToPbn(dealHands, 'N')}
+        onLoadPbn={(pbnStr) => {
+          const imported = importDealFromPbn(pbnStr);
+          if (!imported) return false;
+          setDealHands(imported.hands);
+          setBoardNo(b => b + 1);
+          setAuction(new Auction(imported.firstSeat));
+          setAuctionContract(null);
+          setAuctionPassedOut(false);
+          setPauseReview(null);
+          setCollectingTo(null);
+          setShowAllHands(false);
+          setReplayTrickIdx(null);
+          const initialContract: Contract = {
+            level: contractPreset.level,
+            denom: contractPreset.denom,
+            declarer: 'S',
+            doubled: 0,
+          };
+          setPlayState(new PlayState(imported.hands, initialContract));
+          return true;
+        }}
+        onClose={() => setPbnOpen(false)}
+      />
     </div>
   );
 }

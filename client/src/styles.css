@@ -2431,4 +2431,428 @@ table.standings tr.leader td { color: var(--accent); font-weight: 800; }
   border: 1px solid rgba(255, 215, 0, 0.3);
 }
 
+/* =============================================================
+   Achievements Modal & Badge Grid
+   ============================================================= */
+.achievements-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(4, 12, 28, 0.82);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  z-index: 100;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 16px;
+  animation: fade-in 0.2s ease-out;
+}
+.achievements-dialog {
+  background: rgba(10, 24, 52, 0.96);
+  border: 1px solid var(--gold-dim);
+  border-radius: var(--r-lg);
+  width: min(780px, 100%);
+  max-height: min(88vh, 820px);
+  display: flex;
+  flex-direction: column;
+  box-shadow: 0 24px 64px rgba(0, 0, 0, 0.7), 0 0 40px rgba(255, 215, 0, 0.15);
+  overflow: hidden;
+  animation: pop-in 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.achievements-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 18px 24px 14px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+.achievements-title-wrap {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.achievements-title {
+  margin: 0;
+  font-size: 22px;
+  font-weight: 800;
+  color: var(--gold);
+  letter-spacing: -0.01em;
+}
+.achievements-sub {
+  font-size: 13px;
+  color: var(--text-dim);
+}
+.modal-close-btn {
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  color: var(--text);
+  font-size: 16px;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.15s ease;
+}
+.modal-close-btn:hover {
+  background: rgba(255, 255, 255, 0.2);
+  color: #fff;
+  transform: scale(1.05);
+}
+
+/* Progress summary card */
+.achievements-progress-card {
+  margin: 16px 24px 12px;
+  background: rgba(0, 0, 0, 0.35);
+  border: 1px solid rgba(255, 215, 0, 0.25);
+  border-radius: 12px;
+  padding: 12px 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.progress-label-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 14px;
+  font-weight: 700;
+}
+.progress-text {
+  color: var(--text);
+}
+.progress-percent {
+  color: var(--gold);
+  font-weight: 800;
+}
+.progress-bar-bg {
+  width: 100%;
+  height: 8px;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 4px;
+  overflow: hidden;
+}
+.progress-bar-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #f59e0b, #eab308, #fde047);
+  border-radius: 4px;
+  transition: width 0.4s ease-out;
+  box-shadow: 0 0 12px rgba(255, 215, 0, 0.5);
+}
+
+/* Category Filter Tabs */
+.achievements-tabs {
+  display: flex;
+  gap: 8px;
+  padding: 0 24px 12px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+.achievements-tab {
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  color: var(--text-dim);
+  padding: 6px 14px;
+  border-radius: 20px;
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+.achievements-tab:hover {
+  background: rgba(255, 255, 255, 0.12);
+  color: #fff;
+}
+.achievements-tab.active {
+  background: var(--gold);
+  border-color: var(--gold);
+  color: #1a0f00;
+  box-shadow: 0 2px 8px rgba(255, 215, 0, 0.35);
+}
+
+/* Badges Grid */
+.achievements-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  gap: 14px;
+  padding: 18px 24px;
+  overflow-y: auto;
+  max-height: calc(88vh - 230px);
+}
+.achievement-card {
+  display: flex;
+  gap: 14px;
+  align-items: center;
+  background: rgba(0, 0, 0, 0.3);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 14px;
+  padding: 12px 14px;
+  transition: all 0.2s ease;
+}
+.achievement-card.unlocked {
+  background: rgba(255, 215, 0, 0.08);
+  border-color: rgba(255, 215, 0, 0.35);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3);
+}
+.achievement-card.locked {
+  opacity: 0.6;
+  filter: grayscale(0.5);
+}
+.achievement-card.locked:hover {
+  opacity: 0.8;
+}
+.badge-icon-wrap {
+  position: relative;
+  width: 54px;
+  height: 54px;
+  border-radius: 50%;
+  background: rgba(0, 0, 0, 0.5);
+  border: 2px solid rgba(255, 255, 255, 0.15);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+.achievement-card.unlocked .badge-icon-wrap {
+  border-color: var(--gold);
+  background: radial-gradient(circle, rgba(255, 215, 0, 0.25) 0%, rgba(0, 0, 0, 0.4) 100%);
+}
+.badge-icon {
+  font-size: 26px;
+  line-height: 1;
+}
+.badge-glow-ring {
+  position: absolute;
+  inset: -4px;
+  border-radius: 50%;
+  border: 1.5px solid rgba(255, 215, 0, 0.4);
+  animation: pulse-ring 2.5s infinite ease-in-out;
+}
+@keyframes pulse-ring {
+  0% { transform: scale(0.96); opacity: 0.3; }
+  50% { transform: scale(1.06); opacity: 0.8; }
+  100% { transform: scale(0.96); opacity: 0.3; }
+}
+.badge-info {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  flex: 1;
+  min-width: 0;
+}
+.badge-title-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 8px;
+}
+.badge-title {
+  font-size: 15px;
+  font-weight: 800;
+  color: #fff;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.achievement-card.unlocked .badge-title {
+  color: var(--gold);
+}
+.badge-status {
+  font-size: 11px;
+  font-weight: 800;
+  padding: 2px 8px;
+  border-radius: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  white-space: nowrap;
+}
+.status-unlocked {
+  background: rgba(34, 197, 94, 0.2);
+  color: #4ade80;
+  border: 1px solid rgba(34, 197, 94, 0.4);
+}
+.status-locked {
+  background: rgba(255, 255, 255, 0.08);
+  color: var(--text-dim);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+}
+.badge-desc {
+  margin: 0;
+  font-size: 12px;
+  color: var(--text-dim);
+  line-height: 1.35;
+}
+
+/* =============================================================
+   PBN Deal Import / Export Modal
+   ============================================================= */
+.pbn-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(4, 12, 28, 0.82);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  z-index: 100;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 16px;
+  animation: fade-in 0.2s ease-out;
+}
+.pbn-dialog {
+  background: rgba(10, 24, 52, 0.96);
+  border: 1px solid var(--gold-dim);
+  border-radius: var(--r-lg);
+  width: min(600px, 100%);
+  max-height: min(85vh, 680px);
+  display: flex;
+  flex-direction: column;
+  box-shadow: 0 24px 64px rgba(0, 0, 0, 0.7), 0 0 40px rgba(255, 215, 0, 0.15);
+  overflow: hidden;
+  animation: pop-in 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.pbn-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 18px 24px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+.pbn-title {
+  margin: 0;
+  font-size: 20px;
+  font-weight: 800;
+  color: var(--gold);
+}
+.pbn-section {
+  padding: 18px 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.pbn-label {
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--text);
+}
+.pbn-copy-row {
+  display: flex;
+  gap: 10px;
+}
+.pbn-input {
+  flex: 1;
+  background: rgba(0, 0, 0, 0.45);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  border-radius: 8px;
+  padding: 10px 14px;
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 13px;
+  color: #fff;
+  outline: none;
+}
+.pbn-input.readonly {
+  cursor: pointer;
+  background: rgba(0, 0, 0, 0.55);
+  border-color: rgba(255, 215, 0, 0.3);
+  color: #fde047;
+}
+.pbn-divider {
+  height: 1px;
+  background: rgba(255, 255, 255, 0.08);
+  margin: 0 24px;
+}
+.pbn-textarea {
+  width: 100%;
+  background: rgba(0, 0, 0, 0.45);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  border-radius: 8px;
+  padding: 10px 14px;
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 13px;
+  color: #fff;
+  resize: vertical;
+  outline: none;
+}
+.pbn-textarea:focus {
+  border-color: var(--gold);
+  box-shadow: 0 0 8px rgba(255, 215, 0, 0.3);
+}
+.pbn-error {
+  color: #f87171;
+  font-size: 13px;
+  font-weight: 700;
+}
+.pbn-actions {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 4px;
+}
+
+/* =============================================================
+   Achievement Toast Notification
+   ============================================================= */
+.achievement-toast {
+  position: fixed;
+  bottom: 24px;
+  right: 24px;
+  z-index: 120;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  background: linear-gradient(135deg, rgba(20, 35, 70, 0.98), rgba(10, 20, 42, 0.98));
+  border: 1.5px solid var(--gold);
+  border-radius: 16px;
+  padding: 12px 20px;
+  box-shadow: 0 16px 48px rgba(0, 0, 0, 0.7), 0 0 24px rgba(255, 215, 0, 0.35);
+  cursor: pointer;
+  animation: toast-slide-in 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+  transition: transform 0.15s ease;
+}
+.achievement-toast:hover {
+  transform: translateY(-2px) scale(1.02);
+}
+@keyframes toast-slide-in {
+  from {
+    opacity: 0;
+    transform: translateY(20px) scale(0.9);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+.toast-icon-wrap {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(255, 215, 0, 0.3) 0%, rgba(0, 0, 0, 0.5) 100%);
+  border: 2px solid var(--gold);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+.toast-icon {
+  font-size: 22px;
+  line-height: 1;
+}
+.toast-text-wrap {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+.toast-label {
+  font-size: 11px;
+  font-weight: 800;
+  text-transform: uppercase;
+  color: var(--gold);
+  letter-spacing: 0.05em;
+}
+.toast-title {
+  font-size: 15px;
+  font-weight: 800;
+  color: #fff;
+}
+
 /* (No big-screen upscale rules: the sim stage scales itself to fit.) */

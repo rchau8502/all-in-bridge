@@ -609,6 +609,7 @@ export function Tutorial() {
     completedLessons,
     markLessonCompleted,
     openGlossaryWithQuery,
+    unlockAchievement,
   } = useApp();
 
   const lessons = useMemo(() => getLessons(lang), [lang]);
@@ -818,8 +819,19 @@ export function Tutorial() {
     if (done) {
       markLessonCompleted(lesson.id);
       void audio.playVoice(characterId, lang, 'win_game');
+
+      unlockAchievement('first_trick');
+      if (lesson.id === 'strategy') {
+        unlockAchievement('finesse_master');
+      }
+      if (lesson.id === 'trump' || lesson.id === 'eliminate') {
+        unlockAchievement('trump_ruler');
+      }
+      if (completedLessons.size + (completedLessons.has(lesson.id) ? 0 : 1) >= 16) {
+        unlockAchievement('bootcamp_grad');
+      }
     }
-  }, [done, lesson.id, markLessonCompleted, characterId, lang]);
+  }, [done, lesson.id, markLessonCompleted, characterId, lang, unlockAchievement, completedLessons]);
 
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {

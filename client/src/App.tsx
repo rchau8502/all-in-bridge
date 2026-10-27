@@ -6,6 +6,8 @@ import { Tutorial } from './screens/Tutorial.js';
 import { Drill } from './screens/Drill.js';
 import { FreePlay } from './screens/FreePlay.js';
 import { GlossaryModal } from './components/GlossaryModal.js';
+import { AchievementsModal } from './components/AchievementsModal.js';
+import { ACHIEVEMENTS, getAchievement, type Achievement } from '../../shared/achievements.js';
 import './styles.css';
 
 export type ScreenName = 'home' | 'tutorial' | 'drill' | 'freeplay';
@@ -28,6 +30,9 @@ interface AppCtx {
   feltTheme: FeltTheme;
   cycleFeltTheme: () => void;
   openGlossaryWithQuery: (q?: string) => void;
+  unlockedAchievements: Set<string>;
+  unlockAchievement: (id: string) => void;
+  openAchievements: () => void;
 }
 
 const Ctx = createContext<AppCtx>(null as unknown as AppCtx);
@@ -53,8 +58,41 @@ export function App() {
   const [feltTheme, setFeltTheme] = useState<FeltTheme>(() => (localStorage.getItem('aib-felt-theme') as FeltTheme) || 'teal');
   const [glossaryOpen, setGlossaryOpen] = useState(false);
   const [glossaryQuery, setGlossaryQuery] = useState('');
+  const [unlockedAchievements, setUnlockedAchievements] = useState<Set<string>>(() => {
+    try {
+      const saved = localStorage.getItem('aib-achievements');
+      return saved ? new Set<string>(JSON.parse(saved)) : new Set<string>();
+    } catch {
+      return new Set<string>();
+    }
+  });
+  const [achievementsOpen, setAchievementsOpen] = useState(false);
+  const [recentAchievement, setRecentAchievement] = useState<Achievement | null>(null);
   const [screen, setScreen] = useState<ScreenName>('home');
   const [tick, setTick] = useState(0);
+
+  const unlockAchievement = useCallback((id: string) => {
+    setUnlockedAchievements(prev => {
+      if (prev.has(id)) return prev;
+      const next = new Set(prev);
+      next.add(id);
+      localStorage.setItem('aib-achievements', JSON.stringify([...next]));
+      const ach = getAchievement(id);
+      if (ach) {
+        audio.sfx('fanfare');
+        setRecentAchievement(ach);
+        window.setTimeout(() => {
+          setRecentAchievement(cur => (cur?.id === id ? null : cur));
+        }, 4000);
+      }
+      return next;
+    });
+  }, []);
+
+  const openAchievements = useCallback(() => {
+    audio.sfx('click');
+    setAchievementsOpen(true);
+  }, []);
 
   const openGlossaryWithQuery = useCallback((q?: string) => {
     setGlossaryQuery(q ?? '');
@@ -144,9 +182,12 @@ export function App() {
       feltTheme,
       cycleFeltTheme,
       openGlossaryWithQuery,
+      unlockedAchievements,
+      unlockAchievement,
+      openAchievements,
     }),
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    [lang, characterId, screen, currentLessonIdx, completedLessons, fourColor, feltTheme, openGlossaryWithQuery, tick]
+    [lang, characterId, screen, currentLessonIdx, completedLessons, fourColor, feltTheme, openGlossaryWithQuery, unlockedAchievements, unlockAchievement, openAchievements, tick]
   );
 
   const bump = () => setTick(x => x + 1);
@@ -195,6 +236,13 @@ export function App() {
               📖 {t(lang, 'home.glossary')}
             </button>
             <button
+              className="chip"
+              onClick={openAchievements}
+              title={t(lang, 'achievements.title')}
+            >
+              🏅 {t(lang, 'achievements.title')} ({unlockedAchievements.size}/{ACHIEVEMENTS.length})
+            </button>
+            <button
               className={`chip ${audio.musicOn ? 'active' : ''}`}
               onClick={() => { audio.musicOn = !audio.musicOn; if (audio.musicOn) audio.startMusic(); else audio.stopMusic(); bump(); }}
               title={t(lang, 'home.music')}
@@ -218,6 +266,29 @@ export function App() {
         initialQuery={glossaryQuery}
         onClose={() => setGlossaryOpen(false)}
       />
+      <AchievementsModal
+        lang={lang}
+        isOpen={achievementsOpen}
+        unlockedIds={unlockedAchievements}
+        onClose={() => setAchievementsOpen(false)}
+      />
+      {recentAchievement && (
+        <div
+          className="achievement-toast"
+          role="alert"
+          onClick={openAchievements}
+        >
+          <div className="toast-icon-wrap">
+            <span className="toast-icon">{recentAchievement.icon}</span>
+          </div>
+          <div className="toast-text-wrap">
+            <span className="toast-label">
+              {lang === 'zh' ? '🎉 解锁新成就！' : '🎉 Achievement Unlocked!'}
+            </span>
+            <strong className="toast-title">{recentAchievement.title[lang]}</strong>
+          </div>
+        </div>
+      )}
     </Ctx.Provider>
   );
 }

@@ -61,7 +61,7 @@ function groupHandBySuit(cards: Card[]): Array<{ suit: Suit; cards: Card[] }> {
 }
 
 export function Drill() {
-  const { lang, go, characterId } = useApp();
+  const { lang, go, characterId, unlockAchievement } = useApp();
 
   const [mode, setMode] = useState<DrillMode>('opening');
 
@@ -138,7 +138,14 @@ export function Drill() {
     const isCorrect = bidId === targetBid;
     if (isCorrect) {
       audio.sfx('win');
-      setStreak(prev => prev + 1);
+      setStreak(prev => {
+        const next = prev + 1;
+        if (next >= 5) {
+          if (mode === 'opening') unlockAchievement('opening_pro');
+          else unlockAchievement('response_expert');
+        }
+        return next;
+      });
       setTotalCorrect(prev => prev + 1);
     } else {
       audio.sfx('lose');
