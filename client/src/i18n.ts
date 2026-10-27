@@ -80,6 +80,7 @@ const en = {
   'home.sound': 'Sound',
   'home.fourColor': 'Four-color deck (♣ green, ♦ orange)',
   'home.theme': 'Table theme (Teal / Green / Navy)',
+  'home.presentationMode': 'Presentation & Projector Mode (Enlarged Jumbo Cards for TV/screens)',
   'home.glossary': 'Glossary',
 
   'lobby.roomCode': 'Room code',
@@ -316,6 +317,7 @@ const zh: typeof en = {
   'home.sound': '音效',
   'home.fourColor': '四色扑克（♣绿色 ♦橙色）',
   'home.theme': '牌桌主题（海蓝 / 经典绿 / 午夜蓝）',
+  'home.presentationMode': '投屏大字模式（专为投影仪、电视大屏及远距离教学优化）',
   'home.glossary': '词典',
 
   'lobby.roomCode': '房间号',

@@ -19,8 +19,8 @@
   --felt2: #0a93a8;
   --felt3: #066e80;
   --wood: #5a3413;
-  --card-w: 76px;
-  --card-h: 108px;
+  --card-w: 84px;
+  --card-h: 118px;
   /* modern chrome tokens */
   --surface: rgba(10, 24, 52, 0.66);
   --surface-solid: #0d1c3d;
@@ -524,23 +524,48 @@ select.input { appearance: auto; }
 .card {
   width: var(--card-w); height: var(--card-h); border-radius: 12px;
   background: linear-gradient(165deg, #ffffff 0%, #fdfcf7 70%, #f4f1e6 100%);
-  border: 1px solid rgba(15, 30, 60, 0.14); position: relative; color: #1a1a1a;
+  border: 1.5px solid rgba(15, 30, 60, 0.18); position: relative; color: #1a1a1a;
   font-weight: 900; box-shadow: 0 4px 12px rgba(2, 24, 48, 0.35);
   user-select: none;
   touch-action: manipulation;
   -webkit-tap-highlight-color: transparent;
 }
 .card.small { --card-w: 52px; --card-h: 74px; font-size: 12px; }
+.card.small .corner-rank { font-size: 15px; font-weight: 900; }
+.card.small .corner-suit { font-size: 11px; display: block; margin-top: 1px; }
 .card.small .pip { font-size: 26px; }
-/* A thumbnail shows its suit exactly once, in the big centre pip. At 52px
-   wide, a second suit glyph in the corner lands on top of it and reads as
-   visual noise — so the corners keep the rank only. */
-.card.small .corner { font-size: 14px; }
-.card.small .corner-suit { display: none; }
-.card .corner { position: absolute; font-size: 15px; line-height: 1.05; text-align: center; }
+
+/* Jumbo Index corner rank and suit typography */
+.card .corner {
+  position: absolute;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+  line-height: 1;
+  text-align: center;
+}
 .card .corner.tl { top: 4px; left: 6px; }
 .card .corner.br { bottom: 4px; right: 6px; transform: rotate(180deg); }
-.card .pip { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; font-size: 40px; }
+.card .corner-rank {
+  font-size: 19px;
+  font-weight: 900;
+  letter-spacing: -0.04em;
+  line-height: 1;
+}
+.card .corner-suit {
+  font-size: 13px;
+  line-height: 1;
+  margin-top: 2px;
+}
+.card .pip {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 46px;
+}
 .card.heart, .card.diamond { color: #d21f3c; }
 .card.spade, .card.club { color: #1c1c1c; }
 /* four-color deck accessibility: ♠ black, ♥ red, ♦ orange, ♣ green */
@@ -632,38 +657,42 @@ select.input { appearance: auto; }
 }
 /* face-up seat hands (open-book bootcamp): compact mini cards */
 .sim-faceup {
-  display: flex; flex-wrap: wrap; gap: 2px;
-  justify-content: center; max-width: 300px;
+  display: flex; flex-wrap: wrap; gap: 3px;
+  justify-content: center; max-width: 360px;
 }
-.sim-faceup .card { --card-w: 34px; --card-h: 48px; }
-.sim-faceup .card .pip { font-size: 17px; }
-.sim-faceup .card .corner { font-size: 9px; }
+.sim-faceup .card { --card-w: 46px; --card-h: 64px; }
+.sim-faceup .card .pip { font-size: 22px; }
+.sim-faceup .card .corner-rank { font-size: 13.5px; font-weight: 900; }
+.sim-faceup .card .corner-suit { font-size: 10px; margin-top: 1px; }
 .faceup-cluster {
   gap: 0;
   margin: 0 3px;
 }
 .faceup-cluster .card {
-  margin: 0 -10px;
+  margin: 0 -11px;
 }
 .faceup-cluster .card:first-child { margin-left: 0; }
 .faceup-cluster .card:last-child { margin-right: 0; }
-.sim-w .sim-faceup, .sim-e .sim-faceup { max-width: 140px; }
+.sim-w .sim-faceup, .sim-e .sim-faceup { max-width: 160px; }
 /* When it is the dummy's turn, its face-up hand IS the play surface: the
  * learner clicks the card in place (top of the table), never dragging it
  * down into the declarer's own hand. Ring the hand and let the cards lift. */
 .sim-faceup.playable-seat {
-  padding: 8px 12px; border-radius: 14px;
+  padding: 8px 14px; border-radius: 14px;
   background: rgba(255, 171, 0, 0.12);
   box-shadow: 0 0 0 3px var(--gold2), 0 0 24px rgba(255, 171, 0, 0.65);
-  max-width: 520px;
+  max-width: 620px;
   z-index: 10;
 }
 .sim-faceup.playable-seat .card {
-  --card-w: 48px;
-  --card-h: 68px;
+  --card-w: 60px;
+  --card-h: 84px;
 }
+.sim-faceup.playable-seat .card .corner-rank { font-size: 17px; }
+.sim-faceup.playable-seat .card .corner-suit { font-size: 12px; }
+.sim-faceup.playable-seat .card .pip { font-size: 30px; }
 .sim-faceup.playable-seat .faceup-cluster .card {
-  margin: 0 -13px;
+  margin: 0 -14px;
 }
 .sim-faceup.playable-seat .faceup-cluster .card:first-child { margin-left: 0; }
 .sim-faceup.playable-seat .faceup-cluster .card:last-child { margin-right: 0; }
@@ -1051,7 +1080,7 @@ select.input { appearance: auto; }
     inset 0 0 0 6px rgba(255, 215, 0, 0.28),
     inset 0 0 80px rgba(0, 36, 48, 0.5),
     0 24px 60px rgba(2, 24, 48, 0.6);
-  min-height: 560px;
+  min-height: clamp(600px, 68vh, 840px);
 }
 /* Duplicate Board indicator widget */
 .board-indicator {
@@ -1198,13 +1227,20 @@ select.input { appearance: auto; }
 .sim-center { grid-area: simc; position: relative; min-height: 140px; display: flex; align-items: center; justify-content: center; }
 /* played cards sit at EQUAL offsets from the centre — a true square,
  * one card toward each seat of the square table */
-.sim-trick { position: relative; width: 200px; height: 200px; --toff: 82px; }
+.sim-trick { position: relative; width: 220px; height: 220px; --toff: 88px; }
 .sim-tcard {
   position: absolute; top: 50%; left: 50%;
   transform: rotate(var(--card-tilt, 0deg));
   animation: slam 0.35s cubic-bezier(0.2, 1.6, 0.4, 1) backwards;
   transition: transform 0.25s ease;
 }
+.sim-tcard .card {
+  --card-w: 86px;
+  --card-h: 122px;
+}
+.sim-tcard .card .corner-rank { font-size: 21px; }
+.sim-tcard .card .corner-suit { font-size: 14px; }
+.sim-tcard .card .pip { font-size: 50px; }
 .sim-tcard.noanim { animation: none; }
 .sim-tcard.pos-top { margin-left: calc(var(--card-w) / -2); margin-top: calc(var(--card-h) / -2 - var(--toff)); --card-tilt: -1.5deg; }
 .sim-tcard.pos-bottom { margin-left: calc(var(--card-w) / -2); margin-top: calc(var(--card-h) / -2 + var(--toff)); --card-tilt: 1.2deg; }
@@ -2198,12 +2234,15 @@ table.standings tr.leader td { color: var(--accent); font-weight: 800; }
 
 /* ---------- Free Play Sandbox Styles ---------- */
 .freeplay-screen {
-  width: min(1200px, 98vw);
+  width: min(1360px, 98vw);
   margin: 12px auto 30px;
   display: flex;
   flex-direction: column;
   gap: 12px;
   animation: fade-in 0.25s ease-out;
+}
+.freeplay-screen .sim-felt {
+  min-height: clamp(620px, 72vh, 880px);
 }
 .freeplay-header {
   display: flex;
@@ -3101,4 +3140,197 @@ table.standings tr.leader td { color: var(--accent); font-weight: 800; }
   margin-top: 4px;
 }
 
-/* (No big-screen upscale rules: the sim stage scales itself to fit.) */
+/* =============================================================
+   Presentation & Projector Mode (投屏/大字演示模式)
+   ============================================================= */
+.presentation-mode {
+  --card-w: 104px;
+  --card-h: 148px;
+}
+.presentation-mode .card {
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.45);
+}
+.presentation-mode .card .corner-rank {
+  font-size: 26px;
+  font-weight: 900;
+}
+.presentation-mode .card .corner-suit {
+  font-size: 17px;
+  margin-top: 2px;
+}
+.presentation-mode .card .pip {
+  font-size: 60px;
+}
+.presentation-mode .sim-trick {
+  width: 250px;
+  height: 250px;
+  --toff: 100px;
+}
+.presentation-mode .sim-tcard .card {
+  --card-w: 108px;
+  --card-h: 154px;
+}
+.presentation-mode .sim-tcard .card .corner-rank {
+  font-size: 28px;
+}
+.presentation-mode .sim-tcard .card .corner-suit {
+  font-size: 18px;
+}
+.presentation-mode .sim-tcard .card .pip {
+  font-size: 64px;
+}
+.presentation-mode .sim-tcard-seat {
+  font-size: 13px;
+  padding: 3px 12px;
+}
+.presentation-mode .sim-faceup {
+  max-width: 440px;
+}
+.presentation-mode .sim-faceup .card {
+  --card-w: 58px;
+  --card-h: 82px;
+}
+.presentation-mode .sim-faceup .card .corner-rank {
+  font-size: 17px;
+}
+.presentation-mode .sim-faceup .card .corner-suit {
+  font-size: 12px;
+}
+.presentation-mode .sim-faceup .card .pip {
+  font-size: 28px;
+}
+.presentation-mode .sim-faceup .faceup-cluster .card {
+  margin: 0 -13px;
+}
+.presentation-mode .sim-faceup.playable-seat {
+  max-width: 760px;
+}
+.presentation-mode .sim-faceup.playable-seat .card {
+  --card-w: 78px;
+  --card-h: 110px;
+}
+.presentation-mode .sim-faceup.playable-seat .card .corner-rank {
+  font-size: 22px;
+}
+.presentation-mode .sim-faceup.playable-seat .card .corner-suit {
+  font-size: 15px;
+}
+.presentation-mode .sim-faceup.playable-seat .card .pip {
+  font-size: 42px;
+}
+.presentation-mode .sim-faceup.playable-seat .faceup-cluster .card {
+  margin: 0 -18px;
+}
+.presentation-mode .sim-felt {
+  min-height: clamp(680px, 80vh, 940px);
+}
+.presentation-mode .sim-topbar {
+  gap: 14px;
+  margin-bottom: 10px;
+}
+.presentation-mode .sim-trickno {
+  font-size: 16px;
+  padding: 4px 18px;
+}
+.presentation-mode .sim-tricks-hud {
+  font-size: 15px;
+  padding: 4px 16px;
+}
+.presentation-mode .hud-side b {
+  font-size: 16px;
+}
+.presentation-mode .contract-pill {
+  font-size: 16px;
+  padding: 4px 16px;
+}
+.presentation-mode .board-indicator {
+  font-size: 14px;
+  padding: 3px 14px;
+}
+.presentation-mode .sim-plate {
+  padding: 4px 14px;
+}
+.presentation-mode .sim-seatname {
+  font-size: 14px;
+}
+.presentation-mode .sim-count {
+  font-size: 13px;
+}
+.presentation-mode .sim-badge {
+  font-size: 14px;
+  padding: 2px 12px;
+}
+.presentation-mode .freeplay-screen {
+  width: min(1520px, 99vw);
+}
+.presentation-mode .freeplay-screen .sim-felt {
+  min-height: clamp(720px, 82vh, 980px);
+}
+.presentation-mode .drill-felt {
+  padding: 36px 24px 24px;
+}
+.presentation-mode .drill-hand-display .card {
+  --card-w: 98px;
+  --card-h: 138px;
+}
+.presentation-mode .drill-hand-display .card .corner-rank {
+  font-size: 25px;
+}
+.presentation-mode .drill-hand-display .card .corner-suit {
+  font-size: 17px;
+}
+.presentation-mode .drill-hand-display .card .pip {
+  font-size: 56px;
+}
+.presentation-mode .drill-hand-display .suit-cluster .card {
+  margin: 0 -18px;
+}
+.presentation-mode .drill-hand-display .suit-cluster .card:first-child {
+  margin-left: 0;
+}
+.presentation-mode .card-fan-wrapper {
+  margin: 0 -4px;
+}
+.presentation-mode .tut-overlay {
+  width: min(640px, 94%);
+}
+.presentation-mode .coach-bubble {
+  font-size: 19px;
+  line-height: 1.55;
+  padding: 18px 24px;
+}
+.presentation-mode .tut-title {
+  font-size: 22px;
+}
+.presentation-mode .tut-step-count {
+  font-size: 15px;
+}
+
+/* Natural Widescreen & Projector Enhancements (min-width: 1400px and min-height: 800px) */
+@media (min-width: 1400px) and (min-height: 800px) {
+  :root {
+    --card-w: 92px;
+    --card-h: 130px;
+  }
+  .freeplay-screen {
+    width: min(1440px, 98vw);
+  }
+  .freeplay-screen .sim-felt {
+    min-height: clamp(660px, 75vh, 900px);
+  }
+  .sim-trick {
+    width: 230px;
+    height: 230px;
+    --toff: 92px;
+  }
+  .sim-tcard .card {
+    --card-w: 96px;
+    --card-h: 136px;
+  }
+  .sim-tcard .card .corner-rank {
+    font-size: 24px;
+  }
+  .sim-tcard .card .pip {
+    font-size: 54px;
+  }
+}

@@ -183,9 +183,9 @@ export interface SimSeatInfo {
 /** The sim table is designed once at this size and scaled to fit the
  *  learner's screen (see .sim-stage in styles.css). Portrait-ish screens
  *  get the compact stage (narrower side columns, same height). */
-const STAGE_W = 1180;
-const STAGE_W_COMPACT = 940;
-const STAGE_H = 740;
+const STAGE_W = 1120;
+const STAGE_W_COMPACT = 880;
+const STAGE_H = 660;
 
 /** A compact simulated card table: seats with card backs around a felt,
  *  the live trick as real cards in the middle, and the interactive hand
@@ -300,7 +300,7 @@ export function SimTable(props: {
       }
       const compact = r.width / r.height < 1.15;
       const w = compact ? STAGE_W_COMPACT : STAGE_W;
-      setFit({ scale: Math.min((r.width - 4) / w, (r.height - 4) / STAGE_H, 2.2), w, compact });
+      setFit({ scale: Math.min((r.width - 4) / w, (r.height - 4) / STAGE_H, 2.5), w, compact });
     };
     update();
     const ro = new ResizeObserver(update);

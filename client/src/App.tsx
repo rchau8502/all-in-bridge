@@ -30,6 +30,8 @@ interface AppCtx {
   feltTheme: FeltTheme;
   cycleFeltTheme: () => void;
   openGlossaryWithQuery: (q?: string) => void;
+  presentationMode: boolean;
+  togglePresentationMode: () => void;
   unlockedAchievements: Set<string>;
   unlockAchievement: (id: string) => void;
   openAchievements: () => void;
@@ -56,6 +58,7 @@ export function App() {
   });
   const [fourColor, setFourColor] = useState<boolean>(() => localStorage.getItem('aib-four-color') === '1');
   const [feltTheme, setFeltTheme] = useState<FeltTheme>(() => (localStorage.getItem('aib-felt-theme') as FeltTheme) || 'teal');
+  const [presentationMode, setPresentationMode] = useState<boolean>(() => localStorage.getItem('aib-presentation-mode') === '1');
   const [glossaryOpen, setGlossaryOpen] = useState(false);
   const [glossaryQuery, setGlossaryQuery] = useState('');
   const [unlockedAchievements, setUnlockedAchievements] = useState<Set<string>>(() => {
@@ -70,6 +73,15 @@ export function App() {
   const [recentAchievement, setRecentAchievement] = useState<Achievement | null>(null);
   const [screen, setScreen] = useState<ScreenName>('home');
   const [tick, setTick] = useState(0);
+
+  const togglePresentationMode = useCallback(() => {
+    setPresentationMode(prev => {
+      const next = !prev;
+      localStorage.setItem('aib-presentation-mode', next ? '1' : '0');
+      audio.sfx('click');
+      return next;
+    });
+  }, []);
 
   const unlockAchievement = useCallback((id: string) => {
     setUnlockedAchievements(prev => {
@@ -182,19 +194,21 @@ export function App() {
       feltTheme,
       cycleFeltTheme,
       openGlossaryWithQuery,
+      presentationMode,
+      togglePresentationMode,
       unlockedAchievements,
       unlockAchievement,
       openAchievements,
     }),
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    [lang, characterId, screen, currentLessonIdx, completedLessons, fourColor, feltTheme, openGlossaryWithQuery, unlockedAchievements, unlockAchievement, openAchievements, tick]
+    [lang, characterId, screen, currentLessonIdx, completedLessons, fourColor, feltTheme, presentationMode, togglePresentationMode, openGlossaryWithQuery, unlockedAchievements, unlockAchievement, openAchievements, tick]
   );
 
   const bump = () => setTick(x => x + 1);
 
   return (
     <Ctx.Provider value={ctx}>
-      <div className={`app ${fourColor ? 'four-color' : ''} theme-felt-${feltTheme}`}>
+      <div className={`app ${fourColor ? 'four-color' : ''} ${presentationMode ? 'presentation-mode' : ''} theme-felt-${feltTheme}`}>
         <header className="topbar">
           <div className="logo" onClick={() => go('home')}>
             <span className="logo-suit">♠</span> {t(lang, 'app.title')}
@@ -207,6 +221,13 @@ export function App() {
               onClick={toggleFourColor}
               title={t(lang, 'home.fourColor')}
             >🃏 4C</button>
+            <button
+              className={`chip presentation-chip ${presentationMode ? 'active' : ''}`}
+              onClick={togglePresentationMode}
+              title={t(lang, 'home.presentationMode')}
+            >
+              📺 {lang === 'zh' ? '投屏大字' : 'Cast'}
+            </button>
             <button
               className="chip theme-chip"
               onClick={cycleFeltTheme}
