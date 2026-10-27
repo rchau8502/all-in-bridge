@@ -140,6 +140,33 @@ function synthesizeStrong2C(): Hands {
 }
 
 /**
+ * Synthetic builder for slam try in case random shuffling exceeds budget.
+ */
+function synthesizeSlamTry(): Hands {
+  const deck = buildDeck();
+  const honors = shuffle(deck.filter(c => c.rank >= 12)); // 12 cards (Aces, Kings, Queens: 36 HCP)
+  const lowCards = shuffle(deck.filter(c => c.rank < 12)); // 40 cards
+
+  const sHonors = honors.slice(0, 6);
+  const nHonors = honors.slice(6, 12);
+
+  const sLow = lowCards.slice(0, 7);
+  const nLow = lowCards.slice(7, 14);
+
+  const sHand: Card[] = [...sHonors, ...sLow];
+  const nHand: Card[] = [...nHonors, ...nLow];
+
+  const remaining = shuffle(lowCards.slice(14));
+
+  return {
+    S: sHand,
+    N: nHand,
+    E: remaining.slice(0, 13),
+    W: remaining.slice(13, 26),
+  };
+}
+
+/**
  * Generate a complete 4-seat deal matching the chosen archetype for South.
  */
 export function generateArchetypeDeal(archetype: DealArchetype = 'random'): Hands {
@@ -148,7 +175,7 @@ export function generateArchetypeDeal(archetype: DealArchetype = 'random'): Hand
   }
 
   // Fast rejection sampling (typically succeeds in < 15ms)
-  const maxAttempts = archetype === 'strong_2c' ? 450 : 250;
+  const maxAttempts = archetype === 'strong_2c' || archetype === 'slam_try' ? 450 : 250;
   for (let i = 0; i < maxAttempts; i++) {
     const hands = deal(shuffle(buildDeck()));
     if (satisfiesArchetype(hands, archetype)) {
@@ -156,10 +183,14 @@ export function generateArchetypeDeal(archetype: DealArchetype = 'random'): Hand
     }
   }
 
-  // Fallback for strong 2C if random draw was unlucky
+  // Fallbacks if random draw was unlucky
   if (archetype === 'strong_2c') {
     const synth = synthesizeStrong2C();
     if (calculateHcp(synth.S) >= 22) return synth;
+  }
+
+  if (archetype === 'slam_try') {
+    return synthesizeSlamTry();
   }
 
   // Graceful fallback
