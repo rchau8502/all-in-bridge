@@ -20,6 +20,17 @@ class AudioEngine {
   musicOn = true;
   voiceOn = true;
 
+  /** Light tactile haptic pulse on mobile devices (e.g. iPhone, Android). */
+  haptic(pattern: number | number[] = 10): void {
+    if (typeof navigator !== 'undefined' && 'vibrate' in navigator) {
+      try {
+        navigator.vibrate(pattern);
+      } catch {
+        // ignore if blocked by browser permissions
+      }
+    }
+  }
+
   /** Must be called from a user gesture at least once. */
   unlock(): void {
     if (!this.ctx) {
@@ -72,40 +83,71 @@ class AudioEngine {
   sfx(name: SfxName): void {
     this.unlock();
     switch (name) {
-      case 'click': this.tone(700, 0.06, 'square', 0.05); break;
-      case 'blip': this.tone(1050 + Math.random() * 260, 0.035, 'sine', 0.022); break;
-      case 'join': this.tone(520, 0.08, 'triangle', 0.07); this.tone(780, 0.1, 'triangle', 0.07, 0.07); break;
-      case 'bid': this.tone(660, 0.07, 'square', 0.06); this.tone(880, 0.09, 'square', 0.06, 0.07); break;
-      case 'card': this.noise(0.09, 0.16, 0, 2500); this.tone(180, 0.08, 'sine', 0.1); break;
-      case 'deal': for (let i = 0; i < 4; i++) this.noise(0.05, 0.08, i * 0.05, 4000); break;
+      case 'click':
+        this.haptic(8);
+        this.tone(700, 0.06, 'square', 0.05);
+        break;
+      case 'blip':
+        this.tone(1050 + Math.random() * 260, 0.035, 'sine', 0.022);
+        break;
+      case 'join':
+        this.haptic(10);
+        this.tone(520, 0.08, 'triangle', 0.07);
+        this.tone(780, 0.1, 'triangle', 0.07, 0.07);
+        break;
+      case 'bid':
+        this.haptic(14);
+        this.tone(660, 0.07, 'square', 0.06);
+        this.tone(880, 0.09, 'square', 0.06, 0.07);
+        break;
+      case 'card':
+        this.haptic(12);
+        this.noise(0.09, 0.16, 0, 2500);
+        this.tone(180, 0.08, 'sine', 0.1);
+        break;
+      case 'deal':
+        this.haptic(10);
+        for (let i = 0; i < 4; i++) this.noise(0.05, 0.08, i * 0.05, 4000);
+        break;
       case 'trick':
+        this.haptic(15);
         this.tone(523, 0.09, 'triangle', 0.08);
         this.tone(659, 0.09, 'triangle', 0.08, 0.08);
         this.tone(784, 0.14, 'triangle', 0.08, 0.16);
         break;
-      case 'yourturn': this.tone(1046, 0.12, 'sine', 0.07); this.tone(1318, 0.16, 'sine', 0.06, 0.1); break;
+      case 'yourturn':
+        this.haptic([15, 40, 15]);
+        this.tone(1046, 0.12, 'sine', 0.07);
+        this.tone(1318, 0.16, 'sine', 0.06, 0.1);
+        break;
       case 'coin':
+        this.haptic(8);
         for (let i = 0; i < 6; i++) {
           this.tone(988, 0.07, 'square', 0.05, i * 0.07);
           this.tone(1319, 0.12, 'square', 0.05, i * 0.07 + 0.06);
         }
         break;
       case 'win':
+        this.haptic([20, 30, 25, 30, 40]);
         [523, 659, 784, 1046, 784, 1046].forEach((f, i) => this.tone(f, 0.16, 'square', 0.07, i * 0.11));
         break;
       case 'slam':
+        this.haptic([30, 30, 30, 30, 60]);
         [392, 523, 659, 784, 1046, 1318, 1568].forEach((f, i) => this.tone(f, 0.18, 'sawtooth', 0.06, i * 0.09));
         break;
       case 'lose':
+        this.haptic([25, 40, 25]);
         [400, 340, 280, 200].forEach((f, i) => this.tone(f, 0.2, 'sawtooth', 0.06, i * 0.13));
         break;
       case 'shuffle':
+        this.haptic(10);
         for (let i = 0; i < 14; i++) {
           this.noise(0.025, 0.09, i * 0.032 + Math.random() * 0.006, 3200 + Math.random() * 600);
         }
         this.noise(0.06, 0.12, 0.48, 2000);
         break;
       case 'fanfare':
+        this.haptic([15, 20, 20, 20, 35]);
         [523.25, 659.25, 783.99, 1046.5].forEach((f, i) => {
           this.tone(f, 0.32, 'triangle', 0.08, i * 0.08);
           this.tone(f * 1.5, 0.28, 'sine', 0.03, i * 0.08 + 0.02);

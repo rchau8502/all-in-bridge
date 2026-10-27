@@ -261,6 +261,8 @@ export function SimTable(props: {
   collectingSeat?: Seat | null;
   /** Strategic ACBL maxim/hint for the current trick context. */
   tacticalHint?: string | null;
+  /** Flip North seat 180 degrees for pass-and-play tabletop mode */
+  tabletopFlipped?: boolean;
 }) {
   const { lang } = props;
   const sigs = props.trick.map(t => `${t.seat}${t.card.suit}${t.card.rank}`);
@@ -294,7 +296,7 @@ export function SimTable(props: {
     if (!el) return;
     const update = () => {
       const r = el.getBoundingClientRect();
-      if (r.width < 721) {
+      if (r.width < 721 || r.height < 520) {
         setFit({ scale: 0, w: STAGE_W, compact: false });
         return;
       }
@@ -380,12 +382,12 @@ export function SimTable(props: {
       {props.seats
         .filter(s => s.seat !== 'S')
         .map(s => {
-          // The dummy's face-up hand is the play surface on its turn: the
-          // learner clicks the card in place at the top of the table, never
-          // dragging it down to the declarer's own hand at the bottom.
-          const dPlay = props.interactive && props.playSeat === s.seat && props.dummySeat === s.seat;
+          // The dummy or partner's face-up hand is the play surface on its turn:
+          // cards are clicked in place at the top/side of the table.
+          const isFlipped = props.tabletopFlipped && s.seat === 'N';
+          const dPlay = props.interactive && props.playSeat === s.seat;
           return (
-          <div key={s.seat} className={`sim-seat sim-${s.seat.toLowerCase()}${s.active ? ' active-turn' : ''}${props.winSeat === s.seat ? ' seat-win' : ''}`}>
+          <div key={s.seat} className={`sim-seat sim-${s.seat.toLowerCase()}${s.active ? ' active-turn' : ''}${props.winSeat === s.seat ? ' seat-win' : ''}${isFlipped ? ' tabletop-flipped' : ''}`}>
             {props.seatChars?.[s.seat] && (
               <Avatar id={props.seatChars[s.seat]!} className="sim-seat-avatar" />
             )}
@@ -432,7 +434,7 @@ export function SimTable(props: {
             {props.dummySeat === s.seat && (
               <div className="sim-badge">{lang === 'zh' ? '明手' : 'Dummy'}</div>
             )}
-            {s.badge && <div className="sim-badge">{s.badge}</div>}
+            {s.badge && <div className="sim-badge duo-badge">{s.badge}</div>}
           </div>
           );
         })}

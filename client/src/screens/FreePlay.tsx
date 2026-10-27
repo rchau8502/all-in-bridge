@@ -9,14 +9,14 @@ import { PbnModal } from '../components/PbnModal.js';
 import { ChallengesModal } from '../components/ChallengesModal.js';
 import { type Challenge } from '../../../shared/challenges.js';
 import { exportDealToPbn, importDealFromPbn } from '../../../shared/pbn.js';
-import { buildDeck, shuffle, deal, sortHand, type Card, type Seat, type Suit, type Hands } from '../../../shared/deck.js';
+import { buildDeck, shuffle, deal, sortHand, partnerOf, type Card, type Seat, type Suit, type Hands } from '../../../shared/deck.js';
 import { PlayState, trickWinner } from '../../../shared/play.js';
 import { chooseBotPlay, chooseBotBid } from '../../../shared/bot.js';
 import { detectDefenseSignals } from '../../../shared/trick-explain.js';
 import { scoreContract, type ScoreBreakdown } from '../../../shared/scoring.js';
 import { Auction, DENOM_ORDER, type Bid, type Contract, type Denom } from '../../../shared/bidding.js';
 
-type PlayMode = 'quick' | 'auction';
+type PlayMode = 'quick' | 'auction' | 'duo';
 
 const CONTRACT_PRESETS: Array<{ level: number; denom: Denom; label: string }> = [
   { level: 3, denom: 'NT', label: '3NT (9 墩)' },
@@ -29,6 +29,7 @@ export function FreePlay() {
   const { lang, go, characterId, unlockAchievement } = useApp();
 
   const [mode, setMode] = useState<PlayMode>('quick');
+  const [tabletopFlipped, setTabletopFlipped] = useState(false);
   const [boardNo, setBoardNo] = useState(1);
   const [dealHands, setDealHands] = useState<Hands>(() => deal(shuffle(buildDeck())));
   const [pbnOpen, setPbnOpen] = useState(false);
@@ -55,7 +56,7 @@ export function FreePlay() {
   // Active contract
   const contract = useMemo<Contract>(() => {
     if (activeChallenge) return activeChallenge.contract;
-    if (mode === 'auction' && auctionContract) return auctionContract;
+    if ((mode === 'auction' || mode === 'duo') && auctionContract) return auctionContract;
     return {
       level: contractPreset.level,
       denom: contractPreset.denom,
@@ -63,6 +64,8 @@ export function FreePlay() {
       doubled: 0,
     };
   }, [activeChallenge, mode, auctionContract, contractPreset]);
+
+  const dummySeat = partnerOf(contract.declarer);
 
   // Play state
   const [playState, setPlayState] = useState<PlayState>(() => new PlayState(dealHands, contract));
@@ -80,7 +83,7 @@ export function FreePlay() {
   }, [characterId]);
 
   const trump: Suit | null = contract.denom === 'NT' ? null : contract.denom;
-  const isPlayPhase = mode === 'quick' || (mode === 'auction' && auctionContract !== null);
+  const isPlayPhase = mode === 'quick' || ((mode === 'auction' || mode === 'duo') && auctionContract !== null);
   const isComplete = isPlayPhase && playState.isComplete();
 
   const handleNewDeal = useCallback(() => {
@@ -150,10 +153,11 @@ export function FreePlay() {
   // Auction Phase Bot Execution
   // -------------------------------------------------------------
   useEffect(() => {
-    if (mode !== 'auction' || auction.isComplete()) return;
+    if ((mode !== 'auction' && mode !== 'duo') || auction.isComplete()) return;
 
     const currentTurn = auction.turn;
-    if (currentTurn !== 'S') {
+    const isBot = mode === 'auction' ? currentTurn !== 'S' : (currentTurn === 'W' || currentTurn === 'E');
+    if (isBot) {
       const timer = window.setTimeout(() => {
         try {
           const bid = chooseBotBid(auction, dealHands);
@@ -180,7 +184,12 @@ export function FreePlay() {
   }, [mode, auction, auction.turn, dealHands, tick]);
 
   const handleUserBid = (bid: Bid) => {
-    if (mode !== 'auction' || auction.isComplete() || auction.turn !== 'S') return;
+    const isUserTurn = mode === 'auction'
+      ? auction.turn === 'S'
+      : mode === 'duo'
+      ? (auction.turn === 'S' || auction.turn === 'N')
+      : false;
+    if (!isUserTurn || auction.isComplete()) return;
     if (!auction.isLegal(bid)) return;
 
     audio.sfx('bid');
@@ -315,7 +324,15 @@ export function FreePlay() {
   const seatsInfo: SimSeatInfo[] = (['N', 'E', 'S', 'W'] as Seat[]).map(s => ({
     seat: s,
     count: playState.hands[s].length,
-    active: mode === 'auction' && !auction.isComplete() ? auction.turn === s : playState.turn === s,
+    active: (mode === 'auction' || mode === 'duo') && !auction.isComplete() ? auction.turn === s : playState.turn === s,
+    badge:
+      mode === 'duo'
+        ? s === 'S'
+          ? (lang === 'zh' ? '玩家 1' : 'P1')
+          : s === 'N'
+          ? (lang === 'zh' ? '玩家 2' : 'P2')
+          : undefined
+        : undefined,
   }));
 
   const contractLabel = `${bidLabelL(lang, { type: 'bid', level: contract.level, denom: contract.denom })} · ${seatLabel(lang, contract.declarer)}`;
@@ -372,7 +389,29 @@ export function FreePlay() {
             >
               🗣️ {t(lang, 'freeplay.modeAuction')}
             </button>
+            <button
+              type="button"
+              className={`freeplay-preset-btn ${mode === 'duo' ? 'active' : ''}`}
+              onClick={() => handleModeChange('duo')}
+              title={t(lang, 'freeplay.modeDuo')}
+            >
+              {t(lang, 'freeplay.modeDuo')}
+            </button>
           </div>
+
+          {mode === 'duo' && (
+            <button
+              type="button"
+              className={`btn small ${tabletopFlipped ? 'primary' : 'ghost'}`}
+              onClick={() => {
+                audio.sfx('click');
+                setTabletopFlipped(f => !f);
+              }}
+              title={tabletopFlipped ? t(lang, 'freeplay.tabletopNormal') : t(lang, 'freeplay.tabletopFlip')}
+            >
+              {tabletopFlipped ? t(lang, 'freeplay.tabletopNormal') : t(lang, 'freeplay.tabletopFlip')}
+            </button>
+          )}
 
           {mode === 'quick' && (
             <div className="freeplay-presets">
@@ -470,8 +509,16 @@ export function FreePlay() {
           title={
             replayTrickIdx !== null
               ? t(lang, 'freeplay.trickOf', { cur: replayTrickIdx + 1 })
-              : mode === 'auction' && !auction.isComplete()
+              : (mode === 'auction' || mode === 'duo') && !auction.isComplete()
               ? lang === 'zh' ? '叫牌进程' : 'Auction'
+              : mode === 'duo'
+              ? `${lang === 'zh' ? `第 ${playState.completedTricks.length + 1} 墩` : `Trick ${playState.completedTricks.length + 1}`} · ${
+                  playState.turn === 'S'
+                    ? (lang === 'zh' ? '轮到 玩家 1 (南)' : 'P1 (S) to play')
+                    : playState.turn === 'N'
+                    ? (lang === 'zh' ? '轮到 玩家 2 (北)' : 'P2 (N) to play')
+                    : (lang === 'zh' ? `${seatLabel(lang, playState.turn)} 出牌中...` : `${seatLabel(lang, playState.turn)} playing...`)
+                }`
               : lang === 'zh'
               ? `第 ${playState.completedTricks.length + 1} 墩`
               : `Trick ${playState.completedTricks.length + 1}`
@@ -480,7 +527,7 @@ export function FreePlay() {
           seats={seatsInfo}
           trick={displayedTrick}
           hand={sortHand(playState.hands.S, trump)}
-          handLabel={seatLabel(lang, 'S')}
+          handLabel={mode === 'duo' ? `${seatLabel(lang, 'S')} (${t(lang, 'freeplay.duoP1')})` : seatLabel(lang, 'S')}
           trump={trump}
           interactive={currentPlaySeat !== null}
           playSeat={currentPlaySeat}
@@ -488,7 +535,8 @@ export function FreePlay() {
           hint={null}
           stepKey={`fp-${boardNo}-${playState.completedTricks.length}-${displayedTrick.length}-${replayTrickIdx ?? 'live'}`}
           hands={displayedHands}
-          dummySeat="N"
+          dummySeat={dummySeat}
+          tabletopFlipped={tabletopFlipped}
           seatChars={seatChars}
           winSeat={replayWinner}
           trickStatic={replayTrickIdx !== null || !!pauseReview}
@@ -496,26 +544,41 @@ export function FreePlay() {
           tricksWon={isPlayPhase ? playState.tricksWon : null}
           targetTricks={isPlayPhase ? targetTricks : null}
           centreExtra={
-            mode === 'auction' && !auction.isComplete() ? (
+            (mode === 'auction' || mode === 'duo') && !auction.isComplete() ? (
               <div className="freeplay-auction-panel">
                 <div className="auction-transcript">
                   <div className="auction-cols-header">
-                    <span>{seatLabel(lang, 'N')}</span>
+                    <span>{seatLabel(lang, 'N')}{mode === 'duo' ? ' (P2)' : ''}</span>
                     <span>{seatLabel(lang, 'E')}</span>
-                    <span>{seatLabel(lang, 'S')}</span>
+                    <span>{seatLabel(lang, 'S')}{mode === 'duo' ? ' (P1)' : ''}</span>
                     <span>{seatLabel(lang, 'W')}</span>
                   </div>
                   <div className="auction-entries-grid">
                     {auction.entries.map((e, idx) => (
-                      <span key={idx} className={`auction-bid-tag ${e.seat === 'S' ? 'user-bid' : ''}`}>
+                      <span
+                        key={idx}
+                        className={`auction-bid-tag ${
+                          e.seat === 'S'
+                            ? 'user-bid'
+                            : mode === 'duo' && e.seat === 'N'
+                            ? 'user-bid duo-p2-bid'
+                            : ''
+                        }`}
+                      >
                         {bidLabelL(lang, e.bid)}
                       </span>
                     ))}
                   </div>
                 </div>
 
-                {auction.turn === 'S' && (
-                  <div className="freeplay-bidding-box">
+                {((mode === 'auction' && auction.turn === 'S') ||
+                  (mode === 'duo' && (auction.turn === 'S' || auction.turn === 'N'))) && (
+                  <div className={`freeplay-bidding-box${tabletopFlipped && auction.turn === 'N' ? ' tabletop-flipped' : ''}`}>
+                    {mode === 'duo' && (
+                      <div className={`bidding-duo-indicator ${auction.turn === 'N' ? 'p2' : 'p1'}`}>
+                        👥 {t(lang, 'freeplay.duoTurn', { player: auction.turn === 'S' ? t(lang, 'freeplay.duoP1') : t(lang, 'freeplay.duoP2') })}
+                      </div>
+                    )}
                     <div className="bidding-specials">
                       {(['pass', 'double', 'redouble'] as const).map(k => {
                         const b: Bid = { type: k };
