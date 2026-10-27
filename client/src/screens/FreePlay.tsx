@@ -9,8 +9,8 @@ import { PbnModal } from '../components/PbnModal.js';
 import { ChallengesModal } from '../components/ChallengesModal.js';
 import { DealBuilderModal } from '../components/DealBuilderModal.js';
 import { type Challenge } from '../../../shared/challenges.js';
-import { exportDealToPbn, importDealFromPbn } from '../../../shared/pbn.js';
-import { sortHand, partnerOf, type Card, type Seat, type Suit, type Hands } from '../../../shared/deck.js';
+import { exportFullPbn, importDealFromPbn } from '../../../shared/pbn.js';
+import { sortHand, partnerOf, cardLabel, type Card, type Seat, type Suit, type Hands } from '../../../shared/deck.js';
 import { PlayState, trickWinner } from '../../../shared/play.js';
 import { chooseBotPlay, chooseBotBid } from '../../../shared/bot.js';
 import { detectDefenseSignals } from '../../../shared/trick-explain.js';
@@ -19,6 +19,7 @@ import { Auction, DENOM_ORDER, type Bid, type Contract, type Denom } from '../..
 import { explainBid } from '../../../shared/bidding-explain.js';
 import { generateArchetypeDeal, DEAL_ARCHETYPES, type DealArchetype } from '../../../shared/deal-generator.js';
 import { calculateHcp } from '../../../shared/evaluator.js';
+import { analyzeDeal, formatAbilityTag, STRAINS } from '../../../shared/dds.js';
 
 type PlayMode = 'quick' | 'auction' | 'duo';
 
@@ -381,6 +382,18 @@ export function FreePlay() {
     return detectDefenseSignals(playState.completedTricks[replayTrickIdx]!, trump);
   }, [replayTrickIdx, playState.completedTricks, trump]);
 
+  const legalCardLabels = useMemo(() => {
+    if (!isPlayPhase || currentPlaySeat === null) return null;
+    try {
+      const legal = playState.legalPlays();
+      return new Set(legal.map(cardLabel));
+    } catch {
+      return null;
+    }
+  }, [isPlayPhase, currentPlaySeat, playState, tick]);
+
+  const dealAnalysis = useMemo(() => analyzeDeal(dealHands), [dealHands]);
+
   return (
     <div className="freeplay-screen">
       {/* Top Header */}
@@ -582,6 +595,7 @@ export function FreePlay() {
           trump={trump}
           interactive={currentPlaySeat !== null}
           playSeat={currentPlaySeat}
+          legalCardLabels={legalCardLabels}
           onPlay={handlePlayCard}
           hint={null}
           stepKey={`fp-${boardNo}-${playState.completedTricks.length}-${displayedTrick.length}-${replayTrickIdx ?? 'live'}`}
@@ -821,6 +835,52 @@ export function FreePlay() {
               </div>
             </div>
 
+            {/* Double Dummy Makeable Contracts Matrix */}
+            <div className="result-dds-section">
+              <div className="dds-header-row">
+                <span className="dds-title">
+                  📊 {lang === 'zh' ? '双明手可成定约 (Makeable Contracts)' : 'Makeable Contracts (Double Dummy)'}
+                </span>
+                <span className="dds-par-tag">{dealAnalysis.par.text[lang]}</span>
+              </div>
+              <table className="dds-matrix-table">
+                <thead>
+                  <tr>
+                    <th></th>
+                    <th>NT</th>
+                    <th>♠</th>
+                    <th>♥</th>
+                    <th>♦</th>
+                    <th>♣</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {(['N', 'S', 'E', 'W'] as Seat[]).map(st => (
+                    <tr key={st}>
+                      <td className="dds-seat-cell">{seatLabel(lang, st)}</td>
+                      {STRAINS.map(strain => {
+                        const tricks = dealAnalysis.makeable[st][strain];
+                        const isGame =
+                          (strain === 'NT' && tricks >= 9) ||
+                          ((strain === 'S' || strain === 'H') && tricks >= 10) ||
+                          ((strain === 'D' || strain === 'C') && tricks >= 11);
+                        const isSlam = tricks >= 12;
+                        return (
+                          <td
+                            key={strain}
+                            className={`dds-val-cell ${isSlam ? 'slam' : isGame ? 'game' : tricks >= 7 ? 'part' : 'low'}`}
+                            title={`${seatLabel(lang, st)} ${strain}: ${tricks} ${lang === 'zh' ? '墩' : 'tricks'}`}
+                          >
+                            {tricks}
+                          </td>
+                        );
+                      })}
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+
             <div className="result-actions">
               <button type="button" className="btn primary big" onClick={() => setReplayTrickIdx(0)}>
                 📖 {t(lang, 'freeplay.replayTricks')}
@@ -869,7 +929,7 @@ export function FreePlay() {
       <PbnModal
         lang={lang}
         isOpen={pbnOpen}
-        currentDealPbn={exportDealToPbn(dealHands, 'N')}
+        currentDealPbn={exportFullPbn(dealHands, boardNo, 'N', 'None', formatAbilityTag(dealAnalysis.makeable))}
         onLoadPbn={(pbnStr) => {
           const imported = importDealFromPbn(pbnStr);
           setActiveChallenge(null);

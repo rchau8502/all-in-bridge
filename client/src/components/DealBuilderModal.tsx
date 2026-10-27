@@ -4,6 +4,7 @@ import { audio } from '../audio.js';
 import { buildDeck, shuffle, sortHand, type Card, type Seat, type Suit, type Hands } from '../../../shared/deck.js';
 import { DENOM_ORDER, type Contract, type Denom } from '../../../shared/bidding.js';
 import { calculateHcp, getSuitLengths } from '../../../shared/evaluator.js';
+import { analyzeDeal } from '../../../shared/dds.js';
 
 export interface DealBuilderModalProps {
   isOpen: boolean;
@@ -75,6 +76,9 @@ export function DealBuilderModal(props: DealBuilderModalProps) {
     }
     return h;
   }, [assigned]);
+
+  const isCompleteDeal = hands.N.length === 13 && hands.S.length === 13 && hands.E.length === 13 && hands.W.length === 13;
+  const dealAnalysis = useMemo(() => isCompleteDeal ? analyzeDeal(hands) : null, [isCompleteDeal, hands]);
 
   if (!isOpen) return null;
 
@@ -329,6 +333,11 @@ export function DealBuilderModal(props: DealBuilderModalProps) {
             <button type="button" className="template-chip" onClick={() => handleLoadTemplate('1nt_open')}>
               1NT 均型
             </button>
+            {dealAnalysis && (
+              <span className="builder-par-chip">
+                🎯 {dealAnalysis.par.text[lang]}
+              </span>
+            )}
           </div>
         </div>
 

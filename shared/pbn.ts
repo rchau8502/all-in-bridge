@@ -53,6 +53,32 @@ export function exportDealToPbn(hands: Hands, firstSeat: Seat = 'N'): string {
 }
 
 /**
+ * Export full tournament-grade PBN record with metadata and optional [Ability] Double Dummy tag.
+ */
+export function exportFullPbn(
+  hands: Hands,
+  boardNo: number = 1,
+  dealer: Seat = 'N',
+  vul: string = 'None',
+  abilityTag?: string
+): string {
+  const dealStr = exportDealToPbn(hands, 'N');
+  const lines = [
+    `[Event "All-In Bridge Practice"]`,
+    `[Site "All-In Bridge"]`,
+    `[Date "${new Date().toISOString().slice(0, 10).replace(/-/g, '.')}"]`,
+    `[Board "${boardNo}"]`,
+    `[Dealer "${dealer}"]`,
+    `[Vulnerable "${vul}"]`,
+    `[Deal "${dealStr}"]`,
+  ];
+  if (abilityTag) {
+    lines.push(`[Ability "${abilityTag}"]`);
+  }
+  return lines.join('\n');
+}
+
+/**
  * Parse a single seat's PBN hand string (e.g. "AK5.T98.765.432") into Card[]
  */
 export function parseHandPbn(str: string): Card[] {

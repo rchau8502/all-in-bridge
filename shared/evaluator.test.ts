@@ -9,6 +9,8 @@ import {
   generateDrillHand,
   calculateDummyPoints,
   evaluateResponse,
+  evaluateOvercall,
+  generateOvercallDrillHand,
 } from './evaluator.js';
 import { buildDeck, type Card } from './deck.js';
 
@@ -305,5 +307,67 @@ describe('Responder Evaluation — ACBL Class 6 & 7 Standards', () => {
     expect(ev.recommendedBid).toBe('1H');
     expect(ev.ruleId).toBe('resp_minor_four_on_floor');
     expect(ev.mnemonic?.en).toContain('Four on the Floor');
+  });
+
+  describe('Overcalling — ACBL Class 10 (10-5-2 Rule)', () => {
+    it('overcalls 1S over 1D with 10+ HCP, 5+ suit, and 2 honors (10-5-2)', () => {
+      // 5 Spades (AQ984 -> A, Q = 2 of top 3), 11 HCP
+      const hand: Card[] = [
+        { suit: 'S', rank: 14 }, { suit: 'S', rank: 12 }, { suit: 'S', rank: 9 }, { suit: 'S', rank: 8 }, { suit: 'S', rank: 4 }, // 6
+        { suit: 'H', rank: 13 }, { suit: 'H', rank: 5 }, // 3
+        { suit: 'D', rank: 8 }, { suit: 'D', rank: 3 }, // 0
+        { suit: 'C', rank: 13 }, { suit: 'C', rank: 7 }, { suit: 'C', rank: 4 }, { suit: 'C', rank: 2 }, // 3 (Wait: 6+3+3 = 12 HCP)
+      ];
+      const ev = evaluateOvercall(hand, '1D');
+      expect(ev.is10_5_2).toBe(true);
+      expect(ev.recommendedBid).toBe('1S');
+      expect(ev.ruleId).toBe('overcall_10_5_2');
+      expect(ev.mnemonic.en).toContain('10-5-2');
+    });
+
+    it('bids 1NT overcall with 15-17 HCP, balanced, and stopper in opponent suit', () => {
+      // Balanced 16 HCP, K-x in D
+      const hand: Card[] = [
+        { suit: 'S', rank: 14 }, { suit: 'S', rank: 10 }, { suit: 'S', rank: 5 }, { suit: 'S', rank: 2 }, // 4
+        { suit: 'H', rank: 14 }, { suit: 'H', rank: 12 }, { suit: 'H', rank: 4 }, // 6
+        { suit: 'D', rank: 13 }, { suit: 'D', rank: 6 }, // 3 (Kx = stopper!)
+        { suit: 'C', rank: 13 }, { suit: 'C', rank: 8 }, { suit: 'C', rank: 5 }, { suit: 'C', rank: 2 }, // 3 -> Total 16 HCP
+      ];
+      const ev = evaluateOvercall(hand, '1D');
+      expect(ev.recommendedBid).toBe('1NT');
+      expect(ev.ruleId).toBe('overcall_1nt');
+    });
+
+    it('bids Takeout Double (Dbl) with 13 HCP, shortness in opp suit, and support for all unbid suits', () => {
+      // Opp opens 1D. We have 4 Spades, 4 Hearts, 3 Clubs, 2 Diamonds (13 HCP)
+      const hand: Card[] = [
+        { suit: 'S', rank: 13 }, { suit: 'S', rank: 11 }, { suit: 'S', rank: 8 }, { suit: 'S', rank: 4 }, // 4
+        { suit: 'H', rank: 14 }, { suit: 'H', rank: 12 }, { suit: 'H', rank: 7 }, { suit: 'H', rank: 2 }, // 6
+        { suit: 'D', rank: 9 }, { suit: 'D', rank: 3 }, // 0 (shortness)
+        { suit: 'C', rank: 13 }, { suit: 'C', rank: 8 }, { suit: 'C', rank: 5 }, // 3 -> Total 13 HCP
+      ];
+      const ev = evaluateOvercall(hand, '1D');
+      expect(ev.recommendedBid).toBe('Dbl');
+      expect(ev.ruleId).toBe('overcall_takeout_double');
+    });
+
+    it('passes when hand has only 8 HCP and cannot overcall', () => {
+      const hand: Card[] = [
+        { suit: 'S', rank: 12 }, { suit: 'S', rank: 8 }, { suit: 'S', rank: 4 }, // 2
+        { suit: 'H', rank: 13 }, { suit: 'H', rank: 7 }, { suit: 'H', rank: 3 }, // 3
+        { suit: 'D', rank: 13 }, { suit: 'D', rank: 5 }, // 3 -> Total 8 HCP
+        { suit: 'C', rank: 9 }, { suit: 'C', rank: 8 }, { suit: 'C', rank: 7 }, { suit: 'C', rank: 4 }, { suit: 'C', rank: 2 }, // 0
+      ];
+      const ev = evaluateOvercall(hand, '1D');
+      expect(ev.recommendedBid).toBe('Pass');
+      expect(ev.ruleId).toBe('overcall_pass');
+    });
+
+    it('generates an overcall drill hand successfully', () => {
+      const problem = generateOvercallDrillHand('1D');
+      expect(problem.hand).toHaveLength(13);
+      expect(problem.evaluation.oppBid).toBe('1D');
+      expect(problem.evaluation.recommendedBid).toBeDefined();
+    });
   });
 });

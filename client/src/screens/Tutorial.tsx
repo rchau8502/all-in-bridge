@@ -263,6 +263,8 @@ export function SimTable(props: {
   tacticalHint?: string | null;
   /** Flip North seat 180 degrees for pass-and-play tabletop mode */
   tabletopFlipped?: boolean;
+  /** When provided, only card labels in this set are playable; others are dimmed and warn with follow-suit rules */
+  legalCardLabels?: Set<string> | null;
 }) {
   const { lang } = props;
   const sigs = props.trick.map(t => `${t.seat}${t.card.suit}${t.card.rank}`);
@@ -270,14 +272,35 @@ export function SimTable(props: {
 
   const [selectedCard, setSelectedCard] = useState<string | null>(null);
   const [showTacticalHint, setShowTacticalHint] = useState(false);
+  const [shakingCard, setShakingCard] = useState<string | null>(null);
+  const [illegalToast, setIllegalToast] = useState<string | null>(null);
+  const [draggingCard, setDraggingCard] = useState<Card | null>(null);
+  const [dragOffset, setDragOffset] = useState<{ x: number; y: number }>({ x: 0, y: 0 });
+  const [dragStart, setDragStart] = useState<{ x: number; y: number }>({ x: 0, y: 0 });
 
   useEffect(() => {
     setSelectedCard(null);
+    setDraggingCard(null);
+    setDragOffset({ x: 0, y: 0 });
   }, [props.stepKey, props.trick.length]);
 
-  const handleCardClick = (c: Card, isTarget: boolean) => {
-    const isCoarseTouch = typeof window !== 'undefined' && window.matchMedia && window.matchMedia('(pointer: coarse)').matches;
+  const triggerIllegalAttempt = (c: Card) => {
     const label = cardLabel(c);
+    setShakingCard(label);
+    audio.sfx('lose');
+    audio.haptic([25, 40, 25]);
+    setIllegalToast(t(lang, 'err.illegal-play'));
+    window.setTimeout(() => setShakingCard(curr => (curr === label ? null : curr)), 450);
+    window.setTimeout(() => setIllegalToast(curr => (curr ? null : curr)), 2200);
+  };
+
+  const handleCardClick = (c: Card, isTarget: boolean) => {
+    const label = cardLabel(c);
+    if (props.legalCardLabels && !props.legalCardLabels.has(label)) {
+      triggerIllegalAttempt(c);
+      return;
+    }
+    const isCoarseTouch = typeof window !== 'undefined' && window.matchMedia && window.matchMedia('(pointer: coarse)').matches;
     if (!isCoarseTouch || isTarget || selectedCard === label) {
       setSelectedCard(null);
       props.onPlay(c);
@@ -285,6 +308,61 @@ export function SimTable(props: {
       setSelectedCard(label);
       audio.sfx('click');
     }
+  };
+
+  const handlePointerDown = (e: React.PointerEvent, c: Card, seat: Seat) => {
+    if (!props.interactive || props.playSeat !== seat) return;
+    if (e.button !== 0) return;
+    try {
+      (e.currentTarget as HTMLElement).setPointerCapture(e.pointerId);
+    } catch {}
+    setDraggingCard(c);
+    setDragStart({ x: e.clientX, y: e.clientY });
+    setDragOffset({ x: 0, y: 0 });
+  };
+
+  const handlePointerMove = (e: React.PointerEvent, c: Card) => {
+    if (!draggingCard || cardLabel(draggingCard) !== cardLabel(c)) return;
+    const dx = e.clientX - dragStart.x;
+    const dy = e.clientY - dragStart.y;
+    setDragOffset({ x: dx, y: dy });
+  };
+
+  const handlePointerUp = (e: React.PointerEvent, c: Card, seat: Seat, isTarget: boolean) => {
+    if (!draggingCard || cardLabel(draggingCard) !== cardLabel(c)) return;
+    try {
+      (e.currentTarget as HTMLElement).releasePointerCapture(e.pointerId);
+    } catch {}
+
+    const dx = dragOffset.x;
+    const dy = dragOffset.y;
+    const dist = Math.hypot(dx, dy);
+
+    setDraggingCard(null);
+    setDragOffset({ x: 0, y: 0 });
+
+    const isSouthPlay = seat === 'S' && dy < -45;
+    const isNorthPlay = seat === 'N' && (props.tabletopFlipped ? dy < -45 : dy > 45);
+
+    if (isSouthPlay || isNorthPlay) {
+      const label = cardLabel(c);
+      if (props.legalCardLabels && !props.legalCardLabels.has(label)) {
+        triggerIllegalAttempt(c);
+      } else {
+        setSelectedCard(null);
+        props.onPlay(c);
+      }
+    } else if (dist < 8) {
+      handleCardClick(c, isTarget);
+    }
+  };
+
+  const handlePointerCancel = (e: React.PointerEvent) => {
+    try {
+      (e.currentTarget as HTMLElement).releasePointerCapture(e.pointerId);
+    } catch {}
+    setDraggingCard(null);
+    setDragOffset({ x: 0, y: 0 });
   };
 
   // Auto-fit: measure the felt and scale the fixed-size stage to fit it.
@@ -399,19 +477,41 @@ export function SimTable(props: {
                 {groupHandBySuit(sortHand(props.hands[s.seat]!, props.trump ?? null)).map(group => (
                   <div key={group.suit} className="suit-cluster faceup-cluster">
                     {group.cards.map((c, i) => {
-                      const isTarget = dPlay && props.highlight === cardLabel(c);
-                      const isSelected = selectedCard === cardLabel(c);
+                      const cLabel = cardLabel(c);
+                      const isLegal = !props.legalCardLabels || !dPlay || props.legalCardLabels.has(cLabel);
+                      const isTarget = dPlay && props.highlight === cLabel;
+                      const isSelected = selectedCard === cLabel;
+                      const isDragging = draggingCard && cardLabel(draggingCard) === cLabel;
+                      const isShaking = shakingCard === cLabel;
                       return (
-                        <CardView
+                        <div
                           key={`${c.suit}${c.rank}-${i}`}
-                          card={c}
-                          small={!dPlay}
-                          playable={dPlay}
-                          target={isTarget}
-                          selected={isSelected}
-                          focus={props.focus?.includes(cardLabel(c)) ?? false}
-                          onClick={dPlay ? () => handleCardClick(c, isTarget) : undefined}
-                        />
+                          className={`faceup-card-wrapper ${isDragging ? 'is-dragging' : ''} ${isShaking ? 'shake-card' : ''} ${dPlay ? 'playable-fan' : ''}`}
+                          style={
+                            isDragging
+                              ? {
+                                  transform: `translate3d(${dragOffset.x}px, ${dragOffset.y}px, 0) scale(1.15)`,
+                                  zIndex: 9999,
+                                  transition: 'none',
+                                }
+                              : undefined
+                          }
+                          onPointerDown={dPlay ? e => handlePointerDown(e, c, s.seat) : undefined}
+                          onPointerMove={dPlay ? e => handlePointerMove(e, c) : undefined}
+                          onPointerUp={dPlay ? e => handlePointerUp(e, c, s.seat, isTarget) : undefined}
+                          onPointerCancel={dPlay ? handlePointerCancel : undefined}
+                        >
+                          <CardView
+                            card={c}
+                            small={!dPlay}
+                            playable={dPlay && isLegal}
+                            dim={dPlay && !isLegal}
+                            target={isTarget}
+                            selected={isSelected}
+                            focus={props.focus?.includes(cLabel) ?? false}
+                            onClick={dPlay ? () => handleCardClick(c, isTarget) : undefined}
+                          />
+                        </div>
                       );
                     })}
                   </div>
@@ -480,6 +580,18 @@ export function SimTable(props: {
         )}
         {props.centreExtra}
         {props.overlaySlot}
+        {draggingCard && (
+          <div className="sim-drag-drop-zone">
+            <div className="sim-drop-zone-badge">
+              🎯 {t(lang, 'tut.dropToPlay')}
+            </div>
+          </div>
+        )}
+        {illegalToast && (
+          <div className="sim-illegal-toast" role="alert">
+            <span>⚠️ {illegalToast}</span>
+          </div>
+        )}
       </div>
 
       <div className="sim-me">
@@ -499,26 +611,41 @@ export function SimTable(props: {
                 return (
                   <div key={group.suit} className={`suit-cluster suit-${group.suit.toLowerCase()}`}>
                     {group.cards.map((c, i) => {
-                      const isTarget = props.playSeat === 'S' && props.highlight === cardLabel(c);
-                      const isSelected = selectedCard === cardLabel(c);
+                      const isPlayableSeat = props.interactive && props.playSeat === 'S';
+                      const cLabel = cardLabel(c);
+                      const isLegal = !props.legalCardLabels || !isPlayableSeat || props.legalCardLabels.has(cLabel);
+                      const isTarget = isPlayableSeat && props.highlight === cLabel;
+                      const isSelected = selectedCard === cLabel;
+                      const isDragging = draggingCard && cardLabel(draggingCard) === cLabel;
+                      const isShaking = shakingCard === cLabel;
                       const rotDeg = count > 1 ? (i - mid) * 1.5 : 0;
                       const yOff = count > 1 ? Math.abs(i - mid) * 1.2 : 0;
                       return (
                         <div
                           key={`${c.suit}${c.rank}-${i}`}
-                          className="card-fan-wrapper"
+                          className={`card-fan-wrapper ${isDragging ? 'is-dragging' : ''} ${isShaking ? 'shake-card' : ''} ${isPlayableSeat ? 'playable-fan' : ''}`}
                           style={{
-                            ['--fan-rot' as string]: `${rotDeg}deg`,
-                            ['--fan-y' as string]: `${yOff}px`,
+                            ['--fan-rot' as string]: isDragging ? '0deg' : `${rotDeg}deg`,
+                            ['--fan-y' as string]: isDragging ? '0px' : `${yOff}px`,
+                            transform: isDragging
+                              ? `translate3d(${dragOffset.x}px, ${dragOffset.y}px, 0) scale(1.15)`
+                              : undefined,
+                            zIndex: isDragging ? 9999 : undefined,
+                            transition: isDragging ? 'none' : undefined,
                           }}
+                          onPointerDown={isPlayableSeat ? e => handlePointerDown(e, c, 'S') : undefined}
+                          onPointerMove={isPlayableSeat ? e => handlePointerMove(e, c) : undefined}
+                          onPointerUp={isPlayableSeat ? e => handlePointerUp(e, c, 'S', isTarget) : undefined}
+                          onPointerCancel={isPlayableSeat ? handlePointerCancel : undefined}
                         >
                           <CardView
                             card={c}
-                            playable={props.interactive && props.playSeat === 'S'}
+                            playable={isPlayableSeat && isLegal}
+                            dim={isPlayableSeat && !isLegal}
                             target={isTarget}
                             selected={isSelected}
-                            focus={props.focus?.includes(cardLabel(c)) ?? false}
-                            onClick={props.playSeat === 'S' ? () => handleCardClick(c, isTarget) : undefined}
+                            focus={props.focus?.includes(cLabel) ?? false}
+                            onClick={isPlayableSeat ? () => handleCardClick(c, isTarget) : undefined}
                           />
                         </div>
                       );

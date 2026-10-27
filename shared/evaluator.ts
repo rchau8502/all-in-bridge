@@ -756,3 +756,301 @@ export function generateDrillHand(
   const hand = dealRandomHand(rng);
   return { hand, evaluation: evaluateHand(hand) };
 }
+
+// -------------------------------------------------------------
+// ACBL Class 10: Overcalling & Advancing ("10-5-2" Rule)
+// -------------------------------------------------------------
+
+export type OpponentOpeningBid = '1C' | '1D' | '1H' | '1S';
+
+export interface OvercallEvaluation {
+  oppBid: OpponentOpeningBid;
+  hcp: number;
+  recommendedBid: string; // 'Pass' | '1D' | '1H' | '1S' | '1NT' | 'Dbl' | '2C' | '2D' | '2H' | '2S'
+  ruleId: string;
+  is10_5_2: boolean;
+  explanation: { en: string; zh: string };
+  mnemonic: { en: string; zh: string };
+  breakdown: {
+    pointsOk: boolean;
+    lengthOk: boolean;
+    honorsOk: boolean;
+    suit: Suit | null;
+  };
+}
+
+const SUIT_RANK_ORDER: Record<Suit, number> = {
+  C: 1,
+  D: 2,
+  H: 3,
+  S: 4,
+};
+
+function hasStopperInSuit(hand: Card[], suit: Suit): boolean {
+  const cards = hand.filter(c => c.suit === suit);
+  const len = cards.length;
+  if (len === 0) return false;
+  const ranks = new Set(cards.map(c => c.rank));
+  if (ranks.has(14)) return true;
+  if (ranks.has(13) && len >= 2) return true;
+  if (ranks.has(12) && len >= 3) return true;
+  if (ranks.has(11) && len >= 4) return true;
+  return false;
+}
+
+function countSuitHonors(hand: Card[], suit: Suit): { top3: number; top5: number } {
+  const cards = hand.filter(c => c.suit === suit);
+  const ranks = new Set(cards.map(c => c.rank));
+  let top3 = 0;
+  if (ranks.has(14)) top3++;
+  if (ranks.has(13)) top3++;
+  if (ranks.has(12)) top3++;
+  let top5 = top3;
+  if (ranks.has(11)) top5++;
+  if (ranks.has(10)) top5++;
+  return { top3, top5 };
+}
+
+/**
+ * Evaluate competitive overcall decision based strictly on ACBL Class 10 ("10-5-2" rule).
+ */
+export function evaluateOvercall(
+  hand: Card[],
+  oppBid: OpponentOpeningBid
+): OvercallEvaluation {
+  const hcp = calculateHcp(hand);
+  const suitLengths = getSuitLengths(hand);
+  const oppSuit = oppBid[1] as Suit;
+  const oppSuitRank = SUIT_RANK_ORDER[oppSuit];
+
+  // 1. 1NT Overcall (15–17 HCP, Balanced, with stopper in opponent's suit)
+  if (hcp >= 15 && hcp <= 17 && isBalancedHand(suitLengths) && hasStopperInSuit(hand, oppSuit)) {
+    return {
+      oppBid,
+      hcp,
+      recommendedBid: '1NT',
+      ruleId: 'overcall_1nt',
+      is10_5_2: false,
+      explanation: {
+        en: `Holding 15–17 HCP (${hcp} HCP) with a balanced hand and at least one stopper in opponent's ${oppSuit} suit. Bid 1NT Overcall.`,
+        zh: `手握 15–17 大牌点（本手 ${hcp} 点），牌型均型，且在敌方 ${oppSuit} 花色中持有止张。应当进行 1NT 争叫。`,
+      },
+      mnemonic: {
+        en: '1NT Overcall = 15–17 HCP, Balanced with Opponent Stopper',
+        zh: '1NT 争叫口诀：15-17点均型，敌花有止张',
+      },
+      breakdown: {
+        pointsOk: true,
+        lengthOk: true,
+        honorsOk: true,
+        suit: null,
+      },
+    };
+  }
+
+  // 2. Takeout Double (12+ HCP, shortness in opponent's suit <= 2, 3+ in all unbid suits)
+  const unbidSuits = (['S', 'H', 'D', 'C'] as Suit[]).filter(s => s !== oppSuit);
+  const hasSupportForAllUnbid = unbidSuits.every(s => suitLengths[s] >= 3);
+  if (hcp >= 12 && suitLengths[oppSuit] <= 2 && hasSupportForAllUnbid) {
+    return {
+      oppBid,
+      hcp,
+      recommendedBid: 'Dbl',
+      ruleId: 'overcall_takeout_double',
+      is10_5_2: false,
+      explanation: {
+        en: `With 12+ HCP (${hcp} HCP), shortness in opponent's ${oppSuit} (<= 2 cards), and support (3+ cards) for all unbid suits. Call Takeout Double (Dbl)!`,
+        zh: `持有 12+ 大牌点（本手 ${hcp} 点），敌方 ${oppSuit} 短门（<=2张），且对所有未叫花色均有支持（3张以上）。应当叫技术性加倍（Dbl）！`,
+      },
+      mnemonic: {
+        en: 'Takeout Double = 12+ pts, Short Opponent Suit, Support for Other 3 Suits',
+        zh: '技术性加倍口诀：12点以上，敌花短，三门未叫均有支持',
+      },
+      breakdown: {
+        pointsOk: true,
+        lengthOk: true,
+        honorsOk: true,
+        suit: null,
+      },
+    };
+  }
+
+  // 3. One-Level Suit Overcall — ACBL "10-5-2" Rule
+  // Available suits at 1-level must rank higher than oppSuit
+  const oneLevelSuits = (['S', 'H', 'D', 'C'] as Suit[]).filter(
+    s => s !== oppSuit && SUIT_RANK_ORDER[s] > oppSuitRank
+  );
+
+  // Check 10-5-2 on 1-level suits
+  // Sort candidate suits by length desc, then rank desc
+  oneLevelSuits.sort((a, b) => suitLengths[b] - suitLengths[a] || SUIT_RANK_ORDER[b] - SUIT_RANK_ORDER[a]);
+
+  for (const s of oneLevelSuits) {
+    const len = suitLengths[s];
+    const honors = countSuitHonors(hand, s);
+    const pointsOk = hcp >= 10 && hcp <= 17;
+    const lengthOk = len >= 5;
+    const honorsOk = honors.top5 >= 2;
+
+    if (pointsOk && lengthOk && honorsOk) {
+      return {
+        oppBid,
+        hcp,
+        recommendedBid: `1${s}`,
+        ruleId: 'overcall_10_5_2',
+        is10_5_2: true,
+        explanation: {
+          en: `Meets ACBL "10-5-2" rule: 10+ HCP (${hcp} HCP), 5+ cards in ${s} (${len} cards), and 2+ honors in top 5. Overcall 1${s}!`,
+          zh: `完全符合 ACBL "10-5-2" 争叫法则：10点以上（本手 ${hcp} 点）、5张以上 ${s}（${len}张）、且包含2张前5大牌。争叫 1${s}！`,
+        },
+        mnemonic: {
+          en: 'ACBL 10-5-2 Rule: 10+ Points, 5+ Suit Length, 2 Honors in Top 5',
+          zh: 'ACBL 10-5-2 争叫口诀：10点以上、5张套、2张大牌',
+        },
+        breakdown: {
+          pointsOk: true,
+          lengthOk: true,
+          honorsOk: true,
+          suit: s,
+        },
+      };
+    }
+  }
+
+  // 4. Two-Level Weak Jump Overcall (6–10 HCP, 6 cards with 2 top honors)
+  if (hcp >= 6 && hcp <= 10) {
+    for (const s of (['S', 'H'] as Suit[])) {
+      if (s === oppSuit) continue;
+      const len = suitLengths[s];
+      const honors = countSuitHonors(hand, s);
+      if (len === 6 && honors.top3 >= 2) {
+        return {
+          oppBid,
+          hcp,
+          recommendedBid: `2${s}`,
+          ruleId: 'overcall_weak_two',
+          is10_5_2: false,
+          explanation: {
+            en: `With 6–10 HCP (${hcp} HCP) and a good 6-card ${s} suit (2 of top 3 honors). Jump overcall 2${s} (Weak Two / Preemptive)!`,
+            zh: `手握 6–10 大牌点（本手 ${hcp} 点）与优质6张 ${s} 套（含2张前三大牌）。跳争叫 2${s}（弱二阻击争叫）！`,
+          },
+          mnemonic: {
+            en: 'Weak Two Overcall = 6–10 HCP, 6-Card Suit, Preemptive Jump',
+            zh: '弱二争叫口诀：6-10点，6张好套，跳叫阻击',
+          },
+          breakdown: {
+            pointsOk: true,
+            lengthOk: true,
+            honorsOk: true,
+            suit: s,
+          },
+        };
+      }
+    }
+  }
+
+  // 5. Two-Level Suit Overcall (12+ HCP, 5+ good suit that ranks lower than oppSuit)
+  if (hcp >= 12) {
+    const twoLevelSuits = (['S', 'H', 'D', 'C'] as Suit[]).filter(
+      s => s !== oppSuit && SUIT_RANK_ORDER[s] < oppSuitRank
+    );
+    twoLevelSuits.sort((a, b) => suitLengths[b] - suitLengths[a]);
+    for (const s of twoLevelSuits) {
+      const len = suitLengths[s];
+      const honors = countSuitHonors(hand, s);
+      if (len >= 5 && honors.top5 >= 2) {
+        return {
+          oppBid,
+          hcp,
+          recommendedBid: `2${s}`,
+          ruleId: 'overcall_two_level',
+          is10_5_2: false,
+          explanation: {
+            en: `To overcall at the 2-level without jumping requires 12+ HCP (${hcp} HCP) and a good 5+ card suit (${s}). Overcall 2${s}.`,
+            zh: `在2阶非跳叫争叫需要 12+ 大牌点（本手 ${hcp} 点）与优质5张以上套（${s}）。争叫 2${s}。`,
+          },
+          mnemonic: {
+            en: '2-Level Overcall = 12+ HCP, 5+ Quality Suit',
+            zh: '2阶争叫口诀：2阶需12点，5张优质套',
+          },
+          breakdown: {
+            pointsOk: true,
+            lengthOk: true,
+            honorsOk: true,
+            suit: s,
+          },
+        };
+      }
+    }
+  }
+
+  // 6. Pass
+  // Diagnose why not 10-5-2
+  const bestSuit = (['S', 'H', 'D', 'C'] as Suit[])
+    .filter(s => s !== oppSuit)
+    .sort((a, b) => suitLengths[b] - suitLengths[a])[0]!;
+  const bestLen = suitLengths[bestSuit];
+  const bestHonors = countSuitHonors(hand, bestSuit);
+
+  const pointsOk = hcp >= 10;
+  const lengthOk = bestLen >= 5;
+  const honorsOk = bestHonors.top5 >= 2;
+
+  let reasonEn = `Insufficient values to overcall (${hcp} HCP).`;
+  let reasonZh = `点力不足以争叫（本手仅 ${hcp} 点）。`;
+
+  if (hcp >= 10) {
+    if (!lengthOk) {
+      reasonEn = `Holding ${hcp} HCP but longest suit is only ${bestLen} cards (needs 5+ for 10-5-2).`;
+      reasonZh = `手握 ${hcp} 点但最长套仅 ${bestLen} 张（10-5-2 法则要求至少 5 张）。`;
+    } else if (!honorsOk) {
+      reasonEn = `Holding ${hcp} HCP and 5+ ${bestSuit}, but lacks 2 honors in the top 5 (fails "2" in 10-5-2).`;
+      reasonZh = `手握 ${hcp} 点和 5张 ${bestSuit}，但缺乏前5大牌中的2张（不符合 10-5-2 中的"2"张大牌要求）。`;
+    }
+  }
+
+  return {
+    oppBid,
+    hcp,
+    recommendedBid: 'Pass',
+    ruleId: 'overcall_pass',
+    is10_5_2: false,
+    explanation: {
+      en: `${reasonEn} ACBL Class 10 Rule: Do not enter a competitive auction without a clear plan → Pass.`,
+      zh: `${reasonZh} ACBL 第10课准则：没有明确战术理由切勿贸然争叫 → 应当 Pass。`,
+    },
+    mnemonic: {
+      en: 'When in Doubt, Pass (Do not overcall without 10-5-2)',
+      zh: '争叫口诀：不合 10-5-2 莫争叫，果断 Pass',
+    },
+    breakdown: {
+      pointsOk,
+      lengthOk,
+      honorsOk,
+      suit: bestSuit,
+    },
+  };
+}
+
+/**
+ * Generate an overcall drill problem.
+ */
+export function generateOvercallDrillHand(
+  oppBid?: OpponentOpeningBid,
+  rng: () => number = Math.random
+): { hand: Card[]; evaluation: OvercallEvaluation } {
+  const options: OpponentOpeningBid[] = ['1C', '1D', '1H', '1S'];
+  const activeOpp = oppBid ?? options[Math.floor(rng() * options.length)]!;
+
+  for (let attempt = 0; attempt < 50; attempt++) {
+    const hand = dealRandomHand(rng);
+    const evalResult = evaluateOvercall(hand, activeOpp);
+    if (attempt < 20 && evalResult.recommendedBid === 'Pass') {
+      continue; // Filter excessive passes for engaging drill experience
+    }
+    return { hand, evaluation: evalResult };
+  }
+
+  const hand = dealRandomHand(rng);
+  return { hand, evaluation: evaluateOvercall(hand, activeOpp) };
+}

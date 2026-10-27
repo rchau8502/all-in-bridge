@@ -6,15 +6,18 @@ import { CardView, Avatar } from '../components/ui.js';
 import {
   generateDrillHand,
   generateResponseDrillHand,
+  generateOvercallDrillHand,
   type DrillCategory,
   type HandEvaluation,
   type ResponseEvaluation,
+  type OvercallEvaluation,
   type PartnerOpeningBid,
+  type OpponentOpeningBid,
 } from '../../../shared/evaluator.js';
 import type { Card, Suit } from '../../../shared/deck.js';
 import { sortHand } from '../../../shared/deck.js';
 
-type DrillMode = 'opening' | 'responding';
+type DrillMode = 'opening' | 'responding' | 'overcall';
 
 const OPENING_BID_OPTIONS = [
   { id: 'Pass', label: 'Pass', denom: 'pass' },
@@ -44,12 +47,32 @@ const RESPONDING_BID_OPTIONS = [
   { id: '4S', label: '4♠', denom: 'S' },
 ];
 
+const OVERCALL_BID_OPTIONS = [
+  { id: 'Pass', label: 'Pass', denom: 'pass' },
+  { id: '1D', label: '1♦', denom: 'D' },
+  { id: '1H', label: '1♥', denom: 'H' },
+  { id: '1S', label: '1♠', denom: 'S' },
+  { id: '1NT', label: '1NT', denom: 'NT' },
+  { id: 'Dbl', label: 'Dbl', denom: 'double' },
+  { id: '2C', label: '2♣', denom: 'C' },
+  { id: '2D', label: '2♦', denom: 'D' },
+  { id: '2H', label: '2♥', denom: 'H' },
+  { id: '2S', label: '2♠', denom: 'S' },
+];
+
 const PARTNER_OPENINGS: Array<{ id: PartnerOpeningBid; label: string; desc: { en: string; zh: string } }> = [
   { id: '1NT', label: '1NT', desc: { en: '15–17 HCP, Balanced', zh: '15–17 大牌点，均型' } },
   { id: '1S', label: '1♠', desc: { en: '12–21 pts, 5+ ♠', zh: '12–21 总点，5张以上黑桃' } },
   { id: '1H', label: '1♥', desc: { en: '12–21 pts, 5+ ♥', zh: '12–21 总点，5张以上红心' } },
   { id: '1D', label: '1♦', desc: { en: '12–21 pts, 3+ ♦', zh: '12–21 总点，3张以上方块' } },
   { id: '1C', label: '1♣', desc: { en: '12–21 pts, 3+ ♣', zh: '12–21 总点，3张以上梅花' } },
+];
+
+const OPPONENT_OPENINGS: Array<{ id: OpponentOpeningBid; label: string; desc: { en: string; zh: string } }> = [
+  { id: '1C', label: '1♣', desc: { en: '12–21 pts, 3+ ♣', zh: '12–21 点，3张以上梅花' } },
+  { id: '1D', label: '1♦', desc: { en: '12–21 pts, 3+ ♦', zh: '12–21 点，3张以上方块' } },
+  { id: '1H', label: '1♥', desc: { en: '12–21 pts, 5+ ♥', zh: '12–21 点，5张以上红心' } },
+  { id: '1S', label: '1♠', desc: { en: '12–21 pts, 5+ ♠', zh: '12–21 点，5张以上黑桃' } },
 ];
 
 function groupHandBySuit(cards: Card[]): Array<{ suit: Suit; cards: Card[] }> {
@@ -77,14 +100,29 @@ export function Drill() {
     generateResponseDrillHand('1NT')
   );
 
+  // Overcall mode state
+  const [oppBid, setOppBid] = useState<OpponentOpeningBid>('1D');
+  const [overcallDeal, setOvercallDeal] = useState<{ hand: Card[]; evaluation: OvercallEvaluation }>(() =>
+    generateOvercallDrillHand('1D')
+  );
+
   const [userBid, setUserBid] = useState<string | null>(null);
   const [showBreakdown, setShowBreakdown] = useState(false);
   const [streak, setStreak] = useState(0);
   const [totalSolved, setTotalSolved] = useState(0);
   const [totalCorrect, setTotalCorrect] = useState(0);
 
-  const activeHand = mode === 'opening' ? openingDeal.hand : respDeal.hand;
-  const targetBid = mode === 'opening' ? openingDeal.evaluation.recommendedBid : respDeal.evaluation.recommendedBid;
+  const activeHand = mode === 'opening'
+    ? openingDeal.hand
+    : mode === 'responding'
+    ? respDeal.hand
+    : overcallDeal.hand;
+
+  const targetBid = mode === 'opening'
+    ? openingDeal.evaluation.recommendedBid
+    : mode === 'responding'
+    ? respDeal.evaluation.recommendedBid
+    : overcallDeal.evaluation.recommendedBid;
 
   const sortedHand = useMemo(() => sortHand(activeHand, null), [activeHand]);
   const handGroups = useMemo(() => groupHandBySuit(sortedHand), [sortedHand]);
@@ -95,10 +133,12 @@ export function Drill() {
     setShowBreakdown(false);
     if (mode === 'opening') {
       setOpeningDeal(generateDrillHand(category));
-    } else {
+    } else if (mode === 'responding') {
       setRespDeal(generateResponseDrillHand(partnerBid));
+    } else {
+      setOvercallDeal(generateOvercallDrillHand(oppBid));
     }
-  }, [mode, category, partnerBid]);
+  }, [mode, category, partnerBid, oppBid]);
 
   const handleModeChange = (newMode: DrillMode) => {
     if (newMode === mode) return;
@@ -108,8 +148,10 @@ export function Drill() {
     audio.sfx('click');
     if (newMode === 'opening') {
       setOpeningDeal(generateDrillHand(category));
-    } else {
+    } else if (newMode === 'responding') {
       setRespDeal(generateResponseDrillHand(partnerBid));
+    } else {
+      setOvercallDeal(generateOvercallDrillHand(oppBid));
     }
   };
 
@@ -127,6 +169,14 @@ export function Drill() {
     setUserBid(null);
     setShowBreakdown(false);
     setRespDeal(generateResponseDrillHand(pb));
+  };
+
+  const handleOppBidChange = (ob: OpponentOpeningBid) => {
+    setOppBid(ob);
+    audio.sfx('shuffle');
+    setUserBid(null);
+    setShowBreakdown(false);
+    setOvercallDeal(generateOvercallDrillHand(ob));
   };
 
   const handleSelectBid = (bidId: string) => {
@@ -156,7 +206,11 @@ export function Drill() {
   const isAnswered = userBid !== null;
   const isCorrect = isAnswered && userBid === targetBid;
 
-  const activeEval = mode === 'opening' ? openingDeal.evaluation : respDeal.evaluation;
+  const activeEval = mode === 'opening'
+    ? openingDeal.evaluation
+    : mode === 'responding'
+    ? respDeal.evaluation
+    : overcallDeal.evaluation;
 
   return (
     <div className="drill-screen">
@@ -189,7 +243,7 @@ export function Drill() {
         </div>
       </div>
 
-      {/* Main Mode Tabs: Opening vs Responding */}
+      {/* Main Mode Tabs: Opening vs Responding vs Overcall */}
       <div className="drill-mode-tabs">
         <button
           type="button"
@@ -204,6 +258,13 @@ export function Drill() {
           onClick={() => handleModeChange('responding')}
         >
           🤝 {t(lang, 'drill.modeResponding')}
+        </button>
+        <button
+          type="button"
+          className={`drill-mode-tab ${mode === 'overcall' ? 'active' : ''}`}
+          onClick={() => handleModeChange('overcall')}
+        >
+          ⚔️ {t(lang, 'drill.modeOvercall')}
         </button>
       </div>
 
@@ -230,7 +291,7 @@ export function Drill() {
             </button>
           ))}
         </div>
-      ) : (
+      ) : mode === 'responding' ? (
         <div className="drill-partner-scenarios">
           <span className="drill-partner-label">{t(lang, 'drill.partnerOpened')}</span>
           <div className="drill-categories">
@@ -242,6 +303,22 @@ export function Drill() {
                 onClick={() => handlePartnerBidChange(po.id)}
               >
                 {po.label} ({po.desc[lang]})
+              </button>
+            ))}
+          </div>
+        </div>
+      ) : (
+        <div className="drill-partner-scenarios">
+          <span className="drill-partner-label">{t(lang, 'drill.oppOpened')}</span>
+          <div className="drill-categories">
+            {OPPONENT_OPENINGS.map(oo => (
+              <button
+                key={oo.id}
+                type="button"
+                className={`drill-cat-pill ${oppBid === oo.id ? 'active' : ''}`}
+                onClick={() => handleOppBidChange(oo.id)}
+              >
+                {oo.label} ({oo.desc[lang]})
               </button>
             ))}
           </div>
@@ -259,6 +336,18 @@ export function Drill() {
               <span className="partner-bid-val">{partnerBid}</span>
               <span className="partner-bid-desc">
                 ({PARTNER_OPENINGS.find(p => p.id === partnerBid)?.desc[lang]})
+              </span>
+            </div>
+          )}
+
+          {/* Opponent bid indicator in overcall mode */}
+          {mode === 'overcall' && (
+            <div className="drill-partner-badge opp-badge">
+              <span className="partner-avatar-icon">⚔️</span>
+              <span className="partner-bid-lead">{t(lang, 'drill.oppOpened')}</span>
+              <span className="partner-bid-val">{oppBid}</span>
+              <span className="partner-bid-desc">
+                ({OPPONENT_OPENINGS.find(p => p.id === oppBid)?.desc[lang]})
               </span>
             </div>
           )}
@@ -311,7 +400,7 @@ export function Drill() {
                       {(activeEval as HandEvaluation).isBalanced ? t(lang, 'drill.balanced') : t(lang, 'drill.unbalanced')})
                     </span>
                   </>
-                ) : (
+                ) : mode === 'responding' ? (
                   <>
                     <span className="metric-chip">
                       <strong>{t(lang, 'drill.supportPoints')}:</strong> +{(activeEval as ResponseEvaluation).supportPoints}
@@ -324,6 +413,18 @@ export function Drill() {
                         ✨ {t(lang, 'drill.goldenFit')} ({(activeEval as ResponseEvaluation).supportLength}张)
                       </span>
                     )}
+                  </>
+                ) : (
+                  <>
+                    <span className={`metric-chip ${(activeEval as OvercallEvaluation).breakdown.pointsOk ? 'highlight' : ''}`}>
+                      {(activeEval as OvercallEvaluation).breakdown.pointsOk ? '✓' : '✗'} 10+ {t(lang, 'drill.hcpLabel')}
+                    </span>
+                    <span className={`metric-chip ${(activeEval as OvercallEvaluation).breakdown.lengthOk ? 'highlight' : ''}`}>
+                      {(activeEval as OvercallEvaluation).breakdown.lengthOk ? '✓' : '✗'} 5+ {lang === 'zh' ? '套长' : 'Length'}
+                    </span>
+                    <span className={`metric-chip ${(activeEval as OvercallEvaluation).breakdown.honorsOk ? 'highlight' : ''}`}>
+                      {(activeEval as OvercallEvaluation).breakdown.honorsOk ? '✓' : '✗'} 2 {lang === 'zh' ? '大牌' : 'Honors'}
+                    </span>
                   </>
                 )}
               </div>
@@ -343,12 +444,16 @@ export function Drill() {
         <div className="drill-action-card">
           <div className="drill-question-row">
             <span className="drill-question-text">
-              ❓ {mode === 'opening' ? t(lang, 'drill.question') : t(lang, 'drill.respQuestion')}
+              ❓ {mode === 'opening'
+                ? t(lang, 'drill.question')
+                : mode === 'responding'
+                ? t(lang, 'drill.respQuestion')
+                : t(lang, 'drill.overcallQuestion')}
             </span>
           </div>
 
-          <div className={`drill-bid-grid ${mode === 'responding' ? 'responding-grid' : ''}`}>
-            {(mode === 'opening' ? OPENING_BID_OPTIONS : RESPONDING_BID_OPTIONS).map(opt => {
+          <div className={`drill-bid-grid ${mode === 'responding' ? 'responding-grid' : mode === 'overcall' ? 'overcall-grid' : ''}`}>
+            {(mode === 'opening' ? OPENING_BID_OPTIONS : mode === 'responding' ? RESPONDING_BID_OPTIONS : OVERCALL_BID_OPTIONS).map(opt => {
               let cls = `drill-bid-btn denom-${opt.denom}`;
               if (isAnswered) {
                 if (opt.id === targetBid) {
