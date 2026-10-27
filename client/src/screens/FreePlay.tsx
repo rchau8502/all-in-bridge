@@ -9,12 +9,15 @@ import { PbnModal } from '../components/PbnModal.js';
 import { ChallengesModal } from '../components/ChallengesModal.js';
 import { type Challenge } from '../../../shared/challenges.js';
 import { exportDealToPbn, importDealFromPbn } from '../../../shared/pbn.js';
-import { buildDeck, shuffle, deal, sortHand, partnerOf, type Card, type Seat, type Suit, type Hands } from '../../../shared/deck.js';
+import { sortHand, partnerOf, type Card, type Seat, type Suit, type Hands } from '../../../shared/deck.js';
 import { PlayState, trickWinner } from '../../../shared/play.js';
 import { chooseBotPlay, chooseBotBid } from '../../../shared/bot.js';
 import { detectDefenseSignals } from '../../../shared/trick-explain.js';
 import { scoreContract, type ScoreBreakdown } from '../../../shared/scoring.js';
 import { Auction, DENOM_ORDER, type Bid, type Contract, type Denom } from '../../../shared/bidding.js';
+import { explainBid } from '../../../shared/bidding-explain.js';
+import { generateArchetypeDeal, DEAL_ARCHETYPES, type DealArchetype } from '../../../shared/deal-generator.js';
+import { calculateHcp } from '../../../shared/evaluator.js';
 
 type PlayMode = 'quick' | 'auction' | 'duo';
 
@@ -29,9 +32,11 @@ export function FreePlay() {
   const { lang, go, characterId, unlockAchievement } = useApp();
 
   const [mode, setMode] = useState<PlayMode>('quick');
+  const [dealArchetype, setDealArchetype] = useState<DealArchetype>('random');
+  const [hoveredBid, setHoveredBid] = useState<Bid | null>(null);
   const [tabletopFlipped, setTabletopFlipped] = useState(false);
   const [boardNo, setBoardNo] = useState(1);
-  const [dealHands, setDealHands] = useState<Hands>(() => deal(shuffle(buildDeck())));
+  const [dealHands, setDealHands] = useState<Hands>(() => generateArchetypeDeal('random'));
   const [pbnOpen, setPbnOpen] = useState(false);
   const [challengesOpen, setChallengesOpen] = useState(false);
   const [activeChallenge, setActiveChallenge] = useState<Challenge | null>(null);
@@ -86,11 +91,11 @@ export function FreePlay() {
   const isPlayPhase = mode === 'quick' || ((mode === 'auction' || mode === 'duo') && auctionContract !== null);
   const isComplete = isPlayPhase && playState.isComplete();
 
-  const handleNewDeal = useCallback(() => {
+  const handleNewDeal = useCallback((archetype: DealArchetype = dealArchetype) => {
     audio.sfx('shuffle');
     setActiveChallenge(null);
     setShowChallengeHint(false);
-    const nextHands = deal(shuffle(buildDeck()));
+    const nextHands = generateArchetypeDeal(archetype);
     setDealHands(nextHands);
     setBoardNo(b => b + 1);
     setAuction(new Auction('N'));
@@ -100,6 +105,7 @@ export function FreePlay() {
     setCollectingTo(null);
     setShowAllHands(false);
     setReplayTrickIdx(null);
+    setHoveredBid(null);
 
     const initialContract: Contract = {
       level: contractPreset.level,
@@ -108,7 +114,12 @@ export function FreePlay() {
       doubled: 0,
     };
     setPlayState(new PlayState(nextHands, initialContract));
-  }, [contractPreset]);
+  }, [dealArchetype, contractPreset]);
+
+  const handleArchetypeChange = (newArchetype: DealArchetype) => {
+    setDealArchetype(newArchetype);
+    handleNewDeal(newArchetype);
+  };
 
   const handleSelectChallenge = (c: Challenge) => {
     const imported = importDealFromPbn(c.deal);
@@ -126,12 +137,13 @@ export function FreePlay() {
     setCollectingTo(null);
     setShowAllHands(false);
     setReplayTrickIdx(null);
+    setHoveredBid(null);
     setPlayState(new PlayState(imported.hands, c.contract));
   };
 
   const handleModeChange = (newMode: PlayMode) => {
     setMode(newMode);
-    handleNewDeal();
+    handleNewDeal(dealArchetype);
   };
 
   const handleContractPresetChange = (preset: { level: number; denom: Denom }) => {
@@ -288,6 +300,15 @@ export function FreePlay() {
 
   const targetTricks = contract.level + 6;
   const isMade = declarerTricks >= targetTricks;
+
+  const dealSummaryHcp = useMemo(() => {
+    return {
+      S: calculateHcp(dealHands.S),
+      N: calculateHcp(dealHands.N),
+      E: calculateHcp(dealHands.E),
+      W: calculateHcp(dealHands.W),
+    };
+  }, [dealHands]);
 
   useEffect(() => {
     if (!isComplete) return;
@@ -452,7 +473,23 @@ export function FreePlay() {
             📋 PBN
           </button>
 
-          <button type="button" className="btn primary freeplay-deal-btn" onClick={handleNewDeal}>
+          {/* Targeted Deal Archetype Generator */}
+          <div className="deal-archetype-wrap">
+            <select
+              className="deal-archetype-select"
+              value={dealArchetype}
+              onChange={e => handleArchetypeChange(e.target.value as DealArchetype)}
+              title={t(lang, 'freeplay.dealType')}
+            >
+              {DEAL_ARCHETYPES.map(a => (
+                <option key={a.id} value={a.id}>
+                  {a.label[lang]}
+                </option>
+              ))}
+            </select>
+          </div>
+
+          <button type="button" className="btn primary freeplay-deal-btn" onClick={() => handleNewDeal()}>
             🔀 {t(lang, 'freeplay.newDeal')}
           </button>
         </div>
@@ -564,6 +601,8 @@ export function FreePlay() {
                             ? 'user-bid duo-p2-bid'
                             : ''
                         }`}
+                        title={explainBid(e.bid).meaning[lang]}
+                        onClick={() => setHoveredBid(e.bid)}
                       >
                         {bidLabelL(lang, e.bid)}
                       </span>
@@ -579,6 +618,31 @@ export function FreePlay() {
                         👥 {t(lang, 'freeplay.duoTurn', { player: auction.turn === 'S' ? t(lang, 'freeplay.duoP1') : t(lang, 'freeplay.duoP2') })}
                       </div>
                     )}
+
+                    {/* ACBL Bid Live Inspector */}
+                    <div className="bid-live-explain-box">
+                      {hoveredBid ? (
+                        (() => {
+                          const exp = explainBid(hoveredBid);
+                          return (
+                            <div className="bid-explain-content">
+                              {exp.badge && <span className="bid-explain-badge">{exp.badge}</span>}
+                              <strong className="bid-explain-name">{exp.name[lang]}</strong>
+                              {exp.points && <span className="bid-explain-pts">{exp.points}</span>}
+                              {exp.shape && <span className="bid-explain-shape">{exp.shape}</span>}
+                              <span className="bid-explain-sep">·</span>
+                              <span className="bid-explain-meaning">{exp.meaning[lang]}</span>
+                            </div>
+                          );
+                        })()
+                      ) : (
+                        <div className="bid-explain-idle">
+                          <span className="bid-explain-hint-icon">💡</span>
+                          <span>{t(lang, 'freeplay.hoverBidHint')}</span>
+                        </div>
+                      )}
+                    </div>
+
                     <div className="bidding-specials">
                       {(['pass', 'double', 'redouble'] as const).map(k => {
                         const b: Bid = { type: k };
@@ -588,6 +652,10 @@ export function FreePlay() {
                             type="button"
                             className="bid-btn special"
                             onClick={() => handleUserBid(b)}
+                            onMouseEnter={() => setHoveredBid(b)}
+                            onMouseLeave={() => setHoveredBid(null)}
+                            onFocus={() => setHoveredBid(b)}
+                            onBlur={() => setHoveredBid(null)}
                             disabled={!auction.isLegal(b)}
                           >
                             {bidLabelL(lang, b)}
@@ -608,6 +676,10 @@ export function FreePlay() {
                                 type="button"
                                 className={`bid-btn denom-${d}`}
                                 onClick={() => handleUserBid(b)}
+                                onMouseEnter={() => setHoveredBid(b)}
+                                onMouseLeave={() => setHoveredBid(null)}
+                                onFocus={() => setHoveredBid(b)}
+                                onBlur={() => setHoveredBid(null)}
                                 disabled={!legal}
                               >
                                 {bidLabelL(lang, b)}
@@ -716,11 +788,40 @@ export function FreePlay() {
                 ? `庄家北南共拿下 ${declarerTricks} 墩 (目标 ${targetTricks} 墩)，防守方东西拿下 ${playState.tricksWon.EW} 墩。`
                 : `Declarer NS took ${declarerTricks} tricks (needed ${targetTricks}); EW took ${playState.tricksWon.EW} tricks.`}
             </p>
+
+            {/* 4-Hand HCP Matrix */}
+            <div className="result-hcp-grid">
+              <div className="hcp-card ns-card">
+                <span className="hcp-side-label">{lang === 'zh' ? '北南方 (NS)' : 'North-South (NS)'}</span>
+                <span className="hcp-points-total">{dealSummaryHcp.N + dealSummaryHcp.S} HCP</span>
+                <span className="hcp-sub">
+                  {seatLabel(lang, 'N')}: {dealSummaryHcp.N} · {seatLabel(lang, 'S')}: {dealSummaryHcp.S}
+                </span>
+              </div>
+              <div className="hcp-card ew-card">
+                <span className="hcp-side-label">{lang === 'zh' ? '东西方 (EW)' : 'East-West (EW)'}</span>
+                <span className="hcp-points-total">{dealSummaryHcp.E + dealSummaryHcp.W} HCP</span>
+                <span className="hcp-sub">
+                  {seatLabel(lang, 'E')}: {dealSummaryHcp.E} · {seatLabel(lang, 'W')}: {dealSummaryHcp.W}
+                </span>
+              </div>
+            </div>
+
             <div className="result-actions">
               <button type="button" className="btn primary big" onClick={() => setReplayTrickIdx(0)}>
                 📖 {t(lang, 'freeplay.replayTricks')}
               </button>
-              <button type="button" className="btn ghost big" onClick={handleNewDeal}>
+              <button
+                type="button"
+                className="btn ghost big"
+                onClick={() => {
+                  audio.sfx('click');
+                  setPbnOpen(true);
+                }}
+              >
+                📋 {lang === 'zh' ? '保存牌谱' : 'Save PBN'}
+              </button>
+              <button type="button" className="btn ghost big" onClick={() => handleNewDeal()}>
                 🔀 {t(lang, 'freeplay.playAgain')}
               </button>
             </div>
@@ -742,7 +843,7 @@ export function FreePlay() {
                 : 'Nobody held enough points to open the auction. Deal a new hand!'}
             </p>
             <div className="result-actions">
-              <button type="button" className="btn primary big" onClick={handleNewDeal}>
+              <button type="button" className="btn primary big" onClick={() => handleNewDeal()}>
                 🔀 {t(lang, 'freeplay.playAgain')}
               </button>
             </div>

@@ -3519,3 +3519,182 @@ table.standings tr.leader td { color: var(--accent); font-weight: 800; }
     font-size: 11px;
   }
 }
+
+/* ==========================================================================
+   ACBL Deal Generator & Live Bidding Explanations (OPT-28 & OPT-29)
+   ========================================================================== */
+
+.deal-archetype-wrap {
+  display: inline-flex;
+  align-items: center;
+  position: relative;
+}
+
+.deal-archetype-select {
+  appearance: none;
+  -webkit-appearance: none;
+  background: rgba(14, 28, 62, 0.88);
+  border: 1px solid rgba(255, 216, 61, 0.45);
+  color: #ffd866;
+  font-size: 13px;
+  font-weight: 700;
+  padding: 8px 30px 8px 12px;
+  border-radius: 10px;
+  cursor: pointer;
+  outline: none;
+  transition: all 0.2s ease;
+  box-shadow: 0 4px 12px rgba(2, 10, 24, 0.35);
+  background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%23ffd866'%3e%3cpath d='M7 10l5 5 5-5z'/%3e%3c/svg%3e");
+  background-repeat: no-repeat;
+  background-position: right 8px center;
+  background-size: 16px;
+}
+
+.deal-archetype-select:hover,
+.deal-archetype-select:focus {
+  border-color: var(--gold2);
+  background-color: rgba(20, 38, 80, 0.95);
+  box-shadow: 0 0 14px rgba(255, 216, 61, 0.35);
+}
+
+.deal-archetype-select option {
+  background: #0d1e38;
+  color: #e2e8f0;
+}
+
+.bid-live-explain-box {
+  width: 100%;
+  box-sizing: border-box;
+  min-height: 38px;
+  margin-bottom: 8px;
+  padding: 6px 12px;
+  border-radius: 10px;
+  background: rgba(4, 14, 34, 0.92);
+  border: 1px solid rgba(255, 216, 61, 0.28);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.08), 0 4px 12px rgba(0, 0, 0, 0.3);
+  transition: all 0.15s ease;
+}
+
+.bid-explain-content {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 12.5px;
+  color: #f1f5f9;
+  flex-wrap: wrap;
+  justify-content: center;
+  line-height: 1.35;
+}
+
+.bid-explain-badge {
+  background: linear-gradient(135deg, #ffd166, #f39c12);
+  color: #0b1528;
+  font-size: 10.5px;
+  font-weight: 900;
+  padding: 2px 7px;
+  border-radius: 999px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.bid-explain-name {
+  color: #ffd866;
+  font-size: 13.5px;
+}
+
+.bid-explain-pts {
+  color: #70d6ff;
+  font-weight: 700;
+  font-size: 12px;
+  background: rgba(112, 214, 255, 0.15);
+  padding: 1px 6px;
+  border-radius: 6px;
+}
+
+.bid-explain-shape {
+  color: #b8c1ec;
+  font-size: 11.5px;
+  font-style: italic;
+}
+
+.bid-explain-sep {
+  color: rgba(255, 255, 255, 0.3);
+}
+
+.bid-explain-meaning {
+  color: #cbd5e1;
+  font-size: 12px;
+}
+
+.bid-explain-idle {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  color: var(--text-dim, #94a3b8);
+  font-size: 12px;
+}
+
+.bid-explain-hint-icon {
+  font-size: 14px;
+}
+
+/* Result HCP Summary Matrix (OPT-30) */
+.result-hcp-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  width: 100%;
+  margin: 12px 0 16px;
+  box-sizing: border-box;
+}
+
+.hcp-card {
+  padding: 10px 14px;
+  border-radius: 12px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 3px;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.1), 0 4px 14px rgba(0, 0, 0, 0.25);
+}
+
+.hcp-card.ns-card {
+  background: linear-gradient(145deg, rgba(30, 144, 255, 0.2), rgba(10, 40, 90, 0.4));
+  border: 1px solid rgba(112, 214, 255, 0.4);
+}
+
+.hcp-card.ew-card {
+  background: linear-gradient(145deg, rgba(255, 171, 0, 0.15), rgba(70, 40, 0, 0.4));
+  border: 1px solid rgba(255, 209, 102, 0.4);
+}
+
+.hcp-side-label {
+  font-size: 11.5px;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: var(--text-dim, #94a3b8);
+}
+
+.hcp-card.ns-card .hcp-points-total {
+  font-size: 20px;
+  font-weight: 900;
+  color: #70d6ff;
+}
+
+.hcp-card.ew-card .hcp-points-total {
+  font-size: 20px;
+  font-weight: 900;
+  color: #ffd866;
+}
+
+.hcp-sub {
+  font-size: 11px;
+  color: #cbd5e1;
+  font-weight: 600;
+}
+
+
