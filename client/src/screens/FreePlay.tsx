@@ -12,6 +12,7 @@ import { exportDealToPbn, importDealFromPbn } from '../../../shared/pbn.js';
 import { buildDeck, shuffle, deal, sortHand, type Card, type Seat, type Suit, type Hands } from '../../../shared/deck.js';
 import { PlayState, trickWinner } from '../../../shared/play.js';
 import { chooseBotPlay, chooseBotBid } from '../../../shared/bot.js';
+import { detectDefenseSignals } from '../../../shared/trick-explain.js';
 import { scoreContract, type ScoreBreakdown } from '../../../shared/scoring.js';
 import { Auction, DENOM_ORDER, type Bid, type Contract, type Denom } from '../../../shared/bidding.js';
 
@@ -335,6 +336,11 @@ export function FreePlay() {
     ? trickWinner(playState.completedTricks[replayTrickIdx]!, trump)
     : pauseReview?.winner ?? null;
 
+  const replaySignals = useMemo(() => {
+    if (replayTrickIdx === null || !playState.completedTricks[replayTrickIdx]) return [];
+    return detectDefenseSignals(playState.completedTricks[replayTrickIdx]!, trump);
+  }, [replayTrickIdx, playState.completedTricks, trump]);
+
   return (
     <div className="freeplay-screen">
       {/* Top Header */}
@@ -605,6 +611,17 @@ export function FreePlay() {
             >
               📖 {t(lang, 'freeplay.replayTricks')}
             </button>
+          )}
+
+          {replaySignals.length > 0 && (
+            <div className="replay-signals-box">
+              {replaySignals.map((sig, i) => (
+                <div key={i} className="replay-signal-tag">
+                  <span className="signal-badge">🛡️ {seatLabel(lang, sig.seat)}</span>
+                  <span className="signal-desc">{sig.meaning[lang]}</span>
+                </div>
+              ))}
+            </div>
           )}
         </div>
       )}

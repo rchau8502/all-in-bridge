@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { explainTrick } from './trick-explain.js';
+import { explainTrick, detectDefenseSignals } from './trick-explain.js';
 import type { TrickReviewData } from './trick-explain.js';
 
 const T = (o: Partial<TrickReviewData>): TrickReviewData => ({
@@ -65,5 +65,40 @@ describe('explainTrick branches', () => {
     const en = explainTrick(data, 'en');
     expect(en.lines.join(' ')).toContain('Trumps were led');
     expect(en.title).toContain('You win');
+  });
+
+  it('detects defense attitude signal when following to partner lead', () => {
+    const playsEncourage = [
+      { seat: 'W' as const, card: c('S', 13) }, // West leads King
+      { seat: 'N' as const, card: c('S', 2) },
+      { seat: 'E' as const, card: c('S', 8) }, // East plays 8 (high spot: encouraging)
+      { seat: 'S' as const, card: c('S', 3) },
+    ];
+    const sigsEnc = detectDefenseSignals(playsEncourage, null);
+    expect(sigsEnc.length).toBeGreaterThanOrEqual(2);
+    expect(sigsEnc.some(s => s.kind === 'honor_lead')).toBe(true);
+    expect(sigsEnc.some(s => s.kind === 'attitude_encourage')).toBe(true);
+
+    const playsDiscourage = [
+      { seat: 'W' as const, card: c('S', 13) },
+      { seat: 'N' as const, card: c('S', 9) },
+      { seat: 'E' as const, card: c('S', 2) }, // East plays 2 (low spot: discouraging)
+      { seat: 'S' as const, card: c('S', 14) },
+    ];
+    const sigsDisc = detectDefenseSignals(playsDiscourage, null);
+    expect(sigsDisc.some(s => s.kind === 'attitude_discourage')).toBe(true);
+  });
+
+  it('detects discard signaling when defender has no cards of led suit', () => {
+    const plays = [
+      { seat: 'S' as const, card: c('H', 14) },
+      { seat: 'W' as const, card: c('H', 2) },
+      { seat: 'N' as const, card: c('H', 3) },
+      { seat: 'E' as const, card: c('S', 9) }, // East discards spade 9 (encouraging)
+    ];
+    const sigs = detectDefenseSignals(plays, null);
+    expect(sigs.length).toBe(1);
+    expect(sigs[0]!.kind).toBe('discard_encourage');
+    expect(sigs[0]!.seat).toBe('E');
   });
 });
