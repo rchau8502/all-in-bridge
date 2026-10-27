@@ -85,6 +85,16 @@ export const ACHIEVEMENTS: Achievement[] = [
     category: 'play',
   },
   {
+    id: 'challenge_master',
+    icon: '🧩',
+    title: { en: 'Puzzle Master', zh: '残局大师' },
+    description: {
+      en: 'Conquered an ACBL Curated Deal Challenge in the Practice Table.',
+      zh: '在练习桌中成功攻克任一 ACBL 经典做牌技巧残局挑战。',
+    },
+    category: 'play',
+  },
+  {
     id: 'bootcamp_grad',
     icon: '🎓',
     title: { en: 'ACBL Graduate', zh: '桥牌毕业生' },
@@ -107,6 +117,7 @@ export function evaluateAchievements(stats: {
   drillResponseStreak: number;
   highestTricksWonInDeal: number;
   hasMadeGameContract: boolean;
+  hasSolvedChallenge?: boolean;
   tricksWonTotal: number;
 }): string[] {
   const unlocked: string[] = [];
@@ -131,6 +142,9 @@ export function evaluateAchievements(stats: {
   }
   if (stats.highestTricksWonInDeal >= 12) {
     unlocked.push('slam_grandee');
+  }
+  if (stats.hasSolvedChallenge) {
+    unlocked.push('challenge_master');
   }
   if (stats.completedLessonIds.length >= 16) {
     unlocked.push('bootcamp_grad');

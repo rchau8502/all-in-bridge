@@ -3,7 +3,7 @@ import { ACHIEVEMENTS, getAchievement, evaluateAchievements } from './achievemen
 
 describe('Achievements System', () => {
   it('all achievements have icons, titles, and descriptions in EN and ZH', () => {
-    expect(ACHIEVEMENTS.length).toBe(8);
+    expect(ACHIEVEMENTS.length).toBe(9);
     for (const a of ACHIEVEMENTS) {
       expect(a.id).toBeTruthy();
       expect(a.icon).toBeTruthy();
@@ -53,5 +53,16 @@ describe('Achievements System', () => {
 
     expect(unlocked).toContain('slam_grandee');
     expect(unlocked).toContain('bootcamp_grad');
+
+    const challengeWin = evaluateAchievements({
+      completedLessonIds: [],
+      drillOpeningStreak: 0,
+      drillResponseStreak: 0,
+      highestTricksWonInDeal: 9,
+      hasMadeGameContract: true,
+      hasSolvedChallenge: true,
+      tricksWonTotal: 9,
+    });
+    expect(challengeWin).toContain('challenge_master');
   });
 });

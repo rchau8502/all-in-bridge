@@ -6,6 +6,8 @@ import { SimTable, type SimSeatInfo } from './Tutorial.js';
 import { CHARACTERS } from '../../../shared/characters.js';
 import { Avatar } from '../components/ui.js';
 import { PbnModal } from '../components/PbnModal.js';
+import { ChallengesModal } from '../components/ChallengesModal.js';
+import { type Challenge } from '../../../shared/challenges.js';
 import { exportDealToPbn, importDealFromPbn } from '../../../shared/pbn.js';
 import { buildDeck, shuffle, deal, sortHand, type Card, type Seat, type Suit, type Hands } from '../../../shared/deck.js';
 import { PlayState, trickWinner } from '../../../shared/play.js';
@@ -29,6 +31,17 @@ export function FreePlay() {
   const [boardNo, setBoardNo] = useState(1);
   const [dealHands, setDealHands] = useState<Hands>(() => deal(shuffle(buildDeck())));
   const [pbnOpen, setPbnOpen] = useState(false);
+  const [challengesOpen, setChallengesOpen] = useState(false);
+  const [activeChallenge, setActiveChallenge] = useState<Challenge | null>(null);
+  const [showChallengeHint, setShowChallengeHint] = useState(false);
+  const [solvedChallenges, setSolvedChallenges] = useState<Set<string>>(() => {
+    try {
+      const s = localStorage.getItem('aib-solved-challenges');
+      return s ? new Set(JSON.parse(s)) : new Set();
+    } catch {
+      return new Set();
+    }
+  });
 
   // Quick mode preset
   const [contractPreset, setContractPreset] = useState<{ level: number; denom: Denom }>(CONTRACT_PRESETS[0]!);
@@ -40,6 +53,7 @@ export function FreePlay() {
 
   // Active contract
   const contract = useMemo<Contract>(() => {
+    if (activeChallenge) return activeChallenge.contract;
     if (mode === 'auction' && auctionContract) return auctionContract;
     return {
       level: contractPreset.level,
@@ -47,7 +61,7 @@ export function FreePlay() {
       declarer: 'S',
       doubled: 0,
     };
-  }, [mode, auctionContract, contractPreset]);
+  }, [activeChallenge, mode, auctionContract, contractPreset]);
 
   // Play state
   const [playState, setPlayState] = useState<PlayState>(() => new PlayState(dealHands, contract));
@@ -70,6 +84,8 @@ export function FreePlay() {
 
   const handleNewDeal = useCallback(() => {
     audio.sfx('shuffle');
+    setActiveChallenge(null);
+    setShowChallengeHint(false);
     const nextHands = deal(shuffle(buildDeck()));
     setDealHands(nextHands);
     setBoardNo(b => b + 1);
@@ -89,6 +105,25 @@ export function FreePlay() {
     };
     setPlayState(new PlayState(nextHands, initialContract));
   }, [contractPreset]);
+
+  const handleSelectChallenge = (c: Challenge) => {
+    const imported = importDealFromPbn(c.deal);
+    if (!imported) return;
+    audio.sfx('shuffle');
+    setActiveChallenge(c);
+    setShowChallengeHint(false);
+    setMode('quick');
+    setDealHands(imported.hands);
+    setBoardNo(b => b + 1);
+    setAuction(new Auction(imported.firstSeat));
+    setAuctionContract(null);
+    setAuctionPassedOut(false);
+    setPauseReview(null);
+    setCollectingTo(null);
+    setShowAllHands(false);
+    setReplayTrickIdx(null);
+    setPlayState(new PlayState(imported.hands, c.contract));
+  };
 
   const handleModeChange = (newMode: PlayMode) => {
     setMode(newMode);
@@ -259,8 +294,18 @@ export function FreePlay() {
       if (declarerTricks >= 12) {
         unlockAchievement('slam_grandee');
       }
+      if (activeChallenge && declarerTricks >= activeChallenge.targetTricks) {
+        unlockAchievement('challenge_master');
+        setSolvedChallenges(prev => {
+          if (prev.has(activeChallenge.id)) return prev;
+          const next = new Set(prev);
+          next.add(activeChallenge.id);
+          localStorage.setItem('aib-solved-challenges', JSON.stringify([...next]));
+          return next;
+        });
+      }
     }
-  }, [isComplete, isMade, declarerTricks, contract, unlockAchievement]);
+  }, [isComplete, isMade, declarerTricks, contract, activeChallenge, unlockAchievement]);
 
   const currentPlaySeat = isPlayPhase && (playState.turn === 'S' || playState.turn === 'N') && !pauseReview && !collectingTo && replayTrickIdx === null
     ? playState.turn
@@ -340,6 +385,18 @@ export function FreePlay() {
 
           <button
             type="button"
+            className={`btn ${activeChallenge ? 'primary' : 'ghost'}`}
+            onClick={() => {
+              audio.sfx('click');
+              setChallengesOpen(true);
+            }}
+            title={t(lang, 'challenges.button')}
+          >
+            🎯 {t(lang, 'challenges.button')}
+          </button>
+
+          <button
+            type="button"
             className="btn ghost"
             onClick={() => {
               audio.sfx('click');
@@ -355,6 +412,48 @@ export function FreePlay() {
           </button>
         </div>
       </div>
+
+      {/* Active Challenge Banner */}
+      {activeChallenge && (
+        <div className="active-challenge-bar">
+          <div className="challenge-bar-info">
+            <span className="challenge-pill">🎯 {t(lang, 'challenges.active')}</span>
+            <strong className="challenge-bar-name">{activeChallenge.title[lang]}</strong>
+            <span className="challenge-bar-req">
+              {bidLabelL(lang, { type: 'bid', level: activeChallenge.contract.level, denom: activeChallenge.contract.denom })} · {t(lang, 'challenges.target', { count: activeChallenge.targetTricks })}
+            </span>
+          </div>
+          <div className="challenge-bar-actions">
+            <button
+              type="button"
+              className={`btn small ${showChallengeHint ? 'primary' : 'ghost'}`}
+              onClick={() => {
+                audio.sfx('click');
+                setShowChallengeHint(h => !h);
+              }}
+            >
+              💡 {t(lang, 'challenges.hint')}
+            </button>
+            <button
+              type="button"
+              className="btn small ghost"
+              onClick={() => {
+                audio.sfx('click');
+                setActiveChallenge(null);
+                setShowChallengeHint(false);
+                handleNewDeal();
+              }}
+            >
+              ✕ {t(lang, 'challenges.exit')}
+            </button>
+          </div>
+          {showChallengeHint && (
+            <div className="challenge-hint-box">
+              <p className="challenge-hint-p">{activeChallenge.hint[lang]}</p>
+            </div>
+          )}
+        </div>
+      )}
 
       {/* Main Table Arena */}
       <div className="freeplay-table-wrap">
@@ -519,7 +618,9 @@ export function FreePlay() {
               className={`coach-avatar ${isMade ? 'react-happy' : 'react-shake'}`}
             />
             <h2 className="result-title">
-              {isMade
+              {activeChallenge && isMade
+                ? `${t(lang, 'challenges.success')} ${activeChallenge.title[lang]}`
+                : isMade
                 ? lang === 'zh'
                   ? `🎉 定约达成！${contractLabel}`
                   : `🎉 Contract Made! ${contractLabel}`
@@ -596,6 +697,15 @@ export function FreePlay() {
           return true;
         }}
         onClose={() => setPbnOpen(false)}
+      />
+
+      {/* ACBL Deal Challenges Modal */}
+      <ChallengesModal
+        lang={lang}
+        isOpen={challengesOpen}
+        solvedIds={solvedChallenges}
+        onSelectChallenge={handleSelectChallenge}
+        onClose={() => setChallengesOpen(false)}
       />
     </div>
   );
