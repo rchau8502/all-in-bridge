@@ -153,6 +153,7 @@ export function explainTrick(data: TrickReviewData, lang: ReviewLang): {
   title: string;
   lines: string[];
   signals: DefenseSignal[];
+  headline: string;
 } {
   const { plays, winner, trump, tricksWon } = data;
   const led = plays[0]!.card.suit;
@@ -166,6 +167,22 @@ export function explainTrick(data: TrickReviewData, lang: ReviewLang): {
     : `${learnerSideWon ? '🏆' : '😖'} ${name(winner)} win${winner === 'S' ? '' : 's'} this trick — with ${cardWords(winPlay.card, lang)}`;
 
   const lines: string[] = [];
+
+  // 0) Headline for quick classroom projector display
+  let headline = '';
+  if (trump && winPlay.card.suit === trump && led !== trump) {
+    headline = zh
+      ? `${name(winner)}以将牌 ${cardShort(winPlay.card)} 将吃杀敌！将牌大过天`
+      : `${name(winner)} trumped in with ${cardShort(winPlay.card)}! Trumps beat all`;
+  } else if (led === trump) {
+    headline = zh
+      ? `${name(winner)}以将牌 ${cardShort(winPlay.card)} 拔将胜出！`
+      : `${name(winner)} won with trump ${cardShort(winPlay.card)}!`;
+  } else {
+    headline = zh
+      ? `${name(winner)}以 ${cardShort(winPlay.card)} 顶张赢墩！引牌花色最大牌`
+      : `${name(winner)} took the trick with ${cardShort(winPlay.card)}! Highest card of led suit`;
+  }
 
   // 1) Recap, in play order. 跟/follow only when the card follows the led suit.
   if (zh) {
@@ -250,5 +267,5 @@ export function explainTrick(data: TrickReviewData, lang: ReviewLang): {
     lines.push(`Tricks so far — your side ${tricksWon.NS}, their side ${tricksWon.EW}. The winner leads the next trick.`);
   }
 
-  return { title, lines, signals };
+  return { title, lines, signals, headline };
 }

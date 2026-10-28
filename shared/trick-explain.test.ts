@@ -26,9 +26,11 @@ describe('explainTrick branches', () => {
     });
     const en = explainTrick(data, 'en');
     expect(en.title).toContain('East');
+    expect(en.headline).toContain('trumped in');
     expect(en.lines.join(' ')).toContain('trumped in');
     expect(en.lines.join(' ')).toContain('ANY trump beats EVERY card');
     const zh = explainTrick(data, 'zh');
+    expect(zh.headline).toContain('将吃');
     expect(zh.lines.join(' ')).toContain('毙掉');
     expect(zh.lines.join(' ')).toContain('将牌大过天');
   });

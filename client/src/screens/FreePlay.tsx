@@ -13,7 +13,7 @@ import { exportFullPbn, importDealFromPbn } from '../../../shared/pbn.js';
 import { sortHand, partnerOf, cardLabel, type Card, type Seat, type Suit, type Hands } from '../../../shared/deck.js';
 import { PlayState, trickWinner } from '../../../shared/play.js';
 import { chooseBotPlay, chooseBotBid } from '../../../shared/bot.js';
-import { detectDefenseSignals } from '../../../shared/trick-explain.js';
+import { detectDefenseSignals, explainTrick } from '../../../shared/trick-explain.js';
 import { scoreContract, type ScoreBreakdown } from '../../../shared/scoring.js';
 import { Auction, DENOM_ORDER, type Bid, type Contract, type Denom } from '../../../shared/bidding.js';
 import { explainBid } from '../../../shared/bidding-explain.js';
@@ -44,6 +44,9 @@ export function FreePlay(props?: FreePlayProps) {
 
   const [mode, setMode] = useState<PlayMode>(() => props?.initialMode ?? freePlayInitialMode ?? 'quick');
   const [teacherMode, setTeacherMode] = useState(false);
+  const [projectorMode, setProjectorMode] = useState(false);
+  const [isFullscreen, setIsFullscreen] = useState(false);
+  const [playSpeed, setPlaySpeed] = useState<'auto' | 'slow' | 'step'>('auto');
   const [miniBridgeContract, setMiniBridgeContract] = useState<Contract | null>(null);
   const [activeLectureBoard, setActiveLectureBoard] = useState<ClassroomBoard | null>(() => {
     if (props?.lectureBoardId) {
@@ -312,60 +315,79 @@ export function FreePlay(props?: FreePlayProps) {
   };
 
   // -------------------------------------------------------------
-  // Play Phase Bot Execution
+  // Play Phase Bot Execution & Step Pace Control
   // -------------------------------------------------------------
+  const executeBotPlay = useCallback(() => {
+    if (!isPlayPhase || isComplete || pauseReview || collectingTo || replayTrickIdx !== null) return;
+    const currentTurn = playState.turn;
+    if (currentTurn !== 'W' && currentTurn !== 'E') return;
+
+    try {
+      const botCard = chooseBotPlay(playState);
+      audio.sfx('card');
+
+      const trickBefore = [...playState.currentTrick, { seat: currentTurn, card: botCard }];
+      if (trickBefore.length === 4) {
+        const winner = trickWinner(trickBefore, trump);
+        playState.play(botCard);
+        setPauseReview({ plays: trickBefore, winner });
+      } else {
+        playState.play(botCard);
+        setTick(t => t + 1);
+      }
+    } catch {
+      // ignore
+    }
+  }, [isPlayPhase, isComplete, pauseReview, collectingTo, replayTrickIdx, playState, trump]);
+
   useEffect(() => {
     if (!isPlayPhase || isComplete || pauseReview || collectingTo || replayTrickIdx !== null) return;
+    if (playSpeed === 'step') return;
 
     const currentTurn = playState.turn;
     if (currentTurn === 'W' || currentTurn === 'E') {
+      const delay = playSpeed === 'slow' ? 1400 : 450;
       const timer = window.setTimeout(() => {
-        try {
-          const botCard = chooseBotPlay(playState);
-          audio.sfx('card');
-
-          const trickBefore = [...playState.currentTrick, { seat: currentTurn, card: botCard }];
-          if (trickBefore.length === 4) {
-            const winner = trickWinner(trickBefore, trump);
-            playState.play(botCard);
-            setPauseReview({ plays: trickBefore, winner });
-          } else {
-            playState.play(botCard);
-            setTick(t => t + 1);
-          }
-        } catch {
-          // ignore
-        }
-      }, 450);
+        executeBotPlay();
+      }, delay);
       return () => window.clearTimeout(timer);
     }
-  }, [isPlayPhase, playState, playState.turn, isComplete, pauseReview, collectingTo, replayTrickIdx, trump, tick]);
+  }, [isPlayPhase, isComplete, pauseReview, collectingTo, replayTrickIdx, playState.turn, playSpeed, executeBotPlay]);
 
   // Trick completion auto-dismiss
+  const dismissPauseReview = useCallback(() => {
+    if (!pauseReview) return;
+    const winner = pauseReview.winner;
+    setCollectingTo(winner);
+    audio.sfx('card');
+
+    window.setTimeout(() => {
+      setPauseReview(null);
+      setCollectingTo(null);
+      setTick(t => t + 1);
+    }, 350);
+  }, [pauseReview]);
+
   useEffect(() => {
     if (!pauseReview) return;
-    const timer = window.setTimeout(() => {
-      const winner = pauseReview.winner;
-      setCollectingTo(winner);
-      audio.sfx('card');
+    if (playSpeed === 'step') return;
 
-      const flyTimer = window.setTimeout(() => {
-        setPauseReview(null);
-        setCollectingTo(null);
-        setTick(t => t + 1);
-      }, 350);
-      return () => window.clearTimeout(flyTimer);
-    }, 1100);
+    const delay = playSpeed === 'slow' ? 2400 : 1100;
+    const timer = window.setTimeout(() => {
+      dismissPauseReview();
+    }, delay);
     return () => window.clearTimeout(timer);
-  }, [pauseReview]);
+  }, [pauseReview, playSpeed, dismissPauseReview]);
 
   const handlePlayCard = (card: Card) => {
     if (!isPlayPhase || pauseReview || collectingTo || replayTrickIdx !== null) return;
     const currentTurn = playState.turn;
 
-    // South is declarer, North is dummy
-    const isLearnerControl = currentTurn === 'S' || currentTurn === 'N';
-    if (!isLearnerControl) return;
+    // South is declarer, North is dummy.
+    // In Teacher Mode + Step speed, teacher has master control to demonstrate any seat!
+    const isTeacherDemo = teacherMode && playSpeed === 'step';
+    const isPlayable = currentTurn === 'S' || currentTurn === 'N' || isTeacherDemo;
+    if (!isPlayable) return;
 
     try {
       audio.sfx('card');
@@ -429,8 +451,10 @@ export function FreePlay(props?: FreePlayProps) {
     }
   }, [isComplete, isMade, declarerTricks, contract, activeChallenge, unlockAchievement]);
 
-  const currentPlaySeat = isPlayPhase && (playState.turn === 'S' || playState.turn === 'N') && !pauseReview && !collectingTo && replayTrickIdx === null
-    ? playState.turn
+  const currentPlaySeat = isPlayPhase && !pauseReview && !collectingTo && replayTrickIdx === null
+    ? (playState.turn === 'S' || playState.turn === 'N' || (teacherMode && playSpeed === 'step'))
+      ? playState.turn
+      : null
     : null;
 
   const seatsInfo: SimSeatInfo[] = (['N', 'E', 'S', 'W'] as Seat[]).map(s => ({
@@ -483,6 +507,23 @@ export function FreePlay(props?: FreePlayProps) {
     return detectDefenseSignals(playState.completedTricks[replayTrickIdx]!, trump);
   }, [replayTrickIdx, playState.completedTricks, trump]);
 
+  const liveTrickExplain = useMemo(() => {
+    if (displayedTrick.length < 4 || !replayWinner) return null;
+    try {
+      return explainTrick(
+        {
+          plays: displayedTrick,
+          winner: replayWinner,
+          trump,
+          tricksWon: isPlayPhase ? playState.tricksWon : { NS: 0, EW: 0 },
+        },
+        lang
+      );
+    } catch {
+      return null;
+    }
+  }, [displayedTrick, replayWinner, trump, isPlayPhase, playState.tricksWon, lang]);
+
   const teacherNoteText = useMemo(() => {
     if (activeLectureBoard) {
       return lang === 'zh'
@@ -533,7 +574,19 @@ export function FreePlay(props?: FreePlayProps) {
 
   const dealAnalysis = useMemo(() => analyzeDeal(dealHands), [dealHands]);
 
-  const handleUndo = useCallback(() => {
+  const handleUndoCard = useCallback(() => {
+    if (!isPlayPhase || replayTrickIdx !== null) return;
+    if (pauseReview) {
+      setPauseReview(null);
+    }
+    const success = playState.undoPlay();
+    if (success) {
+      audio.sfx('card');
+      setTick(t => t + 1);
+    }
+  }, [isPlayPhase, replayTrickIdx, pauseReview, playState]);
+
+  const handleUndoTrick = useCallback(() => {
     if (!isPlayPhase || replayTrickIdx !== null) return;
     if (pauseReview) {
       setPauseReview(null);
@@ -545,20 +598,56 @@ export function FreePlay(props?: FreePlayProps) {
     }
   }, [isPlayPhase, replayTrickIdx, pauseReview, playState]);
 
+  const handleToggleFullscreen = () => {
+    if (!document.fullscreenElement) {
+      document.documentElement.requestFullscreen?.().catch(() => {});
+      setIsFullscreen(true);
+    } else {
+      document.exitFullscreen?.().catch(() => {});
+      setIsFullscreen(false);
+    }
+  };
+
+  useEffect(() => {
+    const onFsChange = () => {
+      setIsFullscreen(!!document.fullscreenElement);
+    };
+    document.addEventListener('fullscreenchange', onFsChange);
+    return () => document.removeEventListener('fullscreenchange', onFsChange);
+  }, []);
+
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
       if (e.target instanceof HTMLInputElement || e.target instanceof HTMLTextAreaElement) return;
-      if (e.key === 'u' || e.key === 'U' || ((e.ctrlKey || e.metaKey) && (e.key === 'z' || e.key === 'Z'))) {
+
+      if (e.key === ' ' || e.code === 'Space') {
+        if (pauseReview) {
+          e.preventDefault();
+          dismissPauseReview();
+        } else if (isPlayPhase && (playState.turn === 'W' || playState.turn === 'E')) {
+          e.preventDefault();
+          executeBotPlay();
+        }
+      } else if (e.key === 'z' || e.key === 'Z') {
         e.preventDefault();
-        handleUndo();
+        handleUndoCard();
+      } else if (e.key === 'u' || e.key === 'U') {
+        e.preventDefault();
+        handleUndoTrick();
+      } else if (e.key === 'p' || e.key === 'P') {
+        e.preventDefault();
+        setProjectorMode(prev => !prev);
+      } else if (e.key === 't' || e.key === 'T') {
+        e.preventDefault();
+        setTeacherMode(prev => !prev);
       }
     };
     window.addEventListener('keydown', onKey);
     return () => window.removeEventListener('keydown', onKey);
-  }, [handleUndo]);
+  }, [handleUndoCard, handleUndoTrick, pauseReview, dismissPauseReview, executeBotPlay, isPlayPhase, playState.turn]);
 
   return (
-    <div className="freeplay-screen">
+    <div className={`freeplay-screen${projectorMode ? ' projector-mode' : ''}`}>
       {/* Top Header */}
       <div className="freeplay-header">
         <div className="freeplay-nav">
@@ -605,6 +694,43 @@ export function FreePlay(props?: FreePlayProps) {
             </button>
           </div>
 
+          {/* Play Speed & Step-by-Step Controller */}
+          <div className="speed-selector-group" title={t(lang, 'freeplay.speed')}>
+            <button
+              type="button"
+              className={`speed-pill-btn ${playSpeed === 'auto' ? 'active' : ''}`}
+              onClick={() => {
+                audio.sfx('click');
+                setPlaySpeed('auto');
+              }}
+              title={t(lang, 'freeplay.speedAuto')}
+            >
+              {t(lang, 'freeplay.speedAuto')}
+            </button>
+            <button
+              type="button"
+              className={`speed-pill-btn ${playSpeed === 'slow' ? 'active' : ''}`}
+              onClick={() => {
+                audio.sfx('click');
+                setPlaySpeed('slow');
+              }}
+              title={t(lang, 'freeplay.speedSlow')}
+            >
+              {t(lang, 'freeplay.speedSlow')}
+            </button>
+            <button
+              type="button"
+              className={`speed-pill-btn ${playSpeed === 'step' ? 'active' : ''}`}
+              onClick={() => {
+                audio.sfx('click');
+                setPlaySpeed('step');
+              }}
+              title={t(lang, 'freeplay.speedStep')}
+            >
+              {t(lang, 'freeplay.speedStep')}
+            </button>
+          </div>
+
           <button
             type="button"
             className={`btn ${teacherMode ? 'primary' : 'ghost'} teacher-toggle-btn`}
@@ -612,10 +738,33 @@ export function FreePlay(props?: FreePlayProps) {
               audio.sfx('click');
               setTeacherMode(f => !f);
             }}
-            title={lang === 'zh' ? '助教四手明牌透视与课堂讲解看板' : 'Teacher 4-hands X-Ray and classroom HUD'}
+            title={lang === 'zh' ? '助教四手明牌透视与课堂讲解看板 (快捷键 T)' : 'Teacher 4-hands X-Ray and classroom HUD (Hotkey T)'}
           >
             👁️ {teacherMode ? t(lang, 'freeplay.teacherModeOn') : t(lang, 'freeplay.teacherModeOff')}
           </button>
+
+          <button
+            type="button"
+            className={`btn ${projectorMode ? 'primary' : 'ghost'} projector-toggle-btn`}
+            onClick={() => {
+              audio.sfx('click');
+              setProjectorMode(f => !f);
+            }}
+            title={lang === 'zh' ? '助教大屏投影大字高对比度模式 (快捷键 P)' : 'Projector high-contrast big-screen mode (Hotkey P)'}
+          >
+            📺 {projectorMode ? t(lang, 'freeplay.projectorModeOn') : t(lang, 'freeplay.projectorMode')}
+          </button>
+
+          {projectorMode && (
+            <button
+              type="button"
+              className="btn ghost fullscreen-btn"
+              onClick={handleToggleFullscreen}
+              title={isFullscreen ? t(lang, 'freeplay.exitFullscreen') : t(lang, 'freeplay.fullscreen')}
+            >
+              {isFullscreen ? '🗗 ' + t(lang, 'freeplay.exitFullscreen') : '⛶ ' + t(lang, 'freeplay.fullscreen')}
+            </button>
+          )}
 
           {mode === 'duo' && (
             <button
@@ -671,14 +820,24 @@ export function FreePlay(props?: FreePlayProps) {
           </button>
 
           {isPlayPhase && playState.canUndo() && replayTrickIdx === null && (
-            <button
-              type="button"
-              className="btn ghost undo-btn"
-              onClick={handleUndo}
-              title={`${t(lang, 'freeplay.undo')} (Shortcut U)`}
-            >
-              ↺ {t(lang, 'freeplay.undo')}
-            </button>
+            <div className="undo-split-group">
+              <button
+                type="button"
+                className="btn ghost undo-btn"
+                onClick={handleUndoCard}
+                title={`${t(lang, 'freeplay.undoCard')} (Shortcut Z)`}
+              >
+                {t(lang, 'freeplay.undoCard')}
+              </button>
+              <button
+                type="button"
+                className="btn ghost undo-btn"
+                onClick={handleUndoTrick}
+                title={`${t(lang, 'freeplay.undoTrick')} (Shortcut U)`}
+              >
+                {t(lang, 'freeplay.undoTrick')}
+              </button>
+            </div>
           )}
 
           <button
@@ -820,9 +979,37 @@ export function FreePlay(props?: FreePlayProps) {
                 )
               ) : null}
             </span>
+            {playSpeed === 'step' && (
+              <span className="teacher-hud-step-badge">⌨️ {t(lang, 'freeplay.stepHelp')}</span>
+            )}
           </div>
           <div className="teacher-hud-note">
             💡 {teacherNoteText}
+          </div>
+        </div>
+      )}
+
+      {/* Projector Big Screen Goal HUD */}
+      {projectorMode && isPlayPhase && (
+        <div className="projector-goal-hud">
+          <div className="projector-goal-contract">
+            <span className="goal-contract-pill">🎯 {contractLabel}</span>
+            <span className="goal-contract-target">
+              {lang === 'zh'
+                ? `成局目标: ${targetTricks} 墩 · 当前北南: ${playState.tricksWon.NS} 墩 · 东西: ${playState.tricksWon.EW} 墩`
+                : `Goal: ${targetTricks} tricks · NS: ${playState.tricksWon.NS} · EW: ${playState.tricksWon.EW}`}
+            </span>
+            <span className={`goal-contract-status ${isMade ? 'is-made' : ''}`}>
+              {isMade
+                ? (lang === 'zh' ? '✨ 定约已成！' : '✨ Contract Made!')
+                : (lang === 'zh' ? `还差 ${targetTricks - playState.tricksWon.NS} 墩` : `${targetTricks - playState.tricksWon.NS} more to make`)}
+            </span>
+          </div>
+          <div className="projector-progress-track">
+            <div
+              className="projector-progress-fill"
+              style={{ width: `${Math.min(100, Math.round((playState.tricksWon.NS / targetTricks) * 100))}%` }}
+            />
           </div>
         </div>
       )}
@@ -1056,6 +1243,62 @@ export function FreePlay(props?: FreePlayProps) {
                         </div>
                       ))}
                     </div>
+                  </div>
+                )}
+              </div>
+            ) : liveTrickExplain && (pauseReview || replayTrickIdx !== null) ? (
+              <div className="trick-explain-overlay">
+                <div className="trick-explain-header">
+                  <span className="trick-explain-title-tag">💡 {t(lang, 'freeplay.trickExplainTitle')}</span>
+                  <strong className="trick-explain-headline">{liveTrickExplain.headline}</strong>
+                </div>
+                <div className="trick-explain-body">
+                  {liveTrickExplain.lines[1] && (
+                    <p className="trick-explain-rule">📖 {liveTrickExplain.lines[1]}</p>
+                  )}
+                  {liveTrickExplain.lines[2] &&
+                    !liveTrickExplain.lines[2].startsWith('目前墩数') &&
+                    !liveTrickExplain.lines[2].startsWith('Tricks so far') && (
+                      <p className="trick-explain-sub">⚠️ {liveTrickExplain.lines[2]}</p>
+                    )}
+                </div>
+                <div className="trick-explain-footer">
+                  <span className="trick-explain-next-lead">
+                    👉 {t(lang, 'freeplay.leadsNext', { seat: seatLabel(lang, replayWinner ?? 'S') })}
+                  </span>
+                  {pauseReview && playSpeed === 'step' && (
+                    <button
+                      type="button"
+                      className="btn primary small step-advance-btn"
+                      onClick={dismissPauseReview}
+                    >
+                      {t(lang, 'freeplay.stepNextTrick')} (Space)
+                    </button>
+                  )}
+                </div>
+              </div>
+            ) : isPlayPhase &&
+              !pauseReview &&
+              !collectingTo &&
+              replayTrickIdx === null &&
+              (playState.turn === 'W' || playState.turn === 'E') &&
+              playSpeed === 'step' ? (
+              <div className="step-bot-prompt-box">
+                <div className="step-bot-prompt-turn">
+                  👉 {t(lang, 'freeplay.turnPrompt', { seat: seatLabel(lang, playState.turn) })}
+                </div>
+                <button
+                  type="button"
+                  className="btn primary step-bot-play-btn"
+                  onClick={executeBotPlay}
+                >
+                  {t(lang, 'freeplay.nextBotPlay', { seat: seatLabel(lang, playState.turn) })} (Space)
+                </button>
+                {teacherMode && (
+                  <div className="step-bot-prompt-demo">
+                    💡 {lang === 'zh'
+                      ? '助教可点击上方按钮自动出牌，或在明牌手牌中点击演示出牌'
+                      : 'Click above to play, or click any legal card in face-up hand'}
                   </div>
                 )}
               </div>
