@@ -1,5 +1,5 @@
 import { useState, useMemo, useEffect, useCallback } from 'react';
-import { useApp } from '../App.js';
+import { useApp, type FreePlayMode } from '../App.js';
 import { t, bidLabelL, seatLabel } from '../i18n.js';
 import { audio } from '../audio.js';
 import { SimTable, type SimSeatInfo } from './Tutorial.js';
@@ -20,8 +20,9 @@ import { explainBid } from '../../../shared/bidding-explain.js';
 import { generateArchetypeDeal, DEAL_ARCHETYPES, type DealArchetype } from '../../../shared/deal-generator.js';
 import { calculateHcp } from '../../../shared/evaluator.js';
 import { analyzeDeal, formatAbilityTag, STRAINS } from '../../../shared/dds.js';
+import { evaluateMiniBridgeDeal, type MiniBridgeEvaluation } from '../../../shared/minibridge.js';
 
-type PlayMode = 'quick' | 'auction' | 'duo';
+type PlayMode = FreePlayMode;
 
 const CONTRACT_PRESETS: Array<{ level: number; denom: Denom; label: string }> = [
   { level: 3, denom: 'NT', label: '3NT (9 墩)' },
@@ -30,10 +31,12 @@ const CONTRACT_PRESETS: Array<{ level: number; denom: Denom; label: string }> = 
   { level: 1, denom: 'NT', label: '1NT (7 墩)' },
 ];
 
-export function FreePlay() {
-  const { lang, go, characterId, unlockAchievement, suitOrder } = useApp();
+export function FreePlay(props?: { initialMode?: FreePlayMode }) {
+  const { lang, go, characterId, unlockAchievement, suitOrder, freePlayInitialMode } = useApp();
 
-  const [mode, setMode] = useState<PlayMode>('quick');
+  const [mode, setMode] = useState<PlayMode>(() => props?.initialMode ?? freePlayInitialMode ?? 'quick');
+  const [teacherMode, setTeacherMode] = useState(false);
+  const [miniBridgeContract, setMiniBridgeContract] = useState<Contract | null>(null);
   const [dealArchetype, setDealArchetype] = useState<DealArchetype>('random');
   const [hoveredBid, setHoveredBid] = useState<Bid | null>(null);
   const [tabletopFlipped, setTabletopFlipped] = useState(false);
@@ -61,9 +64,17 @@ export function FreePlay() {
   const [auctionContract, setAuctionContract] = useState<Contract | null>(null);
   const [auctionPassedOut, setAuctionPassedOut] = useState(false);
 
+  // MiniBridge evaluation for current board
+  const miniBridgeEval = useMemo<MiniBridgeEvaluation>(() => {
+    return evaluateMiniBridgeDeal(dealHands);
+  }, [dealHands]);
+
   // Active contract
   const contract = useMemo<Contract>(() => {
     if (activeChallenge) return activeChallenge.contract;
+    if (mode === 'minibridge') {
+      return miniBridgeContract ?? miniBridgeEval.recommendedContract;
+    }
     if ((mode === 'auction' || mode === 'duo') && auctionContract) return auctionContract;
     return {
       level: contractPreset.level,
@@ -71,7 +82,7 @@ export function FreePlay() {
       declarer: 'S',
       doubled: 0,
     };
-  }, [activeChallenge, mode, auctionContract, contractPreset]);
+  }, [activeChallenge, mode, miniBridgeContract, miniBridgeEval, auctionContract, contractPreset]);
 
   const dummySeat = partnerOf(contract.declarer);
 
@@ -91,7 +102,10 @@ export function FreePlay() {
   }, [characterId]);
 
   const trump: Suit | null = contract.denom === 'NT' ? null : contract.denom;
-  const isPlayPhase = mode === 'quick' || ((mode === 'auction' || mode === 'duo') && auctionContract !== null);
+  const isPlayPhase =
+    mode === 'quick' ||
+    (mode === 'minibridge' && miniBridgeContract !== null) ||
+    ((mode === 'auction' || mode === 'duo') && auctionContract !== null);
   const isComplete = isPlayPhase && playState.isComplete();
 
   const handleNewDeal = useCallback((archetype: DealArchetype = dealArchetype) => {
@@ -104,6 +118,7 @@ export function FreePlay() {
     setAuction(new Auction('N'));
     setAuctionContract(null);
     setAuctionPassedOut(false);
+    setMiniBridgeContract(null);
     setPauseReview(null);
     setCollectingTo(null);
     setShowAllHands(false);
@@ -131,6 +146,7 @@ export function FreePlay() {
     setActiveChallenge(c);
     setShowChallengeHint(false);
     setMode('quick');
+    setMiniBridgeContract(null);
     setDealHands(imported.hands);
     setBoardNo(b => b + 1);
     setAuction(new Auction(imported.firstSeat));
@@ -146,8 +162,22 @@ export function FreePlay() {
 
   const handleModeChange = (newMode: PlayMode) => {
     setMode(newMode);
+    setMiniBridgeContract(null);
     handleNewDeal(dealArchetype);
   };
+
+  const handleSelectMiniBridgeContract = (c: Contract) => {
+    audio.sfx('fanfare');
+    setMiniBridgeContract(c);
+    setPlayState(new PlayState(dealHands, c));
+  };
+
+  useEffect(() => {
+    if (props?.initialMode && props.initialMode !== mode) {
+      setMode(props.initialMode);
+      setMiniBridgeContract(null);
+    }
+  }, [props?.initialMode]);
 
   const handleContractPresetChange = (preset: { level: number; denom: Denom }) => {
     setContractPreset(preset);
@@ -348,26 +378,31 @@ export function FreePlay() {
   const seatsInfo: SimSeatInfo[] = (['N', 'E', 'S', 'W'] as Seat[]).map(s => ({
     seat: s,
     count: playState.hands[s].length,
-    active: (mode === 'auction' || mode === 'duo') && !auction.isComplete() ? auction.turn === s : playState.turn === s,
-    badge:
-      mode === 'duo'
-        ? s === 'S'
-          ? (lang === 'zh' ? '玩家 1' : 'P1')
-          : s === 'N'
-          ? (lang === 'zh' ? '玩家 2' : 'P2')
-          : undefined
-        : undefined,
+    active:
+      (mode === 'auction' || mode === 'duo') && !auction.isComplete()
+        ? auction.turn === s
+        : playState.turn === s,
+    badge: teacherMode
+      ? `${calculateHcp(playState.hands[s])} HCP`
+      : mode === 'duo'
+      ? s === 'S'
+        ? (lang === 'zh' ? '玩家 1' : 'P1')
+        : s === 'N'
+        ? (lang === 'zh' ? '玩家 2' : 'P2')
+        : undefined
+      : undefined,
   }));
 
   const contractLabel = `${bidLabelL(lang, { type: 'bid', level: contract.level, denom: contract.denom })} · ${seatLabel(lang, contract.declarer)}`;
 
-  // Table hands: normal (N dummy, S player) vs All-hands revealed
-  const displayedHands = showAllHands
+  // Table hands: normal (N dummy, S player) vs All-hands revealed (Teacher Mode or Post-Game Replay)
+  const isRevealAll = showAllHands || teacherMode;
+  const displayedHands = isRevealAll
     ? {
-        N: sortHand(dealHands.N, trump, suitOrder),
-        E: sortHand(dealHands.E, trump, suitOrder),
-        S: sortHand(dealHands.S, trump, suitOrder),
-        W: sortHand(dealHands.W, trump, suitOrder),
+        N: sortHand(replayTrickIdx !== null ? dealHands.N : playState.hands.N, trump, suitOrder),
+        E: sortHand(replayTrickIdx !== null ? dealHands.E : playState.hands.E, trump, suitOrder),
+        S: sortHand(replayTrickIdx !== null ? dealHands.S : playState.hands.S, trump, suitOrder),
+        W: sortHand(replayTrickIdx !== null ? dealHands.W : playState.hands.W, trump, suitOrder),
       }
     : {
         N: sortHand(playState.hands.N, trump, suitOrder),
@@ -389,6 +424,39 @@ export function FreePlay() {
     if (replayTrickIdx === null || !playState.completedTricks[replayTrickIdx]) return [];
     return detectDefenseSignals(playState.completedTricks[replayTrickIdx]!, trump);
   }, [replayTrickIdx, playState.completedTricks, trump]);
+
+  const teacherNoteText = useMemo(() => {
+    if (mode === 'minibridge' && miniBridgeContract === null) {
+      return lang === 'zh'
+        ? `【迷你桥牌讲解】请全班观察北南两手牌点力与高花配合。北南合计 ${miniBridgeEval.totalHcp.NS} 点${
+            miniBridgeEval.isGameValue ? '（达到 25 点冲局线）' : '（不足 25 点打部分定约）'
+          }，${miniBridgeEval.fitSummary.zh}`
+        : `[MiniBridge Demo] Guide students to count NS combined points (${miniBridgeEval.totalHcp.NS} HCP) and major fit (${miniBridgeEval.fitSummary.en}).`;
+    }
+    if (!isPlayPhase) {
+      return lang === 'zh'
+        ? '【叫牌阶段观察】请全班注意顺时针叫牌轮序与叫品涵义，点击叫品可查看 ACBL 标准点力释义。'
+        : '[Auction Phase] Guide students on clockwise bidding and bid meanings.';
+    }
+    if (playState.completedTricks.length === 0) {
+      if (displayedTrick.length === 0) {
+        return lang === 'zh'
+          ? '【首攻阶段】首攻由庄家左手方防守人发出。无将出长套第四大牌（长四）；有将定约出连张顶张（如 KQ 出 K），忌从孤立 A 出小牌。'
+          : '[Opening Lead] LHO leads. NT: 4th best from longest suit. Suit: top of touching honors (e.g. King from KQ).';
+      }
+      return lang === 'zh'
+        ? '【明手摊牌】首攻已出，明手全牌摊开在桌上！请全班学员观察明手与庄家手牌，规划赢墩时序。'
+        : '[Dummy Spread] Dummy is exposed! Plan declarer winners and suit length.';
+    }
+    if (trump) {
+      return lang === 'zh'
+        ? '【做牌与防守】有将定约通常先拔将牌（Pull Trumps），防止防守方将吃赢墩。断门时方可用将牌将吃！有花色必须跟出。'
+        : '[Trump Play] Pull opponent trumps early to protect outside winners. Remember: you must follow suit if able!';
+    }
+    return lang === 'zh'
+      ? '【无将做牌】无将定约先数必赢墩，通过长套树立（Establish Length）或由弱引强飞牌（Finesse）创造额外赢墩。'
+      : '[NT Play] Count sure winners. Create extra tricks via long-suit establishment and finesses.';
+  }, [mode, miniBridgeContract, isPlayPhase, playState.completedTricks.length, displayedTrick.length, trump, miniBridgeEval, lang]);
 
   const legalCardLabels = useMemo(() => {
     if (!isPlayPhase || currentPlaySeat === null) return null;
@@ -452,6 +520,13 @@ export function FreePlay() {
             </button>
             <button
               type="button"
+              className={`freeplay-preset-btn ${mode === 'minibridge' ? 'active' : ''}`}
+              onClick={() => handleModeChange('minibridge')}
+            >
+              {t(lang, 'freeplay.modeMiniBridge')}
+            </button>
+            <button
+              type="button"
               className={`freeplay-preset-btn ${mode === 'auction' ? 'active' : ''}`}
               onClick={() => handleModeChange('auction')}
             >
@@ -466,6 +541,18 @@ export function FreePlay() {
               {t(lang, 'freeplay.modeDuo')}
             </button>
           </div>
+
+          <button
+            type="button"
+            className={`btn ${teacherMode ? 'primary' : 'ghost'} teacher-toggle-btn`}
+            onClick={() => {
+              audio.sfx('click');
+              setTeacherMode(f => !f);
+            }}
+            title={lang === 'zh' ? '助教四手明牌透视与课堂讲解看板' : 'Teacher 4-hands X-Ray and classroom HUD'}
+          >
+            👁️ {teacherMode ? t(lang, 'freeplay.teacherModeOn') : t(lang, 'freeplay.teacherModeOff')}
+          </button>
 
           {mode === 'duo' && (
             <button
@@ -607,6 +694,32 @@ export function FreePlay() {
         </div>
       )}
 
+      {/* Teacher X-Ray HUD Banner */}
+      {teacherMode && (
+        <div className="teacher-hud-banner">
+          <div className="teacher-hud-header">
+            <span className="teacher-hud-tag">🎓 {lang === 'zh' ? '助教课堂透视' : 'Teacher X-Ray HUD'}</span>
+            <span className="teacher-hud-hcp">
+              {lang === 'zh'
+                ? `北南合计: ${calculateHcp(dealHands.N) + calculateHcp(dealHands.S)} 点 · 东西合计: ${calculateHcp(dealHands.E) + calculateHcp(dealHands.W)} 点`
+                : `NS: ${calculateHcp(dealHands.N) + calculateHcp(dealHands.S)} HCP · EW: ${calculateHcp(dealHands.E) + calculateHcp(dealHands.W)} HCP`}
+            </span>
+            <span className="teacher-hud-line">
+              {isPlayPhase ? (
+                trump ? (
+                  lang === 'zh' ? `将牌: ${trump === 'S' ? '♠' : trump === 'H' ? '♥' : trump === 'D' ? '♦' : '♣'}` : `Trump: ${trump}`
+                ) : (
+                  lang === 'zh' ? '无将 (NT)' : 'No Trump (NT)'
+                )
+              ) : null}
+            </span>
+          </div>
+          <div className="teacher-hud-note">
+            💡 {teacherNoteText}
+          </div>
+        </div>
+      )}
+
       {/* Main Table Arena */}
       <div className="freeplay-table-wrap">
         <SimTable
@@ -616,6 +729,10 @@ export function FreePlay() {
           title={
             replayTrickIdx !== null
               ? t(lang, 'freeplay.trickOf', { cur: replayTrickIdx + 1 })
+              : mode === 'minibridge' && miniBridgeContract === null
+              ? lang === 'zh'
+                ? '迷你桥牌 · 算点与定约'
+                : 'MiniBridge · Points & Contract'
               : (mode === 'auction' || mode === 'duo') && !auction.isComplete()
               ? lang === 'zh' ? '叫牌进程' : 'Auction'
               : mode === 'duo'
@@ -643,7 +760,7 @@ export function FreePlay() {
           hint={null}
           stepKey={`fp-${boardNo}-${playState.completedTricks.length}-${displayedTrick.length}-${replayTrickIdx ?? 'live'}`}
           hands={displayedHands}
-          dummySeat={dummySeat}
+          dummySeat={mode === 'minibridge' && miniBridgeContract === null ? miniBridgeEval.dummy : dummySeat}
           tabletopFlipped={tabletopFlipped}
           seatChars={seatChars}
           winSeat={replayWinner}
@@ -652,7 +769,79 @@ export function FreePlay() {
           tricksWon={isPlayPhase ? playState.tricksWon : null}
           targetTricks={isPlayPhase ? targetTricks : null}
           centreExtra={
-            (mode === 'auction' || mode === 'duo') && !auction.isComplete() ? (
+            mode === 'minibridge' && miniBridgeContract === null ? (
+              <div className="minibridge-decision-panel">
+                <div className="minibridge-badge-title">🌱 {t(lang, 'minibridge.title')}</div>
+
+                <div className="minibridge-hcp-grid">
+                  <div className="minibridge-team-box ns">
+                    <div className="minibridge-team-name">{lang === 'zh' ? '北南搭档' : 'North-South Pair'}</div>
+                    <div className="minibridge-team-points">{miniBridgeEval.totalHcp.NS} HCP</div>
+                    <div className="minibridge-hcp-detail">
+                      {seatLabel(lang, 'N')}: {miniBridgeEval.hcp.N} · {seatLabel(lang, 'S')}: {miniBridgeEval.hcp.S}
+                    </div>
+                  </div>
+                  <div className="minibridge-vs">VS</div>
+                  <div className="minibridge-team-box ew">
+                    <div className="minibridge-team-name">{lang === 'zh' ? '东西搭档' : 'East-West Pair'}</div>
+                    <div className="minibridge-team-points">{miniBridgeEval.totalHcp.EW} HCP</div>
+                    <div className="minibridge-hcp-detail">
+                      {seatLabel(lang, 'E')}: {miniBridgeEval.hcp.E} · {seatLabel(lang, 'W')}: {miniBridgeEval.hcp.W}
+                    </div>
+                  </div>
+                </div>
+
+                <div className="minibridge-declarer-card">
+                  <div className="minibridge-declarer-title">
+                    👑 {t(lang, 'minibridge.declarerAnnounce', {
+                      declarer: seatLabel(lang, miniBridgeEval.declarer),
+                      hcp: miniBridgeEval.hcp[miniBridgeEval.declarer],
+                      dummy: seatLabel(lang, miniBridgeEval.dummy),
+                    })}
+                  </div>
+                  <div className="minibridge-fit-text">
+                    ✨ {miniBridgeEval.fitSummary[lang]}
+                  </div>
+                  <div className="minibridge-advice-text">
+                    💡 {miniBridgeEval.explanation[lang]}
+                  </div>
+                </div>
+
+                <div className="minibridge-actions">
+                  <button
+                    type="button"
+                    className="btn primary big minibridge-rec-btn"
+                    onClick={() => handleSelectMiniBridgeContract(miniBridgeEval.recommendedContract)}
+                  >
+                    ⭐ {t(lang, 'minibridge.playRecommended')}:{' '}
+                    {miniBridgeEval.recommendedContract.level}
+                    {miniBridgeEval.recommendedContract.denom === 'NT' ? 'NT' : miniBridgeEval.recommendedContract.denom === 'S' ? '♠' : miniBridgeEval.recommendedContract.denom === 'H' ? '♥' : miniBridgeEval.recommendedContract.denom === 'D' ? '♦' : '♣'}{' '}
+                    ({miniBridgeEval.recommendedLevel + 6} {lang === 'zh' ? '墩成牌' : 'tricks'})
+                  </button>
+
+                  <div className="minibridge-options-subhead">{t(lang, 'minibridge.otherOptions')}</div>
+                  <div className="minibridge-options-grid">
+                    {miniBridgeEval.options.map(opt => (
+                      <button
+                        key={`${opt.level}${opt.denom}`}
+                        type="button"
+                        className={`btn ghost small minibridge-opt-btn ${opt.isRecommended ? 'is-rec' : ''}`}
+                        onClick={() =>
+                          handleSelectMiniBridgeContract({
+                            level: opt.level,
+                            denom: opt.denom,
+                            declarer: miniBridgeEval.declarer,
+                            doubled: 0,
+                          })
+                        }
+                      >
+                        {opt.label[lang]}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            ) : (mode === 'auction' || mode === 'duo') && !auction.isComplete() ? (
               <div className="freeplay-auction-panel">
                 <div className="auction-transcript">
                   <div className="auction-cols-header">
@@ -859,6 +1048,19 @@ export function FreePlay() {
                 ? `庄家北南共拿下 ${declarerTricks} 墩 (目标 ${targetTricks} 墩)，防守方东西拿下 ${playState.tricksWon.EW} 墩。`
                 : `Declarer NS took ${declarerTricks} tricks (needed ${targetTricks}); EW took ${playState.tricksWon.EW} tricks.`}
             </p>
+
+            {mode === 'minibridge' && (
+              <div className="minibridge-summary-note">
+                🌱 {isMade
+                  ? lang === 'zh'
+                    ? `【迷你桥牌通关！】太棒了！不用经历繁琐叫牌，凭借精准的算点（${dealSummaryHcp.N + dealSummaryHcp.S}点）与配合，顺利达成 ${contractLabel}！这就是桥牌拿墩的无穷魅力！`
+                    : `[MiniBridge Success!] Fantastic! Through solid HCP arithmetic (${dealSummaryHcp.N + dealSummaryHcp.S} pts) and major fit, you successfully made ${contractLabel}!`
+                  : lang === 'zh'
+                    ? `【迷你桥牌复盘】差一点就成了！点击下方“📖 逐墩复盘”回顾每一张出牌，看看哪一墩能通过飞牌或树立长套多拿一墩！`
+                    : `[MiniBridge Review] Close! Click "Replay Tricks" below to see where an extra trick could have been made.`
+                }
+              </div>
+            )}
 
             {/* 4-Hand HCP Matrix */}
             <div className="result-hcp-grid">

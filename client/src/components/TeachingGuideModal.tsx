@@ -8,11 +8,12 @@ interface TeachingGuideModalProps {
   lang: Lang;
   onGoToBasicsDrill?: () => void;
   onGoToLesson?: (lessonIdx: number) => void;
+  onGoToMiniBridge?: () => void;
 }
 
-type GuideTab = 'flow' | 'cheatsheet' | 'pitfalls';
+type GuideTab = 'flow' | 'cheatsheet' | 'minibridge' | 'pitfalls';
 
-export function TeachingGuideModal({ isOpen, onClose, lang, onGoToBasicsDrill, onGoToLesson }: TeachingGuideModalProps) {
+export function TeachingGuideModal({ isOpen, onClose, lang, onGoToBasicsDrill, onGoToLesson, onGoToMiniBridge }: TeachingGuideModalProps) {
   const [activeTab, setActiveTab] = useState<GuideTab>('flow');
 
   useEffect(() => {
@@ -61,6 +62,16 @@ export function TeachingGuideModal({ isOpen, onClose, lang, onGoToBasicsDrill, o
             }}
           >
             📋 {t(lang, 'guide.tabCheatsheet')}
+          </button>
+          <button
+            type="button"
+            className={`teaching-guide-tab ${activeTab === 'minibridge' ? 'active' : ''}`}
+            onClick={() => {
+              audio.sfx('click');
+              setActiveTab('minibridge');
+            }}
+          >
+            🌱 {t(lang, 'guide.tabMiniBridge')}
           </button>
           <button
             type="button"
@@ -239,6 +250,19 @@ export function TeachingGuideModal({ isOpen, onClose, lang, onGoToBasicsDrill, o
                           : 'Two students share one screen with Duo mode, playing together against bots.'}
                       </li>
                     </ul>
+                    <div className="phase-action">
+                      <span className="phase-action-tip">👉 {lang === 'zh' ? '课堂免叫实操' : 'Class Action'}:</span>
+                      <button
+                        type="button"
+                        className="btn small primary phase-btn"
+                        onClick={() => {
+                          onClose();
+                          onGoToMiniBridge?.();
+                        }}
+                      >
+                        🌱 {lang === 'zh' ? '开启课堂迷你桥牌 (MiniBridge)' : 'Launch Classroom MiniBridge'}
+                      </button>
+                    </div>
                   </div>
                 </div>
               </div>
@@ -335,7 +359,84 @@ export function TeachingGuideModal({ isOpen, onClose, lang, onGoToBasicsDrill, o
             </div>
           )}
 
-          {/* TAB 3: PITFALLS & FAQS */}
+          {/* TAB 3: MINIBRIDGE PEDAGOGY */}
+          {activeTab === 'minibridge' && (
+            <div className="guide-tab-pane">
+              <div className="guide-intro-banner">
+                <span className="guide-intro-icon">🌱</span>
+                <p className="guide-intro-text">
+                  {lang === 'zh'
+                    ? 'ACBL 与欧洲桥牌联盟 (EBU) 官方首推的新手入门黄金法则：跳过复杂的 35 个叫品竞叫过程，直奔桥牌最核心的「大牌点心算 + 8张高花配合 + 明手做庄拿墩」，让学员在第一节课 5 分钟内上手！'
+                    : 'The ACBL & EBU gold standard for introductory classes: bypass the 35-bid auction box on Day 1. Focus entirely on HCP arithmetic, 8-card fits, and dummy declarer play in 5 minutes!'}
+                </p>
+              </div>
+
+              <div className="minibridge-steps-list">
+                <div className="minibridge-step-card">
+                  <div className="step-num">1</div>
+                  <div className="step-content">
+                    <h4 className="step-title">{lang === 'zh' ? '第 1 步：心算报点，强力方定约 (Count HCP)' : 'Step 1: Count HCP & Determine Declarer'}</h4>
+                    <p className="step-desc">
+                      {lang === 'zh'
+                        ? '全桌四人各自心算手牌点力（A=4, K=3, Q=2, J=1）。北南二人大牌点相加 vs 东西二人大牌点相加。点数总和更高的一方成为定约攻方；获胜搭档中点力更高的人担任「庄家 (Declarer)」，另一人成为「明手 (Dummy)」。'
+                        : 'Each player calculates their HCP. Combine North+South vs East+West. The pair with more total HCP wins the contract. The player with more points becomes Declarer; partner becomes Dummy.'}
+                    </p>
+                  </div>
+                </div>
+
+                <div className="minibridge-step-card">
+                  <div className="step-num">2</div>
+                  <div className="step-content">
+                    <h4 className="step-title">{lang === 'zh' ? '第 2 步：明手全摊，全场公开 (Dummy Spreads Hand)' : 'Step 2: Dummy Spreads All 13 Cards'}</h4>
+                    <p className="step-desc">
+                      {lang === 'zh'
+                        ? '首攻发出后，明手将手里的 13 张牌全部面朝上摊在桌上，按花色排列好。庄家与两名防守方都能清晰看到明手的所有扑克。庄家一人全权运筹指挥自己与明手两手牌！'
+                        : 'After the opening lead, dummy lays all 13 cards face-up in suit columns. Declarer commands both hands with complete visibility of dummy’s resources.'}
+                    </p>
+                  </div>
+                </div>
+
+                <div className="minibridge-step-card">
+                  <div className="step-num">3</div>
+                  <div className="step-content">
+                    <h4 className="step-title">{lang === 'zh' ? '第 3 步：8张配合选定约，25点冲成局 (Fit & Game Threshold)' : 'Step 3: Check 8-Card Fit & 25-Point Game'}</h4>
+                    <p className="step-desc">
+                      {lang === 'zh'
+                        ? '庄家查看两手牌的高花：♠ 或 ♥ 合计是否达到 8 张黄金配合？若有 8 张打该高花有将定约；若无高花配合打无将 (NT)！两手合计达到 25 点果断打成局（4♠/4♥ 需10墩，3NT 需9墩）；不足 25 点打部分定约（2♠/2♥ 需8墩，1NT 需7墩）。'
+                        : 'Check for an 8-card major fit (♠ or ♥). If fit exists, play that major! If no fit, play No-Trump. With 25+ combined HCP, choose Game (4♠/4♥ or 3NT); with under 25 HCP, choose Part-Score (2♠/2♥ or 1NT).'}
+                    </p>
+                  </div>
+                </div>
+
+                <div className="minibridge-step-card">
+                  <div className="step-num">4</div>
+                  <div className="step-content">
+                    <h4 className="step-title">{lang === 'zh' ? '第 4 步：防守首攻，13 墩实战拿分 (Opening Lead & Play)' : 'Step 4: Opening Lead & 13 Tricks Play'}</h4>
+                    <p className="step-desc">
+                      {lang === 'zh'
+                        ? '庄家的左手方打出首攻。有花色必须跟出！庄家先数必赢墩，有将定约及早清拔敌方将牌，树立长套或由弱引强飞牌。打满 13 墩后对比目标墩数检验成败。'
+                        : 'Declarer’s LHO makes the opening lead. Follow suit is strictly mandatory! Count sure winners, pull defensive trumps, and orchestrate finesses. Compare total tricks won against target.'}
+                    </p>
+                  </div>
+                </div>
+              </div>
+
+              <div className="minibridge-cta-box">
+                <button
+                  type="button"
+                  className="btn primary big phase-btn"
+                  onClick={() => {
+                    onClose();
+                    onGoToMiniBridge?.();
+                  }}
+                >
+                  🚀 {lang === 'zh' ? '立即开启一局迷你桥牌演示 (MiniBridge)' : 'Start a Live MiniBridge Game Now'}
+                </button>
+              </div>
+            </div>
+          )}
+
+          {/* TAB 4: PITFALLS & FAQS */}
           {activeTab === 'pitfalls' && (
             <div className="guide-tab-pane">
               <div className="faq-list">

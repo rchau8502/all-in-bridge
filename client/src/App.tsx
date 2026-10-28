@@ -16,6 +16,7 @@ import './styles.css';
 
 export type ScreenName = 'home' | 'tutorial' | 'drill' | 'freeplay';
 export type FeltTheme = 'teal' | 'green' | 'navy';
+export type FreePlayMode = 'quick' | 'minibridge' | 'auction' | 'duo';
 
 interface AppCtx {
   lang: Lang;
@@ -27,6 +28,8 @@ interface AppCtx {
   currentLessonIdx: number;
   setCurrentLessonIdx: (idx: number) => void;
   goToLesson: (idx: number) => void;
+  freePlayInitialMode: FreePlayMode;
+  goToFreePlay: (mode?: FreePlayMode) => void;
   completedLessons: Set<string>;
   markLessonCompleted: (id: string) => void;
   fourColor: boolean;
@@ -176,6 +179,14 @@ export function App() {
     });
   }, []);
 
+  const [freePlayInitialMode, setFreePlayInitialMode] = useState<FreePlayMode>('quick');
+
+  const goToFreePlay = useCallback((mode: FreePlayMode = 'quick') => {
+    setFreePlayInitialMode(mode);
+    audio.sfx('click');
+    setScreen('freeplay');
+  }, []);
+
   const goToLesson = useCallback((idx: number) => {
     setCurrentLessonIdx(idx);
     audio.sfx('click');
@@ -227,6 +238,8 @@ export function App() {
       currentLessonIdx,
       setCurrentLessonIdx,
       goToLesson,
+      freePlayInitialMode,
+      goToFreePlay,
       completedLessons,
       markLessonCompleted,
       fourColor,
@@ -337,7 +350,7 @@ export function App() {
         {screen === 'home' && <Home />}
         {screen === 'tutorial' && <Tutorial />}
         {screen === 'drill' && <Drill />}
-        {screen === 'freeplay' && <FreePlay />}
+        {screen === 'freeplay' && <FreePlay initialMode={freePlayInitialMode} />}
         <footer className="footer">{t(lang, 'app.footer')}</footer>
       </div>
       <GlossaryModal
@@ -361,6 +374,9 @@ export function App() {
         }}
         onGoToLesson={(idx: number) => {
           goToLesson(idx);
+        }}
+        onGoToMiniBridge={() => {
+          goToFreePlay('minibridge');
         }}
       />
       <SettingsModal
