@@ -30,6 +30,8 @@ interface AppCtx {
   goToLesson: (idx: number) => void;
   freePlayInitialMode: FreePlayMode;
   goToFreePlay: (mode?: FreePlayMode) => void;
+  lectureBoardId: string | null;
+  goToLectureBoard: (boardId: string) => void;
   completedLessons: Set<string>;
   markLessonCompleted: (id: string) => void;
   fourColor: boolean;
@@ -180,9 +182,17 @@ export function App() {
   }, []);
 
   const [freePlayInitialMode, setFreePlayInitialMode] = useState<FreePlayMode>('quick');
+  const [lectureBoardId, setLectureBoardId] = useState<string | null>(null);
 
   const goToFreePlay = useCallback((mode: FreePlayMode = 'quick') => {
     setFreePlayInitialMode(mode);
+    setLectureBoardId(null);
+    audio.sfx('click');
+    setScreen('freeplay');
+  }, []);
+
+  const goToLectureBoard = useCallback((boardId: string) => {
+    setLectureBoardId(boardId);
     audio.sfx('click');
     setScreen('freeplay');
   }, []);
@@ -240,6 +250,8 @@ export function App() {
       goToLesson,
       freePlayInitialMode,
       goToFreePlay,
+      lectureBoardId,
+      goToLectureBoard,
       completedLessons,
       markLessonCompleted,
       fourColor,
@@ -350,7 +362,13 @@ export function App() {
         {screen === 'home' && <Home />}
         {screen === 'tutorial' && <Tutorial />}
         {screen === 'drill' && <Drill />}
-        {screen === 'freeplay' && <FreePlay initialMode={freePlayInitialMode} />}
+        {screen === 'freeplay' && (
+          <FreePlay
+            initialMode={freePlayInitialMode}
+            lectureBoardId={lectureBoardId}
+            onClearLectureBoard={() => setLectureBoardId(null)}
+          />
+        )}
         <footer className="footer">{t(lang, 'app.footer')}</footer>
       </div>
       <GlossaryModal
@@ -377,6 +395,9 @@ export function App() {
         }}
         onGoToMiniBridge={() => {
           goToFreePlay('minibridge');
+        }}
+        onGoToLectureBoard={(boardId: string) => {
+          goToLectureBoard(boardId);
         }}
       />
       <SettingsModal

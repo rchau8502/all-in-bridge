@@ -9,11 +9,20 @@ interface TeachingGuideModalProps {
   onGoToBasicsDrill?: () => void;
   onGoToLesson?: (lessonIdx: number) => void;
   onGoToMiniBridge?: () => void;
+  onGoToLectureBoard?: (boardId: string) => void;
 }
 
 type GuideTab = 'flow' | 'cheatsheet' | 'minibridge' | 'pitfalls';
 
-export function TeachingGuideModal({ isOpen, onClose, lang, onGoToBasicsDrill, onGoToLesson, onGoToMiniBridge }: TeachingGuideModalProps) {
+export function TeachingGuideModal({
+  isOpen,
+  onClose,
+  lang,
+  onGoToBasicsDrill,
+  onGoToLesson,
+  onGoToMiniBridge,
+  onGoToLectureBoard,
+}: TeachingGuideModalProps) {
   const [activeTab, setActiveTab] = useState<GuideTab>('flow');
 
   useEffect(() => {
@@ -36,9 +45,22 @@ export function TeachingGuideModal({ isOpen, onClose, lang, onGoToBasicsDrill, o
             <h2 className="glossary-title">🎓 {t(lang, 'guide.title')}</h2>
             <span className="teaching-guide-subtitle">{t(lang, 'guide.subtitle')}</span>
           </div>
-          <button type="button" className="glossary-close-btn" onClick={onClose} aria-label="Close guide">
-            ✕
-          </button>
+          <div className="glossary-header-actions">
+            <button
+              type="button"
+              className="btn small ghost print-handout-btn"
+              onClick={() => {
+                audio.sfx('click');
+                window.print();
+              }}
+              title={t(lang, 'guide.printHandout')}
+            >
+              🖨️ {t(lang, 'guide.printHandout')}
+            </button>
+            <button type="button" className="glossary-close-btn" onClick={onClose} aria-label="Close guide">
+              ✕
+            </button>
+          </div>
         </div>
 
         {/* Tab Switcher */}
@@ -131,13 +153,23 @@ export function TeachingGuideModal({ isOpen, onClose, lang, onGoToBasicsDrill, o
                       <span className="phase-action-tip">👉 {lang === 'zh' ? '课堂操作建议' : 'Class Action'}:</span>
                       <button
                         type="button"
+                        className="btn small primary phase-btn"
+                        onClick={() => {
+                          onClose();
+                          onGoToLectureBoard?.('lecture_follow_suit');
+                        }}
+                      >
+                        🎬 {lang === 'zh' ? '演示例牌 1: 跟牌与高牌' : 'Demo Board 1: Follow Suit'}
+                      </button>
+                      <button
+                        type="button"
                         className="btn small ghost phase-btn"
                         onClick={() => {
                           onClose();
                           onGoToLesson?.(0); // Lesson 1: deck
                         }}
                       >
-                        🚀 {lang === 'zh' ? '打开第 1 课演示出牌' : 'Open Lesson 1 for Demo'}
+                        🚀 {lang === 'zh' ? '第 1 课' : 'Lesson 1'}
                       </button>
                     </div>
                   </div>
@@ -174,13 +206,33 @@ export function TeachingGuideModal({ isOpen, onClose, lang, onGoToBasicsDrill, o
                       <span className="phase-action-tip">👉 {lang === 'zh' ? '课堂操作建议' : 'Class Action'}:</span>
                       <button
                         type="button"
+                        className="btn small primary phase-btn"
+                        onClick={() => {
+                          onClose();
+                          onGoToLectureBoard?.('lecture_trump_ruff');
+                        }}
+                      >
+                        🎬 {lang === 'zh' ? '演示例牌 2: 将牌将吃' : 'Demo Board 2: Trump Ruff'}
+                      </button>
+                      <button
+                        type="button"
+                        className="btn small ghost phase-btn"
+                        onClick={() => {
+                          onClose();
+                          onGoToLectureBoard?.('lecture_finesse');
+                        }}
+                      >
+                        🎬 {lang === 'zh' ? '演示例牌 3: 经典飞牌' : 'Demo Board 3: Finesse'}
+                      </button>
+                      <button
+                        type="button"
                         className="btn small ghost phase-btn"
                         onClick={() => {
                           onClose();
                           onGoToLesson?.(1); // Lesson 2: tricks
                         }}
                       >
-                        🚀 {lang === 'zh' ? '打开第 2 课演示将牌威力' : 'Demo Trump & Tricks'}
+                        🚀 {lang === 'zh' ? '第 2 课' : 'Lesson 2'}
                       </button>
                     </div>
                   </div>
@@ -214,16 +266,26 @@ export function TeachingGuideModal({ isOpen, onClose, lang, onGoToBasicsDrill, o
                       </li>
                     </ul>
                     <div className="phase-action">
-                      <span className="phase-action-tip">👉 {lang === 'zh' ? '全班互动测验' : 'Classroom Quiz'}:</span>
+                      <span className="phase-action-tip">👉 {lang === 'zh' ? '全班互动' : 'Class Action'}:</span>
                       <button
                         type="button"
                         className="btn small primary phase-btn"
                         onClick={() => {
                           onClose();
+                          onGoToLectureBoard?.('lecture_nt_planning');
+                        }}
+                      >
+                        🎬 {lang === 'zh' ? '演示例牌 4: 25点3NT赢墩规划' : 'Demo Board 4: 3NT Planning'}
+                      </button>
+                      <button
+                        type="button"
+                        className="btn small ghost phase-btn"
+                        onClick={() => {
+                          onClose();
                           onGoToBasicsDrill?.();
                         }}
                       >
-                        🌱 {lang === 'zh' ? '全班进入「零基础闯关」' : 'Launch Zero-to-One Quiz'}
+                        🌱 {lang === 'zh' ? '全班零基础闯关' : 'Zero-to-One Quiz'}
                       </button>
                     </div>
                   </div>
@@ -251,16 +313,26 @@ export function TeachingGuideModal({ isOpen, onClose, lang, onGoToBasicsDrill, o
                       </li>
                     </ul>
                     <div className="phase-action">
-                      <span className="phase-action-tip">👉 {lang === 'zh' ? '课堂免叫实操' : 'Class Action'}:</span>
+                      <span className="phase-action-tip">👉 {lang === 'zh' ? '课堂实操' : 'Class Action'}:</span>
                       <button
                         type="button"
                         className="btn small primary phase-btn"
                         onClick={() => {
                           onClose();
+                          onGoToLectureBoard?.('lecture_minibridge_fit');
+                        }}
+                      >
+                        🎬 {lang === 'zh' ? '演示例牌 5: 迷你桥牌9张配合' : 'Demo Board 5: MiniBridge Fit'}
+                      </button>
+                      <button
+                        type="button"
+                        className="btn small ghost phase-btn"
+                        onClick={() => {
+                          onClose();
                           onGoToMiniBridge?.();
                         }}
                       >
-                        🌱 {lang === 'zh' ? '开启课堂迷你桥牌 (MiniBridge)' : 'Launch Classroom MiniBridge'}
+                        🌱 {lang === 'zh' ? '开启随机迷你桥牌' : 'Random MiniBridge'}
                       </button>
                     </div>
                   </div>

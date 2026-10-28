@@ -21,8 +21,16 @@ import { generateArchetypeDeal, DEAL_ARCHETYPES, type DealArchetype } from '../.
 import { calculateHcp } from '../../../shared/evaluator.js';
 import { analyzeDeal, formatAbilityTag, STRAINS } from '../../../shared/dds.js';
 import { evaluateMiniBridgeDeal, type MiniBridgeEvaluation } from '../../../shared/minibridge.js';
+import { CLASSROOM_BOARDS, type ClassroomBoard } from '../../../shared/classroom-boards.js';
+import { ClassroomQuizModal } from '../components/ClassroomQuizModal.js';
 
 type PlayMode = FreePlayMode;
+
+interface FreePlayProps {
+  initialMode?: FreePlayMode;
+  lectureBoardId?: string | null;
+  onClearLectureBoard?: () => void;
+}
 
 const CONTRACT_PRESETS: Array<{ level: number; denom: Denom; label: string }> = [
   { level: 3, denom: 'NT', label: '3NT (9 墩)' },
@@ -31,12 +39,20 @@ const CONTRACT_PRESETS: Array<{ level: number; denom: Denom; label: string }> = 
   { level: 1, denom: 'NT', label: '1NT (7 墩)' },
 ];
 
-export function FreePlay(props?: { initialMode?: FreePlayMode }) {
+export function FreePlay(props?: FreePlayProps) {
   const { lang, go, characterId, unlockAchievement, suitOrder, freePlayInitialMode } = useApp();
 
   const [mode, setMode] = useState<PlayMode>(() => props?.initialMode ?? freePlayInitialMode ?? 'quick');
   const [teacherMode, setTeacherMode] = useState(false);
   const [miniBridgeContract, setMiniBridgeContract] = useState<Contract | null>(null);
+  const [activeLectureBoard, setActiveLectureBoard] = useState<ClassroomBoard | null>(() => {
+    if (props?.lectureBoardId) {
+      return CLASSROOM_BOARDS.find(b => b.id === props.lectureBoardId) ?? null;
+    }
+    return null;
+  });
+  const [quizModalOpen, setQuizModalOpen] = useState(false);
+  const [lectureModalOpen, setLectureModalOpen] = useState(false);
   const [dealArchetype, setDealArchetype] = useState<DealArchetype>('random');
   const [hoveredBid, setHoveredBid] = useState<Bid | null>(null);
   const [tabletopFlipped, setTabletopFlipped] = useState(false);
@@ -72,6 +88,7 @@ export function FreePlay(props?: { initialMode?: FreePlayMode }) {
   // Active contract
   const contract = useMemo<Contract>(() => {
     if (activeChallenge) return activeChallenge.contract;
+    if (activeLectureBoard) return activeLectureBoard.contract;
     if (mode === 'minibridge') {
       return miniBridgeContract ?? miniBridgeEval.recommendedContract;
     }
@@ -82,7 +99,7 @@ export function FreePlay(props?: { initialMode?: FreePlayMode }) {
       declarer: 'S',
       doubled: 0,
     };
-  }, [activeChallenge, mode, miniBridgeContract, miniBridgeEval, auctionContract, contractPreset]);
+  }, [activeChallenge, activeLectureBoard, mode, miniBridgeContract, miniBridgeEval, auctionContract, contractPreset]);
 
   const dummySeat = partnerOf(contract.declarer);
 
@@ -111,6 +128,8 @@ export function FreePlay(props?: { initialMode?: FreePlayMode }) {
   const handleNewDeal = useCallback((archetype: DealArchetype = dealArchetype) => {
     audio.sfx('shuffle');
     setActiveChallenge(null);
+    setActiveLectureBoard(null);
+    props?.onClearLectureBoard?.();
     setShowChallengeHint(false);
     const nextHands = generateArchetypeDeal(archetype);
     setDealHands(nextHands);
@@ -132,7 +151,7 @@ export function FreePlay(props?: { initialMode?: FreePlayMode }) {
       doubled: 0,
     };
     setPlayState(new PlayState(nextHands, initialContract));
-  }, [dealArchetype, contractPreset]);
+  }, [dealArchetype, contractPreset, props]);
 
   const handleArchetypeChange = (newArchetype: DealArchetype) => {
     setDealArchetype(newArchetype);
@@ -162,6 +181,8 @@ export function FreePlay(props?: { initialMode?: FreePlayMode }) {
 
   const handleModeChange = (newMode: PlayMode) => {
     setMode(newMode);
+    setActiveLectureBoard(null);
+    props?.onClearLectureBoard?.();
     setMiniBridgeContract(null);
     handleNewDeal(dealArchetype);
   };
@@ -171,6 +192,43 @@ export function FreePlay(props?: { initialMode?: FreePlayMode }) {
     setMiniBridgeContract(c);
     setPlayState(new PlayState(dealHands, c));
   };
+
+  const handleSelectLectureBoard = useCallback((b: ClassroomBoard) => {
+    const imported = importDealFromPbn(b.deal);
+    audio.sfx('fanfare');
+    setActiveLectureBoard(b);
+    setActiveChallenge(null);
+    setMode('quick');
+    setTeacherMode(true);
+    setMiniBridgeContract(null);
+    setDealHands(imported.hands);
+    setBoardNo(b.boardNumber);
+    setAuction(new Auction('N'));
+    setAuctionContract(null);
+    setAuctionPassedOut(false);
+    setPauseReview(null);
+    setCollectingTo(null);
+    setShowAllHands(false);
+    setReplayTrickIdx(null);
+    setHoveredBid(null);
+    setPlayState(new PlayState(imported.hands, b.contract));
+  }, []);
+
+  const handleExitLectureBoard = () => {
+    audio.sfx('click');
+    setActiveLectureBoard(null);
+    props?.onClearLectureBoard?.();
+    handleNewDeal();
+  };
+
+  useEffect(() => {
+    if (props?.lectureBoardId) {
+      const b = CLASSROOM_BOARDS.find(board => board.id === props.lectureBoardId);
+      if (b) {
+        handleSelectLectureBoard(b);
+      }
+    }
+  }, [props?.lectureBoardId, handleSelectLectureBoard]);
 
   useEffect(() => {
     if (props?.initialMode && props.initialMode !== mode) {
@@ -426,6 +484,11 @@ export function FreePlay(props?: { initialMode?: FreePlayMode }) {
   }, [replayTrickIdx, playState.completedTricks, trump]);
 
   const teacherNoteText = useMemo(() => {
+    if (activeLectureBoard) {
+      return lang === 'zh'
+        ? `【精讲教学要点】${activeLectureBoard.taTakeaway.zh}`
+        : `[Lecture Point] ${activeLectureBoard.taTakeaway.en}`;
+    }
     if (mode === 'minibridge' && miniBridgeContract === null) {
       return lang === 'zh'
         ? `【迷你桥牌讲解】请全班观察北南两手牌点力与高花配合。北南合计 ${miniBridgeEval.totalHcp.NS} 点${
@@ -585,6 +648,18 @@ export function FreePlay(props?: { initialMode?: FreePlayMode }) {
 
           <button
             type="button"
+            className={`btn ${activeLectureBoard ? 'primary' : 'ghost'} lecture-boards-btn`}
+            onClick={() => {
+              audio.sfx('click');
+              setLectureModalOpen(true);
+            }}
+            title={t(lang, 'freeplay.lectureDeals')}
+          >
+            🎓 {t(lang, 'freeplay.lectureDeals')}
+          </button>
+
+          <button
+            type="button"
             className={`btn ${activeChallenge ? 'primary' : 'ghost'}`}
             onClick={() => {
               audio.sfx('click');
@@ -691,6 +766,38 @@ export function FreePlay(props?: { initialMode?: FreePlayMode }) {
               <p className="challenge-hint-p">{activeChallenge.hint[lang]}</p>
             </div>
           )}
+        </div>
+      )}
+
+      {/* Active Lecture Board Banner */}
+      {activeLectureBoard && (
+        <div className="active-lecture-banner">
+          <div className="lecture-banner-left">
+            <span className="lecture-pill">
+              🎓 {t(lang, 'freeplay.lectureBadge', { no: activeLectureBoard.boardNumber })}
+            </span>
+            <strong className="lecture-banner-name">{activeLectureBoard.title[lang]}</strong>
+            <span className="lecture-banner-sub">{activeLectureBoard.subtitle[lang]}</span>
+          </div>
+          <div className="lecture-banner-right">
+            <button
+              type="button"
+              className="btn small primary quiz-pop-btn"
+              onClick={() => {
+                audio.sfx('click');
+                setQuizModalOpen(true);
+              }}
+            >
+              ❓ {t(lang, 'freeplay.quizBtn', { count: activeLectureBoard.quizzes.length })}
+            </button>
+            <button
+              type="button"
+              className="btn small ghost"
+              onClick={handleExitLectureBoard}
+            >
+              ✕ {lang === 'zh' ? '退出例牌' : 'Exit Board'}
+            </button>
+          </div>
         </div>
       )}
 
@@ -1062,6 +1169,23 @@ export function FreePlay(props?: { initialMode?: FreePlayMode }) {
               </div>
             )}
 
+            {activeLectureBoard && (
+              <div className="active-lecture-result-box">
+                <p className="lecture-result-p">
+                  🎓 {lang === 'zh'
+                    ? `例牌演示完成！建议对全班进行随堂互动提问，检验掌握成效！`
+                    : `Lecture demo complete! Click below to quiz the class and reinforce key bridge concepts!`}
+                </p>
+                <button
+                  type="button"
+                  className="btn primary"
+                  onClick={() => setQuizModalOpen(true)}
+                >
+                  ❓ {t(lang, 'freeplay.quizBtn', { count: activeLectureBoard.quizzes.length })}
+                </button>
+              </div>
+            )}
+
             {/* 4-Hand HCP Matrix */}
             <div className="result-hcp-grid">
               <div className="hcp-card ns-card">
@@ -1232,6 +1356,70 @@ export function FreePlay(props?: { initialMode?: FreePlayMode }) {
         }}
         onClose={() => setBuilderOpen(false)}
       />
+
+      {/* Classroom Pop-Quiz Modal */}
+      {activeLectureBoard && (
+        <ClassroomQuizModal
+          isOpen={quizModalOpen}
+          onClose={() => setQuizModalOpen(false)}
+          lang={lang}
+          board={activeLectureBoard}
+        />
+      )}
+
+      {/* Classroom Curated Boards Selector Modal */}
+      {lectureModalOpen && (
+        <div className="glossary-backdrop" onClick={() => setLectureModalOpen(false)}>
+          <div className="classroom-boards-modal-card" onClick={e => e.stopPropagation()}>
+            <div className="glossary-header">
+              <div className="glossary-title-wrap">
+                <h2 className="glossary-title">🎓 {t(lang, 'freeplay.lectureDeals')}</h2>
+                <span className="teaching-guide-subtitle">
+                  {lang === 'zh'
+                    ? '专为课堂 4 阶段精讲打造的 5 副 ACBL 标准教学经典例牌'
+                    : '5 Curated ACBL Demonstration Boards for the 4-Phase Classroom Flow'}
+                </span>
+              </div>
+              <button
+                type="button"
+                className="glossary-close-btn"
+                onClick={() => setLectureModalOpen(false)}
+              >
+                ✕
+              </button>
+            </div>
+            <div className="lecture-boards-list">
+              {CLASSROOM_BOARDS.map(b => (
+                <div
+                  key={b.id}
+                  className={`lecture-board-item ${activeLectureBoard?.id === b.id ? 'active' : ''}`}
+                  onClick={() => {
+                    handleSelectLectureBoard(b);
+                    setLectureModalOpen(false);
+                  }}
+                >
+                  <div className="board-item-header">
+                    <span className="board-num-badge">Board #{b.boardNumber}</span>
+                    <span className="board-phase-tag">{b.phaseLabel[lang]}</span>
+                  </div>
+                  <h3 className="board-item-title">{b.title[lang]}</h3>
+                  <p className="board-item-sub">{b.subtitle[lang]}</p>
+                  <div className="board-item-footer">
+                    <span className="board-contract-tag">
+                      {b.contract.level}
+                      {b.contract.denom === 'NT' ? 'NT' : b.contract.denom === 'S' ? '♠' : b.contract.denom === 'H' ? '♥' : b.contract.denom === 'D' ? '♦' : '♣'}{' '}
+                      ({lang === 'zh' ? `需 ${b.targetTricks} 墩` : `${b.targetTricks} tricks`})
+                    </span>
+                    <button type="button" className="btn small primary">
+                      🚀 {lang === 'zh' ? '加载演示' : 'Load Demo'}
+                    </button>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
