@@ -8,6 +8,7 @@ import { FreePlay } from './screens/FreePlay.js';
 import { GlossaryModal } from './components/GlossaryModal.js';
 import { AchievementsModal } from './components/AchievementsModal.js';
 import { SettingsModal } from './components/SettingsModal.js';
+import { TeachingGuideModal } from './components/TeachingGuideModal.js';
 import { getLessons } from '../../shared/lessons.js';
 import { ACHIEVEMENTS, getAchievement, type Achievement } from '../../shared/achievements.js';
 import type { SuitOrderPref } from '../../shared/deck.js';
@@ -41,6 +42,7 @@ interface AppCtx {
   unlockAchievement: (id: string) => void;
   openAchievements: () => void;
   openSettings: () => void;
+  openTeachingGuide: () => void;
 }
 
 const Ctx = createContext<AppCtx>(null as unknown as AppCtx);
@@ -78,9 +80,15 @@ export function App() {
   });
   const [achievementsOpen, setAchievementsOpen] = useState(false);
   const [settingsOpen, setSettingsOpen] = useState(false);
+  const [teachingGuideOpen, setTeachingGuideOpen] = useState(false);
   const [recentAchievement, setRecentAchievement] = useState<Achievement | null>(null);
   const [screen, setScreen] = useState<ScreenName>('home');
   const [tick, setTick] = useState(0);
+
+  const openTeachingGuide = useCallback(() => {
+    audio.sfx('click');
+    setTeachingGuideOpen(true);
+  }, []);
 
   const openSettings = useCallback(() => {
     audio.sfx('click');
@@ -234,9 +242,10 @@ export function App() {
       unlockAchievement,
       openAchievements,
       openSettings,
+      openTeachingGuide,
     }),
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    [lang, characterId, screen, currentLessonIdx, completedLessons, fourColor, feltTheme, suitOrder, presentationMode, togglePresentationMode, openGlossaryWithQuery, unlockedAchievements, unlockAchievement, openAchievements, openSettings, tick]
+    [lang, characterId, screen, currentLessonIdx, completedLessons, fourColor, feltTheme, suitOrder, presentationMode, togglePresentationMode, openGlossaryWithQuery, unlockedAchievements, unlockAchievement, openAchievements, openSettings, openTeachingGuide, tick]
   );
 
   const bump = () => setTick(x => x + 1);
@@ -309,6 +318,14 @@ export function App() {
               title={t(lang, 'home.sound')}
             >🔊</button>
             <button
+              type="button"
+              className={`chip guide-chip ${teachingGuideOpen ? 'active' : ''}`}
+              onClick={openTeachingGuide}
+              title={t(lang, 'guide.button')}
+            >
+              🎓 {t(lang, 'guide.short')}
+            </button>
+            <button
               className={`chip ${settingsOpen ? 'active' : ''}`}
               onClick={openSettings}
               title={t(lang, 'settings.title')}
@@ -334,6 +351,17 @@ export function App() {
         isOpen={achievementsOpen}
         unlockedIds={unlockedAchievements}
         onClose={() => setAchievementsOpen(false)}
+      />
+      <TeachingGuideModal
+        isOpen={teachingGuideOpen}
+        onClose={() => setTeachingGuideOpen(false)}
+        lang={lang}
+        onGoToBasicsDrill={() => {
+          go('drill');
+        }}
+        onGoToLesson={(idx: number) => {
+          goToLesson(idx);
+        }}
       />
       <SettingsModal
         isOpen={settingsOpen}

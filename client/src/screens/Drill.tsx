@@ -1,6 +1,6 @@
 import { useState, useMemo, useCallback } from 'react';
 import { useApp } from '../App.js';
-import { t } from '../i18n.js';
+import { t, type I18nKey } from '../i18n.js';
 import { audio } from '../audio.js';
 import { CardView, Avatar } from '../components/ui.js';
 import {
@@ -17,10 +17,24 @@ import {
   type PartnerOpeningBid,
   type OpponentOpeningBid,
 } from '../../../shared/evaluator.js';
+import {
+  generateBeginnerDrill,
+  type BeginnerDrillCategory,
+  type BeginnerDrillProblem,
+} from '../../../shared/beginner-drills.js';
 import type { Card, Suit } from '../../../shared/deck.js';
 import { sortHand, cardLabel } from '../../../shared/deck.js';
 
-type DrillMode = 'opening' | 'responding' | 'overcall' | 'lead';
+type DrillMode = 'basics' | 'opening' | 'responding' | 'overcall' | 'lead';
+
+const BASICS_CATEGORIES: Array<{ id: BeginnerDrillCategory; labelKey: I18nKey }> = [
+  { id: 'all', labelKey: 'drill.categoryBasicsAll' },
+  { id: 'follow_suit', labelKey: 'drill.categoryFollowSuit' },
+  { id: 'book_math', labelKey: 'drill.categoryBookMath' },
+  { id: 'trick_winner', labelKey: 'drill.categoryTrickWinner' },
+  { id: 'hcp_counting', labelKey: 'drill.categoryHcpMath' },
+  { id: 'roles', labelKey: 'drill.categoryRoles' },
+];
 
 const OPENING_BID_OPTIONS = [
   { id: 'Pass', label: 'Pass', denom: 'pass' },
@@ -89,7 +103,14 @@ function groupHandBySuit(cards: Card[]): Array<{ suit: Suit; cards: Card[] }> {
 export function Drill() {
   const { lang, go, characterId, unlockAchievement, suitOrder } = useApp();
 
-  const [mode, setMode] = useState<DrillMode>('opening');
+  const [mode, setMode] = useState<DrillMode>('basics');
+
+  // Basics (Zero-Experience) mode state
+  const [basicsCategory, setBasicsCategory] = useState<BeginnerDrillCategory>('all');
+  const [basicsProblem, setBasicsProblem] = useState<BeginnerDrillProblem>(() =>
+    generateBeginnerDrill('all')
+  );
+  const [userBasicsOption, setUserBasicsOption] = useState<string | null>(null);
 
   // Opening mode state
   const [category, setCategory] = useState<DrillCategory>('all');
@@ -128,7 +149,9 @@ export function Drill() {
     ? respDeal.hand
     : mode === 'overcall'
     ? overcallDeal.hand
-    : leadDeal.hand;
+    : mode === 'lead'
+    ? leadDeal.hand
+    : basicsProblem.cards ?? [];
 
   const targetBid = mode === 'opening'
     ? openingDeal.evaluation.recommendedBid
@@ -147,8 +170,11 @@ export function Drill() {
     audio.sfx('shuffle');
     setUserBid(null);
     setUserLeadCard(null);
+    setUserBasicsOption(null);
     setShowBreakdown(false);
-    if (mode === 'opening') {
+    if (mode === 'basics') {
+      setBasicsProblem(generateBeginnerDrill(basicsCategory));
+    } else if (mode === 'opening') {
       setOpeningDeal(generateDrillHand(category));
     } else if (mode === 'responding') {
       setRespDeal(generateResponseDrillHand(partnerBid));
@@ -157,16 +183,19 @@ export function Drill() {
     } else {
       setLeadDeal(generateOpeningLeadDrillHand(leadContractType));
     }
-  }, [mode, category, partnerBid, oppBid, leadContractType]);
+  }, [mode, basicsCategory, category, partnerBid, oppBid, leadContractType]);
 
   const handleModeChange = (newMode: DrillMode) => {
     if (newMode === mode) return;
     setMode(newMode);
     setUserBid(null);
     setUserLeadCard(null);
+    setUserBasicsOption(null);
     setShowBreakdown(false);
     audio.sfx('click');
-    if (newMode === 'opening') {
+    if (newMode === 'basics') {
+      setBasicsProblem(generateBeginnerDrill(basicsCategory));
+    } else if (newMode === 'opening') {
       setOpeningDeal(generateDrillHand(category));
     } else if (newMode === 'responding') {
       setRespDeal(generateResponseDrillHand(partnerBid));
@@ -175,6 +204,14 @@ export function Drill() {
     } else {
       setLeadDeal(generateOpeningLeadDrillHand(leadContractType));
     }
+  };
+
+  const handleBasicsCategoryChange = (cat: BeginnerDrillCategory) => {
+    setBasicsCategory(cat);
+    audio.sfx('shuffle');
+    setUserBasicsOption(null);
+    setShowBreakdown(false);
+    setBasicsProblem(generateBeginnerDrill(cat));
   };
 
   const handleCategoryChange = (cat: DrillCategory) => {
@@ -256,11 +293,38 @@ export function Drill() {
     }
   };
 
+  const handleSelectBasicsOption = (optId: string) => {
+    if (userBasicsOption !== null) return;
+    setUserBasicsOption(optId);
+    setShowBreakdown(true);
+    setTotalSolved(prev => prev + 1);
+
+    const selectedOpt = basicsProblem.options.find(o => o.id === optId);
+    const isCorrect = selectedOpt?.isCorrect ?? false;
+    if (isCorrect) {
+      audio.sfx('win');
+      setStreak(prev => {
+        const next = prev + 1;
+        if (next >= 5) {
+          unlockAchievement('first_trick');
+        }
+        return next;
+      });
+      setTotalCorrect(prev => prev + 1);
+    } else {
+      audio.sfx('lose');
+      setStreak(0);
+    }
+  };
+
+  const isBasicsAnswered = mode === 'basics' && userBasicsOption !== null;
+  const isBasicsCorrect = isBasicsAnswered && (basicsProblem.options.find(o => o.id === userBasicsOption)?.isCorrect ?? false);
+
   const isLeadAnswered = mode === 'lead' && userLeadCard !== null;
   const isLeadCorrect = isLeadAnswered && userLeadCard?.suit === targetLeadCard.suit && userLeadCard?.rank === targetLeadCard.rank;
 
-  const isAnswered = mode === 'lead' ? isLeadAnswered : userBid !== null;
-  const isCorrect = mode === 'lead' ? isLeadCorrect : isAnswered && userBid === targetBid;
+  const isAnswered = mode === 'basics' ? isBasicsAnswered : mode === 'lead' ? isLeadAnswered : userBid !== null;
+  const isCorrect = mode === 'basics' ? isBasicsCorrect : mode === 'lead' ? isLeadCorrect : isAnswered && userBid === targetBid;
 
   const activeEval = mode === 'opening'
     ? openingDeal.evaluation
@@ -299,8 +363,15 @@ export function Drill() {
         </div>
       </div>
 
-      {/* Main Mode Tabs: Opening vs Responding vs Overcall vs Opening Lead */}
+      {/* Main Mode Tabs: Beginner Basics vs Opening vs Responding vs Overcall vs Opening Lead */}
       <div className="drill-mode-tabs">
+        <button
+          type="button"
+          className={`drill-mode-tab ${mode === 'basics' ? 'active' : ''}`}
+          onClick={() => handleModeChange('basics')}
+        >
+          🌱 {t(lang, 'drill.modeBasics')}
+        </button>
         <button
           type="button"
           className={`drill-mode-tab ${mode === 'opening' ? 'active' : ''}`}
@@ -332,7 +403,20 @@ export function Drill() {
       </div>
 
       {/* Filter / Scenario Pills */}
-      {mode === 'opening' ? (
+      {mode === 'basics' ? (
+        <div className="drill-categories">
+          {BASICS_CATEGORIES.map(bc => (
+            <button
+              key={bc.id}
+              type="button"
+              className={`drill-cat-pill ${basicsCategory === bc.id ? 'active' : ''}`}
+              onClick={() => handleBasicsCategoryChange(bc.id)}
+            >
+              {t(lang, bc.labelKey)}
+            </button>
+          ))}
+        </div>
+      ) : mode === 'opening' ? (
         <div className="drill-categories">
           {(
             [
@@ -411,6 +495,16 @@ export function Drill() {
       {/* Main Table Arena */}
       <div className="drill-table-container">
         <div className="drill-felt">
+          {mode === 'basics' && (
+            <div className="drill-partner-badge basics-badge">
+              <span className="partner-avatar-icon">🌱</span>
+              <span className="partner-bid-lead">{basicsProblem.categoryLabel[lang]}:</span>
+              {basicsProblem.contextBadge && (
+                <span className="partner-bid-val">{basicsProblem.contextBadge[lang]}</span>
+              )}
+            </div>
+          )}
+
           {/* Partner bid indicator in responding mode */}
           {mode === 'responding' && (
             <div className="drill-partner-badge">
@@ -447,99 +541,146 @@ export function Drill() {
             </div>
           )}
 
-          {/* Dealt 13 Cards */}
-          <div className="drill-hand-display" role="region" aria-label="13-card hand">
-            {handGroups.map(group => {
-              const count = group.cards.length;
-              const mid = (count - 1) / 2;
-              return (
-                <div key={group.suit} className={`suit-cluster suit-${group.suit.toLowerCase()}`}>
-                  {group.cards.map((c, i) => {
-                    const rotDeg = count > 1 ? (i - mid) * 1.5 : 0;
-                    const yOff = count > 1 ? Math.abs(i - mid) * 1.2 : 0;
-                    const isTargetLead = mode === 'lead' && isLeadAnswered && c.suit === targetLeadCard.suit && c.rank === targetLeadCard.rank;
-                    const isSelectedLead = mode === 'lead' && userLeadCard !== null && c.suit === userLeadCard.suit && c.rank === userLeadCard.rank;
-                    const isDimLead = mode === 'lead' && isLeadAnswered && !isTargetLead && !isSelectedLead;
-
-                    return (
-                      <div
-                        key={`${c.suit}${c.rank}-${i}`}
-                        className="card-fan-wrapper"
-                        style={{
-                          ['--fan-rot' as string]: `${rotDeg}deg`,
-                          ['--fan-y' as string]: `${yOff}px`,
-                        }}
-                      >
-                        <CardView
-                          card={c}
-                          playable={mode === 'lead' && !isLeadAnswered}
-                          selected={isSelectedLead}
-                          target={isTargetLead}
-                          dim={isDimLead}
-                          onClick={mode === 'lead' && !isLeadAnswered ? () => handleSelectLeadCard(c) : undefined}
-                        />
-                      </div>
-                    );
-                  })}
+          {/* Dealt Cards or Trick Display */}
+          {mode === 'basics' ? (
+            basicsProblem.trickPlays ? (
+              <div className="basics-trick-container">
+                <div className="basics-trick-felt">
+                  {basicsProblem.trickPlays.map(tp => (
+                    <div key={tp.seat} className="basics-trick-player-card">
+                      <span className="basics-seat-pill">{tp.label ?? tp.seat}</span>
+                      <CardView card={tp.card} />
+                    </div>
+                  ))}
                 </div>
-              );
-            })}
-          </div>
+              </div>
+            ) : basicsProblem.cards && basicsProblem.cards.length > 0 ? (
+              <div className="drill-hand-display" role="region" aria-label="Problem cards">
+                {basicsProblem.cards.map((c, i) => (
+                  <div key={`${c.suit}${c.rank}-${i}`} className="card-fan-wrapper">
+                    <CardView card={c} />
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <div className="basics-hero-card">
+                <div className="basics-hero-icon">
+                  {basicsProblem.category === 'book_math' ? '📐' : '👥'}
+                </div>
+                <div className="basics-hero-title">
+                  {basicsProblem.categoryLabel[lang]}
+                </div>
+              </div>
+            )
+          ) : (
+            <div className="drill-hand-display" role="region" aria-label="13-card hand">
+              {handGroups.map(group => {
+                const count = group.cards.length;
+                const mid = (count - 1) / 2;
+                return (
+                  <div key={group.suit} className={`suit-cluster suit-${group.suit.toLowerCase()}`}>
+                    {group.cards.map((c, i) => {
+                      const rotDeg = count > 1 ? (i - mid) * 1.5 : 0;
+                      const yOff = count > 1 ? Math.abs(i - mid) * 1.2 : 0;
+                      const isTargetLead = mode === 'lead' && isLeadAnswered && c.suit === targetLeadCard.suit && c.rank === targetLeadCard.rank;
+                      const isSelectedLead = mode === 'lead' && userLeadCard !== null && c.suit === userLeadCard.suit && c.rank === userLeadCard.rank;
+                      const isDimLead = mode === 'lead' && isLeadAnswered && !isTargetLead && !isSelectedLead;
+
+                      return (
+                        <div
+                          key={`${c.suit}${c.rank}-${i}`}
+                          className="card-fan-wrapper"
+                          style={{
+                            ['--fan-rot' as string]: `${rotDeg}deg`,
+                            ['--fan-y' as string]: `${yOff}px`,
+                          }}
+                        >
+                          <CardView
+                            card={c}
+                            playable={mode === 'lead' && !isLeadAnswered}
+                            selected={isSelectedLead}
+                            target={isTargetLead}
+                            dim={isDimLead}
+                            onClick={mode === 'lead' && !isLeadAnswered ? () => handleSelectLeadCard(c) : undefined}
+                          />
+                        </div>
+                      );
+                    })}
+                  </div>
+                );
+              })}
+            </div>
+          )}
 
           {/* Quick Metrics Bar (HCP, Length/Dummy, Shape) */}
           <div className="drill-metrics-bar">
             {showBreakdown ? (
               <div className="drill-metrics-revealed">
-                <span className="metric-chip">
-                  <strong>{t(lang, 'drill.hcpLabel')}:</strong> {mode === 'lead' ? calculateHcp(leadDeal.hand) : activeEval.hcp}
-                </span>
-                {mode === 'opening' ? (
+                {mode === 'basics' ? (
                   <>
-                    <span className="metric-chip">
-                      <strong>{t(lang, 'drill.lengthLabel')}:</strong> +{(activeEval as HandEvaluation).lengthPoints}
-                    </span>
                     <span className="metric-chip highlight">
-                      <strong>{t(lang, 'drill.totalLabel')}:</strong> {(activeEval as HandEvaluation).totalPoints}
+                      🌱 <strong>{basicsProblem.categoryLabel[lang]}</strong>
                     </span>
-                    <span className="metric-chip">
-                      <strong>{t(lang, 'drill.shapeLabel')}:</strong> {(activeEval as HandEvaluation).shape} (
-                      {(activeEval as HandEvaluation).isBalanced ? t(lang, 'drill.balanced') : t(lang, 'drill.unbalanced')})
-                    </span>
-                  </>
-                ) : mode === 'responding' ? (
-                  <>
-                    <span className="metric-chip">
-                      <strong>{t(lang, 'drill.supportPoints')}:</strong> +{(activeEval as ResponseEvaluation).supportPoints}
-                    </span>
-                    <span className="metric-chip highlight">
-                      <strong>{t(lang, 'drill.totalLabel')}:</strong> {(activeEval as ResponseEvaluation).totalPoints}
-                    </span>
-                    {(activeEval as ResponseEvaluation).hasGoldenFit && (
-                      <span className="metric-chip fit-gold">
-                        ✨ {t(lang, 'drill.goldenFit')} ({(activeEval as ResponseEvaluation).supportLength}张)
+                    {basicsProblem.contextBadge && (
+                      <span className="metric-chip">
+                        {basicsProblem.contextBadge[lang]}
                       </span>
                     )}
                   </>
-                ) : mode === 'overcall' ? (
-                  <>
-                    <span className={`metric-chip ${(activeEval as OvercallEvaluation).breakdown.pointsOk ? 'highlight' : ''}`}>
-                      {(activeEval as OvercallEvaluation).breakdown.pointsOk ? '✓' : '✗'} 10+ {t(lang, 'drill.hcpLabel')}
-                    </span>
-                    <span className={`metric-chip ${(activeEval as OvercallEvaluation).breakdown.lengthOk ? 'highlight' : ''}`}>
-                      {(activeEval as OvercallEvaluation).breakdown.lengthOk ? '✓' : '✗'} 5+ {lang === 'zh' ? '套长' : 'Length'}
-                    </span>
-                    <span className={`metric-chip ${(activeEval as OvercallEvaluation).breakdown.honorsOk ? 'highlight' : ''}`}>
-                      {(activeEval as OvercallEvaluation).breakdown.honorsOk ? '✓' : '✗'} 2 {lang === 'zh' ? '大牌' : 'Honors'}
-                    </span>
-                  </>
                 ) : (
                   <>
-                    <span className="metric-chip highlight">
-                      <strong>{t(lang, 'drill.leadRuleTitle')}:</strong> {leadDeal.evaluation.ruleName[lang]}
-                    </span>
                     <span className="metric-chip">
-                      <strong>{lang === 'zh' ? '标准首攻' : 'Optimal Lead'}:</strong> {cardLabel(targetLeadCard)}
+                      <strong>{t(lang, 'drill.hcpLabel')}:</strong> {mode === 'lead' ? calculateHcp(leadDeal.hand) : activeEval.hcp}
                     </span>
+                    {mode === 'opening' ? (
+                      <>
+                        <span className="metric-chip">
+                          <strong>{t(lang, 'drill.lengthLabel')}:</strong> +{(activeEval as HandEvaluation).lengthPoints}
+                        </span>
+                        <span className="metric-chip highlight">
+                          <strong>{t(lang, 'drill.totalLabel')}:</strong> {(activeEval as HandEvaluation).totalPoints}
+                        </span>
+                        <span className="metric-chip">
+                          <strong>{t(lang, 'drill.shapeLabel')}:</strong> {(activeEval as HandEvaluation).shape} (
+                          {(activeEval as HandEvaluation).isBalanced ? t(lang, 'drill.balanced') : t(lang, 'drill.unbalanced')})
+                        </span>
+                      </>
+                    ) : mode === 'responding' ? (
+                      <>
+                        <span className="metric-chip">
+                          <strong>{t(lang, 'drill.supportPoints')}:</strong> +{(activeEval as ResponseEvaluation).supportPoints}
+                        </span>
+                        <span className="metric-chip highlight">
+                          <strong>{t(lang, 'drill.totalLabel')}:</strong> {(activeEval as ResponseEvaluation).totalPoints}
+                        </span>
+                        {(activeEval as ResponseEvaluation).hasGoldenFit && (
+                          <span className="metric-chip fit-gold">
+                            ✨ {t(lang, 'drill.goldenFit')} ({(activeEval as ResponseEvaluation).supportLength}张)
+                          </span>
+                        )}
+                      </>
+                    ) : mode === 'overcall' ? (
+                      <>
+                        <span className={`metric-chip ${(activeEval as OvercallEvaluation).breakdown.pointsOk ? 'highlight' : ''}`}>
+                          {(activeEval as OvercallEvaluation).breakdown.pointsOk ? '✓' : '✗'} 10+ {t(lang, 'drill.hcpLabel')}
+                        </span>
+                        <span className={`metric-chip ${(activeEval as OvercallEvaluation).breakdown.lengthOk ? 'highlight' : ''}`}>
+                          {(activeEval as OvercallEvaluation).breakdown.lengthOk ? '✓' : '✗'} 5+ {lang === 'zh' ? '套长' : 'Length'}
+                        </span>
+                        <span className={`metric-chip ${(activeEval as OvercallEvaluation).breakdown.honorsOk ? 'highlight' : ''}`}>
+                          {(activeEval as OvercallEvaluation).breakdown.honorsOk ? '✓' : '✗'} 2 {lang === 'zh' ? '大牌' : 'Honors'}
+                        </span>
+                      </>
+                    ) : (
+                      <>
+                        <span className="metric-chip highlight">
+                          <strong>{t(lang, 'drill.leadRuleTitle')}:</strong> {leadDeal.evaluation.ruleName[lang]}
+                        </span>
+                        <span className="metric-chip">
+                          <strong>{lang === 'zh' ? '标准首攻' : 'Optimal Lead'}:</strong> {cardLabel(targetLeadCard)}
+                        </span>
+                      </>
+                    )}
                   </>
                 )}
               </div>
@@ -555,11 +696,13 @@ export function Drill() {
           </div>
         </div>
 
-        {/* Action Panel: Question and Bid Options or Lead Card Prompt */}
+        {/* Action Panel: Question and Options */}
         <div className="drill-action-card">
           <div className="drill-question-row">
             <span className="drill-question-text">
-              ❓ {mode === 'opening'
+              ❓ {mode === 'basics'
+                ? basicsProblem.question[lang]
+                : mode === 'opening'
                 ? t(lang, 'drill.question')
                 : mode === 'responding'
                 ? t(lang, 'drill.respQuestion')
@@ -569,7 +712,33 @@ export function Drill() {
             </span>
           </div>
 
-          {mode === 'lead' ? (
+          {mode === 'basics' ? (
+            <div className="basics-options-grid">
+              {basicsProblem.options.map(opt => {
+                let cls = 'basics-opt-btn';
+                if (isAnswered) {
+                  if (opt.isCorrect) {
+                    cls += ' correct-opt';
+                  } else if (opt.id === userBasicsOption) {
+                    cls += ' wrong-opt';
+                  } else {
+                    cls += ' muted-opt';
+                  }
+                }
+                return (
+                  <button
+                    key={opt.id}
+                    type="button"
+                    className={cls}
+                    onClick={() => handleSelectBasicsOption(opt.id)}
+                    disabled={isAnswered}
+                  >
+                    {opt.label[lang]}
+                  </button>
+                );
+              })}
+            </div>
+          ) : mode === 'lead' ? (
             !isAnswered && (
               <div className="drill-lead-card-prompt">
                 <p className="lead-prompt-hint">👆 {t(lang, 'drill.leadSelectCardHint')}</p>
@@ -625,7 +794,15 @@ export function Drill() {
                 />
                 <div className="feedback-title-wrap">
                   <h3 className="feedback-verdict">
-                    {mode === 'lead'
+                    {mode === 'basics'
+                      ? isCorrect
+                        ? lang === 'zh'
+                          ? '🎉 回答完全正确！'
+                          : '🎉 Excellent Answer!'
+                        : lang === 'zh'
+                        ? '💪 仔细看解析，巩固这个核心规则：'
+                        : '💪 Review the explanation to master this law:'
+                      : mode === 'lead'
                       ? isCorrect
                         ? lang === 'zh'
                           ? `🎉 回答完全正确！首攻打出 ${cardLabel(targetLeadCard)}`
@@ -647,14 +824,18 @@ export function Drill() {
                     </div>
                   )}
                   <p className="feedback-explanation">
-                    {mode === 'lead' ? leadDeal.evaluation.explanation[lang] : activeEval.explanation[lang]}
+                    {mode === 'basics'
+                      ? basicsProblem.explanation[lang]
+                      : mode === 'lead'
+                      ? leadDeal.evaluation.explanation[lang]
+                      : activeEval.explanation[lang]}
                   </p>
                 </div>
               </div>
 
-              {(mode === 'lead' ? leadDeal.evaluation.mnemonic : activeEval.mnemonic) && (
+              {(mode === 'basics' ? basicsProblem.mnemonic : mode === 'lead' ? leadDeal.evaluation.mnemonic : activeEval.mnemonic) && (
                 <div className="feedback-mnemonic">
-                  💡 <strong>ACBL 口诀：</strong> {(mode === 'lead' ? leadDeal.evaluation.mnemonic : activeEval.mnemonic)![lang]}
+                  💡 <strong>ACBL 口诀：</strong> {(mode === 'basics' ? basicsProblem.mnemonic : mode === 'lead' ? leadDeal.evaluation.mnemonic : activeEval.mnemonic)![lang]}
                 </div>
               )}
 

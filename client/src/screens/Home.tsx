@@ -11,7 +11,7 @@ import { ACBL_CHAPTERS } from '../../../shared/chapters.js';
  * pick your coach character, track progress, then jump straight into lessons.
  */
 export function Home() {
-  const { lang, characterId, setCharacterId, currentLessonIdx, goToLesson, completedLessons, go } = useApp();
+  const { lang, characterId, setCharacterId, currentLessonIdx, goToLesson, completedLessons, go, openTeachingGuide } = useApp();
   const lessons = getLessons(lang);
   const lessonIdToIdx = new Map(lessons.map((l, idx) => [l.id, idx]));
 
@@ -57,10 +57,13 @@ export function Home() {
             : `🎓 ${t(lang, 'home.tutorial')}`}
         </button>
         <button className="btn ghost big menu-btn drill-launch-btn" onClick={() => go('drill')}>
-          🎯 {t(lang, 'drill.title')}
+          🌱 {t(lang, 'drill.modeBasics')}
         </button>
         <button className="btn ghost big menu-btn freeplay-launch-btn" onClick={() => go('freeplay')}>
           🃏 {t(lang, 'freeplay.title')}
+        </button>
+        <button className="btn ghost big menu-btn guide-launch-btn" onClick={openTeachingGuide}>
+          🎓 {t(lang, 'guide.title')}
         </button>
       </div>
 

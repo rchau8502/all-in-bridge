@@ -4514,6 +4514,425 @@ table.standings tr.leader td { color: var(--accent); font-weight: 800; }
   grid-template-columns: repeat(5, 1fr) !important;
 }
 
+/* ---------- Beginner Basics Drill & Classroom Mode Styles ---------- */
+.drill-partner-badge.basics-badge {
+  border-color: #4ade80;
+  background: rgba(22, 101, 52, 0.45);
+}
+.drill-partner-badge.basics-badge .partner-bid-val {
+  color: #86efac;
+}
+
+.basics-options-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  max-width: 680px;
+  margin: 0 auto;
+  width: 100%;
+}
+
+.basics-opt-btn {
+  all: unset;
+  cursor: pointer;
+  padding: 13px 18px;
+  border-radius: 12px;
+  font-size: 15.5px;
+  font-weight: 700;
+  line-height: 1.45;
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  color: #fff;
+  transition: all 0.15s ease;
+  box-sizing: border-box;
+  text-align: left;
+}
+
+.basics-opt-btn:hover:not(:disabled) {
+  background: rgba(255, 255, 255, 0.18);
+  border-color: var(--gold);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.35);
+}
+
+.basics-opt-btn.correct-opt {
+  background: #166534 !important;
+  border-color: #22c55e !important;
+  color: #bbf7d0 !important;
+  box-shadow: 0 0 16px rgba(34, 197, 94, 0.45);
+}
+
+.basics-opt-btn.wrong-opt {
+  background: #991b1b !important;
+  border-color: #ef4444 !important;
+  color: #fecaca !important;
+}
+
+.basics-opt-btn.muted-opt {
+  opacity: 0.35;
+}
+
+.basics-trick-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 16px 0;
+  width: 100%;
+}
+
+.basics-trick-felt {
+  display: flex;
+  gap: 16px;
+  flex-wrap: wrap;
+  justify-content: center;
+  align-items: center;
+}
+
+.basics-trick-player-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+}
+
+.basics-seat-pill {
+  font-size: 12px;
+  font-weight: 800;
+  background: rgba(0, 0, 0, 0.55);
+  padding: 2px 8px;
+  border-radius: 6px;
+  color: var(--tan);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+}
+
+.basics-hero-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  padding: 20px;
+}
+
+.basics-hero-icon {
+  font-size: 50px;
+  animation: float 3s ease-in-out infinite;
+}
+
+.basics-hero-title {
+  font-size: 18px;
+  font-weight: 800;
+  color: var(--gold);
+}
+
+/* ---------- Classroom Teaching Assistant Guide Modal ---------- */
+.teaching-guide-modal-card {
+  background: var(--surface);
+  border: 1px solid var(--stroke);
+  border-radius: 20px;
+  width: min(840px, 94vw);
+  max-height: 88vh;
+  display: flex;
+  flex-direction: column;
+  box-shadow: var(--shadow-lg), 0 0 40px rgba(0, 0, 0, 0.6);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  overflow: hidden;
+  animation: modal-enter 0.22s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.teaching-guide-subtitle {
+  font-size: 13px;
+  color: var(--text-dim);
+  margin-top: 2px;
+}
+
+.teaching-guide-tabs {
+  display: flex;
+  gap: 8px;
+  padding: 8px 20px 0;
+  background: rgba(0, 0, 0, 0.25);
+  border-bottom: 1px solid var(--stroke);
+  overflow-x: auto;
+}
+
+.teaching-guide-tab {
+  all: unset;
+  cursor: pointer;
+  padding: 10px 16px;
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--text-dim);
+  border-bottom: 2px solid transparent;
+  transition: all 0.15s ease;
+  white-space: nowrap;
+}
+
+.teaching-guide-tab:hover {
+  color: #fff;
+}
+
+.teaching-guide-tab.active {
+  color: var(--gold);
+  border-bottom-color: var(--gold);
+}
+
+.teaching-guide-body {
+  padding: 20px;
+  overflow-y: auto;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.guide-tab-pane {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.guide-intro-banner {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  background: rgba(255, 215, 0, 0.1);
+  border: 1px solid rgba(255, 215, 0, 0.3);
+  padding: 12px 16px;
+  border-radius: 12px;
+}
+
+.guide-intro-icon {
+  font-size: 24px;
+}
+
+.guide-intro-text {
+  margin: 0;
+  font-size: 13.5px;
+  line-height: 1.5;
+  color: var(--tan);
+}
+
+.lesson-phase-list {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.lesson-phase-card {
+  display: flex;
+  gap: 16px;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid var(--stroke);
+  border-radius: 14px;
+  padding: 16px;
+}
+
+.phase-badge {
+  font-size: 12px;
+  font-weight: 900;
+  padding: 6px 10px;
+  border-radius: 8px;
+  height: fit-content;
+  white-space: nowrap;
+  background: rgba(0, 0, 0, 0.4);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  color: var(--tan);
+}
+
+.phase-badge.phase-1 { border-color: #38bdf8; color: #38bdf8; }
+.phase-badge.phase-2 { border-color: #4ade80; color: #4ade80; }
+.phase-badge.phase-3 { border-color: #fbbf24; color: #fbbf24; }
+.phase-badge.phase-4 { border-color: #c084fc; color: #c084fc; }
+
+.phase-content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.phase-title {
+  margin: 0;
+  font-size: 15.5px;
+  font-weight: 800;
+  color: #fff;
+}
+
+.phase-bullets {
+  margin: 0;
+  padding-left: 20px;
+  font-size: 13.5px;
+  line-height: 1.6;
+  color: var(--tan);
+}
+
+.phase-highlight {
+  color: #fbbf24;
+}
+
+.phase-action {
+  margin-top: 6px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.phase-action-tip {
+  font-size: 12.5px;
+  color: var(--text-dim);
+}
+
+.phase-btn {
+  font-size: 12.5px !important;
+}
+
+.cheatsheet-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 14px;
+}
+
+.cheat-card {
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid var(--stroke);
+  border-radius: 12px;
+  padding: 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.cheat-card-title {
+  margin: 0;
+  font-size: 14.5px;
+  font-weight: 800;
+  color: #fff;
+}
+
+.cheat-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.cheat-tag {
+  font-size: 12px;
+  font-weight: 800;
+  padding: 4px 8px;
+  border-radius: 6px;
+}
+
+.cheat-tag.nt { background: #3b82f6; color: #fff; }
+.cheat-tag.major { background: #b91c1c; color: #fff; }
+.cheat-tag.minor { background: #047857; color: #fff; }
+
+.cheat-desc {
+  font-size: 13px;
+  color: var(--tan);
+}
+
+.hcp-mini-table {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 8px;
+}
+
+.hcp-cell {
+  background: rgba(0, 0, 0, 0.35);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 8px;
+  padding: 8px;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.hcp-rank {
+  font-size: 18px;
+  color: var(--gold);
+}
+
+.hcp-pts {
+  font-size: 12px;
+  color: #fff;
+  font-weight: 700;
+}
+
+.cheat-note {
+  font-size: 12px;
+  color: var(--tan);
+  line-height: 1.4;
+}
+
+.formula-box {
+  background: rgba(255, 215, 0, 0.12);
+  border: 1px solid rgba(255, 215, 0, 0.35);
+  border-radius: 8px;
+  padding: 8px 12px;
+  text-align: center;
+}
+
+.formula-highlight {
+  font-size: 14px;
+  font-weight: 800;
+  color: var(--gold);
+}
+
+.formula-examples {
+  margin: 0;
+  padding-left: 20px;
+  font-size: 13px;
+  line-height: 1.6;
+  color: var(--tan);
+}
+
+.rules-numbered-list {
+  margin: 0;
+  padding-left: 20px;
+  font-size: 13px;
+  line-height: 1.6;
+  color: var(--tan);
+}
+
+.faq-list {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.faq-item {
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid var(--stroke);
+  border-radius: 12px;
+  padding: 14px 16px;
+}
+
+.faq-q {
+  margin: 0 0 6px;
+  font-size: 14.5px;
+  font-weight: 800;
+  color: var(--gold);
+}
+
+.faq-a {
+  margin: 0;
+  font-size: 13.5px;
+  line-height: 1.6;
+  color: var(--tan);
+}
+
+.teaching-guide-footer {
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+  padding: 14px 20px;
+  background: rgba(0, 0, 0, 0.25);
+  border-top: 1px solid var(--stroke);
+}
+
+
 
 
 
