@@ -520,8 +520,8 @@ const RAW_LESSONS: RawLesson[] = [
       {
         kind: 'info',
         text: T(
-          "SNAP! East ducked, and the queen won. That is winner number 5 — two more to go. This move has a name: the FINESSE — lead toward a card you hope is a winner, and trap the enemy honor in the middle. Now the second finesse — same trick, new shape. Spades: this time the ace is in YOUR hand and the queen is in dummy's — the pair is split up. West holds the king, sitting right in front of dummy's queen. Lead a SMALL spade toward the queen: if West plays the king, your ace eats it later and the queen still scores. If West ducks… the queen wins on the spot. Try it — your little 2 of spades.",
-          '咔嚓！东家躲开了，Q赢了！这是第5个赢墩 —— 还差2个。这一招有名字：飞牌—— 朝着你希望能赢的牌领过去，把敌人的大牌困在中间。现在来第二个飞牌 —— 同一招，新形状。黑桃：这次A在你手里，Q在明手 —— 这一对是分开的。K在西家手里，正好坐在明手Q的前面。朝着Q领出一张小黑桃：如果西家出K，你的A回头就吃掉它，Q照样能赢。如果西家躲开……Q当场获胜。试试 —— 你的小黑桃2。'
+          "SNAP! East ducked, and the queen won. That is winner number 5 — two more to go. This move has a name: the FINESSE — lead toward a card you hope is a winner, and trap the enemy honor in the middle. Now the second finesse — same trick, new shape. Spades: this time the ace is in YOUR hand and the queen is in dummy's — the pair is split up. West holds the king, sitting right in front of dummy's queen. Lead a SMALL spade toward the queen: if West spends the king, he wins that round — but the king is gone for good, and your queen then rules the suit. If West ducks… the queen wins on the spot. Either way the ace and the queen add up to two tricks. Try it — your little 2 of spades.",
+          '咔嚓！东家躲开了，Q赢了！这是第5个赢墩 —— 还差2个。这一招有名字：飞牌—— 朝着你希望能赢的牌领过去，把敌人的大牌困在中间。现在来第二个飞牌 —— 同一招，新形状。黑桃：这次A在你手里，Q在明手 —— 这一对是分开的。K在西家手里，正好坐在明手Q的前面。朝着Q领出一张小黑桃：如果西家用掉K，这一墩归他 —— 但K就此消失，之后Q就是这门花色里最大的牌。如果西家躲开……Q当场获胜。不管他怎么选，A和Q都是你的两个赢墩。试试 —— 你的小黑桃2。'
         ),
       },
       {
