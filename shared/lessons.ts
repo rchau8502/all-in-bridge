@@ -142,18 +142,19 @@ const CONTRACT_DEAL: Hands = makeHands({
 });
 
 /** Defense lesson 1 deal: South declares 3NT; the learner DEFENDS as
- *  West and makes the opening lead. West's hearts K-T-8-4 (longest and
- *  strongest unbid suit, an honor but no sequence) call for the modern
- *  agreements taught in the lesson: FOURTH BEST — the 4. Partner's ace
- *  wins, the return lets West's king score, then West leads a small
- *  spade toward partner's Q-J-T sequence (partner cashes Q and J), and
- *  West's club ace catches declarer's king. Defensive tricks: ♥A ♥K
- *  ♠Q ♠J ♣A = 5 — 3NT down one. Simulator-verified. */
+ *  West and makes the opening lead. West's hearts K-T-8-4 (longest, and
+ *  partner holds the ace behind them) call for the modern agreement taught
+ *  in the lesson: FOURTH BEST — the 4. Partner's ace wins, the return lets
+ *  West's king score, then West leads a small spade toward partner's
+ *  A-Q-J sequence. Declarer's two hands hold nothing above the jack
+ *  (dummy T-8-6-2, declarer 9-7-4), so partner's sequence simply runs and
+ *  West's club ace catches declarer's king. Defensive tricks: ♥A ♥K ♠Q
+ *  ♠J ♣A = 5 — 3NT down one. Simulator-verified. */
 const DEFENSE_LEAD_DEAL: Hands = makeHands({
-  N: ['AS', '8S', '6S', '2S', 'QH', '9H', '6H', '2H', 'KD', 'JC', '9C', '7C', '3C'],
-  E: ['QS', 'JS', 'TS', 'AH', '7H', '8D', '7D', '6D', '5D', '4D', '6C', '5C', '2C'],
-  S: ['KS', '9S', '4S', 'JH', '5H', '3H', 'AD', 'QD', 'JD', '9D', '2D', 'KC', 'QC'],
-  W: ['7S', '5S', '3S', 'KH', 'TH', '8H', '4H', 'TD', '3D', 'AC', 'TC', '8C', '4C'],
+  N: ['TS', '8S', '6S', '2S', 'QH', '9H', '6H', '2H', 'KD', 'JC', '9C', '7C', '3C'],
+  E: ['AS', 'QS', 'JS', 'AH', '7H', '8D', '7D', '6D', '5D', '4D', '6C', '5C', '2C'],
+  S: ['7S', '9S', '4S', 'JH', '5H', '3H', 'AD', 'QD', 'JD', '9D', '2D', 'KC', 'QC'],
+  W: ['KS', '5S', '3S', 'KH', 'TH', '8H', '4H', 'TD', '3D', 'AC', 'TC', '8C', '4C'],
 });
 
 /** Defense lesson 2 deal: South declares 4♠; the learner defends as
@@ -162,14 +163,15 @@ const DEFENSE_LEAD_DEAL: Hands = makeHands({
  *  queen scores later; declarer leads a small club to dummy's king and
  *  East, last to play, spends only the ten and saves the ace (it catches
  *  a trick at the end); dummy leads the ♦J and East COVERS with the
- *  queen, forcing the king and promoting East's ten — the ten then
- *  wins a trick, and partner's ♦9 wins another once the suit is cleared.
- *  Defensive tricks: ♥Q ♦T ♦A ♣A ♦9 = 5 — 4♠ down two. Simulator-verified. */
+ *  queen, forcing declarer's ACE — nothing West holds can beat it, so
+ *  the duck costs nothing — and promoting East's ten, which then
+ *  wins a trick, while partner's ♦K wins another once the suit is cleared.
+ *  Defensive tricks: ♥Q ♦T ♦K ♣A ♦9 = 5 — 4♠ down two. Simulator-verified. */
 const DEFENSE_PLAY_DEAL: Hands = makeHands({
   N: ['JS', '7S', '5S', 'JH', '8H', '5H', '2H', 'JD', '6D', '2D', 'KC', '8C', '7C'],
   E: ['TS', '9S', '4S', 'KH', '9H', '4H', '3H', 'QD', 'TD', '5D', '3D', 'AC', 'TC'],
-  S: ['AS', 'KS', 'QS', '8S', '6S', 'AH', 'TH', 'KD', '8D', 'QC', '9C', '3C', '2C'],
-  W: ['3S', '2S', 'QH', '7H', '6H', 'AD', '9D', '7D', '4D', 'JC', '6C', '5C', '4C'],
+  S: ['AS', 'KS', 'QS', '8S', '6S', 'AH', 'TH', 'AD', '8D', 'QC', '9C', '3C', '2C'],
+  W: ['3S', '2S', 'QH', '7H', '6H', 'KD', '9D', '7D', '4D', 'JC', '6C', '5C', '4C'],
 });
 
 /** Lesson 6 deal: South declares 4♠ with an 8-card trump fit topped by
@@ -1389,8 +1391,8 @@ const RAW_LESSONS: RawLesson[] = [
       {
         kind: 'info',
         text: T(
-          "And the loudest card of all is the first one: the OPENING LEAD — yours to choose, before dummy appears. One honest warning: which card to lead from a holding is not a law of nature, it is an AGREEMENT between partners. Different pairs agree different systems! What follows is one popular MODERN set — agree it with your partner, and the two of you will understand each other perfectly. First, pick the SUIT: attack your longest and strongest suit — the one the enemy has not claimed. Leading declarer's diamonds would feed his longest suit; leading dummy's spades would run into the ace. Your hearts, K-T-8-4, are longest, strongest, and unclaimed. Hearts it is.",
-          '而全场声音最大的一张牌，就是第一张：首攻 —— 由你来选，在明手摊牌之前。先说句实话：从一手牌里该领出哪一张，不是自然规律，而是搭档之间的约定。不同的搭档，约定可以完全不同！下面要教的，是现在流行的一套现代约定 —— 和你的搭档约好同一套，你们就能心领神会。第一步，选花色：进攻你最长、最强的花色 —— 敌人没有宣布占领的那门。领庄家的方块，等于喂他的长套；领明手的黑桃，会撞上 A。你的红桃K-T-8-4，最长、最强、没人认领。就打红桃。'
+          "And the loudest card of all is the first one: the OPENING LEAD — yours to choose, before dummy appears. One honest warning: which card to lead from a holding is not a law of nature, it is an AGREEMENT between partners. Different pairs agree different systems! What follows is one popular MODERN set — agree it with your partner, and the two of you will understand each other perfectly. First, pick the SUIT: attack your longest and strongest suit — the one the enemy has not claimed. Leading declarer's diamonds would feed his longest suit. Your two longest suits are hearts, K-T-8-4, and clubs, A-T-8-4 — four cards each, neither of them claimed. Choose the hearts: partner holds the ace of hearts, so your lead wins the first trick outright — a club lead would let declarer's queen score. Hearts it is.",
+          '而全场声音最大的一张牌，就是第一张：首攻 —— 由你来选，在明手摊牌之前。先说句实话：从一手牌里该领出哪一张，不是自然规律，而是搭档之间的约定。不同的搭档，约定可以完全不同！下面要教的，是现在流行的一套现代约定 —— 和你的搭档约好同一套，你们就能心领神会。第一步，选花色：进攻你最长、最强的花色 —— 敌人没有宣布占领的那门。领庄家的方块，等于喂他的长套。你最长的两门是红桃K-T-8-4和梅花A-T-8-4 —— 各四张，都没人认领。选红桃：搭档手里有红桃A，你领出去第一墩就直接到手 —— 领梅花反而会让庄家的Q白捡一墩。就打红桃。'
         ),
       },
       {
@@ -1422,8 +1424,8 @@ const RAW_LESSONS: RawLesson[] = [
       {
         kind: 'info',
         text: T(
-          "Two tricks in the bank! Partner's ace won the first — with only A-x he had no message to send, so he simply won and RETURNED your suit. That move has a name: RETURNING PARTNER'S SUIT — the defender's golden rule: when in doubt, give partner's suit back. Your king cashed. Now look at partner's spades: Q-J-T, three touching big cards — a SEQUENCE. Declarer's king is hiding somewhere in front of them. Lead a small spade TOWARD the sequence and let partner's cards do the fighting. Your own rule for later: when YOU lead from a sequence, lead its TOP card — for Q-J-T, the queen. It promises the jack below and denies the king above: partner can read your hand from one card.",
-          '两墩入账！第一墩搭档的 A 赢了 —— 他只有 A 加一张小牌，没有信息可发，就干脆赢下，然后回攻你的花色。这一招有名字：回攻搭档花色—— 这是防守的黄金法则：拿不准时，把搭档的花色打回去。你的 K 兑现了。现在看搭档的黑桃：Q-J-T，三张相连的大牌 —— 连张。庄家的 K 藏在它们前面某处。领一张小黑桃，朝着连张打过去，让搭档的牌去拼。顺便记住你自己的规则：轮到你从连张首攻时，领最大的一张 —— Q-J-T 就领 Q。它承诺下面有 J、上面没有 K：一张牌，搭档就能读懂你的手。'
+          "Two tricks in the bank! Partner's ace won the first — with only A-x he had no message to send, so he simply won and RETURNED your suit. That move has a name: RETURNING PARTNER'S SUIT — the defender's golden rule: when in doubt, give partner's suit back. Your king cashed. Now look at partner's spades: A-Q-J, three touching big cards — a SEQUENCE. Declarer's two hands hold nothing above partner's jack: dummy's top spade is the ten and declarer's is the nine. Lead a small spade TOWARD the sequence and let partner's cards do the fighting. Your own rule for later: when YOU lead from a sequence, lead its TOP card — from A-Q-J, the ace. It promises the queen below and denies the king above: partner can read your hand from one card.",
+          '两墩入账！第一墩搭档的 A 赢了 —— 他只有 A 加一张小牌，没有信息可发，就干脆赢下，然后回攻你的花色。这一招有名字：回攻搭档花色—— 这是防守的黄金法则：拿不准时，把搭档的花色打回去。你的 K 兑现了。现在看搭档的黑桃：A-Q-J，三张相连的大牌 —— 连张。庄家两手加起来都没有比搭档的 J 更大的牌：明手最大的黑桃是 T，庄家自己最大是 9。领一张小黑桃，朝着连张打过去，让搭档的牌去拼。顺便记住你自己的规则：轮到你从连张领牌时，领最大的一张 —— A-Q-J 就领 A。它承诺下面有 Q、上面没有 K：一张牌，搭档就能读懂你的手。'
         ),
       },
       {
@@ -1505,18 +1507,20 @@ const RAW_LESSONS: RawLesson[] = [
           { seat: 'W', card: 'TC' },
           { seat: 'N', card: '8S' },
           { seat: 'E', card: '6D' },
+          // Declarer runs the diamonds; the defenders throw their losers and
+          // keep the spade winners, which cash on the last two tricks.
           { seat: 'S', card: 'JD' },
-          { seat: 'W', card: '7S' },
-          { seat: 'N', card: 'JC' },
-          { seat: 'E', card: '7D' },
-          { seat: 'S', card: 'KS' },
           { seat: 'W', card: '8H' },
-          { seat: 'N', card: 'AS' },
-          { seat: 'E', card: 'TS' },
-          { seat: 'N', card: '7C' },
-          { seat: 'E', card: '8D' },
+          { seat: 'N', card: 'TS' },
+          { seat: 'E', card: '7D' },
           { seat: 'S', card: '2D' },
           { seat: 'W', card: '4C' },
+          { seat: 'N', card: '7C' },
+          { seat: 'E', card: '8D' },
+          { seat: 'E', card: 'AS' },
+          { seat: 'S', card: '7S' },
+          { seat: 'W', card: 'KS' },
+          { seat: 'N', card: 'JC' },
         ],
       },
       { kind: 'result' },
@@ -1597,8 +1601,8 @@ const RAW_LESSONS: RawLesson[] = [
       {
         kind: 'info',
         text: T(
-          "Dummy cashes the king of clubs and now leads the JACK of diamonds. An honor is led AT you — different rule! When you can cover an honor with a bigger honor, COVER IT. Your queen over his jack forces declarer to spend the king — and look what it grows: your TEN of diamonds becomes a sentry, taller than every diamond dummy has left. Cover with the queen!",
-          '明手兑现了梅花K，现在领出方块J。一张大牌朝你打来了 —— 规则不同了！当你能用更大的大牌盖住一张大牌时，就盖打。你的 Q 压住他的 J，逼庄家动用 K —— 再看它养出了什么：你的方块T 成了哨兵，比明手剩下的任何方块都高。用 Q 盖打！'
+          "Dummy cashes the king of clubs and now leads the JACK of diamonds. An honor is led AT you — different rule! When you can cover an honor with a bigger honor, COVER IT. Your queen over his jack forces declarer to spend the ace — and look what it grows: your TEN of diamonds becomes a sentry, taller than every diamond dummy has left. Cover with the queen!",
+          '明手兑现了梅花K，现在领出方块J。一张大牌朝你打来了 —— 规则不同了！当你能用更大的大牌盖住一张大牌时，就盖打。你的 Q 压住他的 J，逼庄家动用 A —— 再看它养出了什么：你的方块T 成了哨兵，比明手剩下的任何方块都高。用 Q 盖打！'
         ),
       },
       {
@@ -1609,7 +1613,7 @@ const RAW_LESSONS: RawLesson[] = [
             seat: 'E', learner: true, expected: 'QD',
             hint: T('Cover! The queen (QD) over the jack.', '盖打！Q (QD) 压住 J。'),
           },
-          { seat: 'S', card: 'KD' },
+          { seat: 'S', card: 'AD' },
           { seat: 'W', card: '4D' },
         ],
       },
@@ -1647,8 +1651,8 @@ const RAW_LESSONS: RawLesson[] = [
       {
         kind: 'info',
         text: T(
-          "Partner now leads a diamond back toward you. Dummy plays the 6. Are there any diamonds higher than your ten still alive? The ace is partner's, the king and queen and jack are all gone — your ten is the tallest card left in the suit. The sentry collects! Take it with the ten.",
-          '搭档现在把方块打回来。明手跟了 6。还有比你的 T 更大的方块活着吗？A 在搭档手里，K、Q、J 全都打过了 —— 你的 T 是这门花色剩下的最高牌。哨兵收费了！用 T 拿下。'
+          "Partner now leads a diamond back toward you. Dummy plays the 6. Are there any diamonds higher than your ten still alive? The king is partner's, and the ace, queen and jack are all gone — your ten is the tallest card left in the suit. The sentry collects! Take it with the ten.",
+          '搭档现在把方块打回来。明手跟了 6。还有比你的 T 更大的方块活着吗？K 在搭档手里，A、Q、J 全都打过了 —— 你的 T 是这门花色剩下的最高牌。哨兵收费了！用 T 拿下。'
         ),
       },
       {
@@ -1668,10 +1672,10 @@ const RAW_LESSONS: RawLesson[] = [
         script: [
           {
             seat: 'E', learner: true, expected: '5D',
-            hint: T('Lead the 5 (5D) — partner\'s ace is waiting at the end of this suit.', '领出 5 (5D) —— 这门花色的尽头有搭档的 A 在等着。'),
+            hint: T('Lead the 5 (5D) — partner\'s king is waiting at the end of this suit.', '领出 5 (5D) —— 这门花色的尽头有搭档的 K 在等着。'),
           },
           { seat: 'S', card: '2C' },
-          { seat: 'W', card: 'AD' },
+          { seat: 'W', card: 'KD' },
           { seat: 'N', card: '2D' },
         ],
       },
@@ -1697,8 +1701,8 @@ const RAW_LESSONS: RawLesson[] = [
       {
         kind: 'info',
         text: T(
-          "FOUR — the contract is beaten! And the hand still has a gift left: lead your last diamond, and watch partner's humble 9 take a trick, because your cover and your leads cleared every bigger diamond out of its way. Final tally for the defense: ♥Q, ♦T, ♦A, ♣A, ♦9 — five tricks; declarer got eight of the ten he needed. 4♠ down two!",
-          '四墩 —— 定约被击宕了！而这副牌还留了个礼物：领出你最后一张方块，看搭档不起眼的 9 赢下一墩 —— 因为你的盖打和领牌，把比它大的方块全清干净了。防守方最终清点：♥Q、♦T、♦A、♣A、♦9 —— 五墩；庄家需要十墩，只拿到八墩。4♠ 宕二！'
+          "FOUR — the contract is beaten! And the hand still has a gift left: lead your last diamond, and watch partner's humble 9 take a trick, because your cover and your leads cleared every bigger diamond out of its way. Final tally for the defense: ♥Q, ♦T, ♦K, ♣A, ♦9 — five tricks; declarer got eight of the ten he needed. 4♠ down two!",
+          '四墩 —— 定约被击宕了！而这副牌还留了个礼物：领出你最后一张方块，看搭档不起眼的 9 赢下一墩 —— 因为你的盖打和领牌，把比它大的方块全清干净了。防守方最终清点：♥Q、♦T、♦K、♣A、♦9 —— 五墩；庄家需要十墩，只拿到八墩。4♠ 宕二！'
         ),
       },
       {
