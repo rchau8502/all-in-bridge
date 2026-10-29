@@ -179,6 +179,30 @@ const DEFENSE_PLAY_DEAL: Hands = makeHands({
   W: ['3S', '2S', 'QH', '7H', '6H', 'KD', '9D', '7D', '4D', 'AC', '6C', '5C', '4C'],
 });
 
+/** Defense lesson 3 deal: South declares 3NT; the learner defends as West
+ *  and personally plays the three rules the first two lessons only named.
+ *  West holds three holdings that make them live: ♠K-Q-J (a sequence),
+ *  ♥K-J-T (a sequence) and ♣K.
+ *    T1  lead ♠K — TOP OF A SEQUENCE. Declarer's ace takes it, which is
+ *        the point: Q-J are now the two highest spades in the deal.
+ *    T2-6 declarer cashes five diamonds (A-K-Q-J-9); West has only two,
+ *        so three discards are spent on ♣5 ♠7 ♥9 — all idle cards, the
+ *        sequences stay intact.
+ *    T7  declarer leads ♥2, West is SECOND HAND with ♥K-J-T behind him
+ *        and dummy holding ♥A-Q-6: cover with the king and the ace
+ *        swallows it; play the TEN (the bottom of the sequence) and the
+ *        king lives to win trick 12.
+ *    T9  dummy leads a spade, West follows with ♠Q-J: FOLLOW LOW from a
+ *        sequence — the jack does the job and the queen takes the next
+ *        trick. Declarer made 8; defensive tricks ♠J ♠Q ♣K ♥K ♥J = 5 —
+ *        3NT down one. Simulator-verified (all 13 tricks replayed). */
+const DEFENSE_RULES_DEAL: Hands = makeHands({
+  N: ['9S', '8S', '6S', '5S', 'AH', 'QH', '6H', '8D', '4D', '2D', 'AC', '6C', '3C'],
+  E: ['TS', '3S', '2S', '8H', '7H', '4H', '7D', '5D', '3D', 'JC', 'TC', '9C', '4C'],
+  S: ['AS', '4S', '5H', '3H', '2H', 'AD', 'KD', 'QD', 'JD', '9D', 'QC', '7C', '2C'],
+  W: ['KS', 'QS', 'JS', '7S', 'KH', 'JH', 'TH', '9H', 'TD', '6D', 'KC', '8C', '5C'],
+});
+
 /** Lesson 6 deal: South declares 4♠ with an 8-card trump fit topped by
  *  A-K-Q (South A K Q 7 4, dummy J 9 5) — solid trumps, so once they are
  *  drawn no side-suit winner can ever be ruffed. Losers from South (the
@@ -1747,9 +1771,154 @@ const RAW_LESSONS: RawLesson[] = [
       {
         kind: 'info',
         text: T(
-          "Pin the FIVE rules to your wall — each with its name. THIRD HAND HIGH: partner leads, you are third — play your biggest, to force out declarer's honors and promote your side's next cards. COVER AN HONOR: an honor is led at you — cover it with a bigger honor and grow the card just underneath. FOURTH HAND LOW: you are last and cannot win — play the cheapest card, and keep the honor that will win a later trick. SECOND HAND LOW: the player on your right leads a small card and you are second — usually go low as well and let the trick run round to partner, who sits fourth; the same patience, one chair earlier. SEQUENCES: LEAD HIGH, FOLLOW LOW — lead the queen from Q-J-T so partner knows the jack and ten are beneath it; and when you merely follow with that same holding, spend the ten and keep the queen, so nothing is wasted. Defense is two half-hands thinking as one. You have now played both sides of the table — so who decided South should play 4♠ at all? Next lesson: the contract itself.",
-          '把五条法则钉在墙上 —— 每条都有名字。第三家出大：搭档领牌，你是第三家 —— 出你最大的，逼出庄家的大牌，扶起你们次一级的牌。大牌盖大牌：一张大牌朝你打来 —— 用更大的大牌盖打，养大它下面的那张。第四家放小：你是最后一家又赢不了 —— 出最便宜的那张，把日后还能赢的牌留在手里。第二家放小：右手方领出一张小牌，你是第二家 —— 通常也放小，让这一墩流向坐在第四家的搭档，同样的耐心，只早了一个座位。连张：领牌出大，跟牌出小 —— 手里是Q-J-T，领就领Q，让搭档知道你下面还有J和T；只是跟牌时反而出T、留着Q，一张都不浪费。防守，是两个半手想成一颗心。你现在牌桌两边都打过了 —— 那么，到底是谁决定南家打 4♠ 的？下一课：定约本身。'
+          "Pin the FIVE rules to your wall — each with its name. THIRD HAND HIGH: partner leads, you are third — play your biggest, to force out declarer's honors and promote your side's next cards. COVER AN HONOR: an honor is led at you — cover it with a bigger honor and grow the card just underneath. FOURTH HAND LOW: you are last and cannot win — play the cheapest card, and keep the honor that will win a later trick. SECOND HAND LOW: the player on your right leads a small card and you are second — usually go low as well and let the trick run round to partner, who sits fourth; the same patience, one chair earlier. SEQUENCES: LEAD HIGH, FOLLOW LOW — lead the queen from Q-J-T so partner knows the jack and ten are beneath it; and when you merely follow with that same holding, spend the ten and keep the queen, so nothing is wasted. Defense is two half-hands thinking as one. You have now played both sides of the table. Next lesson: one more deal, with the three rules you have only read about — this time you play them yourself.",
+          '把五条法则钉在墙上 —— 每条都有名字。第三家出大：搭档领牌，你是第三家 —— 出你最大的，逼出庄家的大牌，扶起你们次一级的牌。大牌盖大牌：一张大牌朝你打来 —— 用更大的大牌盖打，养大它下面的那张。第四家放小：你是最后一家又赢不了 —— 出最便宜的那张，把日后还能赢的牌留在手里。第二家放小：右手方领出一张小牌，你是第二家 —— 通常也放小，让这一墩流向坐在第四家的搭档，同样的耐心，只早了一个座位。连张：领牌出大，跟牌出小 —— 手里是Q-J-T，领就领Q，让搭档知道你下面还有J和T；只是跟牌时反而出T、留着Q，一张都不浪费。防守，是两个半手想成一颗心。你现在牌桌两边都打过了。下一课：再来一副牌 —— 那三条你只在纸上读过的法则，这回由你亲手打出来。'
         ),
+      },
+      { kind: 'result' },
+    ],
+  },
+  {
+    id: 'defense-rules',
+    title: T('Defense III: Three Rules, One Deal', '防守三：三条法则，一副牌'),
+    dealer: 'W',
+    hands: DEFENSE_RULES_DEAL,
+    contract: { level: 3, denom: 'NT', declarer: 'S', doubled: 0 },
+    vulnerable: false,
+    steps: [
+      {
+        kind: 'info',
+        text: T(
+          "Two lessons of defense, and three rules are yours: third hand high, cover an honor, fourth hand low. Three more are waiting — and this time you play all three with your own cards. You are WEST, South declares 3NT, your side needs five tricks. Look at your hand before you lead: ♠K-Q-J, ♥K-J-T-9, and the ♣K. Two sequences and an honor — this deal was built for them.",
+          '两课防守下来，你已经有了三条法则：第三家出大、大牌盖大牌、第四家放小。还有三条在等着 —— 而且这一回，三条都由你亲手打出来。你还是西家，南家打3NT，你们需要五墩。领牌之前先看你自己的牌：♠K-Q-J、♥K-J-T-9，还有♣K。两个连张加一张大牌 —— 这副牌就是为它们量身做的。'
+        ),
+      },
+      {
+        kind: 'play',
+        script: [
+          {
+            seat: 'W', learner: true, expected: 'KS',
+            hint: T('The king of spades (KS) — the top of your sequence.', '黑桃K (KS) —— 连张的顶张。'),
+          },
+          { seat: 'N', card: '5S' },
+          { seat: 'E', card: '2S' },
+          { seat: 'S', card: 'AS' },
+        ],
+      },
+      {
+        kind: 'info',
+        text: T(
+          "South took it with the ace — good, that is the point. You led the KING out of K-Q-J, not a small spade, and now the queen and jack are the two highest spades left in the whole deal. LEAD THE TOP OF A SEQUENCE: the top card says \"the two below me are mine as well\", so partner reads your whole suit from one card. Declarer now starts running diamonds and you have only two of them — follow, and throw away cards that cost you nothing.",
+          '南家用A收下 —— 很好，这正是目的。你从K-Q-J里领出的是K，不是一张小黑桃，现在Q和J就是全场最大的两张黑桃。连张领顶张：顶张等于在说“下面两张也是我的”，搭档看你一张牌就能数清你整门。庄家开始跑方块了，你只有两张 —— 跟着跟，把用不上的牌垫掉。'
+        ),
+      },
+      {
+        kind: 'play',
+        script: [
+          { seat: 'S', card: 'AD' },
+          { seat: 'W', card: '6D' },
+          { seat: 'N', card: '2D' },
+          { seat: 'E', card: '3D' },
+          { seat: 'S', card: 'KD' },
+          { seat: 'W', card: 'TD' },
+          { seat: 'N', card: '4D' },
+          { seat: 'E', card: '5D' },
+          { seat: 'S', card: 'QD' },
+          { seat: 'W', card: '5C' },
+          { seat: 'N', card: '8D' },
+          { seat: 'E', card: '7D' },
+          { seat: 'S', card: 'JD' },
+          { seat: 'W', card: '7S' },
+          { seat: 'N', card: '3C' },
+          { seat: 'E', card: '4C' },
+          { seat: 'S', card: '9D' },
+          { seat: 'W', card: '9H' },
+          { seat: 'N', card: '6C' },
+          { seat: 'E', card: '9C' },
+        ],
+      },
+      {
+        kind: 'info',
+        text: T(
+          "Five diamonds and the ace of spades — declarer has eight of the nine he needs. One more trick and 3NT makes. Every card left on the table belongs to you or to partner, if you read the chairs. Declarer leads a small heart.",
+          '五墩方块加黑桃A —— 庄家已经拿到他要的九墩里的八墩。再给他一墩，3NT就做成了。桌上剩下的每一张牌，不是你手里就是搭档手里 —— 前提是你看得懂座位。庄家领出一张小红桃。'
+        ),
+      },
+      {
+        kind: 'play',
+        script: [
+          { seat: 'S', card: '2H' },
+          {
+            seat: 'W', learner: true, expected: 'TH',
+            hint: T('The ten of hearts (TH) — you are second hand, and the ace is sitting in dummy.', '红桃T (TH) —— 你是第二家，A 明摆在明手。'),
+          },
+          { seat: 'N', card: 'AH' },
+          { seat: 'E', card: '4H' },
+        ],
+      },
+      {
+        kind: 'info',
+        text: T(
+          "Dummy's ace won it — exactly what you wanted. Look at what you did NOT spend: you sit SECOND hand, right behind declarer, holding K-J-T. You played the TEN, the cheapest card of the sequence, and kept the king. Cover with the king and dummy's ace swallows it, leaving you with nothing but small cards. SECOND HAND LOW: the player on your right leads, you are second, and a bigger honor is waiting behind you — go cheap and save yours for the trick it can actually win. That king wins trick twelve.",
+          '明手的A赢下 —— 这正是你要的。看看你没花掉什么：你是第二家，坐在庄家后面，手里是K-J-T。你出的是T，连张里最便宜的那张，K留住了。要是拿K去盖，明手的A一口吃掉它，你就只剩一堆小牌。第二家放小：右手方领牌、你是第二家，后面还坐着一张更大的牌，就便宜地出，把自己的大牌留到真正能赢的那一墩。那张K，最后赢了第十二墩。'
+        ),
+      },
+      {
+        kind: 'play',
+        script: [
+          { seat: 'N', card: 'AC' },
+          { seat: 'E', card: 'JC' },
+          { seat: 'S', card: '2C' },
+          { seat: 'W', card: '8C' },
+        ],
+      },
+      {
+        kind: 'info',
+        text: T(
+          "Dummy cashes the ace of clubs and leads a spade. You are last to play, holding Q-J — two touching honors, and nothing above them left in the deal. Which one do you spend?",
+          '明手兑现梅花A，然后领出黑桃。你是最后一家，手里是Q-J —— 两张挨着的大牌，全场已经没有比它们更大的了。你出哪一张？'
+        ),
+      },
+      {
+        kind: 'play',
+        script: [
+          { seat: 'N', card: '9S' },
+          { seat: 'E', card: 'TS' },
+          { seat: 'S', card: '4S' },
+          {
+            seat: 'W', learner: true, expected: 'JS',
+            hint: T('The jack (JS) — follow low from a sequence; the queen is still yours.', 'J (JS) —— 连张跟小牌；Q 还留在你手里。'),
+          },
+        ],
+      },
+      {
+        kind: 'info',
+        text: T(
+          "The JACK, not the queen — and the queen took the very next trick. That is the other half of the rule: LEAD HIGH, FOLLOW LOW. Leading from touching honors, take the top one so partner can read you; merely following with them, spend the lowest, because it does the same job and saves the big one for later. Three rules, all played by you: the top of a sequence at trick one, second hand low at trick seven, the bottom of a sequence at trick nine. Defensive tricks ♠J ♠Q ♣K ♥K ♥J — five of them, and 3NT is down one. The hand is decided; take your tricks.",
+          '出的是J，不是Q —— 而Q下一墩就赢了。这就是同一条法则的另一半：领牌出大，跟牌出小。你领出挨着的大牌时，取最大的那张，搭档才读得懂你；你只是跟牌时，出最小的那张，因为它干的是一样的活，还把大的留到后面。三条法则，你都亲手打了一遍：第一墩连张顶张，第七墩第二家放小，第九墩连张底牌。防守方五墩 —— ♠J、♠Q、♣K、♥K、♥J，3NT 宕一。这手牌已经定了，把该你的赢墩收下。'
+        ),
+      },
+      {
+        kind: 'play',
+        runout: true,
+        script: [
+          { seat: 'W', card: 'QS' },
+          { seat: 'N', card: '8S' },
+          { seat: 'E', card: '3S' },
+          { seat: 'S', card: 'QC' },
+          { seat: 'W', card: 'KC' },
+          { seat: 'N', card: '6S' },
+          { seat: 'E', card: 'TC' },
+          { seat: 'S', card: '7C' },
+          { seat: 'W', card: 'KH' },
+          { seat: 'N', card: 'QH' },
+          { seat: 'E', card: '8H' },
+          { seat: 'S', card: '3H' },
+          { seat: 'W', card: 'JH' },
+          { seat: 'N', card: '6H' },
+          { seat: 'E', card: '7H' },
+          { seat: 'S', card: '5H' },
+        ],
       },
       { kind: 'result' },
     ],

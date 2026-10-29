@@ -63,6 +63,12 @@ describe('all lessons', () => {
     const play = walkLesson(LESSONS.find(l => l.id === 'defense-play')!).getResult()!;
     expect(play.made).toBe(false);
     expect(play.tricksTaken).toBe(8); // 4♠ needs 10 → down two
+    // Third defense deal: the learner plays the sequence and second-hand-low
+    // rules with their own cards, and the five defensive tricks it promises
+    // have to be the five that actually fall.
+    const rules = walkLesson(LESSONS.find(l => l.id === 'defense-rules')!).getResult()!;
+    expect(rules.made).toBe(false);
+    expect(rules.tricksTaken).toBe(8); // 3NT needs 9 → down one
   });
 });
 
@@ -255,13 +261,14 @@ describe('chinese lessons', () => {
     expect(zh[6]!.title).toBe('输墩消去');
     expect(zh[7]!.title).toBe('防守一：首攻');
     expect(zh[8]!.title).toBe('防守二：配合出牌');
-    expect(zh[9]!.title).toBe('定约：一份承诺');
-    expect(zh[10]!.title).toBe('叫牌就是说话');
-    expect(zh[11]!.title).toBe('回答搭档');
-    expect(zh[12]!.title).toBe('加叫，然后打牌');
-    expect(zh[13]!.title).toBe('开叫者再说');
-    expect(zh[14]!.title).toBe('冲成局！');
-    expect(zh[15]!.title).toBe('争叫，抢进来');
+    expect(zh[9]!.title).toBe('防守三：三条法则，一副牌');
+    expect(zh[10]!.title).toBe('定约：一份承诺');
+    expect(zh[11]!.title).toBe('叫牌就是说话');
+    expect(zh[12]!.title).toBe('回答搭档');
+    expect(zh[13]!.title).toBe('加叫，然后打牌');
+    expect(zh[14]!.title).toBe('开叫者再说');
+    expect(zh[15]!.title).toBe('冲成局！');
+    expect(zh[16]!.title).toBe('争叫，抢进来');
     // Same step structure, same scripts — only text differs.
     for (let i = 0; i < LESSONS.length; i++) {
       const en = LESSONS[i]!;
@@ -288,9 +295,10 @@ describe('learner seat', () => {
       .filter(([, seat]) => seat !== 'S')
       .map(([id]) => id)
       .sort();
-    expect(defended).toEqual(['defense-leads', 'defense-play']);
+    expect(defended).toEqual(['defense-leads', 'defense-play', 'defense-rules']);
     expect(seats['defense-leads']).toBe('W');
     expect(seats['defense-play']).toBe('E');
+    expect(seats['defense-rules']).toBe('W');
     expect(seats['strategy']).toBe('S');
   });
 });

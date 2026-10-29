@@ -3,9 +3,9 @@ import { ACBL_CHAPTERS, getChapterForLesson } from './chapters.js';
 import { LESSONS } from './lessons.js';
 
 describe('ACBL Chapters Module', () => {
-  it('covers all 16 lessons across the 4 chapters with no duplicates', () => {
+  it('covers all 17 lessons across the 4 chapters with no duplicates', () => {
     const chapterLessonIds = ACBL_CHAPTERS.flatMap(ch => ch.lessonIds);
-    expect(chapterLessonIds).toHaveLength(16);
+    expect(chapterLessonIds).toHaveLength(17);
 
     const allLessonIds = LESSONS.map(l => l.id);
     expect(chapterLessonIds).toEqual(allLessonIds);

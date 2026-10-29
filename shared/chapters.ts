@@ -39,7 +39,7 @@ export const ACBL_CHAPTERS: Chapter[] = [
       zh: '有将数输墩、明手将吃消去、首攻技巧与防守同伴配合',
     },
     acblClasses: 'ACBL Classes 3 - 4',
-    lessonIds: ['losers', 'eliminate', 'defense-leads', 'defense-play'],
+    lessonIds: ['losers', 'eliminate', 'defense-leads', 'defense-play', 'defense-rules'],
   },
   {
     id: 'ch3',
