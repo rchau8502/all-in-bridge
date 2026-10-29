@@ -1,0 +1,18 @@
+{
+  "name": "All-In Bridge / 全民桥牌",
+  "short_name": "All-In Bridge",
+  "description": "Learn contract bridge step by step with interactive lessons and animated coaches.",
+  "start_url": "./",
+  "display": "standalone",
+  "orientation": "any",
+  "background_color": "#0a1c40",
+  "theme_color": "#0a1c40",
+  "icons": [
+    {
+      "src": "favicon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}
