@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { TutorialRunner } from './tutorial.js';
+import { TutorialRunner, learnerSeatOf } from './tutorial.js';
 import type { Lesson, Step } from './tutorial.js';
 import { LESSONS, getLessons } from './lessons.js';
 
@@ -50,6 +50,19 @@ describe('all lessons', () => {
   it('lesson ids are unique', () => {
     const ids = LESSONS.map(l => l.id);
     expect(new Set(ids).size).toBe(ids.length);
+  });
+
+  // The two defense lessons put the learner in a defender's chair, and the
+  // deal is written so the defense actually comes out ahead — a lesson that
+  // claims "4♠ is down" has to actually beat it, or the coaching text teaches
+  // a line that does not work.
+  it('the defense lessons really do beat the contract', () => {
+    const leads = walkLesson(LESSONS.find(l => l.id === 'defense-leads')!).getResult()!;
+    expect(leads.made).toBe(false);
+    expect(leads.tricksTaken).toBe(6); // 3NT needs 9 → down three
+    const play = walkLesson(LESSONS.find(l => l.id === 'defense-play')!).getResult()!;
+    expect(play.made).toBe(false);
+    expect(play.tricksTaken).toBe(8); // 4♠ needs 10 → down two
   });
 });
 
@@ -259,5 +272,25 @@ describe('chinese lessons', () => {
     // The full-hand zh lesson scores the same 230.
     const r = walkLesson(zh.find(l => l.id === 'full-hand')!);
     expect(r.getResult()!.total).toBe(230);
+  });
+});
+
+describe('learner seat', () => {
+  // Everything addressed to "you" hangs off this seat: the post-trick review
+  // calls one opponent "dummy" and the other "partner", the reaction voice
+  // cheers or groans, and the win tally splits into "yours" and "theirs".
+  // Declaring lessons drive South's hand AND the dummy's, so the seat to
+  // report is South — never North, or the dummy gets congratulated as the
+  // learner's partner.
+  it('is the defender in the defense lessons and the declarer everywhere else', () => {
+    const seats = Object.fromEntries(getLessons('en').map(l => [l.id, learnerSeatOf(l)]));
+    const defended = Object.entries(seats)
+      .filter(([, seat]) => seat !== 'S')
+      .map(([id]) => id)
+      .sort();
+    expect(defended).toEqual(['defense-leads', 'defense-play']);
+    expect(seats['defense-leads']).toBe('W');
+    expect(seats['defense-play']).toBe('E');
+    expect(seats['strategy']).toBe('S');
   });
 });

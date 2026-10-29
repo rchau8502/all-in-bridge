@@ -21,6 +21,21 @@ export interface TrickReviewData {
   winner: Seat;
   trump: Card['suit'] | null;
   tricksWon: Record<'NS' | 'EW', number>;
+  /** The chair the learner actually occupies. Almost every lesson has the
+   *  learner declaring (South), but the defense lessons hand him West or
+   *  East — and there "you", "partner" and "your side" all point somewhere
+   *  completely different. Defaults to South for the declarer lessons. */
+  learnerSeat?: Seat;
+}
+
+/** Which partnership a seat belongs to. */
+export function sideOfSeat(seat: Seat): 'NS' | 'EW' {
+  return seat === 'N' || seat === 'S' ? 'NS' : 'EW';
+}
+
+/** The seat across the table. */
+export function partnerOfSeat(seat: Seat): Seat {
+  return { N: 'S', S: 'N', E: 'W', W: 'E' }[seat] as Seat;
 }
 
 const SUIT_SYM: Record<Card['suit'], string> = { S: '♠', H: '♥', D: '♦', C: '♣' };
@@ -29,9 +44,17 @@ const SUIT_ZH: Record<Card['suit'], string> = { S: '黑桃', H: '红桃', D: '�
 const RANK_EN: Record<number, string> = { 14: 'ace', 13: 'king', 12: 'queen', 11: 'jack' };
 const RANK_ZH: Record<number, string> = { 14: 'A', 13: 'K', 12: 'Q', 11: 'J' };
 
-function seatName(seat: Seat, lang: ReviewLang): string {
-  if (lang === 'zh') return { S: '你', N: '搭档', W: '西家', E: '东家' }[seat];
-  return { S: 'You', N: 'Partner', W: 'West', E: 'East' }[seat];
+/** Names are relative to the chair the learner sits in: HIS seat is "you",
+ *  the seat across from him is "partner", the other two are the opponents
+ *  (called by their compass name). Sitting West as a defender, North is
+ *  the DUMMY — an opponent — so calling it "partner" would be a lie. */
+function seatName(seat: Seat, lang: ReviewLang, learnerSeat: Seat = 'S'): string {
+  const partner = partnerOfSeat(learnerSeat);
+  if (seat === learnerSeat) return lang === 'zh' ? '你' : 'You';
+  if (seat === partner) return lang === 'zh' ? '搭档' : 'Partner';
+  return lang === 'zh'
+    ? ({ N: '北家', E: '东家', S: '南家', W: '西家' } as Record<Seat, string>)[seat]
+    : ({ N: 'North', E: 'East', S: 'South', W: 'West' } as Record<Seat, string>)[seat];
 }
 
 /** "A♥" — compact label, same in both languages. */
@@ -156,15 +179,20 @@ export function explainTrick(data: TrickReviewData, lang: ReviewLang): {
   headline: string;
 } {
   const { plays, winner, trump, tricksWon } = data;
+  const learner = data.learnerSeat ?? 'S';
   const led = plays[0]!.card.suit;
   const winPlay = plays.find(p => p.seat === winner)!;
-  const learnerSideWon = winner === 'N' || winner === 'S';
+  const learnerSide = sideOfSeat(learner);
+  const ourSide: 'NS' | 'EW' = learnerSide;
+  const theirSide: 'NS' | 'EW' = learnerSide === 'NS' ? 'EW' : 'NS';
+  const learnerSideWon = sideOfSeat(winner) === learnerSide;
+  const isYou = winner === learner;
   const zh = lang === 'zh';
-  const name = (s: Seat) => seatName(s, lang);
+  const name = (s: Seat) => seatName(s, lang, learner);
 
   const title = zh
     ? `${learnerSideWon ? '🏆' : '😖'} ${name(winner)}赢下这一墩 —— 靠${cardWords(winPlay.card, lang)}`
-    : `${learnerSideWon ? '🏆' : '😖'} ${name(winner)} win${winner === 'S' ? '' : 's'} this trick — with ${cardWords(winPlay.card, lang)}`;
+    : `${learnerSideWon ? '🏆' : '😖'} ${name(winner)} win${isYou ? '' : 's'} this trick — with ${cardWords(winPlay.card, lang)}`;
 
   const lines: string[] = [];
 
@@ -215,7 +243,7 @@ export function explainTrick(data: TrickReviewData, lang: ReviewLang): {
       }
     } else {
       lines.push(
-        `${name(winner)} had no ${SUIT_EN[led]} left, so they trumped in with ${cardWords(winPlay.card, lang)}. Remember: ANY trump beats EVERY card of the led suit — even an ace. That's why this trick belongs to ${name(winner).toLowerCase() === 'you' ? 'you' : name(winner)}.`,
+        `${name(winner)} had no ${SUIT_EN[led]} left, so they trumped in with ${cardWords(winPlay.card, lang)}. Remember: ANY trump beats EVERY card of the led suit — even an ace. That's why this trick belongs to ${isYou ? 'you' : name(winner)}.`,
       );
       for (const t of otherTrumps) {
         lines.push(`${name(t.seat)} trumped too, with ${cardWords(t.card, lang)} — but ${name(winner)}'s trump was bigger, so it still lost.`);
@@ -231,11 +259,11 @@ export function explainTrick(data: TrickReviewData, lang: ReviewLang): {
           : `规矩是：有${SUIT_ZH[led]}必须跟${SUIT_ZH[led]}。这一墩桌上的${SUIT_ZH[led]}是${ledCards}，其中最大的是${cardWords(winPlay.card, lang)}，所以${name(winner)}赢下这一墩。`,
       );
     } else {
-      const mid = winner === 'S' ? 'you' : name(winner);
+      const mid = isYou ? 'you' : name(winner);
       lines.push(
         led === trump
-          ? `Trumps were led, and you must follow suit when you can. The trumps on the table were ${ledCardsEn} — the biggest is ${cardWords(winPlay.card, lang)}, so ${mid} take${winner === 'S' ? '' : 's'} it.`
-          : `The rule: if you have ${SUIT_EN[led]}, you must play ${SUIT_EN[led]}. The ${SUIT_EN[led]} on the table were ${ledCardsEn} — the biggest is ${cardWords(winPlay.card, lang)}, so ${mid} win${winner === 'S' ? '' : 's'} the trick.`,
+          ? `Trumps were led, and you must follow suit when you can. The trumps on the table were ${ledCardsEn} — the biggest is ${cardWords(winPlay.card, lang)}, so ${mid} take${isYou ? '' : 's'} it.`
+          : `The rule: if you have ${SUIT_EN[led]}, you must play ${SUIT_EN[led]}. The ${SUIT_EN[led]} on the table were ${ledCardsEn} — the biggest is ${cardWords(winPlay.card, lang)}, so ${mid} win${isYou ? '' : 's'} the trick.`,
       );
     }
   }
@@ -260,11 +288,12 @@ export function explainTrick(data: TrickReviewData, lang: ReviewLang): {
     }
   }
 
-  // 5) Running score, from the learner's side (the learner is South / NS).
+  // 5) Running score, counted from the LEARNER's side — which is North-South
+  //    for the declarer lessons and East-West for the two defense lessons.
   if (zh) {
-    lines.push(`目前墩数 —— 你们 ${tricksWon.NS} 墩，对方 ${tricksWon.EW} 墩。赢墩的人领出下一墩。`);
+    lines.push(`目前墩数 —— 你们 ${tricksWon[ourSide]} 墩，对方 ${tricksWon[theirSide]} 墩。赢墩的人领出下一墩。`);
   } else {
-    lines.push(`Tricks so far — your side ${tricksWon.NS}, their side ${tricksWon.EW}. The winner leads the next trick.`);
+    lines.push(`Tricks so far — your side ${tricksWon[ourSide]}, their side ${tricksWon[theirSide]}. The winner leads the next trick.`);
   }
 
   return { title, lines, signals, headline };

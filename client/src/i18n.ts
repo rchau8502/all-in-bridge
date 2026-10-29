@@ -144,6 +144,10 @@ const en = {
   'tut.prevLesson': 'Previous',
   'tut.nextLesson': 'Next',
   'tut.restart': 'Restart',
+  'tut.fullscreen': 'Fullscreen',
+  'tut.exitFullscreen': 'Exit fullscreen',
+  'tut.reviewEvery': 'Commentary',
+  'tut.reviewEveryHint': 'Explain who won EVERY trick (off: only the first trick of a lesson)',
 
   'drill.title': 'Opening Drill',
   'drill.subtitle': 'Count points, assess shape, and master standard ACBL openings',
@@ -485,6 +489,10 @@ const zh: typeof en = {
   'tut.prevLesson': '上一课',
   'tut.nextLesson': '下一课',
   'tut.restart': '重来',
+  'tut.fullscreen': '全屏演示',
+  'tut.exitFullscreen': '退出全屏',
+  'tut.reviewEvery': '每墩点评',
+  'tut.reviewEveryHint': '每一墩都停下来讲谁赢了（关闭时：只有每课第一墩会讲）',
 
   'drill.title': '开叫速训',
   'drill.subtitle': '数大牌点、辨牌型，实战演练 ACBL 官方标准开叫',

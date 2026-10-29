@@ -673,7 +673,13 @@ select.input { appearance: auto; }
 }
 .faceup-cluster .card:first-child { margin-left: 0; }
 .faceup-cluster .card:last-child { margin-right: 0; }
-.sim-w .sim-faceup, .sim-e .sim-faceup { max-width: 160px; }
+/* Side seats live in a 148px column (112px when compact). Their clubs used
+ * to be 46px wide with -11px overlap — a 4-card suit came out at 151px and
+ * the felt clipped the ends of the East/West hands. Slightly smaller cards
+ * and a tighter overlap keep every suit inside its column. */
+.sim-w .sim-faceup, .sim-e .sim-faceup { max-width: 100%; }
+.sim-w .sim-faceup .card, .sim-e .sim-faceup .card { --card-w: 40px; --card-h: 56px; }
+.sim-w .faceup-cluster .card, .sim-e .faceup-cluster .card { margin: 0 -13px; }
 /* When it is the dummy's turn, its face-up hand IS the play surface: the
  * learner clicks the card in place (top of the table), never dragging it
  * down into the declarer's own hand. Ring the hand and let the cards lift. */
@@ -863,9 +869,38 @@ select.input { appearance: auto; }
 }
 .tut-progress { color: var(--gold); font-weight: 800; font-size: 14px; }
 .tut-lessons { display: flex; gap: 8px; flex-wrap: wrap; }
-.tut-body { display: flex; flex-direction: column; align-items: center; justify-content: flex-start; padding-top: 12px; flex: 1; }
+.tut-body { display: flex; flex-direction: column; align-items: center; justify-content: flex-start; padding-top: 12px; flex: 1; position: relative; }
 /* text-only steps centre vertically instead of hugging the top */
 .tut-body:has(> .tut-coach-card), .tut-body:has(> .tut-card) { justify-content: center; }
+/* ---- Real fullscreen: the teaching table takes the whole screen ----
+   Used when teaching to a room / projecting. The stage inside keeps its
+   own auto-fit, so blowing the wrapper up is all it takes for the cards
+   to grow with it. Everything the teacher needs mid-lesson (the table,
+   the coach card floating over it, the Next tap bar) lives in this box. */
+.tut-body:fullscreen, .tut-body.fs {
+  width: 100vw;
+  height: 100vh;
+  max-width: none;
+  padding: 8px;
+  gap: 6px;
+  justify-content: center;
+  background:
+    radial-gradient(1200px 600px at 50% 0%, rgba(56, 166, 245, 0.18), transparent 70%),
+    #070d18;
+}
+.tut-body:fullscreen .tut-stage-wrap, .tut-body.fs .tut-stage-wrap { width: 100%; }
+/* keeps the felt from sitting flush against the screen edge on a projector */
+.tut-body:fullscreen > .sim-felt, .tut-body.fs > .sim-felt { border-radius: 22px; }
+.tut-fs-btn { padding: 4px 10px; font-size: 13px; font-weight: 900; }
+.tut-fs-exit {
+  position: absolute; top: 6px; right: 10px; z-index: 60;
+  font-size: 12px; font-weight: 800; cursor: pointer;
+  background: rgba(8, 16, 38, 0.82); color: #fff;
+  border: 1px solid rgba(255, 255, 255, 0.28);
+  border-radius: 999px; padding: 4px 12px;
+  opacity: 0.55; transition: opacity 0.15s ease;
+}
+.tut-fs-exit:hover { opacity: 1; border-color: var(--gold); color: var(--gold); }
 .tut-card {
   width: min(680px, 96%);
   background: var(--surface);

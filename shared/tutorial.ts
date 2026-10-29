@@ -53,6 +53,35 @@ function isLearnerPlay(a: PlayAction): a is Extract<PlayAction, { learner: true 
   return 'learner' in a && a.learner === true;
 }
 
+/** The chair the learner actually sits in.
+ *
+ *  Almost every lesson is written from the DECLARER's chair (South), so the
+ *  seat is never stated — but the two defense lessons hand the learner a
+ *  defender's chair: West in the opening-lead lesson, East in the
+ *  play-with-partner one. The chair is encoded in the script itself, in the
+ *  actions marked `learner: true`: defending, every learner action sits in
+ *  one defender's seat; declaring, the learner plays BOTH his own hand and
+ *  the dummy's, so the chair to report is the declarer's (South), never the
+ *  dummy's.
+ *
+ *  Anything that says "you", "partner" or "your side" (the trick review,
+ *  the win/lose reaction) has to agree with this, or a defender's dummy
+ *  gets congratulated as his partner. */
+export function learnerSeatOf(lesson: Lesson): Seat {
+  const seats = new Set<Seat>();
+  for (const step of lesson.steps) {
+    if (step.kind === 'play') {
+      for (const a of step.script) if (isLearnerPlay(a)) seats.add(a.seat);
+    } else if (step.kind === 'auction') {
+      for (const a of step.script) if (isLearnerBid(a)) seats.add(a.seat);
+    }
+  }
+  // Defending: the learner owns one of the East-West chairs.
+  for (const s of ['W', 'E'] as Seat[]) if (seats.has(s)) return s;
+  // Declaring: South is the declarer's chair (North is the dummy).
+  return 'S';
+}
+
 export interface SubmissionResult {
   ok: boolean;
   /** Hint or explanation shown on failure. */

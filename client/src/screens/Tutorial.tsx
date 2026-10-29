@@ -4,9 +4,9 @@ import { t, bidLabelL, seatLabel, type Lang } from '../i18n.js';
 import { CardView, Avatar } from '../components/ui.js';
 import { InlineGlossaryText } from '../components/InlineGlossaryText.js';
 import { audio } from '../audio.js';
-import { TutorialRunner } from '../../../shared/tutorial.js';
+import { TutorialRunner, learnerSeatOf } from '../../../shared/tutorial.js';
 import type { Lesson } from '../../../shared/tutorial.js';
-import { explainTrick, type TrickReviewData } from '../../../shared/trick-explain.js';
+import { explainTrick, sideOfSeat, type TrickReviewData } from '../../../shared/trick-explain.js';
 import { CHARACTERS } from '../../../shared/characters.js';
 import { getLessons } from '../../../shared/lessons.js';
 import type { Bid } from '../../../shared/bidding.js';
@@ -375,13 +375,18 @@ export function SimTable(props: {
     if (!el) return;
     const update = () => {
       const r = el.getBoundingClientRect();
-      if (r.width < 721 || r.height < 520) {
+      // Only true phones fall back to the flowing (unscaled) layout. A
+      // laptop window with a short viewport is NOT a phone — it used to
+      // drop to the flowing layout too, where the East/West hands poked out
+      // of their columns and the Next bar was pushed off-screen. Scaling a
+      // short box down still shows the whole table.
+      if (r.width < 721 || r.height < 340) {
         setFit({ scale: 0, w: STAGE_W, compact: false });
         return;
       }
       const compact = r.width / r.height < 1.15;
       const w = compact ? STAGE_W_COMPACT : STAGE_W;
-      setFit({ scale: Math.min((r.width - 4) / w, (r.height - 4) / STAGE_H, 2.5), w, compact });
+      setFit({ scale: Math.min((r.width - 4) / w, (r.height - 4) / STAGE_H, 3), w, compact });
     };
     update();
     const ro = new ResizeObserver(update);
@@ -754,6 +759,29 @@ export function Tutorial() {
   }, [characterId]);
 
   const [tick, setTick] = useState(0);
+
+  // Real fullscreen for the teaching table — the classroom/projector case.
+  // The stage is a fixed 1120x660 design that auto-fits whatever box it is
+  // given, so simply blowing the wrapper up to the whole screen is enough
+  // for the cards to grow with it (see .tut-body:fullscreen in styles.css).
+  const bodyRef = useRef<HTMLDivElement>(null);
+  const [isFullscreen, setIsFullscreen] = useState(false);
+  useEffect(() => {
+    const sync = () => setIsFullscreen(document.fullscreenElement === bodyRef.current);
+    document.addEventListener('fullscreenchange', sync);
+    return () => document.removeEventListener('fullscreenchange', sync);
+  }, []);
+  const toggleFullscreen = () => {
+    const el = bodyRef.current;
+    if (!el) return;
+    audio.sfx('click');
+    if (document.fullscreenElement) {
+      void document.exitFullscreen?.().catch(() => {});
+    } else {
+      // Browsers refuse outside a user gesture / in some embeds — stay put.
+      void el.requestFullscreen?.().catch(() => {});
+    }
+  };
   const [feedback, setFeedback] = useState('');
   const [fbMood, setFbMood] = useState<'bad' | 'good' | null>(null);
   const [fbNonce, setFbNonce] = useState(0);
@@ -762,6 +790,18 @@ export function Tutorial() {
   // Post-trick review pause: after every completed trick, the four cards
   // stay on the table while the coach explains who won and why.
   const [review, setReview] = useState<TrickReviewData | null>(null);
+  /** Off by default: only the first trick of a lesson stops for the full
+   *  "who won and why" card. Turn on to explain every single trick. */
+  const [reviewEveryTrick, setReviewEveryTrick] = useState<boolean>(
+    () => localStorage.getItem('aib-tut-review-every') === '1'
+  );
+  const toggleReviewEveryTrick = () => {
+    audio.sfx('click');
+    setReviewEveryTrick(prev => {
+      localStorage.setItem('aib-tut-review-every', prev ? '0' : '1');
+      return !prev;
+    });
+  };
   const [collectingTo, setCollectingTo] = useState<Seat | null>(null);
   const reviewedRef = useRef(0);
 
@@ -776,6 +816,11 @@ export function Tutorial() {
   const prevKindRef = useRef<string | null>(null);
 
   const lesson = lessons[lessonIdx]!;
+  /** The chair the learner sits in: South when declaring, but West/East in
+   *  the two defense lessons. Everything that says "you" / "partner" /
+   *  "your side" hangs off this — a defender's dummy must never be greeted
+   *  as his partner. */
+  const learnerSeat = learnerSeatOf(lesson);
   const runnerKey = `${lang}:${lesson.id}`;
   const runnerKeyRef = useRef('');
   if (!runnerRef.current || runnerKeyRef.current !== runnerKey) {
@@ -786,17 +831,26 @@ export function Tutorial() {
   const step = useMemo(() => runner.currentStep(), [runner, tick]);
   const refresh = () => setTick(x => x + 1);
 
-  // A trick completed since the last review → open the review pause.
+  // A trick completed since the last review → maybe open the review pause.
+  // Pausing after EVERY trick turned a 13-trick hand into 13 interruptions,
+  // so by default only the first trick of a lesson stops for an explanation
+  // (the learner meets the mechanic once) and the rest simply collect. The
+  // header switch brings the per-trick commentary back for teaching.
   const checkReview = () => {
-    if (runner.completedTrickCount() > reviewedRef.current) {
-      const data = runner.lastCompletedTrick();
-      if (data) {
-        setReview(data);
-        const winChar = seatChars[data.winner];
-        if (data.winner === 'S' || data.winner === 'N') {
-          void audio.playVoice(winChar, lang, 'trick_win');
-        }
-      }
+    const count = runner.completedTrickCount();
+    if (count <= reviewedRef.current) return;
+    const data = runner.lastCompletedTrick();
+    if (!data) return;
+    // Cheer only when the LEARNER's side won. Declaring, that means
+    // North-South; defending (West or East) the dummy North is an
+    // OPPONENT, so his tricks must never sound like "partner won".
+    if (sideOfSeat(data.winner) === sideOfSeat(learnerSeat)) {
+      void audio.playVoice(seatChars[data.winner], lang, 'trick_win');
+    }
+    if (reviewEveryTrick || reviewedRef.current === 0) {
+      setReview(data);
+    } else {
+      reviewedRef.current = count;
     }
   };
   const dismissReview = () => {
@@ -985,8 +1039,14 @@ export function Tutorial() {
           else go('home');
         }
       } else if (e.key === 'Escape') {
+        // In fullscreen, Esc belongs to the browser (it leaves fullscreen);
+        // don't also jump back to the home screen.
+        if (document.fullscreenElement) return;
         e.preventDefault();
         go('home');
+      } else if (e.key === 'f' || e.key === 'F') {
+        e.preventDefault();
+        toggleFullscreen();
       } else if (e.key === 'r' || e.key === 'R') {
         e.preventDefault();
         audio.sfx('click');
@@ -1133,7 +1193,7 @@ export function Tutorial() {
       )}
 
       {review && step?.kind === 'play' && (() => {
-        const ex = explainTrick(review, lang);
+        const ex = explainTrick({ ...review, learnerSeat }, lang);
         return (
           <div className="sim-review">
             <div className="sim-review-label">{t(lang, 'tut.reviewTitle')}</div>
@@ -1184,6 +1244,20 @@ export function Tutorial() {
           >
             ↺ {t(lang, 'tut.restart')}
           </button>
+          <button
+            className={`chip tut-fs-btn ${isFullscreen ? 'active' : ''}`}
+            onClick={toggleFullscreen}
+            title={`${t(lang, 'tut.fullscreen')} (F)`}
+          >
+            ⛶ {isFullscreen ? t(lang, 'tut.exitFullscreen') : t(lang, 'tut.fullscreen')}
+          </button>
+          <button
+            className={`chip tut-restart-btn ${reviewEveryTrick ? 'active' : ''}`}
+            onClick={toggleReviewEveryTrick}
+            title={t(lang, 'tut.reviewEveryHint')}
+          >
+            ⓘ {t(lang, 'tut.reviewEvery')}
+          </button>
         </div>
         <div className="tut-title">🎓 {lessons[lessonIdx]?.title}</div>
       </div>
@@ -1203,7 +1277,12 @@ export function Tutorial() {
         })}
       </div>
 
-      <div className="tut-body">
+      <div className={`tut-body${isFullscreen ? ' fs' : ''}`} ref={bodyRef}>
+        {isFullscreen && (
+          <button className="tut-fs-exit" onClick={toggleFullscreen} title="Esc">
+            ⛶ {t(lang, 'tut.exitFullscreen')}
+          </button>
+        )}
         {showTable && (
         <div className="tut-stage-wrap">
         {step?.kind === 'info' && (
