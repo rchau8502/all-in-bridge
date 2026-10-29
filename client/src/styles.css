@@ -684,7 +684,7 @@ select.input { appearance: auto; }
   justify-content: center; max-width: 360px;
 }
 .sim-faceup .card { --card-w: 46px; --card-h: 64px; }
-.sim-faceup .card .pip { font-size: 22px; }
+.sim-faceup .card .pip { font-size: 19px; }
 .sim-faceup .card .corner-rank { font-size: 13.5px; font-weight: 900; }
 .sim-faceup .card .corner-suit { font-size: 10px; margin-top: 1px; }
 .faceup-cluster {
@@ -1370,7 +1370,7 @@ select.input { appearance: auto; }
 }
 .sim-tcard .card .corner-rank { font-size: 21px; }
 .sim-tcard .card .corner-suit { font-size: 14px; }
-.sim-tcard .card .pip { font-size: 50px; }
+.sim-tcard .card .pip { font-size: 40px; }
 .sim-tcard.noanim { animation: none; }
 .sim-tcard.pos-top { margin-left: calc(var(--card-w) / -2); margin-top: calc(var(--card-h) / -2 - var(--toff)); --card-tilt: -1.5deg; }
 .sim-tcard.pos-bottom { margin-left: calc(var(--card-w) / -2); margin-top: calc(var(--card-h) / -2 + var(--toff)); --card-tilt: 1.2deg; }
@@ -1406,14 +1406,25 @@ select.input { appearance: auto; }
 /* South's hand has to fit the MIDDLE COLUMN (740 design px at 1120 wide),
  * because it is what used to blow the whole grid open: 86px cards fanned
  * at -20px are ~878px of hand and ~1240px of min-content. 62px cards at
- * -14px are 62 + 12×48 = 638px for all thirteen, plus the three suit gaps
- * — comfortable inside 740, and still big enough to read and click.
+ * -14px are 62 + 12×34 = 470px, plus the three suit gaps — comfortable
+ * inside 740, and still big enough to read and click.
+ * The cards live inside .card-fan-wrapper (one wrapper per card), so any
+ * fan overlap has to be applied to the WRAPPER — a margin on .card itself
+ * only squeezes the card inside its own wrapper and changes nothing.
+ * The centre pip inherits the base 46px, which on a 62px card is 74% of
+ * the width: the suit symbol ends up bigger than the rank and the card
+ * reads as a solid blob. Scale it to the card, as the face-up hands do.
  * Only for the scaled stage (>720px): below that the table flows and the
  * phone rules size this hand from the viewport instead. */
 .sim-me { grid-area: simme; display: flex; flex-direction: column; align-items: center; gap: 6px; max-width: 100%; }
 .sim-me .hand { max-width: 100%; gap: 10px; }
 @media (min-width: 721px) {
-  .sim-me .hand .card { --card-w: 62px; --card-h: 86px; margin: 0 -14px; }
+  .sim-me .hand .card { --card-w: 62px; --card-h: 86px; }
+  .sim-me .hand .card .pip { font-size: 28px; }
+  /* Three suit symbols on one 62px card (top-left index, centre pip,
+   * upside-down bottom-right index) is noise at this size — the hand is
+   * read left-to-right by its indices, so keep the top one only. */
+  .sim-me .hand .card .corner.br { display: none; }
 }
 .sim-hint { color: #fff; font-weight: 800; text-shadow: 0 2px 3px rgba(0,0,0,0.65); text-align: center; }
 .sim-handlabel { color: var(--gold); font-weight: 900; font-size: 14px; text-shadow: 0 2px 3px rgba(0,0,0,0.6); display: flex; align-items: center; gap: 8px; justify-content: center; }
