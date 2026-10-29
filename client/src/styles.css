@@ -74,6 +74,29 @@ body {
 }
 .lobby, .tutorial, .compete { min-height: calc(100dvh - 70px); }
 
+/* The lesson table is a SCENE, not a page: pin the app to the viewport and
+ * let the felt take whatever height is left. `.sim-felt` carries
+ * `min-height: clamp(600px, 68vh, 840px)` so a lone card never collapses
+ * the table — but in the tutorial that minimum used to win the layout, the
+ * document grew to ~947px on a 1280×800 laptop, and the South hand was
+ * cropped by the bottom of the window (the exact "显示不全" report). With a
+ * definite height on .app the flex chain resolves: header auto, body 1fr,
+ * felt the remainder — and the stage scales to fit instead of overflowing. */
+.app.scene-fixed { height: 100dvh; overflow: hidden; }
+.app.scene-fixed .topbar { flex: 0 0 auto; }
+.app.scene-fixed .tutorial { flex: 1 1 auto; min-height: 0; }
+.app.scene-fixed .tut-body { min-height: 0; }
+.app.scene-fixed .sim-felt { min-height: 300px; }
+/* the practice table is the same scene: header, table, bid box — and only
+ * the table can give up height, so it has to be the flex child that does. */
+.app.scene-fixed .freeplay-screen {
+  flex: 1 1 auto; min-height: 0; margin: 8px auto 0;
+}
+/* the felt's real parent is a plain block wrapper — it has to become the
+ * flex item that absorbs the leftover height, or the felt never shrinks. */
+.app.scene-fixed .freeplay-table-wrap { flex: 1 1 auto; min-height: 0; display: flex; }
+.app.scene-fixed .freeplay-screen .sim-felt { flex: 1 1 auto; min-height: 300px; }
+
 .topbar {
   display: flex; justify-content: space-between; align-items: center;
   padding: 12px 4px;
@@ -677,9 +700,44 @@ select.input { appearance: auto; }
  * to be 46px wide with -11px overlap — a 4-card suit came out at 151px and
  * the felt clipped the ends of the East/West hands. Slightly smaller cards
  * and a tighter overlap keep every suit inside its column. */
-.sim-w .sim-faceup, .sim-e .sim-faceup { max-width: 100%; }
-.sim-w .sim-faceup .card, .sim-e .sim-faceup .card { --card-w: 40px; --card-h: 56px; }
-.sim-w .faceup-cluster .card, .sim-e .faceup-cluster .card { margin: 0 -13px; }
+/* Side seats fill their column exactly.
+ *
+ * The hand used to be left at `max-width: 100%` with a `justify-content:
+ * center` parent, so a 13-card hand (≈264px of min-content, or 274px once
+ * `.playable-seat` grew the cards) spilled ~63px past each side of the
+ * 148px column and got clipped by the viewport edge — the West hand was
+ * cut in half on a projector. Give the hand a FIXED width so the wrap is
+ * deterministic, and size the cards so the widest suit (6 cards) fits:
+ * 34 + 5 × 24 = 154 ≤ 168. */
+.sim-w .sim-faceup, .sim-e .sim-faceup { width: 168px; max-width: 168px; }
+.sim-w .sim-faceup .card, .sim-e .sim-faceup .card { --card-w: 34px; --card-h: 48px; }
+.sim-w .sim-faceup .card .corner-rank, .sim-e .sim-faceup .card .corner-rank { font-size: 12px; }
+.sim-w .sim-faceup .card .corner-suit, .sim-e .sim-faceup .card .corner-suit { font-size: 9px; }
+/* 24px of each card stays visible. Two things wreck that strip: the 22px
+ * centre pip (hidden below) and the card's SECOND corner — `.corner.br` is
+ * rotated 180° and sits at the right edge, exactly where the next card
+ * begins, so every fan read like "3♠ Ɔ ε ㄥ" with upside-down ranks
+ * bleeding between cards. A fanned hand is read by its index: keep the
+ * top-left corner only, flush to the edge. */
+.sim-w .sim-faceup .card .pip, .sim-e .sim-faceup .card .pip { display: none; }
+.sim-w .sim-faceup .card .corner.br, .sim-e .sim-faceup .card .corner.br { display: none; }
+.sim-w .sim-faceup .card .corner.tl, .sim-e .sim-faceup .card .corner.tl {
+  left: 3px; top: 3px; align-items: flex-start;
+}
+.sim-w .faceup-cluster .card, .sim-e .faceup-cluster .card { margin: 0 -10px; }
+/* A defender's own hand is the play surface, but it still has to stay in
+ * the column: a 60px card fanned at -14 wrapped into a 274×409 tower that
+ * covered the table. Slightly bigger cards, gold ring, lift on hover. */
+.sim-w .sim-faceup.playable-seat, .sim-e .sim-faceup.playable-seat {
+  width: 168px; max-width: 168px; padding: 6px 4px; border-radius: 12px;
+}
+.sim-w .sim-faceup.playable-seat .card, .sim-e .sim-faceup.playable-seat .card {
+  --card-w: 36px; --card-h: 52px;
+}
+.sim-w .sim-faceup.playable-seat .faceup-cluster .card,
+.sim-e .sim-faceup.playable-seat .faceup-cluster .card { margin: 0 -9px; }
+.sim-w .sim-faceup.playable-seat .card.playable:hover,
+.sim-e .sim-faceup.playable-seat .card.playable:hover { transform: translateY(-6px); }
 /* When it is the dummy's turn, its face-up hand IS the play surface: the
  * learner clicks the card in place (top of the table), never dragging it
  * down into the declarer's own hand. Ring the hand and let the cards lift. */
@@ -868,7 +926,19 @@ select.input { appearance: auto; }
   font-size: 20px; font-weight: 800; color: #fff; text-shadow: 0 2px 6px rgba(0,0,0,0.5);
 }
 .tut-progress { color: var(--gold); font-weight: 800; font-size: 14px; }
-.tut-lessons { display: flex; gap: 8px; flex-wrap: wrap; }
+/* One scrollable row, not two or three. Sixteen pills wrapped to two rows
+ * on a 1280-wide laptop and ate ~90px of height — height the table needs,
+ * because the felt is the only element that can give it up. */
+.tut-lessons {
+  display: flex; gap: 8px;
+  flex-wrap: nowrap;
+  overflow-x: auto;
+  scrollbar-width: none;
+  padding-bottom: 2px;
+  -webkit-overflow-scrolling: touch;
+}
+.tut-lessons::-webkit-scrollbar { display: none; }
+.tut-lessons > * { flex: 0 0 auto; }
 .tut-body { display: flex; flex-direction: column; align-items: center; justify-content: flex-start; padding-top: 12px; flex: 1; position: relative; }
 /* text-only steps centre vertically instead of hugging the top */
 .tut-body:has(> .tut-coach-card), .tut-body:has(> .tut-card) { justify-content: center; }
@@ -1185,14 +1255,37 @@ select.input { appearance: auto; }
    on a laptop, a classroom projector or an ultrawide monitor.
    On narrow screens (<721px) the stage drops the transform and flows
    with the hand-tuned mobile grid instead. */
+/* A RIGID 1120x660 design box.
+ *
+ * The stage is scaled to the felt with a transform, so every child must be
+ * measured in design px — and the grid must never be allowed to grow past
+ * the box, or the whole table drifts out of the viewport. Two rules make
+ * that hold:
+ *
+ *   minmax(0, 1fr) — a plain `1fr` is minmax(auto, 1fr), and `auto` means
+ *   min-content. A 13-card South hand in one row has a min-content width
+ *   around 1240px, so the middle column used to push the grid to 1564px
+ *   wide: the East hand landed at x=1966 (off-screen) and the North hand
+ *   sat right of centre. The 0 minimum lets the column shrink to its
+ *   share, and the hand is sized to fit instead (see .sim-me below).
+ *
+ *   an explicit topbar row — the topbar only had `grid-column: 1 / -1`,
+ *   so auto-placement dropped it into an IMPLICIT fourth row, below the
+ *   South hand. The row + area below pin it to the top where it belongs. */
 .sim-stage {
   display: grid;
-  grid-template-columns: 148px 1fr 148px;
-  grid-template-rows: auto 1fr auto;
-  grid-template-areas: ". simn ." "simw simc sime" ". simme .";
+  grid-template-columns: 176px minmax(0, 1fr) 176px;
+  grid-template-rows: auto auto minmax(0, 1fr) auto;
+  grid-template-areas:
+    'simtop simtop simtop'
+    '. simn .'
+    'simw simc sime'
+    '. simme .';
   width: 100%;
   height: 100%;
-  padding: 14px;
+  /* 20px at the foot: the South hand ends exactly at the felt's bottom edge
+   * otherwise, and a projector crops the last row of pips. */
+  padding: 14px 14px 20px;
   box-sizing: border-box;
 }
 .sim-stage.scaled {
@@ -1202,10 +1295,10 @@ select.input { appearance: auto; }
   transform-origin: center center;
 }
 /* Portrait-ish screens: narrower side columns buy the middle more room. */
-.sim-stage.compact { grid-template-columns: 112px 1fr 112px; }
+.sim-stage.compact { grid-template-columns: 148px minmax(0, 1fr) 148px; }
 /* the tutorial table fills the body's free height — no dead space below */
 .tut-body > .sim-felt { align-self: stretch; flex: 1 1 auto; }
-.sim-topbar { grid-column: 1 / -1; display: flex; justify-content: center; gap: 10px; align-items: center; margin-bottom: 6px; }
+.sim-topbar { grid-area: simtop; display: flex; justify-content: center; gap: 10px; align-items: center; margin-bottom: 6px; flex-wrap: wrap; }
 .sim-trickno {
   background: rgba(8, 16, 38, 0.78); border: 1px solid var(--gold2); color: var(--gold);
   font-weight: 900; border-radius: 999px; padding: 2px 14px; font-size: 14px;
@@ -1259,6 +1352,8 @@ select.input { appearance: auto; }
   font-weight: 900; border-radius: 8px; padding: 1px 10px; font-size: 13px;
 }
 .sim-seat.active-turn .sim-plate { border-color: var(--gold2); box-shadow: 0 0 14px rgba(255, 171, 0, 0.85); }
+/* min-height keeps a lone card from collapsing the felt, but a rigid 0 would
+ * let a tall trick spill; 140 is small enough to live inside the 1fr row. */
 .sim-center { grid-area: simc; position: relative; min-height: 140px; display: flex; align-items: center; justify-content: center; }
 /* played cards sit at EQUAL offsets from the centre — a true square,
  * one card toward each seat of the square table */
@@ -1308,7 +1403,18 @@ select.input { appearance: auto; }
   font-weight: 900;
   box-shadow: 0 0 10px rgba(255, 215, 0, 0.8);
 }
-.sim-me { grid-area: simme; display: flex; flex-direction: column; align-items: center; gap: 6px; }
+/* South's hand has to fit the MIDDLE COLUMN (740 design px at 1120 wide),
+ * because it is what used to blow the whole grid open: 86px cards fanned
+ * at -20px are ~878px of hand and ~1240px of min-content. 62px cards at
+ * -14px are 62 + 12×48 = 638px for all thirteen, plus the three suit gaps
+ * — comfortable inside 740, and still big enough to read and click.
+ * Only for the scaled stage (>720px): below that the table flows and the
+ * phone rules size this hand from the viewport instead. */
+.sim-me { grid-area: simme; display: flex; flex-direction: column; align-items: center; gap: 6px; max-width: 100%; }
+.sim-me .hand { max-width: 100%; gap: 10px; }
+@media (min-width: 721px) {
+  .sim-me .hand .card { --card-w: 62px; --card-h: 86px; margin: 0 -14px; }
+}
 .sim-hint { color: #fff; font-weight: 800; text-shadow: 0 2px 3px rgba(0,0,0,0.65); text-align: center; }
 .sim-handlabel { color: var(--gold); font-weight: 900; font-size: 14px; text-shadow: 0 2px 3px rgba(0,0,0,0.6); display: flex; align-items: center; gap: 8px; justify-content: center; }
 .sim-seat-avatar, .sim-me-avatar {

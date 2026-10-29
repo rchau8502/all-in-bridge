@@ -910,6 +910,9 @@ export function Tutorial() {
         const line = bidToVoiceLine(last.bid);
         if (line) void audio.playVoice(speakerChar, lang, line);
       }
+    } else if (step?.kind === 'play' && step.runout === true) {
+      // Bookkeeping time: run the rest of the hand in one go.
+      runner.runOut();
     } else {
       runner.advance();
     }
@@ -994,7 +997,17 @@ export function Tutorial() {
   // Paused at a scripted bid/play (not the learner's turn): offer a Next tap
   // so every card and bid is revealed one at a time.
   const awaitingTap = !pending && !done && (step?.kind === 'auction' || step?.kind === 'play');
-  const tapNext = (
+  /** The tail of a decided hand: play it out in one tap instead of a dozen. */
+  const stepRunout = step?.kind === 'play' && step.runout === true;
+  const tapNext = stepRunout ? (
+    <button
+      className="btn primary tut-tap-next tut-runout"
+      title={t(lang, 'tut.runoutHint')}
+      onClick={() => { audio.sfx('click'); doAdvance(); }}
+    >
+      {t(lang, 'tut.runout')} <span className="kbd-hint">Space</span>
+    </button>
+  ) : (
     <button className="btn primary tut-tap-next" onClick={() => { audio.sfx('click'); doAdvance(); }}>
       {t(lang, 'tut.next')} ▸ <span className="kbd-hint">Space</span>
     </button>

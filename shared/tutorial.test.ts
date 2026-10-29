@@ -294,3 +294,42 @@ describe('learner seat', () => {
     expect(seats['strategy']).toBe('S');
   });
 });
+
+describe('runout tails', () => {
+  // Once the contract is settled the remaining tricks are bookkeeping, and
+  // twelve taps through them is not teaching. A step authored with
+  // `runout: true` collapses into one action — but it must play EXACTLY the
+  // same cards, or the hand and the lesson's stated tally drift apart.
+  it('plays the same cards and reaches the same result as tapping through', () => {
+    for (const id of ['defense-leads', 'defense-play']) {
+      const lesson = getLessons('en').find(l => l.id === id)!;
+      const tapped = walkLesson(lesson).getResult()!;
+
+      const r = new TutorialRunner(lesson);
+      let guard = 0;
+      let sawRunout = false;
+      while (!r.finished && guard++ < 1000) {
+        const s = r.currentStep()!;
+        if (s.kind === 'play' && s.runout === true) {
+          sawRunout = true;
+          r.runOut();
+          // lands on the commentary, never mid-hand
+          const after = r.currentStep();
+          expect(after === null || after.kind !== 'play').toBe(true);
+          continue;
+        }
+        if (s.kind === 'info' || s.kind === 'result') { r.advance(); continue; }
+        const p = r.pendingLearnerAction();
+        if (p) {
+          const res = p.kind === 'bid' ? r.submitBid(p.expected) : r.submitPlay(p.expected);
+          expect(res.ok).toBe(true);
+        } else {
+          r.advance();
+        }
+      }
+      expect(sawRunout).toBe(true);
+      expect(r.finished).toBe(true);
+      expect(r.getResult()).toEqual(tapped);
+    }
+  });
+});

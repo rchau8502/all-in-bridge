@@ -224,7 +224,7 @@ type RawStep =
   | { kind: 'info'; text: LText }
   | { kind: 'quiz'; question: LText; options: LText[]; answer: number; explain: LText }
   | { kind: 'auction'; script: RawBidAction[] }
-  | { kind: 'play'; script: RawPlayAction[] }
+  | { kind: 'play'; script: RawPlayAction[]; runout?: boolean }
   | { kind: 'result' };
 
 interface RawLesson {
@@ -1505,6 +1505,15 @@ const RAW_LESSONS: RawLesson[] = [
           { seat: 'N', card: '4C' },
           { seat: 'E', card: '6C' },
           { seat: 'S', card: '2D' },
+        ],
+      },
+      {
+        // Settled: six tricks banked, 3NT already down. From here declarer
+        // just runs the diamonds and the defense follows suit — eighteen
+        // taps that teach nothing, so the whole tail plays out in one go.
+        kind: 'play',
+        runout: true,
+        script: [
           { seat: 'W', card: '8C' },
           { seat: 'N', card: '7C' },
           { seat: 'E', card: '5D' },
@@ -1717,6 +1726,14 @@ const RAW_LESSONS: RawLesson[] = [
           { seat: 'S', card: 'JC' },
           { seat: 'W', card: 'AC' },
           { seat: 'N', card: '8C' },
+        ],
+      },
+      {
+        // Down two and the four chair rules already named: the last three
+        // tricks are shuffling cards, not learning.
+        kind: 'play',
+        runout: true,
+        script: [
           { seat: 'W', card: '7H' },
           { seat: 'N', card: '8H' },
           { seat: 'E', card: '9H' },
@@ -2852,6 +2869,7 @@ function resolveStep(s: RawStep, lang: LessonLang) {
         script: s.script.map(a =>
           'learner' in a ? { ...a, hint: a.hint[lang] } : a
         ),
+        ...(s.runout ? { runout: true as const } : {}),
       };
     case 'result':
       return { kind: 'result' as const };

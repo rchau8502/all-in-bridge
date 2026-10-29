@@ -30,7 +30,14 @@ export type Step =
   | { kind: 'info'; text: string }
   | { kind: 'quiz'; question: string; options: string[]; answer: number; explain: string }
   | { kind: 'auction'; script: BidAction[] }
-  | { kind: 'play'; script: PlayAction[] }
+  /** `runout` marks the tail of a hand that is already settled — the
+   *  defense has beaten the contract (or declarer has made it) and the
+   *  remaining tricks are bookkeeping. The UI turns the whole step into a
+   *  single "play it out" tap instead of asking for 12 more cards. Only
+   *  opt in where the tricks really teach nothing: in most lessons the
+   *  last tricks ARE the lesson (counting, cashing winners, the wrap-up),
+   *  so the flag is deliberately per-step and off by default. */
+  | { kind: 'play'; script: PlayAction[]; runout?: boolean }
   | { kind: 'result' };
 
 export interface Lesson {
@@ -159,6 +166,37 @@ export class TutorialRunner {
     }
     this.actionIdx++;
     // Pause here — one tap reveals one action. No auto-continue.
+  }
+
+  /**
+   * Play the hand out. Runs every remaining scripted card — including the
+   * learner's scripted ones, which are forced anyway — until the next
+   * non-play step, so the lesson still stops at its commentary and result
+   * cards. Only used from a step authored with `runout`.
+   */
+  runOut(): void {
+    let steps = 0;
+    while (!this.finished && steps++ < 64) {
+      const s = this.currentStep();
+      if (!s || s.kind !== 'play') return;
+      let cards = 0;
+      while (cards++ < 64) {
+        const cur = this.currentStep();
+        if (cur !== s) break; // step exhausted, next step is current
+        const idx = this.actionIdx;
+        if (idx >= s.script.length) {
+          this.advance();
+          break;
+        }
+        const a = s.script[idx]!;
+        if (isLearnerPlay(a)) {
+          const r = this.submitPlay(a.expected);
+          if (!r.ok) throw new Error(`runOut: scripted play ${a.expected} rejected`);
+        } else {
+          this.advance();
+        }
+      }
+    }
   }
 
   answerQuiz(choice: number): SubmissionResult {

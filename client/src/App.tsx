@@ -277,7 +277,7 @@ export function App() {
 
   return (
     <Ctx.Provider value={ctx}>
-      <div className={`app ${fourColor ? 'four-color' : ''} ${presentationMode ? 'presentation-mode' : ''} theme-felt-${feltTheme}`}>
+      <div className={`app ${fourColor ? 'four-color' : ''} ${presentationMode ? 'presentation-mode' : ''} theme-felt-${feltTheme}${screen === 'tutorial' || screen === 'freeplay' ? ' scene-fixed' : ''}`}>
         <header className="topbar">
           <div className="logo" onClick={() => go('home')}>
             <span className="logo-suit">♠</span> {t(lang, 'app.title')}
