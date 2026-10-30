@@ -142,16 +142,21 @@ const CONTRACT_DEAL: Hands = makeHands({
 });
 
 /** Defense lesson 1 deal: South declares 3NT; the learner DEFENDS as
- *  West and makes the opening lead. West's hearts K-T-8-4 (longest, and
- *  partner holds the ace behind them) call for the modern agreement taught
- *  in the lesson: FOURTH BEST — the 4. Partner's ace wins, the return lets
- *  West's king score, then West leads a small spade toward partner's
- *  real SEQUENCE, ♠K-Q-J — three touching honors. Declarer's two hands
- *  hold nothing above the jack (dummy T-8-6, declarer 9-7-4), so all three
- *  honors march. West holds ♠A-5-3-2: three small followers that never
- *  block, plus the ace — cashed later, once partner is void in the suit.
- *  That is four spade tricks on top of ♥A ♥K and ♣A: 7 defensive tricks,
- *  3NT down three. Simulator-verified. */
+ *  West and makes the opening lead. Hearts K-T-8-4 (king plus two
+ *  intermediates) beat spades A-5-3-2 (ace and three nothings) as a
+ *  suit to start, so the modern agreement taught in the lesson applies:
+ *  FOURTH BEST — the 4. Partner's ace wins, the return lets West's king
+ *  score. Then West owns ♠A-5-3-2 and dummy's spades are T-8-6 — dead.
+ *  Every call in this lesson must stand on West's own hand plus dummy;
+ *  partner's cards are the ANSWER, never the question, so West leads a
+ *  small spade blind: the ace stays home as a sure trick, so the lead
+ *  cannot cost. The answer turns out to be ♠K-Q-J — three touching
+ *  honors, and declarer's two hands hold nothing above the jack (dummy
+ *  T-8-6, declarer 9-7-4), so all three march: J over the 2 (cheapest
+ *  winner of the sequence), then the king, then the queen. West's ace is
+ *  cashed later, once partner is void. That is four spade tricks on top
+ *  of ♥A ♥K and ♣A: 7 defensive tricks, 3NT down three.
+ *  Simulator-verified (all 13 tricks replayed). */
 const DEFENSE_LEAD_DEAL: Hands = makeHands({
   N: ['TS', '8S', '6S', 'QH', '9H', '6H', '2H', 'KD', 'JC', '9C', '7C', '3C', '4C'],
   E: ['KS', 'QS', 'JS', 'AH', '7H', '8D', '7D', '6D', '5D', '4D', '6C', '5C', '2C'],
@@ -1413,15 +1418,22 @@ const RAW_LESSONS: RawLesson[] = [
       {
         kind: 'info',
         text: T(
-          "Time to switch chairs! Today you are NOT the declarer. South plays 3NT, and you sit WEST — a defender. Your partner is East, across the table. You win by LOSING the count declarers love: South needs 9 tricks out of 13. If your side takes 5 first, the contract FAILS. Defense is teamwork: you and East can see each other's cards here (x-ray eyes again), but at a real table your only messages are the cards you play. Every card talks.",
-          '换个位置坐！今天你不是庄家。南家打 3NT，你坐西家 —— 是防守方。你的搭档是桌子对面的东家。你的赢法，是破坏庄家最爱的那本数：南家需要 13 墩里的 9 墩。你们先拿到 5 墩，定约就被击宕了。防守是团队作战：这里你能看见东家的牌（又是透视眼），但真正的牌桌上，你们唯一的通讯工具就是打出的牌。每张牌都在说话。'
+          "Time to switch chairs! Today you are NOT the declarer. South plays 3NT, and you sit WEST — a defender. Your partner is East, across the table. You win by LOSING the count declarers love: South needs 9 tricks out of 13. If your side takes 5 first, the contract FAILS. Defense is teamwork, and at a real table you and East will never see each other's cards — your only messages are the cards you play. (This screen shows you East's hand so you can watch the machinery turn, but none of the choices below depend on peeking.) Every card talks.",
+          '换个位置坐！今天你不是庄家。南家打 3NT，你坐西家 —— 是防守方。你的搭档是桌子对面的东家。你的赢法，是破坏庄家最爱的那本数：南家需要 13 墩里的 9 墩。你们先拿到 5 墩，定约就被击宕了。防守是团队作战，而真正的牌桌上，你和东家永远看不见对方的牌 —— 唯一的通讯工具就是打出的牌。（屏幕上给你看了东家的手牌，是为了让你看清机器怎么转；但下面每一个选择，都不需要偷看。）每张牌都在说话。'
         ),
       },
       {
         kind: 'info',
         text: T(
-          "And the loudest card of all is the first one: the OPENING LEAD — yours to choose, before dummy appears. One honest warning: which card to lead from a holding is not a law of nature, it is an AGREEMENT between partners. Different pairs agree different systems! What follows is one popular MODERN set — agree it with your partner, and the two of you will understand each other perfectly. First, pick the SUIT: attack your longest and strongest suit — the one the enemy has not claimed. Leading declarer's diamonds would feed his longest suit. Your two longest suits are hearts, K-T-8-4, and spades, A-5-3-2 — four cards each, neither of them claimed. Choose the hearts: partner holds the ace of hearts, so your lead wins the first trick outright — and a long suit only pays if you start it early. The ace of spades can wait — partner's K-Q-J already has that suit covered, and your ace is not going anywhere. Start the long suit instead. Hearts it is.",
-          '而全场声音最大的一张牌，就是第一张：首攻 —— 由你来选，在明手摊牌之前。先说句实话：从一手牌里该领出哪一张，不是自然规律，而是搭档之间的约定。不同的搭档，约定可以完全不同！下面要教的，是现在流行的一套现代约定 —— 和你的搭档约好同一套，你们就能心领神会。第一步，选花色：进攻你最长、最强的花色 —— 敌人没有宣布占领的那门。领庄家的方块，等于喂他的长套。你最长的两门是红桃K-T-8-4和黑桃A-5-3-2 —— 各四张，都没人认领。选红桃：搭档手里有红桃A，你领出去第一墩就直接到手 —— 而且长套要早开始才有收成。黑桃A不急 —— 搭档的K-Q-J已经把黑桃管住了，你的A跑不掉。先把长套建起来。就打红桃。'
+          "And the loudest card of all is the first one: the OPENING LEAD — yours to choose, before dummy appears. One honest warning: which card to lead from a holding is not a law of nature, it is an AGREEMENT between partners. Different pairs agree different systems! What follows is one popular MODERN set — agree it with your partner, and the two of you will understand each other perfectly.",
+          '而全场声音最大的一张牌，就是第一张：首攻 —— 由你来选，在明手摊牌之前。先说句实话：从一手牌里该领出哪一张，不是自然规律，而是搭档之间的约定。不同的搭档，约定可以完全不同！下面要教的，是现在流行的一套现代约定 —— 和你的搭档约好同一套，你们就能心领神会。'
+        ),
+      },
+      {
+        kind: 'info',
+        text: T(
+          "First, pick the SUIT: attack your longest and strongest suit. Your two longest are four cards each: hearts K-T-8-4, and spades A-5-3-2. Look closer. The hearts carry the king plus two useful intermediates, the 10 and the 8 — a suit that can grow. The spades are headed by the ace but followed by three nothings: on your own holding that suit is worth one trick, and the ace is not going anywhere. Start the suit with a future. Hearts it is.",
+          '第一步，选花色：进攻你最长、最强的花色。你最长的两门各四张：红桃K-T-8-4，黑桃A-5-3-2。再仔细看一眼。红桃有 K，还带着 10 和 8 两张有用的中间牌 —— 这是一门能长大的花色。黑桃顶着 A，后面却是三张小牌：单看你自己这手牌，这门只值一墩，而那墩 A 跑不掉。先去建那门有前途的。就打红桃。'
         ),
       },
       {
@@ -1453,8 +1465,15 @@ const RAW_LESSONS: RawLesson[] = [
       {
         kind: 'info',
         text: T(
-          "Two tricks in the bank! Partner's ace won the first — with only A-x he had no message to send, so he simply won and RETURNED your suit. That move has a name: RETURNING PARTNER'S SUIT — the defender's golden rule: when in doubt, give partner's suit back. Your king cashed. Now look at partner's spades: ♠K-Q-J — three honors, each exactly one step below the next. That is a SEQUENCE, and a sequence is a promise: the honors cover each other, so they march. Every sequence carries two habits you will use for the rest of your bridge life: when you LEAD one, lead its TOP card — from Q-J-T, lead the queen, never the ten; when you FOLLOW with one, spend its LOWEST card — the ten, not the queen. Partner reads the strength of your suit from which one you spent. Count what declarer can beat them with: dummy's best spade is the ten, declarer's is the nine — the jack, the smallest card of partner's sequence, already wins. Your spades are three little followers that never get in the way, plus the ace, which you keep in reserve: partner's honors do not need it. Lead a small spade toward the sequence and let partner's cards do the fighting.",
-          '两墩入账！第一墩搭档的 A 赢了 —— 他只有 A 加一张小牌，没有信息可发，就干脆赢下，然后回攻你的花色。这一招有名字：回攻搭档花色—— 这是防守的黄金法则：拿不准时，把搭档的花色打回去。你的 K 兑现了。现在看搭档的黑桃：♠K-Q-J —— 三张大牌，一张紧挨着一张，这才是连张。连张是一种承诺：大牌彼此掩护，可以一张张往下推。连张还带来两个习惯，往后一辈子都用得上：领这一门时，出连张里最大的那张 —— 手里是Q-J-T，就领Q，别领T；跟这一门时反过来，出连张里最小的那张 —— 出T，别出Q。搭档看你挑了哪一张，就读得出你这一门有多少实力。再算算庄家拿什么还击：明手最大的黑桃是 T，庄家最大的是 9 —— 搭档连张里最小的那张 J，就已经赢了。你的黑桃是三张小牌，跟在后面永远不会挡路；另外还有一张 A，留着别急着用 —— 搭档的大牌不需要它。领一张小黑桃朝着连张打过去，让搭档的牌去拼。'
+          "Two tricks in the bank! Partner's ace won the first — with only A-x he had no message to send, so he simply won and RETURNED your suit. That move has a name: RETURNING PARTNER'S SUIT — the defender's golden rule: when in doubt, give partner's suit back. Your king cashed. Hearts are finished for you now: the king is spent and the ten-eight are too small to lead.",
+          '两墩入账！第一墩搭档的 A 赢了 —— 他只有 A 加一张小牌，没有信息可发，就干脆赢下，然后回攻你的花色。这一招有名字：回攻搭档花色—— 这是防守的黄金法则：拿不准时，把搭档的花色打回去。你的 K 兑现了。红桃这条路对你也走到头了：K 已经用掉，剩下的 T-8 太小，领出去只是送人。'
+        ),
+      },
+      {
+        kind: 'info',
+        text: T(
+          "So look at what is left in your hand: spades A-5-3-2, diamonds T-3. Dummy's spades are T-8-6 — three nothings; no card in there can ever beat you. And your ace of spades is a trick nobody can take away: it wins the moment you call for it. So lead a SMALL spade. It cannot cost — the ace stays home as a sure trick — and it asks partner one question: have you got anything in this suit? When a lead cannot lose, use it to start a conversation.",
+          '那就看看你手里还剩什么：黑桃A-5-3-2，方块T-3。明手的黑桃是 T-8-6 —— 三张废牌，那一头没有任何一张能压过你。而你手里的黑桃A 是一墩谁也抢不走的牌：你什么时候叫它，它什么时候赢。所以领一张小黑桃。它不会有代价 —— A 留在家里，稳拿一墩 —— 同时它只向搭档问一个问题：这一门，你有货吗？当一次领出不可能亏的时候，就用它来开口说话。'
         ),
       },
       {
@@ -1462,24 +1481,43 @@ const RAW_LESSONS: RawLesson[] = [
         script: [
           {
             seat: 'W', learner: true, expected: '2S',
-            hint: T('A small spade (2S) — toward partner\'s sequence!', '小黑桃 (2S) —— 朝着搭档的连张打！'),
+            hint: T('A small spade (2S) — it costs nothing, so ask the question.', '小黑桃 (2S) —— 不会亏，那就开口问一句。'),
           },
           { seat: 'N', card: '6S' },
           { seat: 'E', card: 'JS' },
           { seat: 'S', card: '4S' },
-          { seat: 'E', card: 'QS' },
-          { seat: 'S', card: '7S' },
-          { seat: 'W', card: '3S' },
-          { seat: 'N', card: '8S' },
         ],
+      },
+      {
+        kind: 'info',
+        text: T(
+          "The answer was better than you had any right to expect. Partner held ♠K-Q-J — three honors, each exactly one step below the next. That is a SEQUENCE, and a sequence is a promise: the honors cover each other, so they march. Partner put the J on your 2, the cheapest card of his sequence that still wins, because dummy's best spade is the ten and declarer's is the nine. The king and the queen are still with him, and nothing in the enemy's hands can stop them.",
+          '答案比你能指望的还要好。搭档手里是 ♠K-Q-J —— 三张大牌，一张紧挨着一张，这才是连张。连张是一种承诺：大牌彼此掩护，可以一张张往下推。你出 2，搭档放的是 J —— 他连张里最小的那张，却已经够赢：明手最大的黑桃是 T，庄家最大的是 9。K 和 Q 还留在他手里，敌人手上没有任何一张拦得住。'
+        ),
+      },
+      {
+        kind: 'info',
+        text: T(
+          "Two habits come out of that trick, and you will use them for the rest of your bridge life. When you LEAD a sequence, lead its TOP card — from Q-J-T, lead the queen, never the ten. When you FOLLOW to one, spend its LOWEST card. Partner reads the strength of your suit from which one you spent.",
+          '这一墩能取出两个习惯，往后一辈子都用得上。领这一门时，出连张里最大的那张 —— 手里是Q-J-T，就领Q，别领T。跟这一门时反过来，出连张里最小的那张。搭档看你挑了哪一张，就读得出你这一门有多少实力。'
+        ),
       },
       {
         kind: 'play',
         script: [
           { seat: 'E', card: 'KS' },
+          { seat: 'S', card: '7S' },
+          { seat: 'W', card: '3S' },
+          { seat: 'N', card: '8S' },
+          { seat: 'E', card: 'QS' },
           { seat: 'S', card: '9S' },
           { seat: 'W', card: '5S' },
           { seat: 'N', card: 'TS' },
+        ],
+      },
+      {
+        kind: 'play',
+        script: [
           { seat: 'E', card: '4D' },
           { seat: 'S', card: '9D' },
           {
@@ -1676,7 +1714,10 @@ const RAW_LESSONS: RawLesson[] = [
         script: [
           { seat: 'S', card: 'TH' },
           { seat: 'W', card: 'QH' },
-          { seat: 'N', card: 'JH' },
+          // Dummy keeps the jack: partner's queen is winning this trick
+          // whatever dummy does, so declarer spends the five and saves
+          // the honor. Playing the J here would be the beginner's waste.
+          { seat: 'N', card: '5H' },
           {
             seat: 'E', learner: true, expected: '3H',
             hint: T('Small (3H) — partner\'s queen is doing the work.', '小牌 (3H) —— 搭档的 Q 在干活呢。'),
@@ -1717,18 +1758,18 @@ const RAW_LESSONS: RawLesson[] = [
       {
         kind: 'info',
         text: T(
-          "Three tricks home, one more to go — and partner leads a LOW club. This time you are third hand and you CAN win: dummy plays the 7, and your queen beats everything declarer still holds in the suit (the jack and the nine are all he has left). Remember trick four, when that king beat you and you spent the three? This is what it was for. Take it with the queen — that fourth trick beats the contract!",
-          '三墩到手，还差一墩 —— 搭档领出一张梅花小牌。这次你是第三家，而且你赢得起：明手跟了 7，而你的 Q 大过庄家手里剩下的所有梅花（他只剩 J 和 9）。还记得第 4 墩吗？那张 K 压着你，你只出了张 3 —— 就是为了现在。用 Q 拿下它 —— 这第四墩就是击宕定约的那一墩！'
+          "Three tricks home, one more to go. Partner has been sitting on the ace of clubs since trick four — the ace he refused to throw under dummy's king. Time to cash it. Partner leads the ace, and 4♠ is already beaten on this trick: that is the fourth. You are third hand, but this trick belongs to partner — dummy plays a small club, so do not waste a card that can still win. Keep the queen and follow with the ten.",
+          '三墩到手，还差一墩。搭档从第 4 墩起就一直攥着梅花A —— 正是他不肯扔到明手K 下面的那张 A。现在该兑现了。搭档领出 A，这一墩落地，4♠ 就已经被打宕：这就是第四墩。你还是第三家，可这一墩属于搭档 —— 明手跟一张小梅花，你就别把还能赢的牌浪费掉。留着 Q，出 T。'
         ),
       },
       {
         kind: 'play',
         script: [
-          { seat: 'W', card: '5C' },
+          { seat: 'W', card: 'AC' },
           { seat: 'N', card: '7C' },
           {
-            seat: 'E', learner: true, expected: 'QC',
-            hint: T('The queen (QC) — the card you kept at trick four!', 'Q (QC) —— 你在第 4 墩留下的那张牌！'),
+            seat: 'E', learner: true, expected: 'TC',
+            hint: T('The ten (TC) — partner\'s ace wins whatever you do; keep the queen.', '梅花T (TC) —— 搭档的 A 反正要赢，留着 Q。'),
           },
           { seat: 'S', card: '9C' },
         ],
@@ -1736,35 +1777,42 @@ const RAW_LESSONS: RawLesson[] = [
       {
         kind: 'info',
         text: T(
-          "FOUR — the contract is beaten! And there is one last gift: lead your remaining club, and partner's ace takes it — the ace partner kept back at trick four instead of throwing it under dummy's king. Tally for the defense: the queen of hearts partner promoted, the ten of diamonds your cover grew, partner's king of diamonds, the queen of clubs you saved, and that ace — five tricks. Declarer needed ten and made eight: 4♠ down two!",
-          '四墩 —— 定约被击宕了！还有最后一份礼物：领出你剩下的梅花，搭档的 A 拿下它 —— 正是第 4 墩搭档没有扔到明手K 下面的那张 A。防守方清点：搭档扶起来的红桃Q、你盖打养大的方块T、搭档的方块K、你省下来的梅花Q，还有那张 A —— 五墩。庄家需要十墩，只拿到八墩：4♠ 宕二！'
+          "FOUR — the contract is beaten. One more coin for the jar: partner leads his last club, dummy plays small again, and now your queen is the tallest club left — declarer's jack is the only honor still out, and it is smaller. Take it.",
+          '四墩 —— 定约已经击宕。再往罐子里投一枚：搭档领出他最后一张梅花，明手又跟小，现在你的 Q 是剩下最大的梅花 —— 庄家手里的 J 是外面唯一的大牌，而且比你小。拿下它。'
         ),
       },
       {
         kind: 'play',
         script: [
+          { seat: 'W', card: '5C' },
+          { seat: 'N', card: '8C' },
           {
-            seat: 'E', learner: true, expected: 'TC',
-            hint: T('Your last club (TC) — partner holds the ace.', '你最后一张梅花 (TC) —— 搭档手里有 A。'),
+            seat: 'E', learner: true, expected: 'QC',
+            hint: T('The queen (QC) — the card you kept under partner\'s ace.', '梅花Q (QC) —— 你藏在那张 A 下面的牌。'),
           },
           { seat: 'S', card: 'JC' },
-          { seat: 'W', card: 'AC' },
-          { seat: 'N', card: '8C' },
         ],
       },
       {
-        // Down two and the four chair rules already named: the last three
+        kind: 'info',
+        text: T(
+          "FIVE. Tally for the defense: the queen of hearts partner promoted, the ten of diamonds your cover grew, partner's king of diamonds, the ace of clubs he kept back at trick four, and the queen you saved under that ace. Declarer needed ten and made eight: 4♠ down two!",
+          '五墩。防守方清点：搭档扶起来的红桃Q、你盖打养大的方块T、搭档的方块K、他在第 4 墩省下来的梅花A，还有你藏在那张 A 下面的 Q。庄家需要十墩，只拿到八墩：4♠ 宕二！'
+        ),
+      },
+      {
+        // Down two and the four chair rules already named: the last two
         // tricks are shuffling cards, not learning.
         kind: 'play',
         runout: true,
         script: [
-          { seat: 'W', card: '7H' },
-          { seat: 'N', card: '8H' },
           { seat: 'E', card: '9H' },
           { seat: 'S', card: '6S' },
+          { seat: 'W', card: '7H' },
+          { seat: 'N', card: '8H' },
           { seat: 'S', card: '8S' },
           { seat: 'W', card: '9D' },
-          { seat: 'N', card: '5H' },
+          { seat: 'N', card: 'JH' },
           { seat: 'E', card: '4H' },
         ],
       },

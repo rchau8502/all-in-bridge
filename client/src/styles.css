@@ -1002,7 +1002,14 @@ select.input { appearance: auto; }
   position: absolute;
   left: 50%; top: 50%; transform: translate(-50%, -50%);
   width: min(560px, 94%);
-  max-height: 100%;
+  /* The containing block is the CENTRE CELL of the table grid, which is
+     only ~255 design px tall — far shorter than the felt. With
+     max-height:100% every paragraph longer than ~300 characters got
+     silently clipped (the last lines, and sometimes the Next button,
+     were cut off below the fold). The measured felt has another 130px
+     of room above and below the cell, so borrow it: the bubble now
+     grows over the middle of the table instead of losing text. */
+  max-height: calc(100% + 130px);
   overflow-y: auto; overscroll-behavior: contain;
   z-index: 30;
   pointer-events: none; /* taps fall through to the table and the hand */
