@@ -90,8 +90,8 @@ export const ACBL_CHAPTERS: Chapter[] = [
       "zh": "基础五：简单二盖一体系"
     },
     "subtitle": {
-      "en": "Natural strength, Stayman, transfers, inverted minors and major support",
-      "zh": "自然实力、斯台曼、转移、低花反加叫与高花支持"
+      "en": "Conversation, semi-forcing 1NT, notrump tools and major/minor support",
+      "zh": "叫牌对话、半逼叫1NT、无将工具与高低花支持"
     },
     "acblClasses": "Foundations",
     "lessonIds": [

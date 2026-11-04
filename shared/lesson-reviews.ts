@@ -240,6 +240,12 @@ const REVIEWS = {
   ],
   "bidding": [
     [
+      "Conversation",
+      "对话",
+      "New information / unfinished message / finished: partner decides",
+      "有新话／话没说完／我说完了，你决定"
+    ],
+    [
       "Suit opening",
       "花色开叫",
       "About 12+, major five+, minor three+",
@@ -340,6 +346,12 @@ const REVIEWS = {
       "决策",
       "Use the new range and fit, not repetition alone",
       "根据新范围与配合判断，不为重复而叫"
+    ],
+    [
+      "Whose turn to decide?",
+      "由谁决定？",
+      "Once my hand is limited, partner can judge the combined strength",
+      "自己的牌限定清楚后，让搭档判断联手实力"
     ]
   ],
   "scoring": [

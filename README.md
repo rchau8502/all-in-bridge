@@ -43,6 +43,12 @@ to investigate 3NT. All basic non-pass auction calls carry an authored
 non-forcing, one-round-forcing or game-forcing label.
 Once game is already forced, economical shape-showing bids are not weak sign-offs.
 Lesson 13 retains the Dating Model for invitations and game forces.
+The former repeated strength/minor-response module is now the visible
+“Semi-Forcing 1NT: I Have More to Say” lesson. It covers the 5–12 waiting
+range, three-card limit raises, long suits with voids, and the narrow
+flat-minimum exception for opener passing. Three communication states
+(new information, unfinished message, and finished/partner decides)
+connect the opening, response and rebid lessons.
 
 Advanced lessons hold Smolen, Texas transfers, Bergen,
 competitive agreements, fourth-suit forcing, checkback, fast/slow arrival,

@@ -15,7 +15,10 @@ describe('foundation minor raises and forcing status', () => {
       }
       expect(auction.contract()!.declarer).toBe('S');
       expect(lesson.hands.S.reduce((n,c)=>n+(c.rank>10?c.rank-10:0),0)).toBe(17);
-      expect(lesson.steps.some(s=>s.kind==='info'&&s.text.includes('dummy’s cards are exposed'))).toBe(true);
+      const prose=lesson.steps.flatMap(s=>s.kind==='info'?[s.text]:[]).join(' ');
+      expect(prose).toContain('dummy');
+      expect(prose).toContain('hidden');
+      expect(prose).toContain('opening lead');
       expect(lesson.steps.some(s=>s.kind==='info'&&s.review?.rows.some(r=>r[0]==='Strong hand as declarer'||r[0]==='Why transfer?'))).toBe(true);
     }
     expect(getChapterForLesson('stayman-smolen')?.track).toBe('advanced');
@@ -50,7 +53,7 @@ describe('foundation minor raises and forcing status', () => {
       if(getChapterForLesson(lesson.id)?.track!=='basic')continue;
       for(const step of lesson.steps)if(step.kind==='auction')for(const action of step.script) {
         if(('expected' in action?action.expected:action.bid)==='P')continue;
-        expect(action.note).toMatch(lang==='zh'?/^【(?:不逼叫|逼叫一轮|逼局)】/:/^\[(?:Non-forcing|Forcing one round|Game forcing)\]/);
+        expect(action.note).toMatch(lang==='zh'?/^【(?:不逼叫|半逼叫|逼叫一轮|逼局)】/:/^\[(?:Non-forcing|Semi-forcing|Forcing one round|Game forcing)\]/);
       }
     }
     const lesson=getLessons('zh').find(l=>l.id==='major-forcing-raises')!;

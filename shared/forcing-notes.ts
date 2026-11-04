@@ -1,5 +1,5 @@
 import type { Lesson } from './tutorial.js';
-export type ForcingStatus = 'NF' | 'F1' | 'GF';
+export type ForcingStatus = 'NF' | 'F1' | 'GF' | 'SF';
 
 /** Authored by auction, not inferred from height or a points regex.
  * A force ends at its agreed stopping point, not just on any limited bid. */
@@ -12,7 +12,7 @@ export const BASIC_FORCING_STATUS: Record<string, ForcingStatus[]> = {
   overcall: ['NF', 'NF', 'NF'],
   'stayman-fit': ['NF', 'F1', 'NF', 'NF', 'NF'],
   'jacoby-transfers': ['NF', 'F1', 'NF', 'NF', 'NF'],
-  'strength-and-minors': ['NF', 'F1', 'NF'],
+  'strength-and-minors': ['NF', 'SF', 'NF', 'NF', 'NF'],
   'inverted-minor-raises': ['NF', 'F1', 'F1', 'F1', 'F1', 'NF'],
   'major-forcing-raises': ['NF', 'GF', 'NF'],
   'opener-rebids': ['NF', 'F1', 'NF'],
@@ -24,8 +24,8 @@ export function withForcingNotes(lesson: Lesson, lang: 'en' | 'zh'): Lesson {
   const statuses = BASIC_FORCING_STATUS[lesson.id];
   if (!statuses) return lesson;
   const labels = lang === 'zh'
-    ? { NF: '【不逼叫】', F1: '【逼叫一轮】', GF: '【逼局】' }
-    : { NF: '[Non-forcing]', F1: '[Forcing one round]', GF: '[Game forcing]' };
+    ? { NF: '【不逼叫】', SF: '【半逼叫】', F1: '【逼叫一轮】', GF: '【逼局】' }
+    : { NF: '[Non-forcing]', SF: '[Semi-forcing]', F1: '[Forcing one round]', GF: '[Game forcing]' };
   let index = 0;
   const steps = lesson.steps.map(step => step.kind !== 'auction' ? step : {
     ...step,
