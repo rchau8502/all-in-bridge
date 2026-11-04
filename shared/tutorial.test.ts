@@ -52,6 +52,22 @@ describe('all lessons', () => {
     expect(new Set(ids).size).toBe(ids.length);
   });
 
+  // The contract lesson is built around a 4-1 trump break: five enemy
+  // trumps are out, and the deal has to teach drawing FOUR rounds (the
+  // jack over West's 10) rather than stopping at three. The deal and the
+  // score both get pinned so a future edit cannot quietly undo the point.
+  it('contract: enemy trumps split 4-1 and drawing four rounds still makes 4S', () => {
+    const lesson = LESSONS.find(l => l.id === 'contract')!;
+    const spadesOf = (seat: 'W' | 'E') => lesson.hands[seat].filter(c => c.suit === 'S').length;
+    expect(spadesOf('W')).toBe(4);
+    expect(spadesOf('E')).toBe(1);
+    const r = walkLesson(lesson);
+    const result = r.getResult()!;
+    expect(result.made).toBe(true);
+    expect(result.tricksTaken).toBe(10);
+    expect(result.total).toBe(420);
+  });
+
   // The two defense lessons put the learner in a defender's chair, and the
   // deal is written so the defense actually comes out ahead — a lesson that
   // claims "4♠ is down" has to actually beat it, or the coaching text teaches

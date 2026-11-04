@@ -127,18 +127,23 @@ const LONGSUIT_DEAL: Hands = makeHands({
 });
 
 /** Lesson 8 deal: South declares 4♠ — a GAME contract. The two clues
- *  from the lesson are both on display: combined points 26 (South 16,
- *  North 10 — past the 25-point game line) and an 8-card spade fit
+ *  from the lesson are both on display: combined points 26 (South 17,
+ *  North 9 — past the 25-point game line) and an 8-card spade fit
  *  (South 5 + North 3). Losers from South's long-trump hand: ♠0 ♥0
- *  (dummy's K-Q cover) ♦1 ♣2 = 3 — exactly the game budget. Script pays
- *  the three losers (two clubs to West's A-K, one diamond to the Q),
- *  draws trumps and lands exactly 10 tricks: 420 points non-vulnerable,
- *  vs 170 for the same 10 tricks at 2♠. Simulator-verified. */
+ *  (dummy's K-Q cover) ♦1 ♣2 = 3 — exactly the game budget. The enemy
+ *  trumps split 4-1 (West T-9-4-3, East the 2), which is the whole
+ *  point of the deal: five trumps are out, so drawing must not stop at
+ *  three rounds — the queen, and then the JACK over West's 10, take a
+ *  FOURTH round before the suit is safe. South's ♠A-K-Q-J-8 vs dummy's
+ *  7-6-5 is exactly the holding that survives 4-1. Script pays the three
+ *  losers (two clubs to West's A-K, one diamond to the Q) and lands
+ *  exactly 10 tricks: 420 points non-vulnerable, vs 170 for the same 10
+ *  tricks at 2♠. Simulator-verified (all 13 tricks replayed). */
 const CONTRACT_DEAL: Hands = makeHands({
-  N: ['JS', '7S', '5S', 'KH', 'QH', '6H', 'AD', '8D', '6D', '4D', '9C', '5C', '4C'],
-  E: ['3S', '2S', '8H', '5H', '3H', '2H', 'TD', '7D', '2D', 'QC', 'JC', 'TC', '2C'],
-  S: ['AS', 'KS', 'QS', '8S', '6S', 'AH', '7H', '4H', 'KD', '9D', '5D', '8C', '6C'],
-  W: ['TS', '9S', '4S', 'JH', 'TH', '9H', 'QD', 'JD', '3D', 'AC', 'KC', '7C', '3C'],
+  N: ['7S', '6S', '5S', 'KH', 'QH', '6H', 'AD', '8D', '6D', '4D', '9C', '5C', '4C'],
+  E: ['2S', '8H', '5H', '3H', '2H', 'TD', '7D', '2D', 'QC', 'JC', 'TC', '3C', '2C'],
+  S: ['AS', 'KS', 'QS', 'JS', '8S', 'AH', '7H', '4H', 'KD', '9D', '5D', '8C', '6C'],
+  W: ['TS', '9S', '4S', '3S', 'JH', 'TH', '9H', 'QD', 'JD', '3D', 'AC', 'KC', '7C'],
 });
 
 /** Defense lesson 1 deal: South declares 3NT; the learner DEFENDS as
@@ -225,13 +230,16 @@ const LOSERS_DEAL: Hands = makeHands({
 /** Lesson 6 deal: South declares 4♥. Losers from South (long trumps):
  *  ♠2 ♥0 ♦3 ♣0 (void) = 5 — two too many. Plan: ruffing finesse with dummy's
  *  ♣K-Q-J staircase against East's hidden ace (ducks twice, ruffed on the K)
- *  sheds both small spades; dummy ruffs the third diamond. Only THEN draw
- *  trumps. Simulator-verified: NS take exactly 10 tricks. */
+ *  sheds both small spades; dummy ruffs the third diamond. West's diamonds
+ *  are Q-T-7 only, so the 7 he leads at that point really is his LAST
+ *  diamond (E's A-K-J die as discards — declarer never leads the suit
+ *  again). Only THEN draw trumps. Simulator-verified: NS take exactly 10
+ *  tricks. */
 const ELIM_DEAL: Hands = makeHands({
   N: ['AS', '8S', '6S', '3S', '8H', '5H', '4H', '9D', '2D', 'KC', 'QC', 'JC', '6C'],
-  E: ['JS', 'TS', '4S', 'TH', '7H', 'AD', 'JD', '5D', '3D', 'AC', '8C', '5C', '3C'],
+  E: ['JS', 'TS', '4S', 'TH', '7H', 'AD', 'KD', 'JD', '5D', '3D', 'AC', '8C', '5C'],
   S: ['AH', 'KH', 'QH', '9H', '6H', '3H', '2H', '7S', '5S', '2S', '8D', '6D', '4D'],
-  W: ['KS', 'QS', '9S', 'JH', 'KD', 'QD', 'TD', '7D', 'TC', '9C', '7C', '4C', '2C'],
+  W: ['KS', 'QS', '9S', 'JH', 'QD', 'TD', '7D', '3C', 'TC', '9C', '7C', '4C', '2C'],
 });
 
 /** Lesson 8 deal: North opens 1♦ (13 pts), South answers 1♥ (5 hearts, 11 pts),
@@ -974,8 +982,8 @@ const RAW_LESSONS: RawLesson[] = [
       {
         kind: 'info',
         text: T(
-          'Total: 0 + 1 + 1 + 1 = 3 losers. Your contract is 4♠ — you need 10 tricks, so you can afford to lose exactly 3. Right on budget — no vanishing tricks needed today. The plan writes itself: draw their trumps FIRST (all five of theirs are little ones), and after that no winner of yours can ever be ruffed. Then cash your honors and pay only the three losers on the list. West leads the queen of hearts — take it with your ace.',
-          '总账：0 + 1 + 1 + 1 = 3个输墩。你的定约是4♠ —— 需要赢10墩，正好能输3墩。刚刚好在预算内 —— 今天不需要消失魔术。计划自己就写好了：先清掉对方的将牌（他们的5张全是小将），清完之后，你的任何赢墩都不可能被将吃。然后兑现大牌，只付清单上的三个输墩。西家首攻红桃Q —— 用你的A拿下。'
+          'Total: 0 + 1 + 1 + 1 = 3 losers. Your contract is 4♠ — you need 10 tricks, so you can afford to lose exactly 3. Right on budget — no vanishing tricks needed today. The plan writes itself: draw their trumps FIRST — five of them are out, so count them as they fall and do not stop until the last one is gone — and after that no winner of yours can ever be ruffed. Then cash your honors and pay only the three losers on the list. West leads the queen of hearts — take it with your ace.',
+          '总账：0 + 1 + 1 + 1 = 3个输墩。你的定约是4♠ —— 需要赢10墩，正好能输3墩。刚刚好在预算内 —— 今天不需要消失魔术。计划自己就写好了：先清掉对方的将牌 —— 外面有五张，一边清一边数，不到最后一张落地不停手 —— 清完之后，你的任何赢墩都不可能被将吃。然后兑现大牌，只付清单上的三个输墩。西家首攻红桃Q —— 用你的A拿下。'
         ),
       },
       {
@@ -993,8 +1001,8 @@ const RAW_LESSONS: RawLesson[] = [
       {
         kind: 'info',
         text: T(
-          'Now draw their trumps: ace, king, queen — watch all five little enemy trumps fall out.',
-          '现在清将：A、K、Q —— 看对方五张小将牌全部掉出来。'
+          'Now draw their trumps: ace, king, queen — count the enemy spades as they fall.',
+          '现在清将牌：A、K、Q —— 数着对方的黑桃一张张掉下来。'
         ),
       },
       {
@@ -1387,12 +1395,12 @@ const RAW_LESSONS: RawLesson[] = [
           { seat: 'S', card: 'QH' },
           { seat: 'W', card: '7C' },
           { seat: 'N', card: '6C' },
-          { seat: 'E', card: '3C' },
+          { seat: 'E', card: 'KD' },
           {
             seat: 'S', learner: true, expected: '9H',
             hint: T('Your last trump (9H) — bring it home.', '你的最后一张将牌 (9H) —— 带它回家。'),
           },
-          { seat: 'W', card: 'KD' },
+          { seat: 'W', card: '3C' },
           { seat: 'N', card: '3S' },
           { seat: 'E', card: 'JD' },
         ],
@@ -2003,8 +2011,8 @@ const RAW_LESSONS: RawLesson[] = [
       {
         kind: 'info',
         text: T(
-          "Two clues tell you. Clue one: POINTS. Count high-card points like this: ace = 4, king = 3, queen = 2, jack = 1 — the whole deck holds 40. Your hand: ♠A K Q (9), ♥A (4), ♦K (3) = 16 points. Partner's: ♥K Q (5), ♦A (4), ♠J (1) = 10. Together: 26 points — a big share of all the strength at the table is yours.",
-          '有两条线索告诉你。线索一：点力。这样数大牌点：A=4、K=3、Q=2、J=1 —— 整副牌共40点。你的牌：♠A K Q（9）、♥A（4）、♦K（3）= 16点。搭档的：♥K Q（5）、♦A（4）、♠J（1）= 10点。联手：26点 —— 全桌的实力有一大半在你们手里。'
+          "Two clues tell you. Clue one: POINTS. Count high-card points like this: ace = 4, king = 3, queen = 2, jack = 1 — the whole deck holds 40. Your hand: ♠A K Q J (10), ♥A (4), ♦K (3) = 17 points. Partner's: ♥K Q (5), ♦A (4) = 9. Together: 26 points — a big share of all the strength at the table is yours.",
+          '有两条线索告诉你。线索一：点力。这样数大牌点：A=4、K=3、Q=2、J=1 —— 整副牌共40点。你的牌：♠A K Q J（10）、♥A（4）、♦K（3）= 17点。搭档的：♥K Q（5）、♦A（4）= 9点。联手：26点 —— 全桌的实力有一大半在你们手里。'
         ),
       },
       {
@@ -2068,8 +2076,8 @@ const RAW_LESSONS: RawLesson[] = [
       {
         kind: 'info',
         text: T(
-          'Now dummy leads a little trump toward your big ones — drawing trumps works from either hand. Ace first!',
-          '现在明手领出一张小将牌，朝你的大将牌打 —— 清将从哪只手开始都行。先出A！'
+          "Trump time — and trumps are COUNTED, never guessed. You hold five spades, dummy holds three: eight together, so the defenders hold FIVE. Five missing cards usually split 3-2 — three rounds of drawing. But they can also split 4-1, and that takes FOUR rounds. So the rule: keep leading trumps until the LAST enemy one falls. And it matters which hand does the work: your honors all sit in YOUR hand, so the big trumps come out of your hand — dummy's little spades only lead low toward them. Dummy leads the 5; you take with the ace.",
+          '清将时间 —— 将牌要靠数，不能靠猜。你手里五张黑桃，明手三张，联手八张 —— 对方手里就是五张。外面少五张，通常是3-2分布，三轮清完；但也可能是4-1，那就要四轮。所以规则是：一轮一轮领出去，直到对方最后一张将牌落地为止。而且由哪只手出力很关键：你的大牌全在自己手里，大将牌就该从你手里打出去 —— 明手的小黑桃只朝它们领小的。明手出5，你用A拿下。'
         ),
       },
       {
@@ -2081,35 +2089,71 @@ const RAW_LESSONS: RawLesson[] = [
             seat: 'S', learner: true, expected: 'AS',
             hint: T('Ace of spades (AS) — start drawing their trumps!', '黑桃A (AS) —— 开始清将牌！'),
           },
-          { seat: 'W', card: '4S' },
+          { seat: 'W', card: '3S' },
         ],
       },
       {
-        kind: 'play',
-        script: [
-          { seat: 'S', card: 'KS' },
-          { seat: 'W', card: '9S' },
-          { seat: 'N', card: '7S' },
-          { seat: 'E', card: '3S' },
-        ],
+        kind: 'info',
+        text: T(
+          "Ace wins. Keep drawing from your own hand — the king.",
+          'A拿下了。继续从你自己手里清 —— 出K。'
+        ),
       },
       {
         kind: 'play',
         script: [
           {
-            seat: 'S', learner: true, expected: 'QS',
-            hint: T('Queen of spades (QS) — the last of their trumps fall.', '黑桃Q (QS) —— 他们最后的将牌掉了。'),
+            seat: 'S', learner: true, expected: 'KS',
+            hint: T('King of spades (KS) — keep drawing.', '黑桃K (KS) —— 继续清。'),
           },
-          { seat: 'W', card: 'TS' },
-          { seat: 'N', card: 'JS' },
+          { seat: 'W', card: '4S' },
+          { seat: 'N', card: '7S' },
           { seat: 'E', card: '8H' },
         ],
       },
       {
         kind: 'info',
         text: T(
-          "All five enemy trumps are GONE — now, and only now, the side suits are safe: nothing can be ruffed. Cash your king of diamonds, then the next diamond round pays the one diamond loser on the list.",
-          '对方五张将牌全部清完 —— 现在，也只有现在，边花才真正安全：什么都不会被将吃了。兑现你的方块K，然后下一轮方块付掉清单上的那个方块输墩。'
+          "STOP — look what East just did: no spade, a heart thrown away. The enemy trumps split 4-1, and West holds FOUR of them. Count with me: he has played the 3 and the 4, so two more are still in his hand. This is the bad break — and this is exactly why we count. A player who stops after three rounds 'because it usually splits' hands West a trump for free. Keep drawing: your queen.",
+          '停一下 —— 看东家刚才做了什么：没有黑桃，垫了一张红桃。对方的将牌是4-1分布，西家一个人握着四张。跟我数：他已经打出了3和4，手里还剩两张。这就是那个坏分布 —— 也正是我们要数牌的原因。那些"通常都是3-2"就打三轮的人，等于白送西家一张将牌。继续清：出你的Q。'
+        ),
+      },
+      {
+        kind: 'play',
+        script: [
+          {
+            seat: 'S', learner: true, expected: 'QS',
+            hint: T('Queen of spades (QS) — third round.', '黑桃Q (QS) —— 第三轮。'),
+          },
+          { seat: 'W', card: '9S' },
+          { seat: 'N', card: '6S' },
+          { seat: 'E', card: '3C' },
+        ],
+      },
+      {
+        kind: 'info',
+        text: T(
+          "Queen wins — but West still holds ONE trump: the 10. A defender with a trump in his fist can RUFF one of your winners later — a loser that was never on your list. So there is a FOURTH round, and your jack is exactly the card for it: bigger than his 10. Play it, and the trump suit belongs to you alone.",
+          'Q赢了 —— 但西家手里还剩一张将牌：10。攥着将牌的防守方，待会儿就能将吃你的一个赢墩 —— 一个清单上从来没有的新输墩。所以还有第四轮，而你的J正是干这活儿的牌：比他的10大。打出它，将牌这门就全归你了。'
+        ),
+      },
+      {
+        kind: 'play',
+        script: [
+          {
+            seat: 'S', learner: true, expected: 'JS',
+            hint: T('The jack of spades (JS) — it beats West\'s 10 and ends the suit.', '黑桃J (JS) —— 压过西家的10，收掉这门。'),
+          },
+          { seat: 'W', card: 'TS' },
+          { seat: 'N', card: '4D' },
+          { seat: 'E', card: 'QC' },
+        ],
+      },
+      {
+        kind: 'info',
+        text: T(
+          "FOUR rounds, and the last enemy trump — West's 10 — just died under your jack. All five are gone, and NOW, and only now, the side suits are safe: nothing can be ruffed. Cash your king of diamonds, then the next diamond round pays the one diamond loser on the list.",
+          '四轮，对方最后一张将牌 —— 西家的10 —— 刚刚倒在你的J下面。五张全部清完，现在，也只有现在，边花才真正安全：什么都不会被将吃了。兑现你的方块K，然后下一轮方块付掉清单上的那个方块输墩。'
         ),
       },
       {
@@ -2120,7 +2164,7 @@ const RAW_LESSONS: RawLesson[] = [
             hint: T('Your king of diamonds (KD).', '你的方块K (KD)。'),
           },
           { seat: 'W', card: 'JD' },
-          { seat: 'N', card: '4D' },
+          { seat: 'N', card: '6D' },
           { seat: 'E', card: '7D' },
         ],
       },
@@ -2129,15 +2173,15 @@ const RAW_LESSONS: RawLesson[] = [
         script: [
           { seat: 'S', card: '9D' },
           { seat: 'W', card: 'QD' },
-          { seat: 'N', card: '6D' },
+          { seat: 'N', card: '8D' },
           { seat: 'E', card: 'TD' },
         ],
       },
       {
         kind: 'info',
         text: T(
-          "There's the diamond loser — the defenders have their 3 tricks, and the budget is spent. Hearts last, and they are safe now because no enemy trump exists: cash dummy's queen and king first (honors from the short hand first — remember blocking?), then your ace makes West's jack fall.",
-          '方块输墩出现 —— 防守方拿到3墩，预算花完。最后打红桃，而且现在很安全，因为对方一张将牌都不剩了：先兑现明手的Q和K（短套的大牌先打 —— 还记得阻塞吗？），然后你的A让西家的J掉下来。'
+          "There's the diamond loser — the defenders have their 3 tricks, and the budget is spent. Hearts last, and they are safe now because no enemy trump exists: cash dummy's queen and king first, so your two little hearts ride home under them, and your ace takes round three (the hand that leads out plays its honors first — remember blocking?), then your ace makes West's jack fall.",
+          '方块输墩出现 —— 防守方拿到3墩，预算花完。最后打红桃，而且现在很安全，因为对方一张将牌都不剩了：先兑现明手的Q和K，让你的两张小红桃正好垫在它们下面（先打负责领出那只手的大牌 —— 还记得阻塞吗？），第三轮你的A让西家的J掉下来。'
         ),
       },
       {
@@ -2176,25 +2220,16 @@ const RAW_LESSONS: RawLesson[] = [
       {
         kind: 'info',
         text: T(
-          'Only your two little trumps remain — with every enemy trump gone, they are simply winners. Bring them home.',
-          '只剩下你的两张小将牌 —— 对方将牌全清完了，它们就是普通的赢墩。带它们回家。'
+          'Only one trump is left in your hand — with every enemy trump gone, it is simply a winner. Bring it home.',
+          '你手里只剩最后一张将牌 —— 对方将牌全清完了，它就是普通的赢墩。带它回家。'
         ),
       },
       {
         kind: 'play',
         script: [
           { seat: 'S', card: '8S' },
-          { seat: 'W', card: '3C' },
-          { seat: 'N', card: '9C' },
-          { seat: 'E', card: 'QC' },
-        ],
-      },
-      {
-        kind: 'play',
-        script: [
-          { seat: 'S', card: '6S' },
           { seat: 'W', card: '7C' },
-          { seat: 'N', card: '8D' },
+          { seat: 'N', card: '9C' },
           { seat: 'E', card: 'JC' },
         ],
       },
