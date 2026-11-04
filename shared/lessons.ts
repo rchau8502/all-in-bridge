@@ -2032,8 +2032,8 @@ const RAW_LESSONS: RawLesson[] = [
       {
         kind: 'info',
         text: T(
-          "What if you and partner have even more strength? For a small slam, you need 32 combined points: a level-6 contract promises 12 tricks. For a grand slam, you need 36 combined points: a level-7 contract promises all 13 tricks. Remember the pairs: small slam — 32 points, 12 tricks; grand slam — 36 points, 13 tricks. These point targets guide your bidding; always check your fit and likely tricks too.",
-          '如果你和搭档的实力更强呢？小满贯需要联手32点：6阶定约承诺赢12墩。大满贯需要联手36点：7阶定约承诺赢全部13墩。记住对应关系：小满贯——32点、12墩；大满贯——36点、13墩。这些点数目标是叫牌的参考，还要检查配合和实际能赢的墩数。'
+          "Want to aim even higher than game? Bid a small slam — a level-6 contract promising 12 tricks — or a grand slam — a level-7 contract promising all 13 tricks. Make that promise, and you earn an extra slam bonus on top of the game bonus! But a bigger reward calls for greater strength: a small slam needs 32 combined points between you and partner, while a grand slam may need as many as 36.",
+          '还想挑战比成局更高的目标吗？你可以叫小满贯——6阶定约，承诺赢12墩；或者叫大满贯——7阶定约，承诺赢全部13墩。兑现这个承诺，就能在成局奖分之外，再获得额外的满贯奖分！不过，更高的奖励也需要更强的实力：小满贯需要你和搭档联手32点，而大满贯则可能需要36点之多。'
         ),
       },
       {
