@@ -77,6 +77,8 @@ function useTypewriter(text: string) {
 function CoachCard(props: {
   lang: Lang; characterId: string; text: string; nextLabel: string;
   onAdvance: () => void;
+  onBack?: () => void;
+  canGoBack?: boolean;
   onOpenFullGlossary?: (query: string) => void;
 }) {
   const { lang, characterId, text, nextLabel, onAdvance, onOpenFullGlossary } = props;
@@ -113,12 +115,17 @@ function CoachCard(props: {
           )}
         </div>
         {!done && <span className="tw-skip">{t(lang, 'tut.tapToSkip')}</span>}
+        <div className="tut-coach-actions">
+        {props.onBack && <button className="btn ghost" disabled={!props.canGoBack}
+          title={t(lang, 'tut.backStepHint')}
+          onClick={e => { e.stopPropagation(); props.onBack?.(); }}>← {t(lang, 'tut.backStep')}</button>}
         <button
           className="btn primary"
           onClick={e => { e.stopPropagation(); tap(); }}
         >
           {nextLabel} <span className="kbd-hint">Space</span>
         </button>
+        </div>
       </div>
     </div>
   );
@@ -825,6 +832,21 @@ export function Tutorial() {
     }
   }, [currentLessonIdx]);
 
+  const doBack = () => {
+    if (!runner.goBack()) return;
+    setLeadReview(false);
+    leadReviewedRef.current = runner.completedTrickCount() > 0 || (runner.playView()?.trick.length ?? 0) > 0;
+    reviewedRef.current = runner.completedTrickCount();
+    setRecap(null);
+    setFeedback('');
+    setFbMood(null);
+    auctionSnapRef.current = null;
+    recapShownForRef.current = '';
+    prevKindRef.current = runner.currentStep()?.kind ?? null;
+    lastPlayRef.current = null;
+    refresh();
+  };
+
   const doAdvance = () => {
     if (leadReview) return; // the review pause must be dismissed first
     setFeedback('');
@@ -994,6 +1016,9 @@ export function Tutorial() {
         e.preventDefault();
         audio.sfx('click');
         startLesson(lessonIdx);
+      } else if (e.key === 'ArrowLeft' && !e.altKey && !e.metaKey) {
+        e.preventDefault();
+        doBack();
       } else if (e.key === 'ArrowLeft' && (e.altKey || e.metaKey)) {
         if (lessonIdx > 0) startLesson(lessonIdx - 1);
       } else if (e.key === 'ArrowRight' && (e.altKey || e.metaKey)) {
@@ -1017,14 +1042,14 @@ export function Tutorial() {
     ? auctionView.entries[auctionView.entries.length - 1]
     : undefined;
   const captionNote = step && step.kind === 'auction' && auctionView && auctionView.entries.length > 0
-    ? (step.script[auctionView.entries.length - 1]?.note ?? null)
+    ? (lesson.steps.flatMap(s => s.kind === 'auction' ? s.script : [])[auctionView.entries.length - 1]?.note ?? null)
     : null;
 
   // Snapshot the running auction (entries map 1:1 to script actions).
   if (step?.kind === 'auction' && auctionView) {
     auctionSnapRef.current = {
       stepKey, lessonId: lesson.id, lang,
-      lines: auctionView.entries.map((e, i) => ({ seat: e.seat, bid: e.bid, note: step.script[i]?.note })),
+      lines: auctionView.entries.map((e, i) => ({ seat: e.seat, bid: e.bid, note: lesson.steps.flatMap(s => s.kind === 'auction' ? s.script : [])[i]?.note })),
     };
   }
   // Leaving an auction step → open the recap (once per auction, and only if
@@ -1112,9 +1137,23 @@ export function Tutorial() {
           >
             {t(lang, 'tut.reviewNext')}
           </button>
+          <button className="btn ghost" disabled={!runner.canGoBack()} title={t(lang, 'tut.backStepHint')} onClick={doBack}>← {t(lang, 'tut.backStep')}</button>
         </div>
       )}
-      {step?.kind === 'info' && (
+      {!recap && step?.kind === 'info' && step.review && (
+        <section className="tut-summary" aria-label={step.text}>
+          <h2>{step.text}</h2>
+          <div className="tut-summary-scroll">
+            <table>
+              <thead><tr>{step.review.columns.map((c, i) => <th key={i} scope="col">{c}</th>)}</tr></thead>
+              <tbody>{step.review.rows.map((row, i) => <tr key={i}>{row.map((c, j) => <td key={j}>{c}</td>)}</tr>)}</tbody>
+            </table>
+          </div>
+          <button className="btn primary" onClick={doAdvance}>{t(lang, 'tut.finishReview')}</button>
+          <button className="btn ghost" disabled={!runner.canGoBack()} title={t(lang, 'tut.backStepHint')} onClick={doBack}>← {t(lang, 'tut.backStep')}</button>
+        </section>
+      )}
+      {!recap && step?.kind === 'info' && !step.review && (
         <CoachCard
           key={stepKey}
           lang={lang}
@@ -1122,6 +1161,8 @@ export function Tutorial() {
           text={step.text}
           nextLabel={t(lang, 'tut.next')}
           onAdvance={doAdvance}
+          onBack={doBack}
+          canGoBack={runner.canGoBack()}
           onOpenFullGlossary={openGlossaryWithQuery}
         />
       )}
@@ -1133,6 +1174,7 @@ export function Tutorial() {
           <button className="btn primary" onClick={() => { audio.sfx('click'); dismissReview(); }}>
             {t(lang, 'tut.reviewNext')}
           </button>
+          <button className="btn ghost" disabled={!runner.canGoBack()} title={t(lang, 'tut.backStepHint')} onClick={doBack}>← {t(lang, 'tut.backStep')}</button>
         </div>
       )}
     </div>
@@ -1161,6 +1203,10 @@ export function Tutorial() {
             title={t(lang, 'tut.nextLesson')}
           >
             ▶
+          </button>
+          <button className="chip tut-back-step" onClick={doBack}
+            disabled={!runner.canGoBack()} title={t(lang, 'tut.backStepHint')}>
+            ← {t(lang, 'tut.backStep')}
           </button>
           <button
             className="chip tut-restart-btn"
@@ -1266,12 +1312,14 @@ export function Tutorial() {
                   <div className="sim-caption" key={auctionView!.entries.length}>
                     <span className="sim-caption-tag">{seatLabel(lang, lastEntry.seat)} · {bidLabelL(lang, lastEntry.bid)}</span>
                     <span className="sim-caption-text">{captionNote}</span>
+                    <button className="btn ghost" disabled={!runner.canGoBack()} title={t(lang, 'tut.backStepHint')} onClick={doBack}>← {t(lang, 'tut.backStep')}</button>
                     {awaitingTap && <div className="tut-tap-row">{tapNext}</div>}
                   </div>
                 )}
                 {pending && pending.kind === 'bid' ? (
                   <>
                     <div className="sim-hint">🫵 {pending.hint}</div>
+                    <button className="btn ghost" disabled={!runner.canGoBack()} title={t(lang, 'tut.backStepHint')} onClick={doBack}>← {t(lang, 'tut.backStep')}</button>
                     <div className="bid-rows">
                       <div className="bid-row">
                         {(['pass', 'double', 'redouble'] as const).map(k => {
@@ -1381,6 +1429,7 @@ export function Tutorial() {
             onHome={() => go('home')}
           />
         )}
+        {step?.kind === 'play' && <div className="tut-tap-row"><button className="btn ghost" disabled={!runner.canGoBack()} title={t(lang, 'tut.backStepHint')} onClick={doBack}>← {t(lang, 'tut.backStep')}</button></div>}
         {step?.kind === 'play' && !leadReview && runner.claimableRemaining() > 0 && (
           <div className="tut-tap-row">
             <button className="btn primary" onClick={() => {

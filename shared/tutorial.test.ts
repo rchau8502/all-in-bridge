@@ -127,7 +127,7 @@ describe('hands match the story the script tells', () => {
     expect(hcpOf('conversation', 'S')).toBe(14);
     expect(suitLen('conversation', 'N', 'H')).toBe(2);
     expect(suitLen('conversation', 'S', 'H')).toBe(6);
-    expect(hcpOf('scoring', 'S')).toBe(18);
+    expect(hcpOf('scoring', 'S')).toBe(19);
     expect(hcpOf('scoring', 'N')).toBe(8);
     expect(suitLen('scoring', 'N', 'H')).toBe(3);
     expect(hcpOf('overcall', 'N')).toBe(8);

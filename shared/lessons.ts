@@ -1,3 +1,5 @@
+import { getContinuationLessons } from './continuation-lessons.js';
+import { lessonReview } from './lesson-reviews.js';
 /**
  * lessons.ts — tutorial lesson content, fully bilingual (EN/ZH).
  *
@@ -252,10 +254,10 @@ const OPENING_DEAL: Hands = makeHands({
 });
 
 const GAME_DEAL: Hands = makeHands({
-  S: ["AS", "8S", "AH", "KH", "QH", "JH", "5H", "AD", "7D", "7C", "6C", "5C", "4C"],
+  S: ["AS", "8S", "AH", "KH", "QH", "JH", "5H", "AD", "7D", "JC", "7C", "6C", "5C"],
   N: ["KS", "4S", "2S", "9H", "8H", "7H", "QD", "3D", "2D", "KC", "9C", "8C", "3C"],
   E: ["6S", "TC", "JS", "4D", "5S", "5D", "TS", "9D", "QC", "7S", "3H", "QS", "TD"],
-  W: ["4H", "JD", "AC", "KD", "3S", "TH", "9S", "6H", "JC", "8D", "2C", "2H", "6D"],
+  W: ["4H", "JD", "AC", "KD", "3S", "TH", "9S", "6H", "4C", "8D", "2C", "2H", "6D"],
 });
 
 const OVERCALL_DEAL: Hands = makeHands({
@@ -2271,19 +2273,19 @@ const RAW_LESSONS: RawLesson[] = [
 { kind: 'info', text: T("There are five one-level openings: 1♣, 1♦, 1♥, 1♠ and 1NT. A suit opening normally shows about 12–21 points; stronger hands may need a strong opening instead. Pass with a weak hand: you have sent useful information and may bid later.", "一阶有五种开叫：1♣、1♦、1♥、1♠和1NT。花色开叫通常约12–21点；更强的牌可能需要强开叫。弱牌先不叫，也是有用的信息，以后仍可能参与。") },
 { kind: 'info', text: T("1NT is precise: 15–17 high-card points and a balanced hand, usually 4-3-3-3, 4-4-3-2 or 5-3-3-2. Balanced does NOT mean automatically open 1NT: 12–14 is too weak for it. In this tutorial, a balanced 1NT opening may include a five-card major.", "1NT的条件很精确：15–17大牌点，均型，通常是4-3-3-3、4-4-3-2或5-3-3-2。均型不等于自动开1NT：12–14点不够。本教程约定均型1NT也可以包含五张高花。") },
 { kind: 'info', text: T("Outside the notrump range, open 1♥ or 1♠ with at least five cards in that major. With unequal long suits, usually start with the longer; with two five-card suits, start with the higher-ranking one. Do not open a four-card major just because its honors look nice.", "不符合无将开叫条件时，开1♥或1♠保证该高花至少五张。长套不等长时通常先叫较长套；两套都是五张时先叫较高级的花色。不要仅因大牌漂亮，就用四张高花开叫。") },
-{ kind: 'info', text: T("Why promise five? Partner with three knows 5+3=8 immediately. If you have only four in a major, start with a minor; partner can respond with a four-card major, and you can raise with four: 4+4=8. Five-card major OPENINGS and four-card major RESPONSES work together to find both fits.", "为什么保证五张？搭档有三张，马上知道5+3=8。若你只有四张高花，先开小花，搭档可以应叫四张高花，你有四张再加叫：4+4=8。五张高花开叫与四张高花应叫相互配合，才能找到这两类配合。") },
-{ kind: 'info', text: T("No five-card major and no suitable 1NT? Open the longer minor. With 3 clubs and 3 diamonds, choose 1♣; with 4 and 4, choose 1♦. 1♣ promises at least 3 clubs. 1♦ usually has 4, but can have 3 with exactly 4 spades, 4 hearts, 3 diamonds and 2 clubs. A minor opening does not promise five!", "没有五张高花，也不适合1NT？开较长的小花。梅花、方块各3张时开1♣，各4张时开1♦。1♣至少3张；1♦通常4张，但黑桃4、红桃4、方块3、梅花2时也开1♦。小花开叫不保证五张！") },
-{ kind: 'info', text: T("Read each example as spades / hearts / diamonds / clubs. AK7 / Q84 / 762 / KJ53: 13 points, balanced but below the 1NT range; no five-card major, clubs longer than diamonds. Open 1♣.", "以下牌例依次写黑桃／红桃／方块／梅花。AK7／Q84／762／KJ53：13点，均型但不够1NT；没有五张高花，梅花比方块长。开1♣。") },
-{ kind: 'info', text: T("KQ74 / AJ83 / Q65 / 72: 12 points. Neither four-card major can be opened. With three diamonds and two clubs, open 1♦; partner can show a major and you can raise with four.", "KQ74／AJ83／Q65／72：12点。两门高花都只有四张，不能开叫高花。三张方块、两张梅花，开1♦；搭档应叫高花后，你可以凭四张支持加叫。") },
-{ kind: 'info', text: T("Q83 / AKJ75 / K62 / 84: 13 points and five hearts. Open 1♥. Partner with three hearts already knows you have at least eight together.", "Q83／AKJ75／K62／84：13点、五张红桃。开1♥，搭档有三张红桃，就已经知道联手至少八张。") },
-{ kind: 'info', text: T("AK853 / KQ74 / A72 / 8: 16 points, five spades and a singleton club. This hand is not balanced: open 1♠, not 1NT. A three-card spade raise immediately finds the 5–3 fit.", "AK853／KQ74／A72／8：16点、五张黑桃，单张梅花，不是均型。开1♠，不适合1NT。搭档凭三张黑桃加叫，就能立即找到5–3配合。") },
-{ kind: 'info', text: T("AQ7 / K84 / AJ62 / Q53: 16 points, 3-3-4-3 and no singleton or void. Open 1NT. This tells partner both a narrow strength range and a balanced shape; finding a four-card major fit then uses the Stayman tool introduced next lesson.", "AQ7／K84／AJ62／Q53：16点、3-3-4-3，没有单缺。开1NT，同时告诉搭档较窄的点力范围与均型；接下来寻找四张高花配合，会用到下一课简介的斯台曼工具。") },
+{ kind: 'info', text: T("Why promise five? Partner with three knows 5+3=8 immediately. If you have only four in a major, start with a minor; partner can respond with a four-card major, and you can raise with four: 4+4=8. Five-card major OPENINGS and four-card major RESPONSES work together to find both fits.", "为什么保证五张？搭档有三张，马上知道5+3=8。若你只有四张高花，先开低花，搭档可以应叫四张高花，你有四张再加叫：4+4=8。五张高花开叫与四张高花应叫相互配合，才能找到这两类配合。") },
+{ kind: 'info', text: T("No five-card major and no suitable 1NT? Open the longer minor. With 3 clubs and 3 diamonds, choose 1♣; with 4 and 4, choose 1♦. 1♣ promises at least 3 clubs. 1♦ usually has 4, but can have 3 with exactly 4 spades, 4 hearts, 3 diamonds and 2 clubs. A minor opening does not promise five!", "没有五张高花，也不适合1NT？开较长的低花。梅花、方块各3张时开1♣，各4张时开1♦。1♣至少3张；1♦通常4张，但黑桃4、红桃4、方块3、梅花2时也开1♦。低花开叫不保证五张！") },
+{ kind: 'info', text: T("Read each example as spades / hearts / diamonds / clubs. ♠AK7 / ♥Q84 / ♦762 / ♣KJ53: 13 points, balanced but below the 1NT range; no five-card major, clubs longer than diamonds. Open 1♣.", "以下牌例依次写黑桃／红桃／方块／梅花。♠AK7 / ♥Q84 / ♦762 / ♣KJ53：13点，均型但不够1NT；没有五张高花，梅花比方块长。开1♣。") },
+{ kind: 'info', text: T("♠KQ74 / ♥AJ83 / ♦Q65 / ♣72: 12 points. Neither four-card major can be opened. With three diamonds and two clubs, open 1♦; partner can show a major and you can raise with four.", "♠KQ74 / ♥AJ83 / ♦Q65 / ♣72：12点。两门高花都只有四张，不能开叫高花。三张方块、两张梅花，开1♦；搭档应叫高花后，你可以凭四张支持加叫。") },
+{ kind: 'info', text: T("♠Q83 / ♥AKJ75 / ♦K62 / ♣84: 13 points and five hearts. Open 1♥. Partner with three hearts already knows you have at least eight together.", "♠Q83 / ♥AKJ75 / ♦K62 / ♣84：13点、五张红桃。开1♥，搭档有三张红桃，就已经知道联手至少八张。") },
+{ kind: 'info', text: T("♠AK853 / ♥KQ74 / ♦A72 / ♣8: 16 points, five spades and a singleton club. This hand is not balanced: open 1♠, not 1NT. A three-card spade raise immediately finds the 5–3 fit.", "♠AK853 / ♥KQ74 / ♦A72 / ♣8：16点、五张黑桃，单张梅花，不是均型。开1♠，不适合1NT。搭档凭三张黑桃加叫，就能立即找到5–3配合。") },
+{ kind: 'info', text: T("♠AQ7 / ♥K84 / ♦AJ62 / ♣Q53: 16 points, 3-3-4-3 and no singleton or void. Open 1NT. This tells partner both a narrow strength range and a balanced shape; finding a four-card major fit then uses the Stayman tool introduced next lesson.", "♠AQ7 / ♥K84 / ♦AJ62 / ♣Q53：16点、3-3-4-3，没有单缺。开1NT，同时告诉搭档较窄的点力范围与均型；接下来寻找四张高花配合，会用到下一课简介的斯台曼工具。") },
 { kind: 'info', text: T("Now use the open deal: you hold 13 points and five spades. North has 8 points and three spades. You can see all cards for learning, but each bid must be justified only by that player’s hand and the auction.", "现在看桌上的牌：你有13点、五张黑桃。北家有8点、三张黑桃。学习时牌全翻开，但每个叫牌只能根据叫牌者自己的手牌和已有叫牌来决定。") },
 { kind: 'auction', script: [{ seat: 'S', learner: true, expected: "1S", hint: T("Choose 1S.", "请选择1S。"), note: T("1♠: 13 points and five spades. An opening, not an overcall.", "1♠：13点、五张黑桃。这是开叫，不是争叫。") },
 { seat: 'W', bid: "P", note: T("West has no suitable overcall and passes.", "西家没有合适的争叫，选择不叫。") },
 { seat: 'N', bid: "2S", note: T("2♠: 8 points and three-card support. Your opening promised five, so the fit is known.", "2♠：8点、三张支持。你的开叫保证五张，所以配合已经确定。") },
 { seat: 'E', bid: "P", note: T("East passes; the partnership can continue its decision.", "东家不叫，让这对搭档继续判断。") },
-{ seat: 'S', learner: true, expected: "P", hint: T("Choose P.", "请选择P。"), note: T("Pass: 13 plus a simple raise of about 6–10 is not enough to insist on game. Minimum opening, fit found, stop safely.", "不叫：13点加简单加叫约6–10点，不足以坚持成局。低限开叫，配合找到，安全停下。") },
+{ seat: 'S', learner: true, expected: "P", hint: T("Because this is a minimum hand (MIN), pass. A minimum opener facing a minimum simple raise lacks the strength to invite game.", "因为是低限牌（MIN），所以不叫。低限开叫面对搭档的低限简单加叫，联手实力不足以邀局。"), note: T("Pass: 13 plus a simple raise of about 6–9 is not enough to insist on game. Minimum opening, fit found, stop safely.", "不叫：13点加简单加叫约6–9点，不足以坚持成局。低限开叫，配合找到，安全停下。") },
 { seat: 'W', bid: "P", note: T("Three consecutive passes end the auction: 2♠.", "连续三次不叫，叫牌结束：2♠。") }] },
 { kind: 'info', text: T("The final bid sets the contract; three actual passes ended this auction. Within the winning partnership, the first player to name the final strain is declarer: South named spades first. After West leads, North lays down the dummy and South plays both hands.", "最后的实质叫牌决定定约；这次实际叫出了连续三次不叫。赢得定约的一方中，最先叫出最终花色的人当庄家：南家先叫黑桃。西家首攻后，北家摊下明手，由南家打两手牌。") },
     ],
@@ -2297,12 +2299,12 @@ const RAW_LESSONS: RawLesson[] = [
     vulnerable: false,
     steps: [
 { kind: 'info', text: T("Partner opens 1♣. Your job is to help answer both questions: how high, and in which strain? Respond with about 6 points or more to a one-level suit opening; with 0–5 you usually pass. A pass IS a reply. A forcing bid is different: you must keep the auction alive even if unsure.", "搭档开叫1♣。你要帮助回答两个问题：叫多高、打什么？对一阶花色开叫，约6点以上通常应叫；0–5点通常不叫。不叫也是回答。但逼叫不同：即使没把握，也要继续叫，不能随意停下。") },
-{ kind: 'info', text: T("Over 1♣ or 1♦, look for a major fit before raising a minor. A one-level new-suit response needs at least four cards and about 6 points; bid four-card suits up the line, hearts before spades when both have four. A five-card suit may be shown first. When an unpassed responder faces a 1♥ or 1♠ opening without interference, a non-jump new suit at the two level is a two-over-one GAME FORCE: it shows game-going strength, usually about 12+ points after evaluation, not merely 10. Over 1♠, a 2♥ response also promises five hearts.", "对1♣或1♦，先寻找高花配合，再考虑加叫小花。一阶新花应叫至少四张、约6点；四张套尽量由低到高，红桃黑桃各四张时先红桃。五张长套可以先报。未Pass过的应叫者，在对方没有干扰时，对1♥或1♠作二阶不跳新花应叫，属于二盖一逼局：需要经评估达到成局实力，通常约12点以上，不能仅凭10点就这样叫。对1♠应叫2♥还保证五张红桃。") },
-{ kind: 'info', text: T("Support needs context. After a five-card major OPENING, three-card support makes an eight-card fit; a simple raise shows about 6–10 support points. After a four-card major RESPONSE, opener normally needs FOUR to raise. Three cards do not prove a fit. Raising a minor needs more length: normally four diamonds or five clubs.", "支持要看前提。五张高花开叫后，三张支持就有八张配合；简单加叫约表示6–10支持点。但四张高花应叫后，开叫者通常需要四张才能加叫，三张不能确认配合。小花加叫需要更多张数：通常方块四张、梅花五张。") },
-{ kind: 'info', text: T("In our two-over-one teaching agreement, an unpassed responder’s 1NT over 1♥ or 1♠ without interference shows about 6–12 points and is forcing for one round. Opener must bid again, but the partnership is not committed to game. This is different from a 15–17 1NT OPENING. Do not apply the forcing-1NT rule automatically to minor openings, passed hands or competitive auctions. Over a 1NT opening, 2♣ is Stayman to look for a four-card major, normally with 8+ points; 2♦ and 2♥ are transfers, not natural suit responses. Those tools come later.", "本教程二盖一约定：未Pass过的应叫者，在无干扰时对1♥或1♠应叫1NT，约表示6–12点，并逼叫一轮。开叫者必须再叫，但双方还没有承诺成局。这不同于15–17点的1NT开叫。对小花开叫、已Pass过的牌或竞争叫牌，不能自动套用逼叫性1NT。对1NT开叫，2♣是斯台曼问四张高花，通常需要8点以上；2♦和2♥是转移叫，不是自然花色应叫。这些工具以后再细学。") },
+{ kind: 'info', text: T("Over 1♣ or 1♦, look for a major fit before raising a minor. A one-level new-suit response needs at least four cards and about 6 points; bid four-card suits up the line, hearts before spades when both have four. A five-card suit may be shown first. When an unpassed responder faces a 1♥ or 1♠ opening without interference, a non-jump new suit at the two level is a two-over-one GAME FORCE: it shows game-going strength, 13+ points under the latest course agreement, not merely 10. Over 1♠, a 2♥ response also promises five hearts.", "对1♣或1♦，先寻找高花配合，再考虑加叫低花。一阶新花应叫至少四张、约6点；四张套尽量由低到高，红桃黑桃各四张时先红桃。五张长套可以先报。未Pass过的应叫者，在对方没有干扰时，对1♥或1♠作二阶不跳新花应叫，属于二盖一逼局：需要经评估达到成局实力，按最新课件采用13点以上，不能仅凭10点就这样叫。对1♠应叫2♥还保证五张红桃。") },
+{ kind: 'info', text: T("Support needs context. After a five-card major OPENING, three-card support makes an eight-card fit; a simple raise shows about 6–9 support points. After a four-card major RESPONSE, opener normally needs FOUR to raise. Three cards do not prove a fit. Raising a minor needs more length: normally four diamonds or five clubs.", "支持要看前提。五张高花开叫后，三张支持就有八张配合；简单加叫约表示6–9支持点。但四张高花应叫后，开叫者通常需要四张才能加叫，三张不能确认配合。低花加叫需要更多张数：通常方块四张、梅花五张。") },
+{ kind: 'info', text: T("In our course agreement, an unpassed responder’s 1NT over 1♥ or 1♠ without interference is SEMI-forcing, about 5–12 points. A flat minimum 12–13 opener may pass; an unbalanced opener continues. The partnership is not committed to game. This is different from a 15–17 1NT OPENING. Do not apply the semi-forcing-1NT rule automatically to minor openings, passed hands or competitive auctions. Over a 1NT opening, 2♣ is Stayman to look for a four-card major, normally with 8+ points; 2♦ and 2♥ are transfers, not natural suit responses. Those tools come later.", "本教程二盖一约定：未Pass过的应叫者，无干扰时对1♥或1♠应叫1NT为半逼叫，约5–12点。12–13点的平弱低限可Pass，非均型开叫继续；双方没有承诺成局。这不同于15–17点的1NT开叫。对低花开叫、已Pass过的牌或竞争叫牌，不能自动套用半逼叫1NT。对1NT开叫，2♣是斯台曼问四张高花，通常需要8点以上；2♦和2♥是转移叫，不是自然花色应叫。这些工具以后再细学。") },
 { kind: 'info', text: T("This deal: North has 13 points, four clubs and four hearts; no five-card major, and too little for 1NT. North opens 1♣. You have 8 points and five hearts: respond 1♥. Your bid only promises four, so North uses FOUR hearts to raise. You can count 5+4=9, but North’s decision does not rely on seeing your fifth heart.", "这副牌：北家13点、四张梅花和四张红桃，没有五张高花，点力又不够1NT，所以开1♣。你有8点、五张红桃，应叫1♥。你的应叫只保证四张，因此北家凭自己的四张红桃加叫。你能数出5+4=9，但北家的决定不能依赖偷看你的第五张红桃。") },
-{ kind: 'info', text: T("Strength also controls the reply: about 6–9 is a minimum, 10–12 is invitational, and 13+ normally commits to game opposite an opening hand. With support for a major opening, a simple raise is limited; a jump raise to 3 is a limit invitation. A direct jump to 4 can be preemptive in our methods, so do not use it as a generic strong reply. First show your range, then choose the right continuation.", "应叫还要表达实力：约6–9点是低限，10–12点邀局，13点以上面对开叫通常应坚持到成局。支持高花开叫时，简单加叫表示有限实力，跳加叫到3阶是限制性邀局。本体系直接跳到4阶可能是阻击性叫牌，不能一概当成强牌应叫。先表达范围，再选择后续进程。") },
-{ kind: 'info', text: T("A forcing bid may mean just one more round: 1♥–1♠ requires opener to speak again, and our 1♥–1NT is also forcing for one round. By contrast, an unpassed 1♥–2♣ response with no interference is a two-over-one game force: even a minimum opener must continue until at least game. The immediate job is then to exchange shape and fit information, not to ask whether to stop below game.", "逼叫可以只逼一轮：1♥—1♠要求开叫者再说一次，本教程的1♥—1NT也逼叫一轮。相对地，未Pass过、无干扰时的1♥—2♣属于二盖一逼局：即使开叫是低限，也必须继续到至少成局。接下来交换牌型与配合信息，而不是讨论能否停在局以下。") },
+{ kind: 'info', text: T("Strength also controls the reply: about 6–9 is a minimum, 10–12 is invitational, and 13+ normally commits to game opposite an opening hand. With support for a major opening, a simple raise is limited; with four-card support, 3♣ is Bergen constructive (7–9), 3♦ is a limit invitation (10–12), and direct 3 of the major is weak (0–6). With exactly three-card support and 10–12, start semi-forcing 1NT and later jump to 3 of the major if opener rebids. A direct jump to 4 can be preemptive in our methods, so do not use it as a generic strong reply. First show your range, then choose the right continuation.", "应叫还要表达实力：约6–9点是低限，10–12点邀局，13点以上面对开叫通常应坚持到成局。支持高花开叫时，简单加叫表示有限实力，四张支持时，3♣是伯根建设性支持（7–9点），3♦是限制性邀局（10–12点），直接3高花为弱牌（0–6点）。恰好三张支持、10–12点时，先半逼叫1NT，开叫再叫后才跳3高花邀请。本体系直接跳到4阶可能是阻击性叫牌，不能一概当成强牌应叫。先表达范围，再选择后续进程。") },
+{ kind: 'info', text: T("A forcing bid may mean just one more round: 1♥–1♠ requires opener to speak again, and our 1♥–1NT is semi-forcing, so a flat minimum may pass. By contrast, an unpassed 1♥–2♣ response with no interference is a two-over-one game force: even a minimum opener must continue until at least game. The immediate job is then to exchange shape and fit information, not to ask whether to stop below game.", "逼叫可以只逼一轮：1♥—1♠要求开叫者再说一次，本教程的1♥—1NT是半逼叫，平弱低限可Pass。相对地，未Pass过、无干扰时的1♥—2♣属于二盖一逼局：即使开叫是低限，也必须继续到至少成局。接下来交换牌型与配合信息，而不是讨论能否停在局以下。") },
 { kind: 'info', text: T("Dating Model: two people each privately hold an affection value from 1–8. They start 3 spaces apart and may hug only when their total is at least 9. Moving a combined 3 spaces completes the hug. This is a toy model of exchanging ranges, not bridge point counts or bid levels.", "约会模型：两个人各自秘密持有1–8点爱意，相距3格；合计至少9点才可以拥抱，两人累计走满3格就拥抱。这是交换范围的信息模型，不是桥牌点数，也不是叫牌阶数。") },
 { kind: 'info', text: T("Opening agreement: with 8, you can walk all 3 spaces, since even 8+1=9. With 7, walk 2 spaces as a strong invitation. With 5–6, walk 1 as an ordinary invitation. With 1–4, pass initially. That first pass leaves the other person a turn to invite; only two opening passes end the game.", "开局约定：8点可直接走3格，因为即使8+1=9也足够。7点走2格作强邀请；5–6点走1格作普通邀请；1–4点开局先Pass。第一次开局Pass后，另一人仍可邀请；两人开局都Pass才结束。") },
 { kind: 'info', text: T("Invitation means “we may have enough; decide using your own value.” After the 7-point person walks 2, the other accepts by walking the last 1 with 2–8 points, but passes with 1. After a 5–6-point invitation of 1 space, a responder with 4–8 walks the remaining 2; with 1–2, pass.", "邀请的意思是：“我们可能够了，请用你自己的实力决定。”7点者走2格后，对方有2–8点就走最后1格接受，只有1点则Pass。5–6点走1格普通邀请后，对方4–8点就走余下2格接受，1–2点则Pass。") },
@@ -2321,7 +2323,7 @@ const RAW_LESSONS: RawLesson[] = [
 { seat: 'E', bid: "P", note: T("East passes again; no competitive bid is justified.", "东家再次不叫，没有理由勉强争叫。") },
 { seat: 'S', learner: true, expected: "P", hint: T("Choose P.", "请选择P。"), note: T("Pass: 8 points opposite a minimum opening, well short of game. Finding a fit does not create extra high-card points.", "不叫：8点面对低限开叫，离成局还远。找到配合，不会凭空增加大牌点。") },
 { seat: 'W', bid: "P", note: T("The third pass ends the auction at 2♥ by South.", "第三次不叫结束叫牌，南家打2♥。") }] },
-{ kind: 'info', text: T("If both players had only four hearts, the same sequence would find a 4–4 fit. If you had enough strength for game, you would keep going instead of passing just because the fit was found. Choose the level from strength and the strain from fit: preferably a major game with eight trumps, or 3NT when suitable without a major fit; a minor game needs 11 tricks.", "如果两人都只有四张红桃，同样的进程就能找到4–4配合。如果你有足够的成局实力，就应继续，而不能仅因配合找到就不叫。点力决定高度，配合决定方向：有八张高花将牌配合时优先考虑高花成局；没有高花配合且条件合适时考虑3NT，小花成局则需要11墩。") },
+{ kind: 'info', text: T("If both players had only four hearts, the same sequence would find a 4–4 fit. If you had enough strength for game, you would keep going instead of passing just because the fit was found. Choose the level from strength and the strain from fit: preferably a major game with eight trumps, or 3NT when suitable without a major fit; a minor game needs 11 tricks.", "如果两人都只有四张红桃，同样的进程就能找到4–4配合。如果你有足够的成局实力，就应继续，而不能仅因配合找到就不叫。点力决定高度，配合决定方向：有八张高花将牌配合时优先考虑高花成局；没有高花配合且条件合适时考虑3NT，低花成局则需要11墩。") },
     ],
   },
   {
@@ -2475,14 +2477,14 @@ const RAW_LESSONS: RawLesson[] = [
         kind: 'info',
         text: T(
           'Each trick above 6 pays points, and the pay depends on the suit: a major suit (♥ ♠) pays 30 per trick. Minors (♦ ♣) pay 20. No-trump pays 40 for the first trick, then 30. That is exactly why majors are "popular" — same tricks, more money.',
-          '6以上的每一墩都给分，分多少看花色：大花色（♥ ♠）每墩30分。小花色（♦ ♣）每墩20分。无将第一墩40分，之后每墩30分。这正是大花色"受欢迎"的原因 —— 一样的墩数，更多的钱。'
+          '6以上的每一墩都给分，分多少看花色：高花（♥ ♠）每墩30分。低花（♦ ♣）每墩20分。无将第一墩40分，之后每墩30分。这正是高花"受欢迎"的原因 —— 一样的墩数，更多的钱。'
         ),
       },
       {
         kind: 'info',
         text: T(
           'Remember game from the contract lesson? Here is its exact line: if your contract itself scores 100 points or more, it is called GAME — and the game pays a fat bonus: +300 points on top! Do the math with me: 4♥ = 4 × 30 = 120. Over 100 — GAME. 3NT = 40 + 30 + 30 = 100. Exactly 100 — GAME. The game contracts are: 3NT, 4♥, 4♠, 5♣, 5♦. (Minors need 5 because 4 × 20 = 80 — not enough!)',
-          '还记得定约课里的成局吗？这里是它的精确分数线：如果你的定约本身达到100分或以上，就叫成局 —— 成局还有一份厚厚的奖励：额外+300分！跟我算：4♥ = 4 × 30 = 120。超过100 —— 成局。3NT = 40 + 30 + 30 = 100。正好100 —— 成局。成局的定约有：3NT、4♥、4♠、5♣、5♦。（小花色需要到5，因为4 × 20 = 80 —— 不够！）'
+          '还记得定约课里的成局吗？这里是它的精确分数线：如果你的定约本身达到100分或以上，就叫成局 —— 成局还有一份厚厚的奖励：额外+300分！跟我算：4♥ = 4 × 30 = 120。超过100 —— 成局。3NT = 40 + 30 + 30 = 100。正好100 —— 成局。成局的定约有：3NT、4♥、4♠、5♣、5♦。（低花需要到5，因为4 × 20 = 80 —— 不够！）'
         ),
       },
       {
@@ -2501,7 +2503,7 @@ const RAW_LESSONS: RawLesson[] = [
       },
       {
         kind: 'info',
-        text: T("You hold 18 points: ♠A (4), ♥A K Q J (10), ♦A (4). Five hearts and an unbalanced hand: open 1♥. When partner raises, use the promised range, not the face-up cards, to decide about game.", "你有18点：♠A（4）、♥A K Q J（10）、♦A（4）。五张红桃，非均型，开1♥。搭档加叫后，要根据承诺的范围判断成局，而不是偷看翻开的牌。"),
+        text: T("You hold 19 points: ♠A (4), ♥A K Q J (10), ♦A (4), ♣J (1). Five hearts and an unbalanced hand: open 1♥. When partner raises, use the promised range, not the face-up cards, to decide about game.", "你有19点：♠A（4）、♥A K Q J（10）、♦A（4）、♣J（1）。五张红桃，非均型，开1♥。搭档加叫后，要根据承诺的范围判断成局，而不是偷看翻开的牌。"),
       },
       {
         kind: 'auction',
@@ -2509,21 +2511,21 @@ const RAW_LESSONS: RawLesson[] = [
           {
             seat: 'S', learner: true, expected: '1H',
             hint: T('Open 1♥ — longest and strongest first.', '开叫1♥ —— 先说最长最强的。'),
-            note: T("You open 1♥: 18 points, five hearts, and an unbalanced hand.", "你开叫1♥：18点、五张红桃，非均型。"),
+            note: T("You open 1♥: 19 points, five hearts, and an unbalanced hand.", "你开叫1♥：19点、五张红桃，非均型。"),
           },
           { seat: 'W', bid: 'P', note: T(
             'West passes — no answer to that opening yet.',
             '西家不叫 —— 对这样的开叫暂时没什么回应。'
           ) },
-          { seat: 'N', bid: '2H', note: T("North raises to 2♥: 6–10 support points and at least three hearts. North actually has 8 high-card points and three hearts, but your decision uses the range.", "北家加叫2♥：6–10支持点，至少三张红桃。北家实际8大牌点、三张红桃，但你要根据承诺范围作决定。") },
+          { seat: 'N', bid: '2H', note: T("North raises to 2♥: 6–9 support points and at least three hearts. North actually has 8 high-card points and three hearts, but your decision uses the range.", "北家加叫2♥：6–9支持点，至少三张红桃。北家实际8大牌点、三张红桃，但你要根据承诺范围作决定。") },
           { seat: 'E', bid: 'P', note: T(
             'East passes — watching your team\'s conversation.',
             '东家不叫 —— 看着你们队的对话。'
           ) },
           {
             seat: 'S', learner: true, expected: '4H',
-            hint: T("You hold 18 points and a known heart fit. Bid game: 4♥.", "你有18点，红桃配合已知。叫到成局：4♥。"),
-            note: T("4♥: your 18 plus partner’s 6–10 support points gives about 24–28 with a known fit. This strong opener bids game; the actual hands total 26 high-card points, not slam strength.", "4♥：你的18点加搭档6–10支持点，约24–28点，配合已知。强开叫方选择成局；实际联手26大牌点，并非满贯实力。"),
+            hint: T("You hold 19 points and a known heart fit. Bid game: 4♥.", "你有19点，红桃配合已知。叫到成局：4♥。"),
+            note: T("4♥: your 19 plus partner’s 6–9 support points gives about 25–28 with a known fit. This strong opener bids game; the actual hands total 27 high-card points, not slam strength.", "4♥：你的19点加搭档6–9支持点，约25–28点，配合已知。强开叫方选择成局；实际联手27大牌点，并非满贯实力。"),
           },
           { seat: 'W', bid: 'P', note: T(
             'West passes — no challenge to the game bid.',
@@ -2750,7 +2752,7 @@ function resolveLesson(raw: RawLesson, lang: LessonLang): Lesson {
 
 /** Lessons with all text in the requested language. */
 export function getLessons(lang: LessonLang): Lesson[] {
-  return RAW_LESSONS.map(r => resolveLesson(r, lang));
+  return [...RAW_LESSONS.map(r => { const lesson = resolveLesson(r, lang); return { ...lesson, steps: [...lesson.steps, lessonReview(lesson.id, lang)] }; }), ...getContinuationLessons(lang)];
 }
 
 /** English build (used by tests). */

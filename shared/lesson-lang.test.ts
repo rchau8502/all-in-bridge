@@ -35,6 +35,10 @@ function texts(lang: Lang): Array<{ where: string; text: string }> {
     if (lesson.openingLeadAnalysis) out.push({ where: `${lesson.id} opening`, text: lesson.openingLeadAnalysis });
     lesson.steps.forEach((s, i) => {
       if (s.kind === 'info') out.push({ where: `${lesson.id} step${i}`, text: s.text });
+      if (s.kind === 'info' && s.review) {
+        s.review.columns.forEach((text, j) => out.push({ where: `${lesson.id} review column${j}`, text }));
+        s.review.rows.forEach((row, j) => row.forEach((text, k) => out.push({ where: `${lesson.id} review ${j}.${k}`, text })));
+      }
       if (s.kind === 'play' || s.kind === 'auction') {
         s.script.forEach((a, j) => {
           if ('hint' in a && a.hint) out.push({ where: `${lesson.id} step${i}.${j} hint`, text: a.hint });

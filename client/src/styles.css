@@ -6148,3 +6148,20 @@ table.standings tr.leader td { color: var(--accent); font-weight: 800; }
 
 
 
+
+/* End-of-lesson review remains inside the teaching area and scrolls on small screens. */
+.tut-summary { background:#f7fbff; color:#173048; border-radius:18px; padding:20px; width:100%; box-sizing:border-box; }
+.tut-summary h2 { margin:0 0 12px; font-size:22px; }
+.tut-summary-scroll { max-height:38vh; overflow:auto; margin-bottom:14px; }
+.tut-summary table { width:100%; border-collapse:collapse; font-size:15px; line-height:1.5; text-align:left; }
+.tut-summary th, .tut-summary td { padding:9px 10px; border-bottom:1px solid #c7dbe8; vertical-align:top; }
+.tut-summary th { background:#e0eff8; position:sticky; top:0; }
+.tut-summary td:first-child { font-weight:700; width:29%; }
+.tut-back-step:disabled { opacity:0.45; cursor:default; }
+
+.tut-coach-actions { display:flex; gap:10px; align-items:center; flex-wrap:wrap; }
+.tut-summary .btn + .btn { margin-left:10px; }
+.tut-summary .btn.ghost, .coach-bubble .btn.ghost, .recap-card .btn.ghost {
+  color:#173048; background:#e1edf5; border-color:#b5cedf;
+}
+.tut-overlay .recap-card { max-height:42vh; overflow-y:auto; box-sizing:border-box; }

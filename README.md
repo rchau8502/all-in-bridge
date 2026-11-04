@@ -6,7 +6,7 @@ presentation, bilingual EN/中文 from the ground up (both language versions
 hand-written in parallel, never machine-translated).
 
 **Play it:** https://rchau8502.github.io/all-in-bridge/ — the full
-14-lesson Bridge Bootcamp runs right in the browser, no account, no install.
+33-lesson Bridge Bootcamp runs right in the browser, no account, no install.
 
 ## Layout
 
@@ -32,9 +32,17 @@ repeated card-by-card reviews. When the remaining tricks are provably
 cashable, the learner can claim them and continue to the lesson wrap-up.
 
 Bidding lessons use a **two-over-one game-forcing** teaching agreement,
-including a forcing 1NT response to a major by an unpassed hand in an
-uncontested auction. Lesson 13 uses a Dating Model to distinguish
+including the supplied course's Bergen raises and semi-forcing 1NT
+response to a major in an uncontested auction. Lesson 13 uses a Dating Model to distinguish
 invitations, counter-invitations, one-round forces and game forces.
+
+Lessons 18–33 extend the nine supplied course decks in teaching order:
+minor responses, Stayman/Smolen, transfers, major raises, rebids,
+overcalls, takeout doubles, bidding after interference, and game-forcing
+and slam tools. Every lesson ends with a bilingual review table.
+Use **Back** or **Left arrow** to restore a previous teaching or auction
+position, including hands and scores. The original 17 lesson IDs stay
+stable for saved progress.
 
 1. Say Hi to the Cards — suits, colors, ranks; play your first trick
 2. Win the Tricks — follow suit, highest card wins, winner leads next

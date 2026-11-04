@@ -67,6 +67,34 @@ export const ACBL_CHAPTERS: Chapter[] = [
     acblClasses: 'ACBL Classes 8 - 10',
     lessonIds: ['conversation', 'scoring', 'overcall'],
   },
+  {
+    id: 'ch5',
+    title: { en: 'Part 5: Minor and Notrump Responses', zh: '第五篇：低花与无将应叫' },
+    subtitle: { en: 'Strength, Stayman, Smolen, Jacoby and Texas transfers', zh: '点力范围、斯台曼、斯莫伦、雅各比与德克萨斯转移' },
+    acblClasses: 'Course slides C6–C8',
+    lessonIds: ['strength-and-minors', 'stayman-fit', 'stayman-smolen', 'jacoby-transfers', 'texas-transfers'],
+  },
+  {
+    id: 'ch6',
+    title: { en: 'Part 6: Major Raises and Opener Rebids', zh: '第六篇：高花支持与开叫者再叫' },
+    subtitle: { en: 'Bergen, Jacoby 2NT, splinters, semi-forcing 1NT and reverses', zh: '伯根、雅各比2NT、斯普林特、半逼叫1NT与逆叫' },
+    acblClasses: 'Course slides Class 8–10',
+    lessonIds: ['bergen-raises', 'major-forcing-raises', 'opener-rebids', 'reverse-bids'],
+  },
+  {
+    id: 'ch7',
+    title: { en: 'Part 7: Competition and Doubles', zh: '第七篇：竞争叫牌与加倍' },
+    subtitle: { en: 'Advancing, takeout, negative and support doubles, bidding after interference', zh: '进叫、技术性加倍、负加倍、支持性加倍与受干扰后的应叫' },
+    acblClasses: 'Course slides Class 11–13',
+    lessonIds: ['overcall-strategy', 'takeout-doubles', 'negative-doubles', 'support-and-redoubles'],
+  },
+  {
+    id: 'ch8',
+    title: { en: 'Part 8: Game Forces and Slam Exploration', zh: '第八篇：逼局与满贯探索' },
+    subtitle: { en: 'Fourth-suit forcing, two-way checkback, controls and RKCB 1430', zh: '第四花色逼叫、双路重询、控制扣叫与1430关键张' },
+    acblClasses: 'Course slides Class 14',
+    lessonIds: ['game-forcing-auctions', 'two-way-checkback', 'controls-and-keycards'],
+  },
 ];
 
 /** Get chapter info for a specific lesson ID. */

@@ -27,7 +27,7 @@ export type PlayAction =
   | { seat: Seat; learner: true; expected: string; hint: string };
 
 export type Step =
-  | { kind: 'info'; text: string }
+  | { kind: 'info'; text: string; review?: { columns: string[]; rows: string[][] } }
   | { kind: 'quiz'; question: string; options: string[]; answer: number; explain: string }
   | { kind: 'auction'; script: BidAction[] }
   /** `runout` marks the tail of a hand that is already settled — the
@@ -104,6 +104,38 @@ export class TutorialRunner {
   private actionIdx = 0;
   readonly auction: Auction;
   private playState: PlayState | null = null;
+  private history: Array<{ step: number; action: number }> = [];
+
+  canGoBack(): boolean { return this.history.length > 0; }
+
+  /** Rebuild the exact earlier position, including bids, hands and scores. */
+  goBack(): boolean {
+    const target = this.history.pop();
+    if (!target) return false;
+    const replay = new TutorialRunner(this.lesson);
+    let guard = 0;
+    while ((replay.stepIdx !== target.step || replay.actionIdx !== target.action) && guard++ < 3000) {
+      const step = replay.currentStep();
+      if (!step) throw new Error('invalid rewind position');
+      if (step.kind === 'quiz') replay.answerQuiz(step.answer);
+      else {
+        const pending = replay.pendingLearnerAction();
+        if (pending) {
+          if (pending.kind === 'bid') replay.submitBid(pending.expected);
+          else replay.submitPlay(pending.expected);
+        } else replay.advance();
+      }
+    }
+    if (guard >= 3000) throw new Error('rewind replay limit');
+    this.stepIdx = replay.stepIdx;
+    this.actionIdx = replay.actionIdx;
+    this.auction.entries.splice(0, this.auction.entries.length, ...replay.auction.entries);
+    this.auction.turn = replay.auction.turn;
+    this.playState = replay.playState;
+    return true;
+  }
+
+  private remember(): void { this.history.push({ step: this.stepIdx, action: this.actionIdx }); }
 
   constructor(lesson: Lesson) {
     this.lesson = lesson;
@@ -137,6 +169,7 @@ export class TutorialRunner {
     const s = this.currentStep();
     if (!s) throw new Error('lesson finished');
     if (s.kind === 'info' || s.kind === 'result') {
+      this.remember();
       this.stepIdx++;
       this.actionIdx = 0;
       return;
@@ -144,6 +177,7 @@ export class TutorialRunner {
     if (s.kind === 'quiz') throw new Error('advance() is not for quiz steps');
     // play/auction step
     if (this.actionIdx >= s.script.length) {
+      this.remember();
       // script complete → next step
       this.stepIdx++;
       this.actionIdx = 0;
@@ -159,6 +193,7 @@ export class TutorialRunner {
         throw new Error(`script error: expected ${action.seat} to bid, turn is ${this.auction.turn}`);
       }
       this.auction.apply(parseBid(action.bid));
+      this.remember();
     } else {
       const action = a as Extract<PlayAction, { seat: Seat; card: string }>;
       const play = this.ensurePlay();
@@ -166,6 +201,7 @@ export class TutorialRunner {
         throw new Error(`script error: expected ${action.seat} to play, turn is ${play.turn}`);
       }
       play.play(parseCard(action.card));
+      this.remember();
     }
     this.actionIdx++;
     // Pause here — one tap reveals one action. No auto-continue.
@@ -206,6 +242,7 @@ export class TutorialRunner {
     const s = this.currentStep();
     if (!s || s.kind !== 'quiz') throw new Error('not a quiz step');
     if (choice === s.answer) {
+      this.remember();
       this.stepIdx++;
       this.actionIdx = 0;
       return { ok: true, hint: s.explain };
@@ -229,6 +266,7 @@ export class TutorialRunner {
       throw new Error(`script error: expected ${action.seat} to bid, turn is ${this.auction.turn}`);
     }
     this.auction.apply(bid);
+    this.remember();
     this.actionIdx++;
     return { ok: true };
   }
@@ -252,6 +290,7 @@ export class TutorialRunner {
       throw new Error(`script error: expected ${action.seat} to play, turn is ${play.turn}`);
     }
     play.play(card);
+    this.remember();
     this.actionIdx++;
     return { ok: true };
   }
@@ -285,6 +324,7 @@ export class TutorialRunner {
 
   claimRemaining(): void {
     if (!this.claimableRemaining()) throw new Error('remaining tricks are not proven winners');
+    this.remember();
     this.playState = this.simulateTail()!;
     let lastPlay = this.stepIdx;
     for (let i = this.stepIdx; i < this.lesson.steps.length; i++) {
