@@ -2032,6 +2032,13 @@ const RAW_LESSONS: RawLesson[] = [
       {
         kind: 'info',
         text: T(
+          "What if you and partner have even more strength? For a small slam, you need 32 combined points: a level-6 contract promises 12 tricks. For a grand slam, you need 36 combined points: a level-7 contract promises all 13 tricks. Remember the pairs: small slam — 32 points, 12 tricks; grand slam — 36 points, 13 tricks. These point targets guide your bidding; always check your fit and likely tricks too.",
+          '如果你和搭档的实力更强呢？小满贯需要联手32点：6阶定约承诺赢12墩。大满贯需要联手36点：7阶定约承诺赢全部13墩。记住对应关系：小满贯——32点、12墩；大满贯——36点、13墩。这些点数目标是叫牌的参考，还要检查配合和实际能赢的墩数。'
+        ),
+      },
+      {
+        kind: 'info',
+        text: T(
           "Why stretch so high? Watch the money. Win exactly 10 tricks at 2♠: you score 170. Win the same 10 tricks at 4♠: you score 420 — the game bonus alone is worth hundreds. But stretch WITHOUT the points and the fit, and the promise breaks — the defenders collect the points instead. Promise only what your points and fit can pay for. Plan first, like the losers lesson taught: count losers from your long-trump hand — spades 0, hearts 0 (dummy's K and Q cover your two small ones), diamonds 1, clubs 2. Total: 3 losers — and a game contract can afford exactly 3. Green light! West leads the ace of clubs — straight at our losers.",
           '为什么要冲这么高？看分数。打2♠赢正好10墩：得170分。打4♠赢同样的10墩：得420分 —— 成局奖分本身就值几百分。但如果没有点力和配合硬冲，承诺就会破产 —— 分数反而归防守方。承诺要落在点力和配合付得起的范围内。先做计划，就像数输墩那课教的：从长将牌一方数输墩 —— 黑桃0、红桃0（明手的K和Q正好盖住你的两张小牌）、方块1、梅花2。总共3个输墩 —— 成局定约正好输得起3个。绿灯！西家领出梅花A —— 直冲我们的输墩而来。'
         ),
