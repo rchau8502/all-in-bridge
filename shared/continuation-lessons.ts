@@ -307,10 +307,14 @@ export const COURSE_MODULES = [
     ],
     "source": "C7",
     "focus": [
-      "After a limited 1NT opening, ask for a four-card major before choosing game.",
-      "面对有限的1NT开叫，先问四张高花，再决定是否成局。"
+      "Ask for a four-card major fit and, when that suit becomes trump, let the 1NT strong hand declare.",
+      "询问四张高花配合，若该花色成为将牌，尽量让1NT强手做庄。"
     ],
     "notes": [
+      [
+        "The 1NT opener holds 15–17 points. We usually want this strong hand to DECLARE rather than become dummy: dummy’s cards are exposed, while declarer’s honors remain hidden. With the strong hand declaring, the opening lead comes from its left, through dummy and the other defender before reaching the strong hand. This often protects honor combinations such as A-Q, but the benefit depends on the lead and honor positions; it does not guarantee an extra trick.",
+        "1NT开叫者拿着15–17点。我们通常希望这只强手做庄，而不是成为明手：明手要把牌摊开，庄家的大牌位置则仍隐藏。强手做庄时，首攻从其左手引出，经明手和另一防守者后才到强手，常能保护A-Q等大牌组合。但效果取决于首攻和大牌位置，不保证一定多赢一墩。"
+      ],
       [
         "1NT shows 15–17 balanced. Without a major to investigate: 0–7 usually passes, 8–9 invites with 2NT, and 10+ chooses game. With 8+ and a four-card major, begin with artificial 2♣ Stayman. It does not promise clubs.",
         "1NT表示15–17点均型。没有要寻找的高花时：0–7点通常不叫，8–9点以2NT邀局，10点以上选择成局。有8点以上与四张高花时，先用人工2♣斯台曼，不保证梅花。"
@@ -318,6 +322,10 @@ export const COURSE_MODULES = [
       [
         "Opener answers 2♦ with no four-card major, 2♥ with four hearts (possibly also four spades), and 2♠ with four spades but not four hearts. With both four-card majors, answer hearts first.",
         "开叫者无四张高花答2♦；四张红桃答2♥，仍可能有四张黑桃；2♠表示四张黑桃、无四张红桃。两门都四张时先答红桃。"
+      ],
+      [
+        "Why ask instead of naming your major first? The declarer is the first player on the winning side to have bid the final strain. After 1NT–2♣–2♥–4♥, opener named hearts first, so the 1NT hand declares. The artificial 2♣ asks a question without making responder the first heart bidder. Stayman solves two problems together: finding the four–four fit and often keeping the strong hand hidden as declarer.",
+        "为什么先问，而不是自己先报高花？赢得定约的一方中，最先叫出最终花色的人当庄家。1NT—2♣—2♥—4♥里，开叫者先叫红桃，所以1NT强手做庄。人工2♣只提问，不会让应叫者先叫出红桃。斯台曼同时解决两件事：寻找四四配合，并常能把强手留在庄家位置。"
       ],
       [
         "With a fit, responder raises to 3 of the major with 8–9 (invitational), or 4 with 10+ (to play). Without a fit, use 2NT or 3NT at those same strengths. Opener accepts an invitation with a maximum, declines with a minimum, and evaluates texture with 16.",
@@ -357,6 +365,26 @@ export const COURSE_MODULES = [
         [
           "Invite / insist on game",
           "邀请／坚持成局"
+        ]
+      ],
+      [
+        [
+          "Why Stayman?",
+          "为什么先斯台曼？"
+        ],
+        [
+          "Find four–four; opener names the major first and declares",
+          "找四四配合，让开叫者先报高花并做庄"
+        ]
+      ],
+      [
+        [
+          "Strong hand as declarer",
+          "强手做庄"
+        ],
+        [
+          "Hide honors and often protect them from the opening lead",
+          "隐藏大牌，并常可保护大牌免受首攻穿攻"
         ]
       ]
     ],
@@ -903,13 +931,21 @@ export const COURSE_MODULES = [
     ],
     "source": "C8-transfer",
     "focus": [
-      "Transfer to a five-card major, then describe strength and let opener choose the contract.",
-      "先转移说明五张高花，再表达实力，让开叫者选择定约。"
+      "Show five-card major length indirectly so the 1NT opener names the suit first and declares; then show your strength.",
+      "间接说明五张高花，让1NT开叫者先报该花色并做庄，再说明你的实力。"
     ],
     "notes": [
       [
+        "The 1NT opener holds 15–17 points. We usually want this strong hand to DECLARE rather than become dummy: dummy’s cards are exposed, while declarer’s honors remain hidden. With the strong hand declaring, the opening lead comes from its left, through dummy and the other defender before reaching the strong hand. This often protects honor combinations such as A-Q, but the benefit depends on the lead and honor positions; it does not guarantee an extra trick.",
+        "1NT开叫者拿着15–17点。我们通常希望这只强手做庄，而不是成为明手：明手要把牌摊开，庄家的大牌位置则仍隐藏。强手做庄时，首攻从其左手引出，经明手和另一防守者后才到强手，常能保护A-Q等大牌组合。但效果取决于首攻和大牌位置，不保证一定多赢一墩。"
+      ],
+      [
         "After 1NT, 2♦ transfers to hearts and 2♥ transfers to spades. Opener normally completes the transfer even with only two cards. It asks for a bid, not whether there is already a fit.",
         "1NT后，2♦转移到红桃，2♥转移到黑桃。开叫通常完成转移，即使只有两张。它要求叫出指定花色，不是在询问是否已有配合。"
+      ],
+      [
+        "The transfer’s direction is deliberate. To show hearts, responder bids 2♦, the suit just below hearts; opener then bids 2♥ and becomes the first heart bidder. To show spades, responder bids 2♥ and opener completes 2♠. If that major is the final contract, the strong opener declares and the usually weaker responder becomes dummy. A transfer is a command to bid the major, not a promise that the partnership already has eight trumps.",
+        "转移的方向是有意设计的。想表示红桃，应叫者先叫红桃下面的2♦，开叫者再叫2♥，成为第一个报红桃的人。想表示黑桃，应叫者叫2♥，开叫者完成2♠。最终打该高花时，强开叫手做庄，通常较弱的应叫手做明手。转移是要求搭档叫出高花，不保证双方已经有八张将牌。"
       ],
       [
         "A five-card major can transfer even with 0 points. After completion, 0–7 usually passes; with 8–9 and five cards, rebid 2NT to invite; with 10+ and five, rebid 3NT and let opener choose a major game with three-card support.",
@@ -963,6 +999,16 @@ export const COURSE_MODULES = [
         [
           "Invite via hearts; GF via spades",
           "邀局先红桃；逼局先黑桃"
+        ]
+      ],
+      [
+        [
+          "Why transfer?",
+          "为什么转移？"
+        ],
+        [
+          "Opener names the major first; protect and conceal the strong hand",
+          "让开叫者先报高花，保护并隐藏强手"
         ]
       ]
     ],

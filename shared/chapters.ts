@@ -90,12 +90,14 @@ export const ACBL_CHAPTERS: Chapter[] = [
       "zh": "基础五：简单二盖一体系"
     },
     "subtitle": {
-      "en": "Strength ranges, inverted minors, Jacoby 2NT, splinters and natural rebids",
-      "zh": "自然点力范围、低花反加叫、雅各比2NT、斯普林特与顺逆叫"
+      "en": "Natural strength, Stayman, transfers, inverted minors and major support",
+      "zh": "自然实力、斯台曼、转移、低花反加叫与高花支持"
     },
     "acblClasses": "Foundations",
     "lessonIds": [
       "strength-and-minors",
+      "stayman-fit",
+      "jacoby-transfers",
       "inverted-minor-raises",
       "major-forcing-raises",
       "opener-rebids",
@@ -111,14 +113,12 @@ export const ACBL_CHAPTERS: Chapter[] = [
       "zh": "进阶一：无将约定"
     },
     "subtitle": {
-      "en": "Stayman, Smolen, Jacoby and Texas transfers",
-      "zh": "斯台曼、斯莫伦、雅各比与德克萨斯转移"
+      "en": "Smolen and Texas transfers",
+      "zh": "斯莫伦与德克萨斯转移"
     },
     "acblClasses": "Advanced agreements",
     "lessonIds": [
-      "stayman-fit",
       "stayman-smolen",
-      "jacoby-transfers",
       "texas-transfers"
     ]
   },

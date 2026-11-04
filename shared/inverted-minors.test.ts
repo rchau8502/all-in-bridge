@@ -5,6 +5,22 @@ import { getChapterForLesson } from './chapters.js';
 import { Auction, parseBid } from './bidding.js';
 
 describe('foundation minor raises and forcing status', () => {
+  it('keeps basic notrump conventions in foundations and lets the strong opener declare', () => {
+    for (const id of ['stayman-fit', 'jacoby-transfers']) {
+      expect(getChapterForLesson(id)?.track).toBe('basic');
+      const lesson=getLessons('en').find(l=>l.id===id)!;
+      const auction=new Auction(lesson.dealer);
+      for(const action of lesson.steps.flatMap(s=>s.kind==='auction'?s.script:[])) {
+        auction.apply(parseBid('expected' in action?action.expected:action.bid));
+      }
+      expect(auction.contract()!.declarer).toBe('S');
+      expect(lesson.hands.S.reduce((n,c)=>n+(c.rank>10?c.rank-10:0),0)).toBe(17);
+      expect(lesson.steps.some(s=>s.kind==='info'&&s.text.includes('dummy’s cards are exposed'))).toBe(true);
+      expect(lesson.steps.some(s=>s.kind==='info'&&s.review?.rows.some(r=>r[0]==='Strong hand as declarer'||r[0]==='Why transfer?'))).toBe(true);
+    }
+    expect(getChapterForLesson('stayman-smolen')?.track).toBe('advanced');
+    expect(getChapterForLesson('texas-transfers')?.track).toBe('advanced');
+  });
   it('teaches inverted minors, Jacoby 2NT and splinters in foundations', () => {
     for (const id of ['inverted-minor-raises', 'major-forcing-raises']) {
       expect(getChapterForLesson(id)?.track).toBe('basic');

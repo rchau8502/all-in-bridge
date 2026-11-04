@@ -31,9 +31,10 @@ only after the **opening card**; later play uses action hints without
 repeated card-by-card reviews. When the remaining tricks are provably
 cashable, the learner can claim them and continue to the lesson wrap-up.
 
-The catalog has **23 foundation lessons** and **12 optional advanced lessons**.
+The catalog has **25 foundation lessons** and **10 optional advanced lessons**.
 Foundations use a simple natural two-over-one game-forcing system: natural
-major raises, inverted minor raises, Jacoby 2NT, splinters, minimum and
+major raises, Stayman and Jacoby transfers (including the strong-hand
+declarer logic), inverted minor raises, Jacoby 2NT, splinters, minimum and
 invitational rebids, reverses and game decisions.
 Within the same natural bid family, higher commitments show more strength.
 Named conventions use their agreed meanings. Inverted minors show 11+ and
@@ -43,7 +44,7 @@ non-forcing, one-round-forcing or game-forcing label.
 Once game is already forced, economical shape-showing bids are not weak sign-offs.
 Lesson 13 retains the Dating Model for invitations and game forces.
 
-Advanced lessons hold Stayman, Smolen, transfers, Bergen,
+Advanced lessons hold Smolen, Texas transfers, Bergen,
 competitive agreements, fourth-suit forcing, checkback, fast/slow arrival,
 controls and keycards. They explicitly introduce any convention that replaces
 the foundation agreement, such as Bergen replacing the natural limit raise.

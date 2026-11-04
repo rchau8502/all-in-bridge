@@ -10,6 +10,8 @@ export const BASIC_FORCING_STATUS: Record<string, ForcingStatus[]> = {
   conversation: ['NF', 'F1', 'NF'],
   scoring: ['NF', 'NF', 'NF'],
   overcall: ['NF', 'NF', 'NF'],
+  'stayman-fit': ['NF', 'F1', 'NF', 'NF', 'NF'],
+  'jacoby-transfers': ['NF', 'F1', 'NF', 'NF', 'NF'],
   'strength-and-minors': ['NF', 'F1', 'NF'],
   'inverted-minor-raises': ['NF', 'F1', 'F1', 'F1', 'F1', 'NF'],
   'major-forcing-raises': ['NF', 'GF', 'NF'],
