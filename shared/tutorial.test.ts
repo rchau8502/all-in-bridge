@@ -382,3 +382,49 @@ describe('runout tails', () => {
     }
   });
 });
+
+describe('lesson pacing and cash-out', () => {
+  it('keeps the lesson focus and no intermediate card-analysis stops', () => {
+    for (const lesson of LESSONS) {
+      expect(lesson.focus, lesson.id).toBeTruthy();
+      const playIndices = lesson.steps.flatMap((s, i) => s.kind === 'play' ? [i] : []);
+      if (!playIndices.length) continue;
+      expect(lesson.openingLeadAnalysis, lesson.id).toBeTruthy();
+      const first = playIndices[0]!;
+      const last = playIndices[playIndices.length - 1]!;
+      expect(lesson.steps.slice(first, last).some(s => s.kind === 'info'), lesson.id).toBe(false);
+    }
+  });
+
+  it('only offers proven cash-outs and preserves completed scores in both languages', () => {
+    const offered = new Set<string>();
+    for (const lang of ['en', 'zh'] as const) for (const lesson of getLessons(lang)) {
+      const r = new TutorialRunner(lesson);
+      let guard = 0;
+      while (!r.finished && guard++ < 1000) {
+        if (r.claimableRemaining()) {
+          offered.add(lesson.id);
+          r.claimRemaining();
+          expect(r.getResult(), lesson.id).toEqual(walkLesson(lesson).getResult());
+          continue;
+        }
+        const step = r.currentStep()!;
+        if (step.kind === 'info' || step.kind === 'result') { r.advance(); continue; }
+        const p = r.pendingLearnerAction();
+        if (p) expect((p.kind === 'bid' ? r.submitBid(p.expected) : r.submitPlay(p.expected)).ok).toBe(true);
+        else r.advance();
+      }
+      expect(guard).toBeLessThan(1000);
+    }
+    expect(offered.size).toBeGreaterThan(0);
+  });
+
+  it('refuses to claim before any play or while a trick is in progress', () => {
+    const r = new TutorialRunner(LESSONS.find(l => l.id === 'contract')!);
+    expect(() => r.claimRemaining()).toThrow();
+    while (r.currentStep()?.kind === 'info') r.advance();
+    r.advance();
+    expect(r.playView()!.trick).toHaveLength(1);
+    expect(r.claimableRemaining()).toBe(0);
+  });
+});

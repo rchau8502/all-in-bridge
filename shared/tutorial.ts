@@ -10,7 +10,7 @@
  * the locale files.
  */
 
-import { parseCard } from './deck.js';
+import { parseCard, seatSide } from './deck.js';
 import type { Card, Seat, Hands } from './deck.js';
 import type { Bid, Contract } from './bidding.js';
 import { Auction, parseBid, bidLabel } from './bidding.js';
@@ -43,6 +43,9 @@ export type Step =
 export interface Lesson {
   id: string;
   title: string;
+  /** Only the opening card receives detailed automatic commentary. */
+  openingLeadAnalysis?: string;
+  focus?: string;
   dealer: Seat;
   /** Fixed deal for the lesson. */
   hands: Hands;
@@ -256,6 +259,59 @@ export class TutorialRunner {
   /** How many tricks have been completed in the current play state. */
   completedTrickCount(): number {
     return this.playState ? this.playState.completedTricks.length : 0;
+  }
+
+  /** Conservative cash-out proof: one hand owns every remaining winner,
+   * no partner honor can block it, and no defender can ruff a side suit.
+   * Also replay the authored tail so claiming preserves the lesson score. */
+  claimableRemaining(): number {
+    const ps = this.playState;
+    if (this.currentStep()?.kind !== 'play' || !ps || ps.currentTrick.length || ps.completedTricks.length === 0) return 0;
+    if (seatSide(ps.turn) !== seatSide(learnerSeatOf(this.lesson))) return 0;
+    const n = ps.hands[ps.turn].length;
+    if (n < 2) return 0;
+    const trump = ps.contract.denom === 'NT' ? null : ps.contract.denom;
+    const others = (['N', 'E', 'S', 'W'] as Seat[]).filter(s => s !== ps.turn);
+    const opponents = others.filter(s => seatSide(s) !== seatSide(ps.turn));
+    if (!ps.hands[ps.turn].every(c =>
+      !others.some(s => ps.hands[s].some(d => d.suit === c.suit && d.rank > c.rank)) &&
+      (c.suit === trump || !opponents.some(s => ps.hands[s].some(d => d.suit === trump)))
+    )) return 0;
+    const tail = this.simulateTail();
+    if (!tail || tail.completedTricks.slice(ps.completedTricks.length)
+      .some(trick => seatSide(trickWinner(trick, trump)) !== seatSide(ps.turn))) return 0;
+    return n;
+  }
+
+  claimRemaining(): void {
+    if (!this.claimableRemaining()) throw new Error('remaining tricks are not proven winners');
+    this.playState = this.simulateTail()!;
+    let lastPlay = this.stepIdx;
+    for (let i = this.stepIdx; i < this.lesson.steps.length; i++) {
+      if (this.lesson.steps[i]!.kind === 'play') lastPlay = i;
+    }
+    this.stepIdx = lastPlay + 1;
+    this.actionIdx = 0;
+  }
+
+  private simulateTail(): PlayState | null {
+    const ps = this.playState!;
+    const copy = new PlayState(ps.hands, ps.contract);
+    copy.turn = ps.turn;
+    copy.tricksWon.NS = ps.tricksWon.NS;
+    copy.tricksWon.EW = ps.tricksWon.EW;
+    copy.completedTricks.push(...ps.completedTricks);
+    try {
+      for (let i = this.stepIdx; i < this.lesson.steps.length; i++) {
+        const step = this.lesson.steps[i]!;
+        if (step.kind !== 'play') continue;
+        for (const a of step.script.slice(i === this.stepIdx ? this.actionIdx : 0)) {
+          if (copy.turn !== a.seat) return null;
+          copy.play(parseCard('expected' in a ? a.expected : a.card));
+        }
+      }
+    } catch { return null; }
+    return copy.isComplete() ? copy : null;
   }
 
   /**

@@ -13,6 +13,7 @@
  * (used by tests).
  */
 
+import { datingWalk } from './dating-model.js';
 import { parseCard } from './deck.js';
 import type { Hands, Seat } from './deck.js';
 import type { Lesson } from './tutorial.js';
@@ -263,6 +264,16 @@ const OVERCALL_DEAL: Hands = makeHands({
   E: ["AS", "KS", "9S", "7S", "TH", "4H", "KD", "QD", "JD", "TD", "9D", "JC", "2C"],
   W: ["TS", "8S", "6S", "2S", "3H", "2H", "8D", "7D", "6D", "5D", "TC", "9C", "AC"],
 });
+
+
+function datingExample(a: number, b: number): LText {
+  const r = datingWalk(a, b);
+  const path = r.moves.join(' → ');
+  return T(
+    `Dating example ${a}+${b}=${a+b}: moves ${path}. ${r.success ? 'Hug: target reached.' : 'Pass before the last space: below target.'}${r.counter ? ' The 3-point reply is a counter-invitation; only the inviter holding 6 accepts.' : ''}`,
+    `约会例子${a}+${b}=${a+b}：步数${path}。${r.success ? '拥抱：达到目标。' : '最后一格之前Pass：没有达到目标。'}${r.counter ? '3点的回应是反邀请，只有持6点的邀请者接受。' : ''}`
+  );
+}
 
 const RAW_LESSONS: RawLesson[] = [
   {
@@ -2256,9 +2267,9 @@ const RAW_LESSONS: RawLesson[] = [
     vulnerable: false,
     steps: [
 { kind: 'info', text: T("Last lesson asked what we can promise. Bidding finds the answer together: do we have enough strength for game, and should we play 3NT, 4♥ or 4♠? Exchange point ranges and suit lengths; do not bid just to outshout someone.", "上一课问我们能承诺多少墩。叫牌就是两人一起找答案：实力够不够成局，适合打3NT、4♥还是4♠？交换点力范围与花色长度，不是比谁喊得高。") },
-{ kind: 'info', text: T("We use Standard American Yellow Card. For these beginner hands, consider a one-level suit opening with 12 or more high-card points. Game takes about 25 combined points, so 12 is roughly half the partnership target. This is a useful starting guide, not a guarantee of game; shape and playing strength matter too.", "我们采用标准美国黄卡。入门时，拿到12点或以上大牌点，才考虑一阶花色开叫。成局通常需要联手约25点，12点大致是两人目标的一半。这是起步参考，不是成局保证；牌型和实际赢墩能力也很重要。") },
+{ kind: 'info', text: T("We use a two-over-one game-forcing system. For these beginner hands, consider a one-level suit opening with 12 or more high-card points. Game takes about 25 combined points, so 12 is roughly half the partnership target. This is a useful starting guide, not a guarantee of game; shape and playing strength matter too.", "我们采用二盖一逼局体系。入门时，拿到12点或以上大牌点，才考虑一阶花色开叫。成局通常需要联手约25点，12点大致是两人目标的一半。这是起步参考，不是成局保证；牌型和实际赢墩能力也很重要。") },
 { kind: 'info', text: T("There are five one-level openings: 1♣, 1♦, 1♥, 1♠ and 1NT. A suit opening normally shows about 12–21 points; stronger hands may need a strong opening instead. Pass with a weak hand: you have sent useful information and may bid later.", "一阶有五种开叫：1♣、1♦、1♥、1♠和1NT。花色开叫通常约12–21点；更强的牌可能需要强开叫。弱牌先不叫，也是有用的信息，以后仍可能参与。") },
-{ kind: 'info', text: T("1NT is precise: 15–17 high-card points and a balanced hand, usually 4-3-3-3, 4-4-3-2 or 5-3-3-2. Balanced does NOT mean automatically open 1NT: 12–14 is too weak for it. SAYC can include a five-card major in a balanced 1NT opening.", "1NT的条件很精确：15–17大牌点，均型，通常是4-3-3-3、4-4-3-2或5-3-3-2。均型不等于自动开1NT：12–14点不够。标准美国黄卡的均型1NT也可以包含五张高花。") },
+{ kind: 'info', text: T("1NT is precise: 15–17 high-card points and a balanced hand, usually 4-3-3-3, 4-4-3-2 or 5-3-3-2. Balanced does NOT mean automatically open 1NT: 12–14 is too weak for it. In this tutorial, a balanced 1NT opening may include a five-card major.", "1NT的条件很精确：15–17大牌点，均型，通常是4-3-3-3、4-4-3-2或5-3-3-2。均型不等于自动开1NT：12–14点不够。本教程约定均型1NT也可以包含五张高花。") },
 { kind: 'info', text: T("Outside the notrump range, open 1♥ or 1♠ with at least five cards in that major. With unequal long suits, usually start with the longer; with two five-card suits, start with the higher-ranking one. Do not open a four-card major just because its honors look nice.", "不符合无将开叫条件时，开1♥或1♠保证该高花至少五张。长套不等长时通常先叫较长套；两套都是五张时先叫较高级的花色。不要仅因大牌漂亮，就用四张高花开叫。") },
 { kind: 'info', text: T("Why promise five? Partner with three knows 5+3=8 immediately. If you have only four in a major, start with a minor; partner can respond with a four-card major, and you can raise with four: 4+4=8. Five-card major OPENINGS and four-card major RESPONSES work together to find both fits.", "为什么保证五张？搭档有三张，马上知道5+3=8。若你只有四张高花，先开小花，搭档可以应叫四张高花，你有四张再加叫：4+4=8。五张高花开叫与四张高花应叫相互配合，才能找到这两类配合。") },
 { kind: 'info', text: T("No five-card major and no suitable 1NT? Open the longer minor. With 3 clubs and 3 diamonds, choose 1♣; with 4 and 4, choose 1♦. 1♣ promises at least 3 clubs. 1♦ usually has 4, but can have 3 with exactly 4 spades, 4 hearts, 3 diamonds and 2 clubs. A minor opening does not promise five!", "没有五张高花，也不适合1NT？开较长的小花。梅花、方块各3张时开1♣，各4张时开1♦。1♣至少3张；1♦通常4张，但黑桃4、红桃4、方块3、梅花2时也开1♦。小花开叫不保证五张！") },
@@ -2286,11 +2297,22 @@ const RAW_LESSONS: RawLesson[] = [
     vulnerable: false,
     steps: [
 { kind: 'info', text: T("Partner opens 1♣. Your job is to help answer both questions: how high, and in which strain? Respond with about 6 points or more to a one-level suit opening; with 0–5 you usually pass. A pass IS a reply. A forcing bid is different: you must keep the auction alive even if unsure.", "搭档开叫1♣。你要帮助回答两个问题：叫多高、打什么？对一阶花色开叫，约6点以上通常应叫；0–5点通常不叫。不叫也是回答。但逼叫不同：即使没把握，也要继续叫，不能随意停下。") },
-{ kind: 'info', text: T("Over 1♣ or 1♦, look for a major fit before raising a minor. A one-level new-suit response needs at least four cards and about 6 points; bid four-card suits up the line, hearts before spades when both have four. A five-card suit may be shown first. A new suit at the two level needs about 10 or more, not just 6.", "对1♣或1♦，先寻找高花配合，再考虑加叫小花。一阶新花应叫至少四张、约6点；四张套尽量由低到高，红桃黑桃各四张时先红桃。五张长套可以先报。二阶新花通常需要约10点以上，不能只有6点就随便叫。") },
+{ kind: 'info', text: T("Over 1♣ or 1♦, look for a major fit before raising a minor. A one-level new-suit response needs at least four cards and about 6 points; bid four-card suits up the line, hearts before spades when both have four. A five-card suit may be shown first. When an unpassed responder faces a 1♥ or 1♠ opening without interference, a non-jump new suit at the two level is a two-over-one GAME FORCE: it shows game-going strength, usually about 12+ points after evaluation, not merely 10. Over 1♠, a 2♥ response also promises five hearts.", "对1♣或1♦，先寻找高花配合，再考虑加叫小花。一阶新花应叫至少四张、约6点；四张套尽量由低到高，红桃黑桃各四张时先红桃。五张长套可以先报。未Pass过的应叫者，在对方没有干扰时，对1♥或1♠作二阶不跳新花应叫，属于二盖一逼局：需要经评估达到成局实力，通常约12点以上，不能仅凭10点就这样叫。对1♠应叫2♥还保证五张红桃。") },
 { kind: 'info', text: T("Support needs context. After a five-card major OPENING, three-card support makes an eight-card fit; a simple raise shows about 6–10 support points. After a four-card major RESPONSE, opener normally needs FOUR to raise. Three cards do not prove a fit. Raising a minor needs more length: normally four diamonds or five clubs.", "支持要看前提。五张高花开叫后，三张支持就有八张配合；简单加叫约表示6–10支持点。但四张高花应叫后，开叫者通常需要四张才能加叫，三张不能确认配合。小花加叫需要更多张数：通常方块四张、梅花五张。") },
-{ kind: 'info', text: T("Without a fit or a suit you can show economically, a notrump response may describe your hand: 1NT over a one-level suit opening is usually 6–10 points, not the 15–17 of a 1NT OPENING. Over a 1NT opening, 2♣ is Stayman to look for a four-card major, normally with 8+ points; 2♦ and 2♥ are transfers, not natural suit responses. Those tools come later.", "没有配合，也没有能经济叫出的花色时，可以考虑无将应叫：对一阶花色开叫应叫1NT，通常是6–10点，不是1NT开叫的15–17点。对1NT开叫，2♣是斯台曼问四张高花，通常需要8点以上；2♦和2♥是转移叫，不是自然花色应叫。这些工具以后再细学。") },
+{ kind: 'info', text: T("In our two-over-one teaching agreement, an unpassed responder’s 1NT over 1♥ or 1♠ without interference shows about 6–12 points and is forcing for one round. Opener must bid again, but the partnership is not committed to game. This is different from a 15–17 1NT OPENING. Do not apply the forcing-1NT rule automatically to minor openings, passed hands or competitive auctions. Over a 1NT opening, 2♣ is Stayman to look for a four-card major, normally with 8+ points; 2♦ and 2♥ are transfers, not natural suit responses. Those tools come later.", "本教程二盖一约定：未Pass过的应叫者，在无干扰时对1♥或1♠应叫1NT，约表示6–12点，并逼叫一轮。开叫者必须再叫，但双方还没有承诺成局。这不同于15–17点的1NT开叫。对小花开叫、已Pass过的牌或竞争叫牌，不能自动套用逼叫性1NT。对1NT开叫，2♣是斯台曼问四张高花，通常需要8点以上；2♦和2♥是转移叫，不是自然花色应叫。这些工具以后再细学。") },
 { kind: 'info', text: T("This deal: North has 13 points, four clubs and four hearts; no five-card major, and too little for 1NT. North opens 1♣. You have 8 points and five hearts: respond 1♥. Your bid only promises four, so North uses FOUR hearts to raise. You can count 5+4=9, but North’s decision does not rely on seeing your fifth heart.", "这副牌：北家13点、四张梅花和四张红桃，没有五张高花，点力又不够1NT，所以开1♣。你有8点、五张红桃，应叫1♥。你的应叫只保证四张，因此北家凭自己的四张红桃加叫。你能数出5+4=9，但北家的决定不能依赖偷看你的第五张红桃。") },
-{ kind: 'info', text: T("Strength also controls the reply: about 6–9 is a minimum, 10–12 is invitational, and 13+ normally commits to game opposite an opening hand. With support for a major opening, a simple raise is limited; a jump raise to 3 is a limit invitation. A direct jump to 4 can be preemptive in SAYC, so do not use it as a generic strong reply. First show your range, then choose the right continuation.", "应叫还要表达实力：约6–9点是低限，10–12点邀局，13点以上面对开叫通常应坚持到成局。支持高花开叫时，简单加叫表示有限实力，跳加叫到3阶是限制性邀局。标准美国黄卡直接跳到4阶可能是阻击性叫牌，不能一概当成强牌应叫。先表达范围，再选择后续进程。") },
+{ kind: 'info', text: T("Strength also controls the reply: about 6–9 is a minimum, 10–12 is invitational, and 13+ normally commits to game opposite an opening hand. With support for a major opening, a simple raise is limited; a jump raise to 3 is a limit invitation. A direct jump to 4 can be preemptive in our methods, so do not use it as a generic strong reply. First show your range, then choose the right continuation.", "应叫还要表达实力：约6–9点是低限，10–12点邀局，13点以上面对开叫通常应坚持到成局。支持高花开叫时，简单加叫表示有限实力，跳加叫到3阶是限制性邀局。本体系直接跳到4阶可能是阻击性叫牌，不能一概当成强牌应叫。先表达范围，再选择后续进程。") },
+{ kind: 'info', text: T("A forcing bid may mean just one more round: 1♥–1♠ requires opener to speak again, and our 1♥–1NT is also forcing for one round. By contrast, an unpassed 1♥–2♣ response with no interference is a two-over-one game force: even a minimum opener must continue until at least game. The immediate job is then to exchange shape and fit information, not to ask whether to stop below game.", "逼叫可以只逼一轮：1♥—1♠要求开叫者再说一次，本教程的1♥—1NT也逼叫一轮。相对地，未Pass过、无干扰时的1♥—2♣属于二盖一逼局：即使开叫是低限，也必须继续到至少成局。接下来交换牌型与配合信息，而不是讨论能否停在局以下。") },
+{ kind: 'info', text: T("Dating Model: two people each privately hold an affection value from 1–8. They start 3 spaces apart and may hug only when their total is at least 9. Moving a combined 3 spaces completes the hug. This is a toy model of exchanging ranges, not bridge point counts or bid levels.", "约会模型：两个人各自秘密持有1–8点爱意，相距3格；合计至少9点才可以拥抱，两人累计走满3格就拥抱。这是交换范围的信息模型，不是桥牌点数，也不是叫牌阶数。") },
+{ kind: 'info', text: T("Opening agreement: with 8, you can walk all 3 spaces, since even 8+1=9. With 7, walk 2 spaces as a strong invitation. With 5–6, walk 1 as an ordinary invitation. With 1–4, pass initially. That first pass leaves the other person a turn to invite; only two opening passes end the game.", "开局约定：8点可直接走3格，因为即使8+1=9也足够。7点走2格作强邀请；5–6点走1格作普通邀请；1–4点开局先Pass。第一次开局Pass后，另一人仍可邀请；两人开局都Pass才结束。") },
+{ kind: 'info', text: T("Invitation means “we may have enough; decide using your own value.” After the 7-point person walks 2, the other accepts by walking the last 1 with 2–8 points, but passes with 1. After a 5–6-point invitation of 1 space, a responder with 4–8 walks the remaining 2; with 1–2, pass.", "邀请的意思是：“我们可能够了，请用你自己的实力决定。”7点者走2格后，对方有2–8点就走最后1格接受，只有1点则Pass。5–6点走1格普通邀请后，对方4–8点就走余下2格接受，1–2点则Pass。") },
+{ kind: 'info', text: T("Counter-invitation: after a 5–6-point invitation, a responder with 3 walks just 1 space. The message is “my 3 is enough only if you are the top of your range.” The inviter with 6 walks the final 1; the inviter with 5 passes. You learned more without anyone revealing an exact value at the start.", "反邀请：面对5–6点的邀请，持3点者只走1格，表示：“我的3点，只有配上你范围里的高限才够。”原邀请者有6点就走最后1格，有5点则Pass。双方一开始没有公开精确点数，却通过行动补足了信息。") },
+{ kind: 'info', text: datingExample(8, 1) },
+{ kind: 'info', text: datingExample(7, 2) },
+{ kind: 'info', text: datingExample(6, 3) },
+{ kind: 'info', text: datingExample(5, 3) },
+{ kind: 'info', text: T("Game force is a commitment, not the same as jumping directly to game. An 8-point person knows the minimum total is already 9, so can declare a game-force commitment and walk only 1 first. Neither may stop below the hug; they can still exchange information about the route. Directly walking 3 instead finishes the conversation immediately.", "逼局是一项承诺，不等于直接跳到成局。8点者知道最低合计已经是9，可以先宣布逼局承诺，只走1格；双方都不能在拥抱之前停下，但仍能交换信息选择路线。若直接走3格，则是立即完成目标、结束交流。") },
+{ kind: 'info', text: T("Bridge connection: an invitation lets partner accept with extra strength or decline with a minimum. A game force says “we must reach game,” while leaving room to choose a major or no-trump and perhaps explore slam. Being unsure is not permission to pass a forcing bid. A counter-invitation is an analogy for a further conditional message, not a universal two-over-one bid with a fixed meaning.", "对应桥牌：邀请让搭档高限接受、低限拒绝；逼局表示“必须至少成局”，同时仍可选择高花或无将，甚至探索满贯。不确定，不能成为对逼叫随意Pass的理由。反邀请类比的是进一步有条件地交换信息，不是一种在所有二盖一进程中都具有固定含义的叫品。") },
 { kind: 'auction', script: [{ seat: 'N', bid: "1C", note: T("1♣: 13 points, four clubs, no five-card major.", "1♣：13点、四张梅花，没有五张高花。") },
 { seat: 'E', bid: "P", note: T("East has no suitable overcall and passes.", "东家没有合适的争叫，选择不叫。") },
 { seat: 'S', learner: true, expected: "1H", hint: T("Choose 1H.", "请选择1H。"), note: T("1♥: at least four hearts and 6+ points; this hand has five and 8.", "1♥：至少四张红桃、6点以上；这手实际五张、8点。") },
@@ -2682,15 +2704,47 @@ function resolveStep(s: RawStep, lang: LessonLang) {
   }
 }
 
+
+const LESSON_NOTES: Record<string, { focus: LText; lead: LText }> = {
+"deck": { focus: T("Recognize the deck, suits and ranks. Follow the highlighted cards.", "认识牌、花色与大小，按高亮提示操作。"), lead: T("West leads the 4 of hearts. Hearts are the suit led: follow hearts if you have any. Your ace is the highest heart.", "西家首攻红桃4，红桃就是领出花色：有红桃必须跟红桃，你的A是最大的红桃。") },
+"tricks": { focus: T("Follow suit; compare cards of the suit led. The winner leads the next trick.", "有花色必须跟，比较领出花色的大小，赢墩者领下一墩。"), lead: T("West leads the 4 of diamonds. Follow diamonds if possible; a card of another suit cannot win at no-trump. Watch your ace take the trick.", "西家领出方块4。有方块必须跟；无将时，其他花色不能赢。看你的A如何拿下这一墩。") },
+"strategy": { focus: T("Count top winners across BOTH hands, then make a plan: finesse toward a tenace or develop honors by driving out the ace.", "合看两手数顶张赢墩，再计划：朝坎张飞牌，或顶出A来树立大牌。"), lead: T("West leads the 5 of clubs. Dummy can win with the king, but two high cards from your side in one trick still count as only one winner. Count the two hands together.", "西家首攻梅花5。明手可用K拿下，但同一墩里打出两张己方大牌，也只算一个赢墩。数赢墩要合看两手。") },
+"long-suits": { focus: T("Establish the long suit: count the missing cards, give up a trick when needed, and save an entry to cash the length.", "树立长套：数对方张数，必要时让掉一墩，保留进手兑现长套。"), lead: T("West leads the ace of hearts. You cannot beat it: follow small and preserve your other winners. Your plan is to establish diamonds and retain the club entry.", "西家首攻红桃A。你压不过它，跟小牌，保留其他赢墩。计划是树立方块，并保留梅花进手。") },
+"trump": { focus: T("Trump can win when you are void in the led suit; following suit remains compulsory.", "缺门时可以用将牌将吃，有领出花色时仍必须跟。"), lead: T("West leads the 4 of diamonds. With no diamonds, you may ruff with a spade, the trump suit. Trump beats even a higher card of the suit led.", "西家首攻方块4。没有方块时可以用黑桃将牌将吃，将牌能压过领出花色的大牌。") },
+"losers": { focus: T("Count losers from the long-trump hand, use dummy’s honors to cover them, and compare with the contract’s losing budget.", "从长将牌一方数输墩，用明手大牌补足，再和定约允许的输墩数比较。"), lead: T("West leads the queen of hearts. Dummy’s king covers a heart loser; preserve the ace in your hand. Keep the loser count separate from the winner count.", "西家首攻红桃Q。明手的K能补上一个红桃输墩，保留手中的A。数输墩与数赢墩不要混淆。") },
+"eliminate": { focus: T("Eliminate losers with discards on established winners and ruffs in dummy. Delay drawing trump when those ruffs are needed.", "用树立后的赢墩垫输牌、用明手将吃消去输墩；需要将吃时先不急着清将牌。"), lead: T("West leads the queen of spades. Dummy’s ace wins; now plan to establish clubs for discards and use dummy’s trumps for a diamond ruff.", "西家首攻黑桃Q，用明手A拿下。计划是树立梅花垫输牌，并保留明手将牌将吃方块。") },
+"defense-leads": { focus: T("Choose the opening suit and lead: fourth best from length, top of a sequence. Use only your hand, dummy and the auction.", "选择首攻花色与张数：长套第四张，连张出最大。只根据自己的牌、明手与叫牌判断。"), lead: T("You lead the 4 of hearts from K-10-8-4 against 3NT: fourth best from your longest suit. This gives partner a chance to help establish it; it does not tell you partner’s hidden cards.", "你对3NT从红桃K-10-8-4首攻4：长套第四张。给搭档机会帮助树立花色，但不能事先假定搭档的暗牌。") },
+"defense-play": { focus: T("Work with partner: third hand high, second hand low, cover an honor when it promotes a card, and avoid wasting two winners together.", "配合搭档：第三家出大，第二家出小；盖大牌要能提升赢墩，避免两张赢张撞在同一墩。"), lead: T("Partner leads the 6 of hearts. As third hand, play the king to force declarer’s ace and help promote partner’s queen. Do not duck merely to save your king.", "搭档首攻红桃6。你是第三家，用K逼出庄家A，帮助提升搭档Q，不要只为保留K而机械跟小。") },
+"defense-rules": { focus: T("Practise top of a sequence on lead, second hand low, and the cheapest sufficient winner when following.", "实践连张首攻出最大、第二家出小，以及跟牌时用足够赢墩的最小牌。"), lead: T("You lead the king of spades from K-Q-J. The king is the top of a sequence; forcing out the ace can establish the queen and jack.", "你从黑桃K-Q-J首攻K：连张出最大，逼出A后可以树立Q和J。") },
+"contract": { focus: T("A contract is level + 6 tricks. Combine point strength and an eight-card fit to decide whether to promise game; count enemy trumps until all are gone.", "定约承诺阶数+6墩。结合联手点力与八张配合判断成局，清将时数到对方最后一张将牌。"), lead: T("West leads the ace of clubs against 4♠. This is one of your planned club losers: follow suit, then manage the remaining two losers and draw all enemy trumps.", "西家对4♠首攻梅花A。这是计划内的梅花输墩，必须跟牌；之后控制其余两个输墩，并清完对方将牌。") },
+"bidding": { focus: T("Bidding exchanges strength ranges and suit lengths to choose the level and strain. Learn the five one-level openings and how 5–3 and 4–4 major fits are found.", "用叫牌交换实力范围和花色长度，决定高度与定约方向。掌握五种一阶开叫，以及5–3、4–4高花配合的寻找方法。"), lead: T("", "") },
+"minor-responses": { focus: T("Respond to partner, find a major fit, and show whether your strength is minimum, invitational or game-forcing. Support length depends on what partner has promised.", "回应搭档、寻找高花配合，表达低限、邀局或逼局实力。支持张数取决于搭档已经保证的长度。"), lead: T("", "") },
+"full-hand": { focus: T("Raise with the promised support and strength, then play one complete hand: plan, draw trump, use entries and follow suit.", "按支持张数和实力加叫，再完整打牌：计划、清将牌、进手与跟牌。"), lead: T("West leads the king of diamonds. Dummy’s ace can win immediately. Plan to draw the four outside hearts, then use a small club to reach dummy’s club winners.", "西家首攻方块K，明手A可以立即拿下。计划先清外面的四张红桃，再从手里领小梅花到明手兑现赢墩。") },
+"conversation": { focus: T("An opener’s rebid narrows both length and strength. Use the new information to stop, invite or commit to game; each message must help the partnership decision.", "开叫者再叫进一步说明长度和实力。根据新信息选择停叫、邀请或逼局，每条消息都帮助两人作决定。"), lead: T("", "") },
+"scoring": { focus: T("Distinguish trick points from bonuses. Bid game when the partnership has enough strength and a suitable fit; a partscore is right when game is not justified.", "区分墩分与奖分。联手实力足、配合合适时叫成局，不够时停部分定约。"), lead: T("West leads the jack of diamonds against 4♥. Follow diamonds and win with your ace. The bidding chose game from strength and fit; the play must now deliver 10 tricks.", "西家对4♥首攻方块J。有方块必须跟，用A拿下。叫牌根据实力与配合选择了成局，现在打牌要兑现10墩。") },
+"overcall": { focus: T("After an opponent opens, your bid is an overcall, not a response. Judge suit quality, strength and level; partner’s limited support does not promise game.", "对方开叫后是争叫，不是应叫。结合花色质量、实力与阶数判断；搭档有限支持不保证成局。"), lead: T("", "") },
+};
+
 function resolveLesson(raw: RawLesson, lang: LessonLang): Lesson {
   return {
     id: raw.id,
     title: raw.title[lang],
+    focus: LESSON_NOTES[raw.id]?.focus[lang] ?? '',
+    openingLeadAnalysis: LESSON_NOTES[raw.id]?.lead[lang] ?? '',
     dealer: raw.dealer,
     hands: raw.hands,
     contract: raw.contract,
     vulnerable: raw.vulnerable,
-    steps: raw.steps.map(s => resolveStep(s, lang)),
+    steps: (() => {
+      const firstPlay = raw.steps.findIndex(s => s.kind === 'play');
+      const lastPlay = raw.steps.reduce((last, s, i) => s.kind === 'play' ? i : last, -1);
+      const paced = raw.steps.filter((s, i) =>
+        s.kind !== 'info' || firstPlay < 0 || i <= firstPlay || i > lastPlay
+      );
+      const focus = LESSON_NOTES[raw.id]?.focus;
+      return [...(focus ? [{ kind: 'info' as const, text: (lang === 'zh' ? '本课重点：' : 'Lesson focus: ') + focus[lang] }] : []),
+        ...paced.map(s => resolveStep(s, lang))];
+    })(),
   };
 }
 

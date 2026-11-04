@@ -26,10 +26,15 @@ at the table: short chat bubbles, everyday analogies, and the HOW and WHY
 of every single step. All four hands are face-up (open book) so learners
 can see exactly what is happening and why it works.
 
-After **every trick**, play pauses for a review: the four cards stay on
-the table, the winning card glows, and the coach explains — card by card —
-who won, who lost, and why (follow suit, biggest card wins, trumps beat
-everything, and a throw-away card can never win a trick).
+Each lesson starts with its learning focus. Detailed card analysis pauses
+only after the **opening card**; later play uses action hints without
+repeated card-by-card reviews. When the remaining tricks are provably
+cashable, the learner can claim them and continue to the lesson wrap-up.
+
+Bidding lessons use a **two-over-one game-forcing** teaching agreement,
+including a forcing 1NT response to a major by an unpassed hand in an
+uncontested auction. Lesson 13 uses a Dating Model to distinguish
+invitations, counter-invitations, one-round forces and game forces.
 
 1. Say Hi to the Cards — suits, colors, ranks; play your first trick
 2. Win the Tricks — follow suit, highest card wins, winner leads next

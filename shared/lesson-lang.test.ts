@@ -31,6 +31,8 @@ function texts(lang: Lang): Array<{ where: string; text: string }> {
   const out: Array<{ where: string; text: string }> = [];
   for (const lesson of getLessons(lang)) {
     out.push({ where: `${lesson.id} title`, text: lesson.title });
+    if (lesson.focus) out.push({ where: `${lesson.id} focus`, text: lesson.focus });
+    if (lesson.openingLeadAnalysis) out.push({ where: `${lesson.id} opening`, text: lesson.openingLeadAnalysis });
     lesson.steps.forEach((s, i) => {
       if (s.kind === 'info') out.push({ where: `${lesson.id} step${i}`, text: s.text });
       if (s.kind === 'play' || s.kind === 'auction') {

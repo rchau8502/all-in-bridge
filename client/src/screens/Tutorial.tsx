@@ -6,7 +6,7 @@ import { InlineGlossaryText } from '../components/InlineGlossaryText.js';
 import { audio } from '../audio.js';
 import { TutorialRunner, learnerSeatOf } from '../../../shared/tutorial.js';
 import type { Lesson } from '../../../shared/tutorial.js';
-import { explainTrick, sideOfSeat, type TrickReviewData } from '../../../shared/trick-explain.js';
+import { sideOfSeat } from '../../../shared/trick-explain.js';
 import { CHARACTERS } from '../../../shared/characters.js';
 import { getLessons } from '../../../shared/lessons.js';
 import type { Bid } from '../../../shared/bidding.js';
@@ -697,43 +697,6 @@ function contractSummary(lang: Lang, c: Lesson['contract']): string {
   return `🎯 The contract: ${label} by ${dec}. The promise: win ${tricks} tricks${trump}. ${dec} is the declarer and plays both hands; ${dummy} lays their cards down as the dummy.`;
 }
 
-function getTacticalHint(
-  lessonId: string,
-  trickNo: number,
-  playSeat: Seat | null,
-  trump: Suit | null | undefined,
-  lang: Lang
-): string {
-  if (lessonId === 'finesse') {
-    return lang === 'zh'
-      ? '飞牌秘籍：由弱引强！从没有大牌的一手出小牌，向持有大牌的一手引，50% 概率捕获关键张。'
-      : 'Finesse Secret: Lead towards strength! Play low from the weak hand towards the honor in the other hand.';
-  }
-  if (lessonId === 'ruffing' || lessonId === 'trumps') {
-    return lang === 'zh'
-      ? '将牌做牌原则：13 - (赢墩 + 输墩) = 可将吃赢墩；在短将牌手（明手）将吃输墩，保留长将牌主控！'
-      : 'Trump Play Maxim: 13 - (winners + losers) = trumps to make; ruff losers in the short hand (dummy) to preserve trump control!';
-  }
-  if (trickNo === 1) {
-    return lang === 'zh'
-      ? '首攻准则：面对无将或长套，出第四大牌（长套攻长门）；持有连续大牌出顶张（如 Q-J-10 出 Q）！'
-      : 'Opening Lead: Lead 4th highest from length in no-trump, or top of touching honors (e.g. Q from Q-J-10)!';
-  }
-  if (playSeat === 'S' || playSeat === 'N') {
-    if (trump) {
-      return lang === 'zh'
-        ? '做牌策略：先算清输墩。若敌方将牌可能威胁旁套，尽早清拔敌方将牌！'
-        : 'Line of Play: Count your losers first. Pull defenders’ trumps early if they threaten your side-suit winners!';
-    }
-    return lang === 'zh'
-      ? '无将做牌：先算确凿赢墩，优先建立最长套额外赢墩，保持手中畅通桥路！'
-      : 'No-Trump Play: Count sure winners; establish length in your longest suit first while you still have entries!';
-  }
-  return lang === 'zh'
-    ? '防守守则：第二手出小牌让同伴掌控（二送），第三手出大牌夺墩或逼大（三抢）！'
-    : 'Defense Rule: Second hand low to preserve honors; third hand high to win the trick or force declarer’s high card!';
-}
-
 export function Tutorial() {
   const {
     lang,
@@ -787,22 +750,9 @@ export function Tutorial() {
   const [fbNonce, setFbNonce] = useState(0);
   const fbTimer = useRef<number | undefined>(undefined);
   const runnerRef = useRef<TutorialRunner | null>(null);
-  // Post-trick review pause: after every completed trick, the four cards
-  // stay on the table while the coach explains who won and why.
-  const [review, setReview] = useState<TrickReviewData | null>(null);
-  /** Off by default: only the first trick of a lesson stops for the full
-   *  "who won and why" card. Turn on to explain every single trick. */
-  const [reviewEveryTrick, setReviewEveryTrick] = useState<boolean>(
-    () => localStorage.getItem('aib-tut-review-every') === '1'
-  );
-  const toggleReviewEveryTrick = () => {
-    audio.sfx('click');
-    setReviewEveryTrick(prev => {
-      localStorage.setItem('aib-tut-review-every', prev ? '0' : '1');
-      return !prev;
-    });
-  };
-  const [collectingTo, setCollectingTo] = useState<Seat | null>(null);
+  // Exactly one detailed card analysis per deal: immediately after the lead.
+  const [leadReview, setLeadReview] = useState(false);
+  const leadReviewedRef = useRef(false);
   const reviewedRef = useRef(0);
 
   // Auction recap: when an auction step ends, replay the WHOLE conversation
@@ -831,47 +781,26 @@ export function Tutorial() {
   const step = useMemo(() => runner.currentStep(), [runner, tick]);
   const refresh = () => setTick(x => x + 1);
 
-  // A trick completed since the last review → maybe open the review pause.
-  // Pausing after EVERY trick turned a 13-trick hand into 13 interruptions,
-  // so by default only the first trick of a lesson stops for an explanation
-  // (the learner meets the mechanic once) and the rest simply collect. The
-  // header switch brings the per-trick commentary back for teaching.
   const checkReview = () => {
+    const view = runner.playView();
+    if (!leadReviewedRef.current && runner.completedTrickCount() === 0 && view?.trick.length === 1) {
+      leadReviewedRef.current = true;
+      if (lesson.openingLeadAnalysis) setLeadReview(true);
+    }
     const count = runner.completedTrickCount();
     if (count <= reviewedRef.current) return;
+    reviewedRef.current = count;
     const data = runner.lastCompletedTrick();
-    if (!data) return;
-    // Cheer only when the LEARNER's side won. Declaring, that means
-    // North-South; defending (West or East) the dummy North is an
-    // OPPONENT, so his tricks must never sound like "partner won".
-    if (sideOfSeat(data.winner) === sideOfSeat(learnerSeat)) {
+    if (data && sideOfSeat(data.winner) === sideOfSeat(learnerSeat)) {
       void audio.playVoice(seatChars[data.winner], lang, 'trick_win');
     }
-    if (reviewEveryTrick || reviewedRef.current === 0) {
-      setReview(data);
-    } else {
-      reviewedRef.current = count;
-    }
   };
-  const dismissReview = () => {
-    if (review) {
-      const winner = review.winner;
-      setCollectingTo(winner);
-      audio.sfx('card');
-      window.setTimeout(() => {
-        reviewedRef.current = runner.completedTrickCount();
-        setReview(null);
-        setCollectingTo(null);
-      }, 350);
-    } else {
-      reviewedRef.current = runner.completedTrickCount();
-      setReview(null);
-    }
-  };
+  const dismissReview = () => setLeadReview(false);
   useEffect(() => {
     // New runner (lesson or language switch): forget old review state.
     reviewedRef.current = 0;
-    setReview(null);
+    setLeadReview(false);
+    leadReviewedRef.current = false;
   }, [runner]);
 
   const startLesson = (i: number) => {
@@ -880,7 +809,8 @@ export function Tutorial() {
     setCurrentLessonIdx(i);
     runnerRef.current = new TutorialRunner(lessons[i]!);
     reviewedRef.current = 0;
-    setReview(null);
+    setLeadReview(false);
+    leadReviewedRef.current = false;
     setRecap(null);
     setFeedback('');
     setFbMood(null);
@@ -896,7 +826,7 @@ export function Tutorial() {
   }, [currentLessonIdx]);
 
   const doAdvance = () => {
-    if (review) return; // the review pause must be dismissed first
+    if (leadReview) return; // the review pause must be dismissed first
     setFeedback('');
     setFbMood(null);
 
@@ -955,7 +885,7 @@ export function Tutorial() {
   };
 
   const doPlay = (card: Card) => {
-    if (review) return; // review pause is open — cards are frozen
+    if (leadReview) return; // review pause is open — cards are frozen
     const r = runner.submitPlay(cardLabel(card));
     if (r.ok) {
       audio.sfx('card');
@@ -1037,7 +967,7 @@ export function Tutorial() {
 
       if (e.key === ' ' || e.key === 'Enter') {
         e.preventDefault();
-        if (review) {
+        if (leadReview) {
           audio.sfx('click');
           dismissReview();
         } else if (recap) {
@@ -1073,7 +1003,7 @@ export function Tutorial() {
 
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [review, recap, step, awaitingTap, done, lessonIdx, lessons.length]);
+  }, [leadReview, recap, step, awaitingTap, done, lessonIdx, lessons.length]);
 
   const lastBidBySeat = useMemo(() => {
     const m = new Map<Seat, Bid>();
@@ -1136,16 +1066,7 @@ export function Tutorial() {
   const playContract = playView?.contract ?? null;
   const playTrump: Suit | null = playContract && playContract.denom !== 'NT' ? playContract.denom : null;
 
-  const tacticalHint = useMemo(() => {
-    if (step?.kind !== 'play' || !playView || trickNo === null) return null;
-    return getTacticalHint(
-      lesson.id,
-      trickNo,
-      pending?.kind === 'play' ? pending.seat : null,
-      playTrump,
-      lang
-    );
-  }, [step?.kind, playView, trickNo, lesson.id, pending, playTrump, lang]);
+  const tacticalHint = step?.kind === 'play' ? lesson.focus ?? null : null;
 
   // The table (with the hand) is shown for every teaching step — info,
   // auction and play alike. Text steps used to REPLACE the table, which is
@@ -1156,7 +1077,7 @@ export function Tutorial() {
     // felt — the caption for the previous bid has already been read (its
     // "next" tap led here), so don't fight the box for the same space.
     && !(pending && pending.kind === 'bid');
-  const overlayOpen = !!recap || step?.kind === 'info' || (!!review && step?.kind === 'play');
+  const overlayOpen = !!recap || step?.kind === 'info' || (leadReview && step?.kind === 'play');
 
   // The tutorial overlay (coach text / recap / post-trick review) is floated
   // over the centre felt — NEVER over the North/South hands. Auction content
@@ -1205,24 +1126,15 @@ export function Tutorial() {
         />
       )}
 
-      {review && step?.kind === 'play' && (() => {
-        const ex = explainTrick({ ...review, learnerSeat }, lang);
-        return (
-          <div className="sim-review">
-            <div className="sim-review-label">{t(lang, 'tut.reviewTitle')}</div>
-            <div className="sim-review-title">{ex.title}</div>
-            {ex.lines.map((l, i) => (
-              <p key={i} className="sim-review-line">{l}</p>
-            ))}
-            <button
-              className="btn primary"
-              onClick={() => { audio.sfx('click'); dismissReview(); }}
-            >
-              {t(lang, 'tut.reviewNext')}
-            </button>
-          </div>
-        );
-      })()}
+      {leadReview && step?.kind === 'play' && (
+        <div className="sim-review">
+          <div className="sim-review-label">{t(lang, 'tut.leadAnalysis')}</div>
+          <p className="sim-review-line">{lesson.openingLeadAnalysis}</p>
+          <button className="btn primary" onClick={() => { audio.sfx('click'); dismissReview(); }}>
+            {t(lang, 'tut.reviewNext')}
+          </button>
+        </div>
+      )}
     </div>
   ) : null;
 
@@ -1264,13 +1176,7 @@ export function Tutorial() {
           >
             ⛶ {isFullscreen ? t(lang, 'tut.exitFullscreen') : t(lang, 'tut.fullscreen')}
           </button>
-          <button
-            className={`chip tut-restart-btn ${reviewEveryTrick ? 'active' : ''}`}
-            onClick={toggleReviewEveryTrick}
-            title={t(lang, 'tut.reviewEveryHint')}
-          >
-            ⓘ {t(lang, 'tut.reviewEvery')}
-          </button>
+
         </div>
         <div className="tut-title">🎓 {lessons[lessonIdx]?.title}</div>
       </div>
@@ -1427,11 +1333,11 @@ export function Tutorial() {
               count: playView.hands[s].length,
               active: playView.turn === s,
             }))}
-            trick={review ? review.plays : playView.trick}
+            trick={playView.trick}
             hand={sortHand(playView.hands.S, playTrump, suitOrder)}
             handLabel={seatLabel(lang, 'S')}
             trump={playTrump}
-            interactive={!!pending && !review}
+            interactive={!!pending && !leadReview}
             playSeat={pending && pending.kind === 'play' ? pending.seat : null}
             onPlay={doPlay}
             hint={pending?.hint ?? null}
@@ -1441,9 +1347,9 @@ export function Tutorial() {
             hands={playView.hands}
             dummySeat={dummySeat}
             seatChars={seatChars}
-            winSeat={review?.winner ?? null}
-            trickStatic={!!review}
-            collectingSeat={collectingTo}
+            winSeat={null}
+            trickStatic={leadReview}
+            collectingSeat={null}
             tacticalHint={tacticalHint}
             tricksWon={playView.tricksWon}
             targetTricks={lesson.id === 'tricks' ? null : 6 + lesson.contract.level}
@@ -1475,7 +1381,16 @@ export function Tutorial() {
             onHome={() => go('home')}
           />
         )}
-        {step?.kind === 'play' && awaitingTap && !review && (
+        {step?.kind === 'play' && !leadReview && runner.claimableRemaining() > 0 && (
+          <div className="tut-tap-row">
+            <button className="btn primary" onClick={() => {
+              runner.claimRemaining(); setFeedback(''); refresh();
+            }}>
+              {t(lang, 'tut.claimRemaining').replace('{n}', String(runner.claimableRemaining()))}
+            </button>
+          </div>
+        )}
+        {step?.kind === 'play' && awaitingTap && !leadReview && (
           <div className="tut-tap-row">{tapNext}</div>
         )}
         {feedback && (
