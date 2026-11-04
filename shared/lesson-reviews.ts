@@ -266,6 +266,12 @@ const REVIEWS = {
   ],
   "minor-responses": [
     [
+      "May I pass?",
+      "能否不叫？",
+      "Uncapped hand-showing bids force a reply; check one-round versus game force",
+      "没上限的描述性叫品一定逼叫；区分逼叫一轮与逼局"
+    ],
+    [
       "Reply",
       "应叫",
       "One-over-one: 6+, four cards, forcing one round",

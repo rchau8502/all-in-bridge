@@ -5,7 +5,7 @@ import { LESSONS } from './lessons.js';
 describe('ACBL Chapters Module', () => {
   it('covers every lesson in teaching order with no duplicates', () => {
     const chapterLessonIds = ACBL_CHAPTERS.flatMap(ch => ch.lessonIds);
-    expect(chapterLessonIds).toHaveLength(34);
+    expect(chapterLessonIds).toHaveLength(35);
     expect(new Set(chapterLessonIds).size).toBe(chapterLessonIds.length);
 
     const allLessonIds = LESSONS.map(l => l.id);
@@ -15,9 +15,9 @@ describe('ACBL Chapters Module', () => {
   it('keeps advanced agreements out of the foundation lessons', () => {
     const basic = LESSONS.filter(l => getChapterForLesson(l.id)?.track === 'basic');
     const advanced = LESSONS.filter(l => getChapterForLesson(l.id)?.track === 'advanced');
-    expect(basic).toHaveLength(21);
-    expect(advanced).toHaveLength(13);
-    const advancedTerms = /Bergen|Smolen|Texas|negative doubles?|cue.bid|keycards?|fast arrival|slow arrival|Stayman|Jacoby|fourth.suit|checkback|splinters?|Walsh|伯根|斯莫伦|德克萨斯|负加倍|扣叫|关键张|速达|缓达|斯台曼|雅各比|第四花色|重询|斯普林特|沃尔什/i;
+    expect(basic).toHaveLength(23);
+    expect(advanced).toHaveLength(12);
+    const advancedTerms = /Bergen|Smolen|Texas|negative doubles?|cue.bid|keycards?|fast arrival|slow arrival|Stayman|Jacoby transfers?|fourth.suit|checkback|Walsh|伯根|斯莫伦|德克萨斯|负加倍|扣叫|关键张|速达|缓达|斯台曼|转移|第四花色|重询|沃尔什/i;
     for (const lesson of basic) {
       const text = [lesson.title, lesson.focus, ...lesson.steps.flatMap(s => {
         if (s.kind === 'info') return [s.text, ...(s.review?.rows.flat() ?? [])];

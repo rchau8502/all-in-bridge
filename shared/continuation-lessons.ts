@@ -24,6 +24,10 @@ export const COURSE_MODULES = [
     ],
     "notes": [
       [
+        "The first question is not “what should I bid?” but “may I pass?” In our uncontested partnership auctions, an uncapped hand-showing bid is forcing: partner has given a floor, not a ceiling, and may be far stronger. An unpassed one-over-one response of 6+ is the first example.",
+        "第一问不是“该叫什么”，而是“能不能不叫”。本课无干扰搭档叫牌中，没上限的牌一定逼叫：搭档只给下限、没有封顶，可能远比最低点力强。未Pass过的一盖一6点以上应叫，就是第一个例子。"
+      ],
+      [
         "A one-level suit opening covers 12–21 points. A one-level new-suit response shows 6+ and four cards, forcing one round. Once a bid limits strength, partner can add the ranges and choose the next step.",
         "一阶花色开叫覆盖12–21点。一阶新花应叫表示6点以上、四张，逼叫一轮。叫品限定实力后，搭档就能把范围加起来，决定下一步。"
       ],
@@ -41,6 +45,16 @@ export const COURSE_MODULES = [
       ]
     ],
     "rows": [
+      [
+        [
+          "May I pass?",
+          "能否不叫？"
+        ],
+        [
+          "Uncapped hand-showing bid: forcing",
+          "未封顶的描述性叫品：逼叫"
+        ]
+      ],
       [
         [
           "One over one",
@@ -1488,6 +1502,10 @@ export const COURSE_MODULES = [
       [
         "Bergen is an agreement for a specific auction. If the opponents double or overcall, use the later competitive methods; do not assume a jump minor still has the Bergen meaning.",
         "伯根只适用于约定进程。对手加倍或争叫后，要切换到后面的竞争处理，不能假定跳叫低花仍是伯根。"
+      ],
+      [
+        "Our 1M–1NT is SEMI-forcing, about 5–12. A flat minimum 12–13 with 5-3-3-2 may pass; an unbalanced opener continues. The 14-point boundary needs judgement, not an invented absolute rule. With three-card support and 10–12, start 1NT and, if opener rebids, jump to 3M as an invitation. Direct 3M is weak Bergen, not that limit raise.",
+        "本课1高花—1NT是半逼叫，约5–12点。12–13点、5-3-3-2的平弱低限可以Pass；非均型开叫继续。14点边界结合牌质判断，不凭空设绝对规则。三张支持、10–12点时先1NT，开叫再叫后跳3高花邀局。直接3高花是伯根弱牌，不是这种限制性邀局。"
       ]
     ],
     "rows": [
@@ -1738,13 +1756,13 @@ export const COURSE_MODULES = [
   {
     "id": "major-forcing-raises",
     "title": [
-      "Jacoby, Splinters and Semi-Forcing 1NT",
-      "雅各比、斯普林特与半逼叫1NT"
+      "Jacoby 2NT and Splinters",
+      "雅各比2NT与斯普林特"
     ],
     "source": "Class8-major",
     "focus": [
-      "Choose a support route by strength, length and shortness; keep 1NT semi-forcing.",
-      "按实力、支持张数和短套选路线，1NT按半逼叫处理。"
+      "Show a game-forcing major fit with Jacoby 2NT, or show support and shortness with a splinter.",
+      "用雅各比2NT表示逼局高花配合，用斯普林特同时表示支持与短套。"
     ],
     "notes": [
       [
@@ -1756,8 +1774,12 @@ export const COURSE_MODULES = [
         "斯普林特表示成局支持、四张以上将牌、约12–15点，以及所跳花色的单缺。重新评估短套之外的有效大牌。双跳新花有这种人工含义，与自然跳新花不同；迷你斯普林特需要另行约定，不能默认为同一叫法。"
       ],
       [
-        "Our 1M–1NT is SEMI-forcing, about 5–12. A flat minimum 12–13 with 5-3-3-2 may pass; an unbalanced opener continues. The 14-point boundary needs judgement, not an invented absolute rule. With three-card support and 10–12, start 1NT and, if opener rebids, jump to 3M as an invitation. Direct 3M is weak Bergen, not that limit raise.",
-        "本课1高花—1NT是半逼叫，约5–12点。12–13点、5-3-3-2的平弱低限可以Pass；非均型开叫继续。14点边界结合牌质判断，不凭空设绝对规则。三张支持、10–12点时先1NT，开叫再叫后跳3高花邀局。直接3高花是伯根弱牌，不是这种限制性邀局。"
+        "These are named agreements, not natural NT or new-suit bids. Jacoby 2NT does not promise a balanced hand; it shows four+ support and 13+ with no upper limit, so it is game forcing. A splinter is also game forcing despite its limited range. Whether a bid is limited and whether it is forcing are separate questions.",
+        "这些是约定叫品，不是自然无将或新花。雅各比2NT不保证均型，而是四张以上支持、13点以上且未封顶，所以逼局。斯普林特虽有点力范围，也仍然逼局。“是否封顶”和“是否逼叫”是两个不同的问题。"
+      ],
+      [
+        "Splinter example over 1♠: ♠KQ84 / ♥A72 / ♦KQJ64 / ♣2 has 15 points, four-card support and a singleton club: respond 4♣. Compare opener’s working honors outside clubs with potentially wasted club honors before considering more than game. Do not infer strength just from the jump’s height.",
+        "1♠后的斯普林特例：♠KQ84 / ♥A72 / ♦KQJ64 / ♣2为15点、四张支持、单张梅花，应叫4♣。考虑超过成局之前，要比较开叫者梅花之外的有效大牌与梅花里可能浪费的大牌。不能只凭跳叫高度猜实力。"
       ]
     ],
     "rows": [
@@ -1767,8 +1789,28 @@ export const COURSE_MODULES = [
           "雅各比2NT"
         ],
         [
-          "13+, four-card support, GF",
-          "13点以上、四张支持，逼局"
+          "13+, four+ major support, GF",
+          "13点以上、四张以上高花支持，逼局"
+        ]
+      ],
+      [
+        [
+          "Opener’s three-level new suit",
+          "开叫者三阶新花"
+        ],
+        [
+          "Singleton or void",
+          "单张或缺门"
+        ]
+      ],
+      [
+        [
+          "No shortness: 4M / 3NT / 3M",
+          "无短套：4高花／3NT／3高花"
+        ],
+        [
+          "12–13 / 14–15 / 16+ under our agreement",
+          "本课12–13／14–15／16点以上"
         ]
       ],
       [
@@ -1777,28 +1819,18 @@ export const COURSE_MODULES = [
           "斯普林特"
         ],
         [
-          "Four+ support, shortness, game strength",
-          "四张以上支持、单缺、成局实力"
+          "About 12–15, four+ support, shortness, GF",
+          "约12–15点、四张以上支持、单缺，逼局"
         ]
       ],
       [
         [
-          "1M–1NT",
-          "1高花—1NT"
+          "Forcing status",
+          "逼叫状态"
         ],
         [
-          "5–12, semi-forcing; flat minimum may pass",
-          "5–12点、半逼叫；平弱低限可Pass"
-        ]
-      ],
-      [
-        [
-          "1NT then 3M",
-          "1NT后跳3高花"
-        ],
-        [
-          "10–12, exactly three-card support, invite",
-          "10–12点、恰好三张支持，邀请"
+          "Limited does not always mean non-forcing",
+          "有上限不一定就不逼叫"
         ]
       ]
     ],
@@ -1827,8 +1859,8 @@ export const COURSE_MODULES = [
         "seat": "S",
         "bid": "1S",
         "note": [
-          "15 points, five spades and an unbalanced hand.",
-          "15点、五张黑桃、非均型。"
+          "13 points and five spades: open 1♠.",
+          "13点、五张黑桃，开1♠。"
         ],
         "learn": true
       },
@@ -1836,17 +1868,17 @@ export const COURSE_MODULES = [
         "seat": "W",
         "bid": "P",
         "note": [
-          "Pass: no suitable constructive action at this turn.",
-          "不叫：这一轮没有合适的建设性行动。"
+          "Pass: no suitable action at this turn.",
+          "不叫：这一轮没有合适的叫牌。"
         ],
         "learn": false
       },
       {
         "seat": "N",
-        "bid": "1NT",
+        "bid": "2NT",
         "note": [
-          "Semi-forcing 1NT: 11 and three spades, preparing a limit raise.",
-          "半逼叫1NT：11点、三张黑桃，准备限制性邀局。"
+          "Jacoby: 14 and four-card support, no upper limit shown; GF.",
+          "雅各比：14点、四张支持，叫品未封顶，逼局。"
         ],
         "learn": false
       },
@@ -1854,44 +1886,8 @@ export const COURSE_MODULES = [
         "seat": "E",
         "bid": "P",
         "note": [
-          "Pass: no suitable constructive action at this turn.",
-          "不叫：这一轮没有合适的建设性行动。"
-        ],
-        "learn": false
-      },
-      {
-        "seat": "S",
-        "bid": "2C",
-        "note": [
-          "Unbalanced: describe your four clubs.",
-          "非均型，说明四张梅花。"
-        ],
-        "learn": true
-      },
-      {
-        "seat": "W",
-        "bid": "P",
-        "note": [
-          "Pass: no suitable constructive action at this turn.",
-          "不叫：这一轮没有合适的建设性行动。"
-        ],
-        "learn": false
-      },
-      {
-        "seat": "N",
-        "bid": "3S",
-        "note": [
-          "Jump back: exactly three spades, 10–12, invitational.",
-          "跳回：恰好三张黑桃、10–12点，邀请。"
-        ],
-        "learn": false
-      },
-      {
-        "seat": "E",
-        "bid": "P",
-        "note": [
-          "Pass: no suitable constructive action at this turn.",
-          "不叫：这一轮没有合适的建设性行动。"
+          "Pass: no suitable action at this turn.",
+          "不叫：这一轮没有合适的叫牌。"
         ],
         "learn": false
       },
@@ -1899,8 +1895,8 @@ export const COURSE_MODULES = [
         "seat": "S",
         "bid": "4S",
         "note": [
-          "15 with useful shape: accept.",
-          "15点且牌型有用，接受。"
+          "Minimum 12–13 and no shortness: choose 4♠ under our agreement.",
+          "12–13点低限、无短套，按约定选择4♠。"
         ],
         "learn": true
       },
@@ -1908,8 +1904,8 @@ export const COURSE_MODULES = [
         "seat": "W",
         "bid": "P",
         "note": [
-          "Pass: no suitable constructive action at this turn.",
-          "不叫：这一轮没有合适的建设性行动。"
+          "Pass: no suitable action at this turn.",
+          "不叫：这一轮没有合适的叫牌。"
         ],
         "learn": false
       },
@@ -1917,8 +1913,8 @@ export const COURSE_MODULES = [
         "seat": "N",
         "bid": "P",
         "note": [
-          "Pass: no suitable constructive action at this turn.",
-          "不叫：这一轮没有合适的建设性行动。"
+          "Pass: the agreed game has been reached.",
+          "不叫：双方已经到达选定的成局定约。"
         ],
         "learn": false
       },
@@ -1926,8 +1922,8 @@ export const COURSE_MODULES = [
         "seat": "E",
         "bid": "P",
         "note": [
-          "Pass: no suitable constructive action at this turn.",
-          "不叫：这一轮没有合适的建设性行动。"
+          "Pass: the agreed game has been reached.",
+          "不叫：双方已经到达选定的成局定约。"
         ],
         "learn": false
       }
@@ -1941,102 +1937,102 @@ export const COURSE_MODULES = [
     "fixed": null,
     "needs": {},
     "hands": {
-      "S": [
-        "JS",
-        "8S",
-        "QS",
-        "6S",
-        "AS",
-        "3H",
-        "KD",
-        "7D",
-        "9D",
-        "KC",
-        "4C",
-        "QC",
-        "9C"
-      ],
       "N": [
-        "7S",
         "KS",
-        "5S",
-        "QH",
+        "QS",
+        "8S",
+        "2S",
+        "KH",
         "8H",
-        "TH",
-        "6D",
-        "3D",
-        "JD",
+        "7H",
+        "AD",
+        "7D",
         "2D",
-        "AC",
-        "5C",
-        "JC"
+        "QC",
+        "8C",
+        "4C"
+      ],
+      "S": [
+        "AS",
+        "JS",
+        "TS",
+        "7S",
+        "3S",
+        "QH",
+        "9H",
+        "2H",
+        "KD",
+        "8D",
+        "5D",
+        "KC",
+        "2C"
       ],
       "E": [
-        "8C",
+        "TD",
+        "7C",
+        "3H",
         "6H",
-        "TS",
-        "TC",
+        "6C",
+        "TH",
+        "AC",
+        "5H",
+        "QD",
+        "9S",
+        "5S",
         "4S",
-        "4H",
-        "AD",
-        "4D",
-        "3C",
-        "7H",
-        "8D",
-        "3S",
-        "5D"
+        "TC"
       ],
       "W": [
-        "5H",
-        "7C",
+        "JD",
+        "6S",
+        "JC",
+        "9D",
         "AH",
+        "4H",
+        "6D",
+        "4D",
         "JH",
-        "KH",
-        "2H",
-        "QD",
-        "9H",
-        "6C",
-        "TD",
-        "2C",
-        "9S",
-        "2S"
+        "3C",
+        "9C",
+        "3D",
+        "5C"
       ]
     },
     "facts": {
-      "S": {
-        "hcp": 15,
+      "N": {
+        "hcp": 14,
         "shape": [
-          5,
-          1,
+          4,
           3,
-          4
+          3,
+          3
         ]
       },
-      "N": {
-        "hcp": 11,
+      "S": {
+        "hcp": 13,
         "shape": [
+          5,
           3,
           3,
-          4,
-          3
+          2
         ]
       },
       "E": {
-        "hcp": 4,
+        "hcp": 6,
         "shape": [
           3,
-          3,
           4,
-          3
+          2,
+          4
         ]
       },
       "W": {
-        "hcp": 10,
+        "hcp": 7,
         "shape": [
-          2,
-          6,
-          2,
-          3
+          1,
+          3,
+          5,
+          4
         ]
       }
     }
@@ -4905,6 +4901,10 @@ export const COURSE_MODULES = [
     ],
     "notes": [
       [
+        "Read every call in three parts: strength range, length or shape, and forcing status. Uncapped means partner must continue; a one-round force and a game force have different stopping points. A limited invitation may be declined, but an existing GF still cannot be passed below game.",
+        "每声叫品读三件事：实力范围、长度或牌型、逼叫状态。未封顶就要搭档继续；逼叫一轮与逼局的停止条件不同。有限邀请可以拒绝，但若已经逼局，仍不能停在局以下。"
+      ],
+      [
         "Without interference, an unpassed responder’s cheapest two-level new suit over a one-level suit opening shows 13+ and forces to game. Our basic examples use at least four cards in the new suit; 1♠–2♥ requires five hearts.",
         "无干扰、应叫者未Pass过时，对一阶花色开叫作最经济二阶新花应叫，表示13点以上并逼局。基础例子新花至少四张，1♠—2♥需要五张红桃。"
       ],
@@ -5194,6 +5194,326 @@ export const COURSE_MODULES = [
           4,
           1,
           5
+        ]
+      }
+    }
+  },
+  {
+    "id": "inverted-minor-raises",
+    "title": [
+      "Inverted Minors: Support and Stoppers",
+      "低花反加叫：支持与挡张"
+    ],
+    "source": "User course agreement",
+    "focus": [
+      "11+ and five+ minor support: force a reply, then show stoppers and look for 3NT.",
+      "11点以上、五张以上低花支持：逼搭档回应，再展示挡张，优先寻找3NT。"
+    ],
+    "notes": [
+      [
+        "We normally look for a major fit or a suitable 3NT before choosing a minor game, because a minor game needs 11 tricks. But when you really have long minor support, show it. In an uncontested auction by an unpassed responder, 1♣–2♣ and 1♦–2♦ are our inverted minor raises: 11+ points and at least five cards in partner’s minor, normally without a four-card major that should be shown first.",
+        "我们通常先找高花配合或合适的3NT，而不优先打低花成局，因为低花成局需要11墩。但真的拿到低花长支持，也应该表达。无干扰、应叫者未Pass过时，本课1♣—2♣和1♦—2♦为低花反加叫：11点以上、搭档低花至少五张，通常没有应该先报的四张高花。"
+      ],
+      [
+        "11+ gives a minimum but no upper limit. Responder may have 11–12, 14, or much more, so opener MUST reply: this raise is forcing for at least one round. It is not automatically a game force, because 11 opposite a minimum opening may still be short. This is an explicitly agreed exception to the natural “higher shows stronger” shortcut.",
+        "11点以上只有下限，没有封顶。应叫者可能11–12点，也可能14点甚至更多，开叫者必须回应，因此至少逼叫一轮。但它不自动逼局，因为11点面对低限开叫仍可能不足成局。这是明确约定的反加叫，不能机械套用自然叫牌“越高越强”的规律。"
+      ],
+      [
+        "After the minor fit is established, opener prioritizes side-suit STOPPERS to investigate 3NT. A stopper such as A, Kx or Qxx protects against an immediate run of the suit, though combinations and the lead position matter. In this sequence, a new side-suit continuation shows a stopper rather than promising a four-card major and remains forcing for one round by agreement; choose the cheapest useful description.",
+        "低花配合确立后，开叫者优先展示边花挡张，寻找3NT。A、Kx、Qxx等有助于挡住对手连拿该花色，但仍要看组合与首攻位置。这个进程中的新边花继续叫是展示挡张，不是保证四张高花，并按约定仍逼叫一轮；尽量经济地描述有效信息。"
+      ],
+      [
+        "Opener’s stopper bid answers the first force; now check the status of EVERY continuation. A new, uncapped stopper-showing bid keeps the conversation forcing. A responder with 11–12 can later limit the hand with 2NT when the remaining stoppers are covered, or 3 of the minor if 3NT is unsuitable; these natural limited continuations are non-forcing in our agreement. With enough combined strength and all side suits protected, choose 3NT.",
+        "开叫者报挡张，履行了第一轮逼叫；之后每一声仍要重新判断状态。新花展示挡张且实力未封顶，就继续逼叫。应叫者若只有11–12点，可在其余挡张齐备时用2NT限定实力，或3NT不合适时回3低花；本课这些自然有限继续叫不逼叫。实力足且边花挡张齐全时，选择3NT。"
+      ],
+      [
+        "Example contrast: 1♣–2♣–2♦–2NT can limit responder to 11–12, letting a minimum opener pass. In our table deal responder actually holds 14, so the partnership continues showing stoppers and reaches 3NT. Before every pass, ask: has partner capped the hand, and has any earlier force ended?",
+        "对照例：1♣—2♣—2♦—2NT可把应叫者限定为11–12点，让低限开叫者Pass。桌上牌例应叫者实际14点，因此继续交换挡张并到3NT。每次准备不叫前，先问：搭档是否已经封顶，之前的逼叫义务是否解除？"
+      ]
+    ],
+    "rows": [
+      [
+        [
+          "Requirements",
+          "条件"
+        ],
+        [
+          "11+, five+ cards, unpassed and uncontested",
+          "11点以上、五张以上，未Pass过、无干扰"
+        ]
+      ],
+      [
+        [
+          "1♣–2♣ / 1♦–2♦",
+          "1♣—2♣／1♦—2♦"
+        ],
+        [
+          "Uncapped; forcing at least one round, not automatically GF",
+          "未封顶；至少逼叫一轮，不自动逼局"
+        ]
+      ],
+      [
+        [
+          "Opener’s priority",
+          "开叫者优先"
+        ],
+        [
+          "Show side-suit stoppers and investigate 3NT",
+          "展示边花挡张，寻找3NT"
+        ]
+      ],
+      [
+        [
+          "Limited later continuation",
+          "之后的有限继续叫"
+        ],
+        [
+          "11–12 via natural 2NT or 3m can be non-forcing",
+          "自然2NT或3低花限定11–12点后可不逼叫"
+        ]
+      ],
+      [
+        [
+          "Before passing",
+          "不叫之前"
+        ],
+        [
+          "Check both partner’s range and existing force",
+          "同时检查搭档范围与既有逼叫义务"
+        ]
+      ]
+    ],
+    "dealer": "S",
+    "contract": [
+      3,
+      "NT",
+      "N"
+    ],
+    "auction": [
+      {
+        "seat": "S",
+        "bid": "1C",
+        "note": [
+          "13 points and four clubs: open 1♣.",
+          "13点、四张梅花，开1♣。"
+        ],
+        "learn": true
+      },
+      {
+        "seat": "W",
+        "bid": "P",
+        "note": [
+          "Pass: no suitable action at this turn.",
+          "不叫：这一轮没有合适的叫牌。"
+        ],
+        "learn": false
+      },
+      {
+        "seat": "N",
+        "bid": "2C",
+        "note": [
+          "Inverted raise: five clubs, 11+, no upper limit; forcing.",
+          "反加叫：五张梅花、11点以上、未封顶，逼叫。"
+        ],
+        "learn": false
+      },
+      {
+        "seat": "E",
+        "bid": "P",
+        "note": [
+          "Pass: no suitable action at this turn.",
+          "不叫：这一轮没有合适的叫牌。"
+        ],
+        "learn": false
+      },
+      {
+        "seat": "S",
+        "bid": "2D",
+        "note": [
+          "Do not pass. Show your diamond stopper, the king with length.",
+          "不能不叫，优先展示方块挡张：有长度保护的K。"
+        ],
+        "learn": true
+      },
+      {
+        "seat": "W",
+        "bid": "P",
+        "note": [
+          "Pass: no suitable action at this turn.",
+          "不叫：这一轮没有合适的叫牌。"
+        ],
+        "learn": false
+      },
+      {
+        "seat": "N",
+        "bid": "2H",
+        "note": [
+          "Show Kx in hearts; this uncapped continuation is forcing.",
+          "展示红桃Kx挡张；这次未封顶继续叫仍逼叫。"
+        ],
+        "learn": false
+      },
+      {
+        "seat": "E",
+        "bid": "P",
+        "note": [
+          "Pass: no suitable action at this turn.",
+          "不叫：这一轮没有合适的叫牌。"
+        ],
+        "learn": false
+      },
+      {
+        "seat": "S",
+        "bid": "2S",
+        "note": [
+          "Show the spade stopper KQx; this does not promise four spades.",
+          "展示黑桃KQx挡张，不保证四张黑桃。"
+        ],
+        "learn": true
+      },
+      {
+        "seat": "W",
+        "bid": "P",
+        "note": [
+          "Pass: no suitable action at this turn.",
+          "不叫：这一轮没有合适的叫牌。"
+        ],
+        "learn": false
+      },
+      {
+        "seat": "N",
+        "bid": "3NT",
+        "note": [
+          "14 opposite an opening and all side suits stopped: choose 3NT.",
+          "14点面对开叫，边花挡张齐全，选择3NT。"
+        ],
+        "learn": false
+      },
+      {
+        "seat": "E",
+        "bid": "P",
+        "note": [
+          "Pass: no suitable action at this turn.",
+          "不叫：这一轮没有合适的叫牌。"
+        ],
+        "learn": false
+      },
+      {
+        "seat": "S",
+        "bid": "P",
+        "note": [
+          "Pass: the agreed game has been reached.",
+          "不叫：双方已经到达选定的成局定约。"
+        ],
+        "learn": true
+      },
+      {
+        "seat": "W",
+        "bid": "P",
+        "note": [
+          "Pass: the agreed game has been reached.",
+          "不叫：双方已经到达选定的成局定约。"
+        ],
+        "learn": false
+      }
+    ],
+    "hands": {
+      "N": [
+        "AS",
+        "8S",
+        "5S",
+        "KH",
+        "6H",
+        "QD",
+        "7D",
+        "3D",
+        "KC",
+        "QC",
+        "9C",
+        "5C",
+        "4C"
+      ],
+      "S": [
+        "KS",
+        "QS",
+        "3S",
+        "AH",
+        "7H",
+        "2H",
+        "KD",
+        "8D",
+        "4D",
+        "JC",
+        "8C",
+        "6C",
+        "3C"
+      ],
+      "E": [
+        "7C",
+        "TH",
+        "2C",
+        "5H",
+        "AC",
+        "6D",
+        "AD",
+        "9D",
+        "TD",
+        "TS",
+        "QH",
+        "9H",
+        "5D"
+      ],
+      "W": [
+        "JS",
+        "4H",
+        "2S",
+        "7S",
+        "TC",
+        "6S",
+        "JH",
+        "3H",
+        "JD",
+        "2D",
+        "9S",
+        "8H",
+        "4S"
+      ]
+    },
+    "facts": {
+      "N": {
+        "hcp": 14,
+        "shape": [
+          3,
+          2,
+          3,
+          5
+        ]
+      },
+      "S": {
+        "hcp": 13,
+        "shape": [
+          3,
+          3,
+          3,
+          4
+        ]
+      },
+      "E": {
+        "hcp": 10,
+        "shape": [
+          1,
+          4,
+          5,
+          3
+        ]
+      },
+      "W": {
+        "hcp": 3,
+        "shape": [
+          6,
+          4,
+          2,
+          1
         ]
       }
     }

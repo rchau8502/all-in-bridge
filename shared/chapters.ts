@@ -90,12 +90,14 @@ export const ACBL_CHAPTERS: Chapter[] = [
       "zh": "基础五：简单二盖一体系"
     },
     "subtitle": {
-      "en": "Natural strength ranges, simple rebids, reverses and game forcing",
-      "zh": "自然点力范围、顺叫、逆叫与二盖一逼局"
+      "en": "Strength ranges, inverted minors, Jacoby 2NT, splinters and natural rebids",
+      "zh": "自然点力范围、低花反加叫、雅各比2NT、斯普林特与顺逆叫"
     },
     "acblClasses": "Foundations",
     "lessonIds": [
       "strength-and-minors",
+      "inverted-minor-raises",
+      "major-forcing-raises",
       "opener-rebids",
       "reverse-bids",
       "two-over-one-basics"
@@ -124,17 +126,16 @@ export const ACBL_CHAPTERS: Chapter[] = [
     "id": "ch7",
     "track": "advanced",
     "title": {
-      "en": "Advanced 2: Artificial Major Raises",
-      "zh": "进阶二：人工高花支持"
+      "en": "Advanced 2: Bergen Raises",
+      "zh": "进阶二：伯根加叫"
     },
     "subtitle": {
-      "en": "Bergen, Jacoby 2NT and splinters",
-      "zh": "伯根、雅各比2NT与斯普林特"
+      "en": "Four-card raises and three-card limit-raise routes",
+      "zh": "四张支持与三张限制性邀局路线"
     },
     "acblClasses": "Advanced agreements",
     "lessonIds": [
-      "bergen-raises",
-      "major-forcing-raises"
+      "bergen-raises"
     ]
   },
   {
