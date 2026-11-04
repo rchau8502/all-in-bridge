@@ -40,35 +40,6 @@ export const PRACTICE_DEAL: Hands = makeHands({
   W: ['5S', '3S', '2S', 'QD', '8D', '7D', '6D', '5D', '4D', 'TC', '9C', '8C', '2C'],
 });
 
-/** Bidding-lesson variant of the practice deal. The shared PRACTICE_DEAL
- *  stacks N-S 36-4 (it exists so South's play in full-hand/scoring runs
- *  over weak defenders) — but this lesson's script has North PASS twice
- *  and East OPEN 1♦ and rebid 2♦, which those hands flatly contradict
- *  (North held 15 HCP, East 2 HCP and three diamonds). South and West are
- *  untouched; North and East are re-dealt from their own combined cards:
- *  North is now a genuine pass (4 HCP), East a genuine opener
- *  (13 HCP, five diamonds K-J-T-9-3). */
-const BIDDING_DEAL: Hands = makeHands({
-  S: ['AH', 'KH', 'QH', 'JH', '5H', 'AS', 'KS', 'AD', '7C', '6C', '5C', '4C', '3C'],
-  N: ['QS', 'JS', '7S', '6S', '4S', '9H', '8H', '7H', '6H', '3H', '2H', '2D', 'JC'],
-  E: ['TS', '9S', '8S', 'TH', '4H', 'KD', 'JD', 'TD', '9D', '3D', 'AC', 'KC', 'QC'],
-  W: ['5S', '3S', '2S', 'QD', '8D', '7D', '6D', '5D', '4D', 'TC', '9C', '8C', '2C'],
-});
-
-/** Overcall-lesson variant: the premise is "East opened 1♦", so East
- *  needs a real opening hand — impossible inside PRACTICE_DEAL's 36-4
- *  split. South's spade A-K (never mentioned by the lesson — its story
- *  is the heart suit) and North's diamond K fund East's opener instead:
- *  East 14 HCP with ♦K-Q-J-T-9; South still holds the ♥A-K-Q-J-5
- *  overcall (14 HCP); North keeps four hearts and 12 points for the
- *  advance; West is a broke pass, as scripted. */
-const OVERCALL_DEAL: Hands = makeHands({
-  S: ['AH', 'KH', 'QH', 'JH', '5H', 'AD', '7C', '6C', '5C', '4C', '3C', '5S', '3S'],
-  N: ['9H', '8H', '7H', '6H', 'QS', 'JS', '4S', '4D', '3D', '2D', 'AC', 'KC', 'QC'],
-  E: ['AS', 'KS', '9S', '7S', 'TH', '4H', 'KD', 'QD', 'JD', 'TD', '9D', 'JC', '2C'],
-  W: ['TS', '8S', '6S', '2S', '3H', '2H', '8D', '7D', '6D', '5D', 'TC', '9C', '8C'],
-});
-
 const FULL_HAND_CONTRACT = { level: 2, denom: 'H' as const, declarer: 'S' as Seat, doubled: 0 as const };
 
 const DECK_DEAL: Hands = makeHands({
@@ -86,8 +57,8 @@ const TRUMP_DEAL: Hands = makeHands({
 });
 
 const CONV_DEAL: Hands = makeHands({
-  N: ['AS', 'KS', 'QS', 'JS', '4S', '2H', '3H', '8D', '9D', 'TD', '4C', '5C', '6C'],
-  E: ['6S', '8S', 'TS', '6H', '8H', '2D', '6D', 'JD', 'KD', '7C', '9C', 'JC', 'KC'],
+  N: ['AS', 'QS', 'JS', '4S', '6S', '2H', '3H', '8D', '9D', 'TD', '4C', '5C', '6C'],
+  E: ['KS', '8S', 'TS', '6H', '8H', '2D', '6D', 'JD', 'KD', '7C', '9C', 'JC', 'KC'],
   S: ['AH', 'KH', 'QH', 'JH', 'TH', '5H', '2S', '3S', '4D', '5D', 'AC', '2C', '3C'],
   W: ['5S', '7S', '9S', '4H', '7H', '9H', '3D', '7D', 'QD', 'AD', '8C', 'TC', 'QC'],
 });
@@ -242,15 +213,6 @@ const ELIM_DEAL: Hands = makeHands({
   W: ['KS', 'QS', '9S', 'JH', 'QD', 'TD', '7D', '3C', 'TC', '9C', '7C', '4C', '2C'],
 });
 
-/** Lesson 8 deal: North opens 1♦ (13 pts), South answers 1♥ (5 hearts, 11 pts),
- *  North raises with 3 hearts. Verified: every suit A–2 exactly once. */
-const MINOR_DEAL: Hands = makeHands({
-  N: ['AS', '7S', '2S', 'QH', '6H', '4H', 'AD', 'KD', '8D', '3D', '9C', '5C', '2C'],
-  E: ['QS', 'JS', '9S', '4S', '9H', '3H', 'QD', 'JD', '9D', '5D', 'KC', '7C', '3C'],
-  S: ['KS', '8S', '3S', 'KH', 'JH', 'TH', '8H', '2H', '7D', '2D', 'AC', '6C', '4C'],
-  W: ['TS', '6S', '5S', 'AH', '7H', '5H', 'TD', '6D', '4D', 'QC', 'JC', '8C', 'TC'],
-});
-
 type RawBidAction =
   | { seat: Seat; bid: string; note?: LText }
   | { seat: Seat; learner: true; expected: string; hint: LText; note?: LText };
@@ -273,6 +235,34 @@ interface RawLesson {
   vulnerable: boolean;
   steps: RawStep[];
 }
+
+const RESPONSE_DEAL: Hands = makeHands({
+  N: ["5S", "2S", "QH", "9H", "8H", "6H", "AD", "9D", "3D", "AC", "KC", "TC", "5C"],
+  S: ["8S", "7S", "3S", "AH", "KH", "JH", "5H", "4H", "7D", "2D", "8C", "7C", "6C"],
+  E: ["9S", "7H", "JS", "4D", "3H", "5D", "QC", "4C", "QD", "JC", "KS", "TS", "JD"],
+  W: ["8D", "3C", "QS", "6S", "AS", "6D", "4S", "TD", "2C", "TH", "9C", "2H", "KD"],
+});
+
+const OPENING_DEAL: Hands = makeHands({
+  S: ["AS", "8S", "7S", "5S", "3S", "KH", "QH", "4H", "AD", "7D", "2D", "8C", "6C"],
+  N: ["KS", "9S", "2S", "AH", "8H", "6H", "5D", "4D", "3D", "JC", "7C", "5C", "3C"],
+  E: ["3H", "JD", "QC", "9D", "6S", "2H", "9C", "TH", "9H", "8D", "AC", "6D", "JS"],
+  W: ["7H", "TC", "4C", "4S", "TS", "KC", "TD", "2C", "JH", "QS", "QD", "KD", "5H"],
+});
+
+const GAME_DEAL: Hands = makeHands({
+  S: ["AS", "8S", "AH", "KH", "QH", "JH", "5H", "AD", "7D", "7C", "6C", "5C", "4C"],
+  N: ["KS", "4S", "2S", "9H", "8H", "7H", "QD", "3D", "2D", "KC", "9C", "8C", "3C"],
+  E: ["6S", "TC", "JS", "4D", "5S", "5D", "TS", "9D", "QC", "7S", "3H", "QS", "TD"],
+  W: ["4H", "JD", "AC", "KD", "3S", "TH", "9S", "6H", "JC", "8D", "2C", "2H", "6D"],
+});
+
+const OVERCALL_DEAL: Hands = makeHands({
+  S: ["AH", "KH", "QH", "JH", "5H", "AD", "7C", "6C", "5C", "4C", "3C", "5S", "3S"],
+  N: ["9H", "8H", "7H", "6H", "QS", "JS", "4S", "4D", "3D", "2D", "8C", "KC", "QC"],
+  E: ["AS", "KS", "9S", "7S", "TH", "4H", "KD", "QD", "JD", "TD", "9D", "JC", "2C"],
+  W: ["TS", "8S", "6S", "2S", "3H", "2H", "8D", "7D", "6D", "5D", "TC", "9C", "AC"],
+});
 
 const RAW_LESSONS: RawLesson[] = [
   {
@@ -2259,519 +2249,94 @@ const RAW_LESSONS: RawLesson[] = [
   },
   {
     id: 'bidding',
-    title: T('Bidding Is Talking', '叫牌就是说话'),
-    dealer: 'N',
-    hands: BIDDING_DEAL,
-    contract: { level: 2, denom: 'H', declarer: 'S', doubled: 0 },
+    title: T("Bidding Is Talking", "叫牌就是说话"),
+    dealer: 'S',
+    hands: OPENING_DEAL,
+    contract: { level: 2, denom: 'S', declarer: 'S', doubled: 0 },
     vulnerable: false,
     steps: [
-      {
-        kind: 'info',
-        text: T(
-          "Before the cards fly, the players TALK. Not with words — with bids. Every bid is a little message to your partner: 'Hey, my hearts are great!'",
-          '在打牌之前，玩家先"说话"。不是用嘴 —— 是用叫牌。每一个叫牌都是给搭档的小消息："嘿，我的红桃很棒！"'
-        ),
-      },
-      {
-        kind: 'info',
-        text: T(
-          'Quick review from the contract lesson — to talk well, count your strength in points: Ace = 4, king = 3, queen = 2, jack = 1. Add them up: that is how strong your hand is.',
-          '先复习一下定约课的内容 —— 想说得好，先数你的"力气"：点数！A=4点，K=3点，Q=2点，J=1点。加起来，就是你这手牌有多强。'
-        ),
-      },
-      {
-        kind: 'info',
-        text: T(
-          'Bidding goes around the table. Each bid must be BIGGER than the last: a higher number, or the same number in a higher suit. Suits rank: clubs < diamonds < hearts < spades < NT. (NT means no-trump — no super suit this hand.)',
-          '叫牌轮流来。每一个叫牌必须比上一个大：数字更大，或者同数字但花色更大。花色大小：梅花 < 方块 < 红桃 < 黑桃 < 无将。（无将就是这一局没有超级花色。）'
-        ),
-      },
-      {
-        kind: 'auction',
-        script: [
-          { seat: 'N', bid: 'P', note: T(
-            'North passes. A pass is a message too: "Nothing worth announcing — a weak hand, or no suit I want to show."',
-            '北家不叫。不叫也是一条消息："没什么值得宣布的 —— 牌弱，或者没有想展示的花色。"'
-          ) },
-          { seat: 'E', bid: '1D', note: T(
-            'East opens the talk with 1♦: "I have a real hand — about 12 points or more — and diamonds are one of my suits." First message sent!',
-            '东家用1♦开启对话："我有真材实料 —— 大约12点以上 —— 方块是我的花色之一。"第一条消息发出！'
-          ) },
-          {
-            seat: 'S', learner: true, expected: '1H',
-            hint: T(
-              "East said 1♦. You've got 5 hearts — answer: 1 heart (1H)!",
-              '东家说了1♦。你有5张红桃 —— 回答：1红桃 (1H)！'
-            ),
-            note: T(
-              'Your 1♥ — and it counts as a BIGGER bid, because hearts outrank diamonds. Your message: "I have hearts — five of them!"',
-              '你的1♥ —— 而且它是更大的叫牌，因为红桃比方块高级。你的消息是："我有红桃 —— 有5张！"'
-            ),
-          },
-        ],
-      },
-      {
-        kind: 'info',
-        text: T(
-          "Nice — 1♥ beats 1♦ because hearts outrank diamonds. You're talking already!",
-          '漂亮 —— 1♥比1♦大，因为红桃比方块高级。你已经在说话了！'
-        ),
-      },
-      {
-        kind: 'auction',
-        script: [
-          { seat: 'W', bid: 'P', note: T(
-            'West passes — nothing to add to the talk.',
-            '西家不叫 —— 没什么要补充的。'
-          ) },
-          { seat: 'N', bid: 'P', note: T(
-            'North passes again — still no news worth sharing.',
-            '北家又不叫 —— 还是没有值得分享的新闻。'
-          ) },
-          { seat: 'E', bid: '2D', note: T(
-            'East says diamonds AGAIN, at the 2-level: "My diamonds are real — long enough to mention twice." It also raises the price: beating this now costs a 2-level bid.',
-            '东家把方块再说一次，还升到2阶："我的方块是真的 —— 长到值得说两次。"这还抬高了价格：想压过它，现在得叫到2阶。'
-          ) },
-          {
-            seat: 'S', learner: true, expected: '2H',
-            hint: T(
-              'East pushed to 2♦. Say hearts again, louder: 2 hearts (2H)!',
-              '东家加到2♦。把红桃再说一遍，大声点：2红桃 (2H)！'
-            ),
-            note: T(
-              'Your 2♥: "Still hearts — and I am not backing down." You win the level-2 fight because hearts outrank diamonds.',
-              '你的2♥："还是红桃 —— 我可不退让。"你在2阶的较量里赢了，因为红桃比方块高级。'
-            ),
-          },
-        ],
-      },
-      {
-        kind: 'info',
-        text: T(
-          'Now everyone passes — three passes in a row stop the talk. The last bid becomes the contract — the promise from the contract lesson, remember? You promised 2♥.',
-          '现在大家都pass了 —— 连续三次不叫，谈话结束。最后一个叫牌变成定约 —— 就是定约课里说的那份承诺，还记得吗？你们承诺的是2♥。'
-        ),
-      },
-      {
-        kind: 'info',
-        text: T(
-          'So who plays the promise? The one who mentioned the suit FIRST. You said hearts first — you are the declarer! Your partner becomes the dummy.',
-          '那么谁来打这个承诺？第一个说出这个花色的人。你先说的红桃 —— 你是庄家！你的搭档变成明手。'
-        ),
-      },
-      {
-        kind: 'info',
-        text: T(
-          "Dummy's job is the easiest in bridge — you met it back in the planning lesson: lay ALL your cards face-up on the table… and relax. The declarer plays both hands. From now on you'll see North's cards face-up — that's your dummy.",
-          '明手的活儿是桥牌里最轻松的 —— 你在做计划那课已经见过：把全部牌翻开摊在桌上……然后休息。庄家一个人打两手牌。从现在开始你会看到北家的牌翻开着 —— 那就是你的明手。'
-        ),
-      },
+{ kind: 'info', text: T("Last lesson asked what we can promise. Bidding finds the answer together: do we have enough strength for game, and should we play 3NT, 4♥ or 4♠? Exchange point ranges and suit lengths; do not bid just to outshout someone.", "上一课问我们能承诺多少墩。叫牌就是两人一起找答案：实力够不够成局，适合打3NT、4♥还是4♠？交换点力范围与花色长度，不是比谁喊得高。") },
+{ kind: 'info', text: T("We use Standard American Yellow Card. For these beginner hands, consider a one-level suit opening with 12 or more high-card points. Game takes about 25 combined points, so 12 is roughly half the partnership target. This is a useful starting guide, not a guarantee of game; shape and playing strength matter too.", "我们采用标准美国黄卡。入门时，拿到12点或以上大牌点，才考虑一阶花色开叫。成局通常需要联手约25点，12点大致是两人目标的一半。这是起步参考，不是成局保证；牌型和实际赢墩能力也很重要。") },
+{ kind: 'info', text: T("There are five one-level openings: 1♣, 1♦, 1♥, 1♠ and 1NT. A suit opening normally shows about 12–21 points; stronger hands may need a strong opening instead. Pass with a weak hand: you have sent useful information and may bid later.", "一阶有五种开叫：1♣、1♦、1♥、1♠和1NT。花色开叫通常约12–21点；更强的牌可能需要强开叫。弱牌先不叫，也是有用的信息，以后仍可能参与。") },
+{ kind: 'info', text: T("1NT is precise: 15–17 high-card points and a balanced hand, usually 4-3-3-3, 4-4-3-2 or 5-3-3-2. Balanced does NOT mean automatically open 1NT: 12–14 is too weak for it. SAYC can include a five-card major in a balanced 1NT opening.", "1NT的条件很精确：15–17大牌点，均型，通常是4-3-3-3、4-4-3-2或5-3-3-2。均型不等于自动开1NT：12–14点不够。标准美国黄卡的均型1NT也可以包含五张高花。") },
+{ kind: 'info', text: T("Outside the notrump range, open 1♥ or 1♠ with at least five cards in that major. With unequal long suits, usually start with the longer; with two five-card suits, start with the higher-ranking one. Do not open a four-card major just because its honors look nice.", "不符合无将开叫条件时，开1♥或1♠保证该高花至少五张。长套不等长时通常先叫较长套；两套都是五张时先叫较高级的花色。不要仅因大牌漂亮，就用四张高花开叫。") },
+{ kind: 'info', text: T("Why promise five? Partner with three knows 5+3=8 immediately. If you have only four in a major, start with a minor; partner can respond with a four-card major, and you can raise with four: 4+4=8. Five-card major OPENINGS and four-card major RESPONSES work together to find both fits.", "为什么保证五张？搭档有三张，马上知道5+3=8。若你只有四张高花，先开小花，搭档可以应叫四张高花，你有四张再加叫：4+4=8。五张高花开叫与四张高花应叫相互配合，才能找到这两类配合。") },
+{ kind: 'info', text: T("No five-card major and no suitable 1NT? Open the longer minor. With 3 clubs and 3 diamonds, choose 1♣; with 4 and 4, choose 1♦. 1♣ promises at least 3 clubs. 1♦ usually has 4, but can have 3 with exactly 4 spades, 4 hearts, 3 diamonds and 2 clubs. A minor opening does not promise five!", "没有五张高花，也不适合1NT？开较长的小花。梅花、方块各3张时开1♣，各4张时开1♦。1♣至少3张；1♦通常4张，但黑桃4、红桃4、方块3、梅花2时也开1♦。小花开叫不保证五张！") },
+{ kind: 'info', text: T("Read each example as spades / hearts / diamonds / clubs. AK7 / Q84 / 762 / KJ53: 13 points, balanced but below the 1NT range; no five-card major, clubs longer than diamonds. Open 1♣.", "以下牌例依次写黑桃／红桃／方块／梅花。AK7／Q84／762／KJ53：13点，均型但不够1NT；没有五张高花，梅花比方块长。开1♣。") },
+{ kind: 'info', text: T("KQ74 / AJ83 / Q65 / 72: 12 points. Neither four-card major can be opened. With three diamonds and two clubs, open 1♦; partner can show a major and you can raise with four.", "KQ74／AJ83／Q65／72：12点。两门高花都只有四张，不能开叫高花。三张方块、两张梅花，开1♦；搭档应叫高花后，你可以凭四张支持加叫。") },
+{ kind: 'info', text: T("Q83 / AKJ75 / K62 / 84: 13 points and five hearts. Open 1♥. Partner with three hearts already knows you have at least eight together.", "Q83／AKJ75／K62／84：13点、五张红桃。开1♥，搭档有三张红桃，就已经知道联手至少八张。") },
+{ kind: 'info', text: T("AK853 / KQ74 / A72 / 8: 16 points, five spades and a singleton club. This hand is not balanced: open 1♠, not 1NT. A three-card spade raise immediately finds the 5–3 fit.", "AK853／KQ74／A72／8：16点、五张黑桃，单张梅花，不是均型。开1♠，不适合1NT。搭档凭三张黑桃加叫，就能立即找到5–3配合。") },
+{ kind: 'info', text: T("AQ7 / K84 / AJ62 / Q53: 16 points, 3-3-4-3 and no singleton or void. Open 1NT. This tells partner both a narrow strength range and a balanced shape; finding a four-card major fit then uses the Stayman tool introduced next lesson.", "AQ7／K84／AJ62／Q53：16点、3-3-4-3，没有单缺。开1NT，同时告诉搭档较窄的点力范围与均型；接下来寻找四张高花配合，会用到下一课简介的斯台曼工具。") },
+{ kind: 'info', text: T("Now use the open deal: you hold 13 points and five spades. North has 8 points and three spades. You can see all cards for learning, but each bid must be justified only by that player’s hand and the auction.", "现在看桌上的牌：你有13点、五张黑桃。北家有8点、三张黑桃。学习时牌全翻开，但每个叫牌只能根据叫牌者自己的手牌和已有叫牌来决定。") },
+{ kind: 'auction', script: [{ seat: 'S', learner: true, expected: "1S", hint: T("Choose 1S.", "请选择1S。"), note: T("1♠: 13 points and five spades. An opening, not an overcall.", "1♠：13点、五张黑桃。这是开叫，不是争叫。") },
+{ seat: 'W', bid: "P", note: T("West has no suitable overcall and passes.", "西家没有合适的争叫，选择不叫。") },
+{ seat: 'N', bid: "2S", note: T("2♠: 8 points and three-card support. Your opening promised five, so the fit is known.", "2♠：8点、三张支持。你的开叫保证五张，所以配合已经确定。") },
+{ seat: 'E', bid: "P", note: T("East passes; the partnership can continue its decision.", "东家不叫，让这对搭档继续判断。") },
+{ seat: 'S', learner: true, expected: "P", hint: T("Choose P.", "请选择P。"), note: T("Pass: 13 plus a simple raise of about 6–10 is not enough to insist on game. Minimum opening, fit found, stop safely.", "不叫：13点加简单加叫约6–10点，不足以坚持成局。低限开叫，配合找到，安全停下。") },
+{ seat: 'W', bid: "P", note: T("Three consecutive passes end the auction: 2♠.", "连续三次不叫，叫牌结束：2♠。") }] },
+{ kind: 'info', text: T("The final bid sets the contract; three actual passes ended this auction. Within the winning partnership, the first player to name the final strain is declarer: South named spades first. After West leads, North lays down the dummy and South plays both hands.", "最后的实质叫牌决定定约；这次实际叫出了连续三次不叫。赢得定约的一方中，最先叫出最终花色的人当庄家：南家先叫黑桃。西家首攻后，北家摊下明手，由南家打两手牌。") },
     ],
   },
   {
     id: 'minor-responses',
-    title: T('Answer Partner', '回答搭档'),
+    title: T("Answer Partner", "回答搭档"),
     dealer: 'N',
-    hands: MINOR_DEAL,
+    hands: RESPONSE_DEAL,
     contract: { level: 2, denom: 'H', declarer: 'S', doubled: 0 },
     vulnerable: false,
     steps: [
-      {
-        kind: 'info',
-        text: T(
-          'This time, partner starts the talk. North opens 1♦. What does that MEAN? "Partner, I have a real hand — about 12 points or more — and diamonds are one of my suits." Every opening bid carries that message.',
-          '这次搭档先说话。北家开叫1♦。这是什么意思？"搭档，我有真材实料 —— 大约12点以上 —— 而且方块是我的一個花色。"每一个开叫都带着这个意思。'
-        ),
-      },
-      {
-        kind: 'info',
-        text: T(
-          'Quick vocabulary: diamonds ♦ and clubs ♣ are the "minor" suits. Hearts ♥ and spades ♠ are the "major" suits — the popular ones, because they score more (you will see why in the scoring lesson).',
-          '先学生词：方块♦和梅花♣叫"小花色"。红桃♥和黑桃♠叫"大花色" —— 更受欢迎的两个，因为它们分更高（记分那一课你就懂了）。'
-        ),
-      },
-      {
-        kind: 'info',
-        text: T(
-          'Now YOUR job: answer! Why answer at all? Because partner is asking a question — "What have YOU got?" If you stay silent with a good hand, partner will never know, and your team might stop way too low.',
-          '现在轮到你：回答！为什么要回答？因为搭档在问你一个问题 —— "你有什么牌？"你拿着好牌却不说话，搭档永远不知道，你们队可能会停得太低。'
-        ),
-      },
-      {
-        kind: 'info',
-        text: T(
-          'The rule for answering: with 6 points or more, speak. How? Bid your LONGEST suit. Why the longest? More cards together = more tricks together. Count your hand: 5 hearts, 11 points. Your answer is easy!',
-          '回答的规矩：有6点或以上，就开口。怎么开？叫你最长的花色。为什么是最长的？两家合起来张数越多，能赢的墩越多。数数你的牌：5张红桃，11点。你的回答很容易！'
-        ),
-      },
-      {
-        kind: 'auction',
-        script: [
-          { seat: 'N', bid: '1D', note: T(
-            'North opens 1♦: "Partner, I have a real hand — about 12 points or more — and diamonds are one of my suits." The talk has started.',
-            '北家开叫1♦："搭档，我有真材实料 —— 大约12点以上 —— 方块是我的花色之一。"对话开始了。'
-          ) },
-          { seat: 'E', bid: 'P', note: T(
-            'East passes. Silence is information too: probably a weak hand, or no suit worth showing.',
-            '东家不叫。沉默也是信息：多半是牌弱，或者没有值得展示的花色。'
-          ) },
-          {
-            seat: 'S', learner: true, expected: '1H',
-            hint: T(
-              'Answer with your longest suit: 1 heart (1H).',
-              '用你最长的花色回答：1红桃 (1H)。'
-            ),
-            note: T(
-              'Your answer — 1♥: "I hear you, partner! I have hearts — five of them — and 11 points." Answering with your longest suit tells partner your shape.',
-              '你的回答 —— 1♥："我听到了，搭档！我有红桃 —— 5张 —— 还有11点。"用最长的花色回答，就是在告诉搭档你的牌型。'
-            ),
-          },
-          { seat: 'W', bid: 'P', note: T(
-            'West passes too — the other team stays quiet for now.',
-            '西家也不叫 —— 对方暂时保持安静。'
-          ) },
-          { seat: 'N', bid: '2H', note: T(
-            'North RAISES to 2♥: "Hearts? I like them — I hold three myself!" Your 5 plus North\'s 3 makes an 8-card fit.',
-            '北家把红桃加叫到2♥："红桃？我喜欢 —— 我自己就有三张！"你的5张加北家的3张，正好8张配合。'
-          ) },
-          { seat: 'E', bid: 'P', note: T(
-            'East passes again — still nothing to add.',
-            '东家再不叫 —— 还是没什么可补充的。'
-          ) },
-          { seat: 'S', bid: 'P', note: T(
-            'You pass — correctly! North\'s raise told the whole story, and your hand has nothing NEW to say. Knowing when to stop talking is a real skill.',
-            '你不叫 —— 完全正确！北家的加叫已经把故事讲完了，你的牌没有新东西可说。知道什么时候停口，是一项真本事。'
-          ) },
-          { seat: 'W', bid: 'P', note: T(
-            'West\'s pass makes three in a row — three passes end the talk. 2♥ is the contract.',
-            '西家的不叫凑满连续三个 —— 谈话结束。2♥就是定约。'
-          ) },
-        ],
-      },
-      {
-        kind: 'info',
-        text: T(
-          'Did you catch that? North answered your answer — 2♥! That is a RAISE. Why would North do that? Look at the open cards: North holds 3 hearts. Your 5 plus North\'s 3 = 8 hearts together.',
-          '你注意到了吗？北家回答了你的回答 —— 2♥！这叫加叫。北家为什么这么叫？看翻开的牌：北家有3张红桃。你的5张加北家的3张 = 一共8张红桃。'
-        ),
-      },
-      {
-        kind: 'info',
-        text: T(
-          '8 cards in one suit between you is called a FIT — and a fit is gold. Why? One of you can ruff with the short side\'s trumps while the long side\'s cards win tricks. When you find a fit, the hand plays itself.',
-          '两家在一个花色里合起来有8张，这叫"配合" —— 配合就是金子。为什么？短的一边可以用将牌将吃，长的一边的牌负责赢墩。找到配合，这副牌就好打了。'
-        ),
-      },
-      {
-        kind: 'info',
-        text: T(
-          'Everyone passed, so 2♥ is the contract. Now think: who named hearts first — you or North? You did (1♥). So YOU are the declarer, and North is your dummy. Naming the suit first is what makes the declarer — remember that rule, it decides who plays every hand.',
-          '大家都不叫了，2♥就是定约。想一想：红桃是谁先说出来的 —— 你还是北家？你（1♥）。所以你是庄家，北家是明手。记住这条规矩：先说出花色的人当庄家，每一副牌都靠它决定谁来打。'
-        ),
-      },
+{ kind: 'info', text: T("Partner opens 1♣. Your job is to help answer both questions: how high, and in which strain? Respond with about 6 points or more to a one-level suit opening; with 0–5 you usually pass. A pass IS a reply. A forcing bid is different: you must keep the auction alive even if unsure.", "搭档开叫1♣。你要帮助回答两个问题：叫多高、打什么？对一阶花色开叫，约6点以上通常应叫；0–5点通常不叫。不叫也是回答。但逼叫不同：即使没把握，也要继续叫，不能随意停下。") },
+{ kind: 'info', text: T("Over 1♣ or 1♦, look for a major fit before raising a minor. A one-level new-suit response needs at least four cards and about 6 points; bid four-card suits up the line, hearts before spades when both have four. A five-card suit may be shown first. A new suit at the two level needs about 10 or more, not just 6.", "对1♣或1♦，先寻找高花配合，再考虑加叫小花。一阶新花应叫至少四张、约6点；四张套尽量由低到高，红桃黑桃各四张时先红桃。五张长套可以先报。二阶新花通常需要约10点以上，不能只有6点就随便叫。") },
+{ kind: 'info', text: T("Support needs context. After a five-card major OPENING, three-card support makes an eight-card fit; a simple raise shows about 6–10 support points. After a four-card major RESPONSE, opener normally needs FOUR to raise. Three cards do not prove a fit. Raising a minor needs more length: normally four diamonds or five clubs.", "支持要看前提。五张高花开叫后，三张支持就有八张配合；简单加叫约表示6–10支持点。但四张高花应叫后，开叫者通常需要四张才能加叫，三张不能确认配合。小花加叫需要更多张数：通常方块四张、梅花五张。") },
+{ kind: 'info', text: T("Without a fit or a suit you can show economically, a notrump response may describe your hand: 1NT over a one-level suit opening is usually 6–10 points, not the 15–17 of a 1NT OPENING. Over a 1NT opening, 2♣ is Stayman to look for a four-card major, normally with 8+ points; 2♦ and 2♥ are transfers, not natural suit responses. Those tools come later.", "没有配合，也没有能经济叫出的花色时，可以考虑无将应叫：对一阶花色开叫应叫1NT，通常是6–10点，不是1NT开叫的15–17点。对1NT开叫，2♣是斯台曼问四张高花，通常需要8点以上；2♦和2♥是转移叫，不是自然花色应叫。这些工具以后再细学。") },
+{ kind: 'info', text: T("This deal: North has 13 points, four clubs and four hearts; no five-card major, and too little for 1NT. North opens 1♣. You have 8 points and five hearts: respond 1♥. Your bid only promises four, so North uses FOUR hearts to raise. You can count 5+4=9, but North’s decision does not rely on seeing your fifth heart.", "这副牌：北家13点、四张梅花和四张红桃，没有五张高花，点力又不够1NT，所以开1♣。你有8点、五张红桃，应叫1♥。你的应叫只保证四张，因此北家凭自己的四张红桃加叫。你能数出5+4=9，但北家的决定不能依赖偷看你的第五张红桃。") },
+{ kind: 'info', text: T("Strength also controls the reply: about 6–9 is a minimum, 10–12 is invitational, and 13+ normally commits to game opposite an opening hand. With support for a major opening, a simple raise is limited; a jump raise to 3 is a limit invitation. A direct jump to 4 can be preemptive in SAYC, so do not use it as a generic strong reply. First show your range, then choose the right continuation.", "应叫还要表达实力：约6–9点是低限，10–12点邀局，13点以上面对开叫通常应坚持到成局。支持高花开叫时，简单加叫表示有限实力，跳加叫到3阶是限制性邀局。标准美国黄卡直接跳到4阶可能是阻击性叫牌，不能一概当成强牌应叫。先表达范围，再选择后续进程。") },
+{ kind: 'auction', script: [{ seat: 'N', bid: "1C", note: T("1♣: 13 points, four clubs, no five-card major.", "1♣：13点、四张梅花，没有五张高花。") },
+{ seat: 'E', bid: "P", note: T("East has no suitable overcall and passes.", "东家没有合适的争叫，选择不叫。") },
+{ seat: 'S', learner: true, expected: "1H", hint: T("Choose 1H.", "请选择1H。"), note: T("1♥: at least four hearts and 6+ points; this hand has five and 8.", "1♥：至少四张红桃、6点以上；这手实际五张、8点。") },
+{ seat: 'W', bid: "P", note: T("West passes; this is an uncontested partnership auction.", "西家不叫，这是没有争叫的搭档对话。") },
+{ seat: 'N', bid: "2H", note: T("2♥: minimum opening strength and FOUR-card heart support.", "2♥：低限开叫实力，并有四张红桃支持。") },
+{ seat: 'E', bid: "P", note: T("East passes again; no competitive bid is justified.", "东家再次不叫，没有理由勉强争叫。") },
+{ seat: 'S', learner: true, expected: "P", hint: T("Choose P.", "请选择P。"), note: T("Pass: 8 points opposite a minimum opening, well short of game. Finding a fit does not create extra high-card points.", "不叫：8点面对低限开叫，离成局还远。找到配合，不会凭空增加大牌点。") },
+{ seat: 'W', bid: "P", note: T("The third pass ends the auction at 2♥ by South.", "第三次不叫结束叫牌，南家打2♥。") }] },
+{ kind: 'info', text: T("If both players had only four hearts, the same sequence would find a 4–4 fit. If you had enough strength for game, you would keep going instead of passing just because the fit was found. Choose the level from strength and the strain from fit: preferably a major game with eight trumps, or 3NT when suitable without a major fit; a minor game needs 11 tricks.", "如果两人都只有四张红桃，同样的进程就能找到4–4配合。如果你有足够的成局实力，就应继续，而不能仅因配合找到就不叫。点力决定高度，配合决定方向：有八张高花将牌配合时优先考虑高花成局；没有高花配合且条件合适时考虑3NT，小花成局则需要11墩。") },
     ],
   },
   {
     id: 'full-hand',
-    title: T('Raise and Play', '加叫，然后打牌'),
+    title: T("Raise and Play", "加叫，然后打牌"),
     dealer: 'N',
-    hands: PRACTICE_DEAL,
-    contract: FULL_HAND_CONTRACT,
+    hands: RESPONSE_DEAL,
+    contract: { level: 2, denom: 'H', declarer: 'S', doubled: 0 },
     vulnerable: false,
     steps: [
-      {
-        kind: 'info',
-        text: T(
-          'Graduation day — a FULL hand, start to finish! You are South. North deals and opens the talk. Peek at your hearts first: A K Q J and a baby — 5 of them, and 21 points in your hand. What a suit!',
-          '毕业日 —— 一整副牌，从头打到尾！你是南家。北家发牌，先开话题。先偷看你的红桃：A K Q J加一张小的，一共5张，你有21点。这花色，绝了！'
-        ),
-      },
-      {
-        kind: 'info',
-        text: T(
-          'Watch how the talk goes this time. North opens a minor, you answer with your longest suit, and if North likes it — you already know the word — North raises.',
-          '看这次的对话怎么走。北家开叫一个小花色，你用最长的花色回答，如果北家喜欢 —— 那个词你已经会了 —— 北家就加叫。'
-        ),
-      },
-      {
-        kind: 'auction',
-        script: [
-          { seat: 'N', bid: '1C', note: T(
-            'North opens 1♣: "A real hand — 12 points or more — and clubs are one of my suits." A minor opening carries the same starting message as 1♦.',
-            '北家开叫1♣："有真材实料 —— 12点以上 —— 梅花是我的花色之一。"小花色开叫，和1♦的开场白是一个意思。'
-          ) },
-          { seat: 'E', bid: 'P', note: T(
-            'East passes — no suit worth showing, and not enough to jump into the talk.',
-            '东家不叫 —— 没有值得展示的花色，也不够格抢进对话。'
-          ) },
-          {
-            seat: 'S', learner: true, expected: '1H',
-            hint: T(
-              'North opened 1♣. Answer with your longest suit: 1 heart (1H).',
-              '北家开叫1♣。用你最长的花色回答：1红桃 (1H)。'
-            ),
-            note: T(
-              'You answer 1♥ with your longest suit: "Hearts — five of them — and a strong hand to back them." Partner is listening.',
-              '你用最长的花色回答1♥："红桃 —— 5张 —— 背后还有一手强牌。"搭档在听着呢。'
-            ),
-          },
-          { seat: 'W', bid: 'P', note: T(
-            'West passes — the opponents stay out of this conversation.',
-            '西家不叫 —— 对方不掺和这场对话。'
-          ) },
-          { seat: 'N', bid: '2H', note: T(
-            'North raises your hearts — 2♥! Look at North\'s open hand: FOUR hearts waiting for you. With your five, that is 9 together — a giant fit.',
-            '北家加叫你的红桃 —— 2♥！看北家翻开的牌：整整四张红桃在等你。加上你的五张，一共9张 —— 巨大的配合。'
-          ) },
-          { seat: 'E', bid: 'P', note: T(
-            'East passes again — the story is all on your side of the table.',
-            '东家再不叫 —— 故事完全在你们这边。'
-          ) },
-          {
-            seat: 'S', learner: true, expected: 'P',
-            hint: T(
-              'North raised to 2♥ — fit found (9 hearts together)! Your job is done: pass.',
-              '北家加叫到2♥ —— 找到配合了（两家9张红桃）！你的任务完成了：不叫。'
-            ),
-            note: T(
-              'You pass. The fit is found, the story is told, your job in the talk is done. Now your 21 points go to work at the table.',
-              '你不叫。配合找到了，故事讲完了，你在对话里的任务结束了。接下来，你的21点到牌桌上干活。'
-            ),
-          },
-          { seat: 'W', bid: 'P', note: T(
-            'West\'s pass is the third in a row — talk over. The contract: 2♥, and YOU are the declarer.',
-            '西家的不叫是连续第三个 —— 谈话结束。定约：2♥，庄家是你。'
-          ) },
-        ],
-      },
-      {
-        kind: 'info',
-        text: T(
-          "Contract: 2♥ by you. The promise: 8 tricks, hearts are trump. North's cards are face-up in front of you — your dummy. And in this bootcamp everyone else's cards are open too, so you can watch WHY every move works. West leads. Let's play!",
-          '定约：2♥，你来打。承诺：8墩，红桃是将牌。北家的牌翻开在你面前 —— 你的明手。而且在这个训练营里，其他人的牌也是翻开的，你可以看清每一步为什么有效。西家首攻。开打！'
-        ),
-      },
-      {
-        kind: 'play',
-        script: [
-          { seat: 'W', card: '4D' },
-          { seat: 'N', card: '2D' },
-          { seat: 'E', card: '9D' },
-          {
-            seat: 'S', learner: true, expected: 'AD',
-            hint: T('Diamonds led. Take it with your ace (AD).', '方块领出。用你的A (AD) 拿下。'),
-          },
-        ],
-      },
-      {
-        kind: 'info',
-        text: T(
-          "First job as declarer: pull out the enemies' trumps. Why FIRST? Look at East's open cards: East holds FOUR hearts. If you cash your side-suit winners while East still has trumps, East will RUFF them — steal your winner with a small trump. (West has no hearts at all — lucky — but one ruffing enemy is enough.) Draw their trumps while you are strong, then your winners are safe.",
-          '庄家的第一件工作：拔掉对方的将牌。为什么要先拔？看东家翻开的牌：东家有四张红桃。如果你先兑现边花色的赢墩，而东家手里还有将牌，他会将吃 —— 用一张小小的将牌偷走你的赢墩。（西家一张红桃都没有 —— 运气不错 —— 但一个能将吃的敌人就够了。）趁你强的时候拔光他们的将牌，你的赢墩就安全了。'
-        ),
-      },
-      {
-        kind: 'play',
-        script: [
-          {
-            seat: 'S', learner: true, expected: 'AH',
-            hint: T('Draw trump: ace of hearts (AH).', '拔将牌：红桃A (AH)。'),
-          },
-          { seat: 'W', card: '2C' },
-          { seat: 'N', card: '6H' },
-          { seat: 'E', card: '2H' },
-        ],
-      },
-      {
-        kind: 'play',
-        script: [
-          {
-            seat: 'S', learner: true, expected: 'KH',
-            hint: T('Keep pulling: king of hearts (KH).', '继续拔：红桃K (KH)。'),
-          },
-          { seat: 'W', card: '8C' },
-          { seat: 'N', card: '7H' },
-          { seat: 'E', card: '3H' },
-        ],
-      },
-      {
-        kind: 'play',
-        script: [
-          {
-            seat: 'S', learner: true, expected: 'QH',
-            hint: T('Queen of hearts (QH).', '红桃Q (QH)。'),
-          },
-          { seat: 'W', card: '9C' },
-          { seat: 'N', card: '8H' },
-          { seat: 'E', card: '4H' },
-        ],
-      },
-      {
-        kind: 'info',
-        text: T(
-          "Count the enemy trumps with me. Hearts total 13; your side holds 9, so the enemies hold 4 — all in East's hand. East has now followed with the 2, 3 and 4: three gone, exactly ONE left out there (the 10, sitting in East's hand — with open cards you can even see it). West never had any — those club discards told the story. One more round pulls the last trump.",
-          '跟我一起数对方的将牌。红桃一共13张，你们有9张，所以对方有4张 —— 全在东家手里。东家已经跟出了2、3、4：三张没了，外面正好只剩一张（10，就在东家手里 —— 牌翻开着你甚至能看见）。西家从来就没有 —— 那些垫掉的梅花说明了一切。再打一轮，拔掉最后一张将牌。'
-        ),
-      },
-      {
-        kind: 'play',
-        script: [
-          {
-            seat: 'S', learner: true, expected: 'JH',
-            hint: T('Jack of hearts (JH) — pull the last enemy trump!', '红桃J (JH) —— 拔掉对方最后一张将牌！'),
-          },
-          { seat: 'W', card: '2S' },
-          { seat: 'N', card: '9H' },
-          { seat: 'E', card: 'TH' },
-        ],
-      },
-      {
-        kind: 'play',
-        script: [
-          {
-            seat: 'S', learner: true, expected: '5H',
-            hint: T('Your last heart (5H) — nobody can beat it now.', '你最后一张红桃 (5H) —— 现在没人能打败它。'),
-          },
-          { seat: 'W', card: 'TC' },
-          { seat: 'N', card: '4S' },
-          { seat: 'E', card: 'JD' },
-        ],
-      },
-      {
-        kind: 'info',
-        text: T(
-          'Did you see trick 6? Your baby 5 of hearts won because every other heart was gone — the others could only discard. Trumps are finished now, so your winners can never be stolen. Cash the spades: ace first, then king. (When you hold both A and K, either order works — just bank them.)',
-          '看到第6墩了吗？你的小红桃5赢了，因为其他红桃全没了 —— 别人只能垫牌。现在将牌打完了，你的赢墩再也不会被偷走。兑现黑桃：先A，后K。（A和K都在你手里时，顺序无所谓 —— 存进银行就行。）'
-        ),
-      },
-      {
-        kind: 'play',
-        script: [
-          {
-            seat: 'S', learner: true, expected: 'AS',
-            hint: T('Cash the ace of spades (AS).', '兑现黑桃A (AS)。'),
-          },
-          { seat: 'W', card: '3S' },
-          { seat: 'N', card: 'JS' },
-          { seat: 'E', card: '6S' },
-        ],
-      },
-      {
-        kind: 'play',
-        script: [
-          {
-            seat: 'S', learner: true, expected: 'KS',
-            hint: T('King of spades (KS).', '黑桃K (KS)。'),
-          },
-          { seat: 'W', card: '5S' },
-          { seat: 'N', card: 'QS' },
-          { seat: 'E', card: '7S' },
-        ],
-      },
-      {
-        kind: 'info',
-        text: T(
-          "Your hand is down to small clubs — but dummy still holds club winners: A, K, Q. How do you get there? Lead a club FROM your hand TOWARD dummy; dummy's ace wins the trick, and then dummy leads. That bridge between the two hands is called an entry, and pros plan their entries before trick one.",
-          '你的手里只剩小梅花了 —— 但明手还有梅花的赢墩：A、K、Q。怎么过去？从你手里领出一张梅花，朝向明手；明手的A赢下这一墩，然后由明手领出。这座两手之间的桥叫"进手"，高手在第一墩之前就计划好了。现在打出你的小梅花。'
-        ),
-      },
-      {
-        kind: 'play',
-        script: [
-          {
-            seat: 'S', learner: true, expected: '7C',
-            hint: T('Small club toward dummy (7C).', '向明手打一张小梅花 (7C)。'),
-          },
-          { seat: 'W', card: '5D' },
-          {
-            seat: 'N', learner: true, expected: 'AC',
-            hint: T("You drive dummy's hand too — play dummy's ace of clubs (AC)!", '明手的牌也归你打 —— 打出明手的梅花A (AC)！'),
-          },
-          { seat: 'E', card: 'JC' },
-        ],
-      },
-      {
-        kind: 'play',
-        script: [
-          {
-            seat: 'N', learner: true, expected: 'KC',
-            hint: T("Dummy leads now — king of clubs (KC).", '现在由明手领出 —— 梅花K (KC)。'),
-          },
-          { seat: 'E', card: 'TS' },
-          {
-            seat: 'S', learner: true, expected: '4C',
-            hint: T('Follow small from your hand: 4 of clubs (4C).', '从你手里跟一张小的：梅花4 (4C)。'),
-          },
-          { seat: 'W', card: '6D' },
-        ],
-      },
-      {
-        kind: 'play',
-        script: [
-          {
-            seat: 'N', learner: true, expected: 'QC',
-            hint: T('Queen of clubs (QC).', '梅花Q (QC)。'),
-          },
-          { seat: 'E', card: '9S' },
-          {
-            seat: 'S', learner: true, expected: '5C',
-            hint: T('Your 5 of clubs (5C).', '你的梅花5 (5C)。'),
-          },
-          { seat: 'W', card: '7D' },
-        ],
-      },
-      {
-        kind: 'info',
-        text: T(
-          "Two tricks left, both in diamonds. Dummy's king is a winner — cash it. And check your own hand first: you are OUT of diamonds (your only one was the ace), so when dummy leads a diamond you will DISCARD a club. Throwing a card you don't need, when you can't follow suit, is called a discard.",
-          '还剩两墩，都是方块。明手的K是赢墩 —— 兑现它。先看你自己的手牌：你已经没有方块了（你只有一张A），所以明手领出方块时你垫一张梅花。跟不了花色时扔掉不需要的牌，这叫垫牌。'
-        ),
-      },
-      {
-        kind: 'play',
-        script: [
-          {
-            seat: 'N', learner: true, expected: 'KD',
-            hint: T("Cash dummy's king of diamonds (KD).", '兑现明手的方块K (KD)。'),
-          },
-          { seat: 'E', card: 'TD' },
-          {
-            seat: 'S', learner: true, expected: '6C',
-            hint: T('No diamonds left — discard the 6 of clubs (6C).', '没方块了 —— 垫掉梅花6 (6C)。'),
-          },
-          { seat: 'W', card: 'QD' },
-        ],
-      },
-      {
-        kind: 'play',
-        script: [
-          {
-            seat: 'N', learner: true, expected: '3D',
-            hint: T("Last trick — dummy's baby diamond (3D) leads.", '最后一墩 —— 明手的小方块 (3D) 领出。'),
-          },
-          { seat: 'E', card: '8S' },
-          {
-            seat: 'S', learner: true, expected: '3C',
-            hint: T('Still no diamonds — toss your last club (3C).', '还是没方块 —— 扔掉最后一张梅花 (3C)。'),
-          },
-          { seat: 'W', card: '8D' },
-        ],
-      },
-      {
-        kind: 'info',
-        text: T(
-          "West takes the last trick with the 8 of diamonds! Why does a little 8 win? Diamonds were led, all the trumps were long gone, and East's spade and your club were mere discards — a discard can never beat a card of the suit led. Final count: 12 of 13 for you. You promised only 8. Crushed it!",
-          '西家用方块8拿走了最后一墩！为什么小小的8能赢？领出的是方块，将牌早就没了，东家的黑桃和你的梅花都只是垫牌 —— 垫牌永远打不过领出花色的牌。最终计数：13墩你赢了12墩。你只承诺了8墩。大获全胜！'
-        ),
-      },
-      { kind: 'result' },
-      {
-        kind: 'info',
-        text: T(
-          '2♥ plus 4 extra tricks = 230 points. You just talked, planned, drew trump, crossed between hands, and played a whole hand of bridge — for real. Next: longer conversations.',
-          '2♥加4个超墩 = 230分。你刚刚对话、做计划、拔将牌、在两手之间过桥，真真正正打完了一整副桥牌。下一课：更长的对话。'
-        ),
-      },
+{ kind: 'info', text: T("Now play a complete hand after a sensible auction. North has 13 points, you have 8: the same 1♣–1♥–2♥ conversation stops in a partscore. A fit tells us WHERE; the combined strength tells us HOW HIGH. Both partners use the strength ranges they have actually shown.", "现在用合理的叫牌，打完一整副牌。北家13点，你8点；同样的1♣—1♥—2♥对话停在部分定约。配合告诉我们打什么，联手实力告诉我们叫多高，两人都根据已经承诺的实力范围作决定。") },
+{ kind: 'auction', script: [{ seat: 'N', bid: "1C", note: T("1♣: 13 points, four clubs, no five-card major.", "1♣：13点、四张梅花，没有五张高花。") },
+{ seat: 'E', bid: "P", note: T("East has no suitable overcall and passes.", "东家没有合适的争叫，选择不叫。") },
+{ seat: 'S', learner: true, expected: "1H", hint: T("Choose 1H.", "请选择1H。"), note: T("1♥: at least four hearts and 6+ points; this hand has five and 8.", "1♥：至少四张红桃、6点以上；这手实际五张、8点。") },
+{ seat: 'W', bid: "P", note: T("West passes; this is an uncontested partnership auction.", "西家不叫，这是没有争叫的搭档对话。") },
+{ seat: 'N', bid: "2H", note: T("2♥: minimum opening strength and FOUR-card heart support.", "2♥：低限开叫实力，并有四张红桃支持。") },
+{ seat: 'E', bid: "P", note: T("East passes again; no competitive bid is justified.", "东家再次不叫，没有理由勉强争叫。") },
+{ seat: 'S', learner: true, expected: "P", hint: T("Choose P.", "请选择P。"), note: T("Pass: 8 points opposite a minimum opening, well short of game. Finding a fit does not create extra high-card points.", "不叫：8点面对低限开叫，离成局还远。找到配合，不会凭空增加大牌点。") },
+{ seat: 'W', bid: "P", note: T("The third pass ends the auction at 2♥ by South.", "第三次不叫结束叫牌，南家打2♥。") }] },
+{ kind: 'info', text: T("2♥ by South promises 8 tricks. North is dummy. West leads the king of diamonds; win with dummy’s ace, then draw the opponents’ trumps. Count: your five hearts plus dummy’s four leave 4 outside.", "南家打2♥，承诺8墩，北家是明手。西家首攻方块K，用明手的A拿下，再清对方的将牌。数一数：你的五张加明手四张，外面还有4张。") },
+{ kind: 'play', script: [{ seat: 'W', card: "KD" },{ seat: 'N', learner: true, expected: "AD", hint: T("From dummy: AD.", "从明手打出AD。") },{ seat: 'E', card: "4D" },{ seat: 'S', learner: true, expected: "2D", hint: T("From your hand: 2D.", "从你手里打出2D。") }] },
+{ kind: 'info', text: T("Lead a small heart from dummy toward your ace. Then cash your king. The defenders each hold two hearts: two rounds draw all 4 enemy trumps. Keep counting rather than drawing automatically.", "从明手领小红桃到你的A，再兑现K。防守方各有两张红桃，两轮清掉对方全部4张将牌。要靠数牌，不能机械地一直清。") },
+{ kind: 'play', script: [{ seat: 'N', learner: true, expected: "6H", hint: T("From dummy: 6H.", "从明手打出6H。") },{ seat: 'E', card: "7H" },{ seat: 'S', learner: true, expected: "AH", hint: T("From your hand: AH.", "从你手里打出AH。") },{ seat: 'W', card: "2H" }] },
+{ kind: 'play', script: [{ seat: 'S', learner: true, expected: "KH", hint: T("From your hand: KH.", "从你手里打出KH。") },{ seat: 'W', card: "TH" },{ seat: 'N', learner: true, expected: "8H", hint: T("From dummy: 8H.", "从明手打出8H。") },{ seat: 'E', card: "3H" }] },
+{ kind: 'info', text: T("The enemy trumps are gone. Cross to dummy by leading a small club toward the ace, then cash the king. This is an entry: a way to reach the other hand’s winners. Follow suit when you can; only discard when you have none of the suit led.", "对方将牌已清完。从手里领小梅花到明手的A，再兑现K。这就是进手：到另一手兑现赢墩的通道。有领出花色就必须跟，缺门时才能垫牌。") },
+{ kind: 'play', script: [{ seat: 'S', learner: true, expected: "6C", hint: T("From your hand: 6C.", "从你手里打出6C。") },{ seat: 'W', card: "9C" },{ seat: 'N', learner: true, expected: "AC", hint: T("From dummy: AC.", "从明手打出AC。") },{ seat: 'E', card: "4C" }] },
+{ kind: 'play', script: [{ seat: 'N', learner: true, expected: "KC", hint: T("From dummy: KC.", "从明手打出KC。") },{ seat: 'E', card: "JC" },{ seat: 'S', learner: true, expected: "7C", hint: T("From your hand: 7C.", "从你手里打出7C。") },{ seat: 'W', card: "2C" }] },
+{ kind: 'play', script: [{ seat: 'N', learner: true, expected: "QH", hint: T("From dummy: QH.", "从明手打出QH。") },{ seat: 'E', card: "5D" },{ seat: 'S', learner: true, expected: "4H", hint: T("From your hand: 4H.", "从你手里打出4H。") },{ seat: 'W', card: "3C" }] },
+{ kind: 'play', script: [{ seat: 'N', learner: true, expected: "9H", hint: T("From dummy: 9H.", "从明手打出9H。") },{ seat: 'E', card: "9S" },{ seat: 'S', learner: true, expected: "5H", hint: T("From your hand: 5H.", "从你手里打出5H。") },{ seat: 'W', card: "4S" }] },
+{ kind: 'play', script: [{ seat: 'N', learner: true, expected: "TC", hint: T("From dummy: TC.", "从明手打出TC。") },{ seat: 'E', card: "QC" },{ seat: 'S', learner: true, expected: "8C", hint: T("From your hand: 8C.", "从你手里打出8C。") },{ seat: 'W', card: "6S" }] },
+{ kind: 'play', script: [{ seat: 'E', card: "KS" },{ seat: 'S', learner: true, expected: "3S", hint: T("From your hand: 3S.", "从你手里打出3S。") },{ seat: 'W', card: "QS" },{ seat: 'N', learner: true, expected: "2S", hint: T("From dummy: 2S.", "从明手打出2S。") }] },
+{ kind: 'play', script: [{ seat: 'E', card: "QD" },{ seat: 'S', learner: true, expected: "7D", hint: T("From your hand: 7D.", "从你手里打出7D。") },{ seat: 'W', card: "6D" },{ seat: 'N', learner: true, expected: "3D", hint: T("From dummy: 3D.", "从明手打出3D。") }] },
+{ kind: 'play', script: [{ seat: 'E', card: "JS" },{ seat: 'S', learner: true, expected: "7S", hint: T("From your hand: 7S.", "从你手里打出7S。") },{ seat: 'W', card: "AS" },{ seat: 'N', learner: true, expected: "5S", hint: T("From dummy: 5S.", "从明手打出5S。") }] },
+{ kind: 'play', script: [{ seat: 'W', card: "TD" },{ seat: 'N', learner: true, expected: "9D", hint: T("From dummy: 9D.", "从明手打出9D。") },{ seat: 'E', card: "JD" },{ seat: 'S', learner: true, expected: "JH", hint: T("From your hand: JH.", "从你手里打出JH。") }] },
+{ kind: 'play', script: [{ seat: 'S', learner: true, expected: "8S", hint: T("From your hand: 8S.", "从你手里打出8S。") },{ seat: 'W', card: "8D" },{ seat: 'N', learner: true, expected: "5C", hint: T("From dummy: 5C.", "从明手打出5C。") },{ seat: 'E', card: "TS" }] },
+{ kind: 'info', text: T("All 13 tricks are played. You took 8, against a promise of 8. The score is 110. An overtrick does not prove the bidding was wrong: we bid from the information available, not from seeing all four hands. You have raised, planned, drawn trump, used an entry and completed a whole hand.", "13墩全部打完，你赢了8墩，承诺是8墩，得分110。有超墩不等于叫牌错误：叫牌根据当时的信息判断，不是看见四手牌后倒推。你已经练习了加叫、计划、清将牌、进手，并打完一整副牌。") },
+{ kind: 'result' },
     ],
   },
   {
@@ -2827,8 +2392,8 @@ const RAW_LESSONS: RawLesson[] = [
       {
         kind: 'info',
         text: T(
-          'Now you speak AGAIN. Your second message has a special name: a REBID. What new thing can you say? Your hearts are SIX long — that is news! One heart bid could have been 5. Saying hearts again promises the 6th one. That is why rebidding your suit is never "repeating yourself" — the second mention carries new information.',
-          '现在你再说一次。你的第二条消息有个专门的名字：再叫。你能说什么新东西？你的红桃有6张 —— 这就是新闻！叫一次红桃可能只有5张。再叫一次红桃，等于保证有第6张。所以再叫自己的花色从来不是"重复自己" —— 第二次提及带着新信息。'
+          'Now you speak AGAIN. Your second message has a special name: a REBID. What new thing can you say? Your hearts are SIX long — that is news! One heart bid could have been 5. In this uncontested 1♥–1♠–2♥ sequence, the minimum rebid normally shows six hearts. That is why rebidding your suit is never "repeating yourself" — the second mention carries new information.',
+          '现在你再说一次。你的第二条消息有个专门的名字：再叫。你能说什么新东西？你的红桃有6张 —— 这就是新闻！叫一次红桃可能只有5张。在这里无争叫的1♥—1♠—2♥进程中，低限再叫通常表示六张红桃。所以再叫自己的花色从来不是"重复自己" —— 第二次提及带着新信息。'
         ),
       },
       {
@@ -2842,8 +2407,8 @@ const RAW_LESSONS: RawLesson[] = [
             seat: 'S', learner: true, expected: '2H',
             hint: T('Rebid your six hearts: 2♥.', '再叫你的6张红桃：2♥。'),
             note: T(
-              'Your rebid — 2♥. THIS is the new news: your hearts are SIX long. One heart bid could have been five; saying them again guarantees the sixth.',
-              '你的再叫 —— 2♥。这就是新消息：你的红桃有6张。叫一次红桃可能只有5张；再说一次，等于保证有第6张。'
+              'Your rebid — 2♥. THIS is the new news: your hearts are SIX long. One heart bid could have been five; this minimum rebid normally shows six.',
+              '你的再叫 —— 2♥。这就是新消息：你的红桃有6张。叫一次红桃可能只有5张；这里的低限再叫通常表示六张。'
             ),
           },
           { seat: 'W', bid: 'P', note: T(
@@ -2851,8 +2416,8 @@ const RAW_LESSONS: RawLesson[] = [
             '西家不叫 —— 听够了。'
           ) },
           { seat: 'N', bid: 'P', note: T(
-            'North passes. North has the full picture now — six hearts in your hand, no better home than 2♥. Passing is North saying "deal."',
-            '北家不叫。北家现在全清楚了 —— 你有6张红桃，没有比2♥更好的归宿。不叫，就是北家在说"成交"。'
+            'North passes with 7 points and two hearts. Your minimum rebid normally shows six hearts: 6+2=8. There is a fit, but not enough strength to invite game.',
+            '北家有7点、两张红桃，选择不叫。你的低限再叫通常表示六张：6+2=8。配合有了，但实力不足以邀局。'
           ) },
           { seat: 'E', bid: 'P', note: T(
             'East\'s pass is the third in a row — conversation over. Contract: 2♥.',
@@ -2873,7 +2438,7 @@ const RAW_LESSONS: RawLesson[] = [
     id: 'scoring',
     title: T('Go for Game!', '冲成局！'),
     dealer: 'S',
-    hands: PRACTICE_DEAL,
+    hands: GAME_DEAL,
     contract: { level: 4, denom: 'H', declarer: 'S', doubled: 0 },
     vulnerable: false,
     steps: [
@@ -2914,10 +2479,7 @@ const RAW_LESSONS: RawLesson[] = [
       },
       {
         kind: 'info',
-        text: T(
-          'Your turn to be brave. You deal and open. Count your hand slowly: ♠A K (7) ♥A K Q J (10) ♦A (4) — 21 points!! Just your hand alone. Even if partner holds the bare minimum 6, that is 27 together — past 25. This is a game hand, and YOU get to make the call.',
-          '轮到你勇敢一次了。你发牌，你开叫。慢慢数你的手牌：♠A K（7点）♥A K Q J（10点）♦A（4点）—— 21点！！光你一只手。就算搭档只有最低的6点，合起来也有27点 —— 超过25了。这是成局的牌，而且由你来拍板。'
-        ),
+        text: T("You hold 18 points: ♠A (4), ♥A K Q J (10), ♦A (4). Five hearts and an unbalanced hand: open 1♥. When partner raises, use the promised range, not the face-up cards, to decide about game.", "你有18点：♠A（4）、♥A K Q J（10）、♦A（4）。五张红桃，非均型，开1♥。搭档加叫后，要根据承诺的范围判断成局，而不是偷看翻开的牌。"),
       },
       {
         kind: 'auction',
@@ -2925,33 +2487,21 @@ const RAW_LESSONS: RawLesson[] = [
           {
             seat: 'S', learner: true, expected: '1H',
             hint: T('Open 1♥ — longest and strongest first.', '开叫1♥ —— 先说最长最强的。'),
-            note: T(
-              'You open 1♥ — 21 points and five hearts. That is the strongest opening hand you have held in the whole bootcamp.',
-              '你开叫1♥ —— 21点、五张红桃。这是你在整个训练营里拿过的最强开叫牌。'
-            ),
+            note: T("You open 1♥: 18 points, five hearts, and an unbalanced hand.", "你开叫1♥：18点、五张红桃，非均型。"),
           },
           { seat: 'W', bid: 'P', note: T(
             'West passes — no answer to that opening yet.',
             '西家不叫 —— 对这样的开叫暂时没什么回应。'
           ) },
-          { seat: 'N', bid: '2H', note: T(
-            'North raises to 2♥: "I have hearts too — four of them — and real points of my own." Support, loud and clear.',
-            '北家加叫2♥："我也有红桃 —— 四张 —— 还有我自己的真点数。"支持，清清楚楚。'
-          ) },
+          { seat: 'N', bid: '2H', note: T("North raises to 2♥: 6–10 support points and at least three hearts. North actually has 8 high-card points and three hearts, but your decision uses the range.", "北家加叫2♥：6–10支持点，至少三张红桃。北家实际8大牌点、三张红桃，但你要根据承诺范围作决定。") },
           { seat: 'E', bid: 'P', note: T(
             'East passes — watching your team\'s conversation.',
             '东家不叫 —— 看着你们队的对话。'
           ) },
           {
             seat: 'S', learner: true, expected: '4H',
-            hint: T(
-              'Partner raised — hearts are shared! You hold 21 points. Jump straight to game: 4♥!',
-              '搭档加叫了 —— 红桃是共享的！你有21点。直接跳到成局：4♥！'
-            ),
-            note: T(
-              'Your jump — 4♥! Why so high? The math sings: your 21 plus partner\'s promised points sail past 25 combined, and hearts are shared. When the numbers say game, you SAY game.',
-              '你的跳叫 —— 4♥！为什么这么高？算术在唱歌：你的21点加上搭档承诺的点数，合计轻松越过25，红桃又是共享的。数字说能成局，你就说成局。'
-            ),
+            hint: T("You hold 18 points and a known heart fit. Bid game: 4♥.", "你有18点，红桃配合已知。叫到成局：4♥。"),
+            note: T("4♥: your 18 plus partner’s 6–10 support points gives about 24–28 with a known fit. This strong opener bids game; the actual hands total 26 high-card points, not slam strength.", "4♥：你的18点加搭档6–10支持点，约24–28点，配合已知。强开叫方选择成局；实际联手26大牌点，并非满贯实力。"),
           },
           { seat: 'W', bid: 'P', note: T(
             'West passes — no challenge to the game bid.',
@@ -2969,10 +2519,7 @@ const RAW_LESSONS: RawLesson[] = [
       },
       {
         kind: 'info',
-        text: T(
-          'Why jump straight to 4♥ instead of creeping up 3♥, then 4♥? Because your message is already complete: "Partner, I have the points AND the hearts — game is on." Slow auctions give the other team free turns to talk and find THEIR contract. When you know, SAY it.',
-          '为什么直接跳到4♥，而不慢慢爬3♥、再4♥？因为你的消息已经完整了："搭档，我有点数，又有红桃 —— 成局没问题。"慢慢叫只会给对方免费的说话轮次，让他们找到自己的定约。你确定的时候，就说出来。'
-        ),
+        text: T("Why 4♥ rather than an invitation of 3♥? You have enough strength to choose game opposite this raise. With a weaker opening hand you might invite or pass instead. Bidding higher is a decision about partnership strength, not a way to silence the opponents.", "为什么叫4♥而不是3♥邀局？你的实力足以在这次加叫后选择成局。如果开叫较弱，就可能邀局或不叫。叫高是联手实力的判断，不是为了堵住对手说话。"),
       },
       {
         kind: 'info',
@@ -2984,9 +2531,9 @@ const RAW_LESSONS: RawLesson[] = [
       {
         kind: 'play',
         script: [
-          { seat: 'W', card: '4D' },
+          { seat: 'W', card: "JD" },
           { seat: 'N', card: '2D' },
-          { seat: 'E', card: '9D' },
+          { seat: 'E', card: "4D" },
           {
             seat: 'S', learner: true, expected: 'AD',
             hint: T('Ace of diamonds (AD) — trick 1 of 10!', '方块A (AD) —— 10墩里的第1墩！'),
@@ -3027,8 +2574,8 @@ const RAW_LESSONS: RawLesson[] = [
       {
         kind: 'info',
         text: T(
-          'But an overcall is a promise made in the dark: partner has not spoken, so you know NOTHING about their hand. That is why the entry fee is strict — a GOOD suit: 5 cards or more, with strong top cards (think A, K, Q up top). If your suit is weak and partner is broke, a bad overcall gets doubled and crushed. A strong suit never embarrasses you.',
-          '但争叫是在黑暗里许下的承诺：搭档还没说话，你对他的牌一无所知。所以入场费很严格 —— 一个好花色：5张或以上，顶端要有大牌（A、K、Q坐镇）。如果你的花色很弱，搭档又很穷，烂争叫会被加倍打得很惨。强花色永远不会让你丢脸。'
+          'But an overcall is a promise made in the dark: partner has not spoken, so you know NOTHING about their hand. That is why the entry fee is strict — a GOOD suit: 5 cards or more, with strong top cards (think A, K, Q up top). If your suit is weak and partner is broke, a bad overcall gets doubled and crushed. Suit quality, point strength, vulnerability and the level all matter; a good suit alone is not permission to bid indefinitely.',
+          '但争叫是在黑暗里许下的承诺：搭档还没说话，你对他的牌一无所知。所以入场费很严格 —— 一个好花色：5张或以上，顶端要有大牌（A、K、Q坐镇）。如果你的花色很弱，搭档又很穷，烂争叫会被加倍打得很惨。还要看点力、局况和阶数；好花色不等于可以无限往上叫。'
         ),
       },
       {
@@ -3058,16 +2605,16 @@ const RAW_LESSONS: RawLesson[] = [
             '西家不叫 —— 暂时没有给东家的支持可展示。'
           ) },
           { seat: 'N', bid: '2H', note: T(
-            'North ADVANCES — 2♥: "I back your hearts! I hold FOUR of them, and points on top." Your 5 plus North\'s 4: nine hearts together.',
-            '北家进叫 —— 2♥："我挺你的红桃！我有四张，上面还有点数。"你的5张加北家的4张：一共九张红桃。'
+            'North advances with 2♥: 8 points and four hearts support your five. A simple raise shows limited strength, not a game force.',
+            '北家进叫2♥：8点、四张红桃，支持你的五张。简单加叫表示有限实力，不是逼叫成局。'
           ) },
           { seat: 'E', bid: 'P', note: T(
             'East passes — their opening story did not scare your team off.',
             '东家不叫 —— 他们的开叫故事没吓住你们队。'
           ) },
           { seat: 'S', bid: 'P', note: T(
-            'You pass. North\'s advance told you the fit is real, and 2♥ is already a happy steal — no need to push higher.',
-            '你不叫。北家的进叫告诉你配合是真的，2♥已经是漂亮的一"偷" —— 不需要再往高推。'
+            'You pass with 14 points after a limited raise. The fit is real, but partner has not promised game strength. Do not treat a raise as unlimited support.',
+            '你有14点，面对有限加叫选择不叫。配合是真的，但搭档没有承诺成局实力。不能把加叫当成无限支持。'
           ) },
           { seat: 'W', bid: 'P', note: T(
             'West\'s pass ends it — three in a row. Your team walks away with the contract: 2♥!',

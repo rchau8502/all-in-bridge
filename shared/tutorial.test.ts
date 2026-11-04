@@ -36,15 +36,15 @@ describe('all lessons', () => {
     }
   });
 
-  it('the full-hand lesson ends 12-1 and scores 230', () => {
+  it('the modest full-hand lesson makes eight tricks and scores 110', () => {
     const lesson = LESSONS.find(l => l.id === 'full-hand')!;
     const r = walkLesson(lesson);
     const result = r.getResult();
     expect(result).not.toBeNull();
-    expect(result!.tricksTaken).toBe(12);
+    expect(result!.tricksTaken).toBe(8);
     expect(result!.made).toBe(true);
-    // 2H undoubled: 2×30 trick + 50 part-score + 4×30 overtricks = 230
-    expect(result!.total).toBe(230);
+    // 2H exactly: 2×30 trick points + 50 partscore bonus = 110
+    expect(result!.total).toBe(110);
   });
 
   it('lesson ids are unique', () => {
@@ -111,10 +111,35 @@ describe('hands match the story the script tells', () => {
   const suitLen = (lessonId: string, seat: 'N' | 'E' | 'S' | 'W', suit: string) =>
     LESSONS.find(l => l.id === lessonId)!.hands[seat].filter(c => c.suit === suit).length;
 
-  it('bidding: North passes on a real pass hand; East opens and rebids diamonds on a real opener', () => {
-    expect(hcpOf('bidding', 'N')).toBeLessThan(12);
-    expect(hcpOf('bidding', 'E')).toBeGreaterThanOrEqual(12);
-    expect(suitLen('bidding', 'E', 'D')).toBeGreaterThanOrEqual(5);
+  it('opening and response boards have honest point ranges and major fits', () => {
+    expect(hcpOf('bidding', 'S')).toBe(13);
+    expect(hcpOf('bidding', 'N')).toBe(8);
+    expect(suitLen('bidding', 'S', 'S')).toBe(5);
+    expect(suitLen('bidding', 'N', 'S')).toBe(3);
+    for (const id of ['minor-responses', 'full-hand']) {
+      expect(hcpOf(id, 'N')).toBe(13);
+      expect(hcpOf(id, 'S')).toBe(8);
+      expect(suitLen(id, 'N', 'C')).toBe(4);
+      expect(suitLen(id, 'N', 'H')).toBe(4);
+      expect(suitLen(id, 'S', 'H')).toBe(5);
+    }
+    expect(hcpOf('conversation', 'N')).toBe(7);
+    expect(hcpOf('conversation', 'S')).toBe(14);
+    expect(suitLen('conversation', 'N', 'H')).toBe(2);
+    expect(suitLen('conversation', 'S', 'H')).toBe(6);
+    expect(hcpOf('scoring', 'S')).toBe(18);
+    expect(hcpOf('scoring', 'N')).toBe(8);
+    expect(suitLen('scoring', 'N', 'H')).toBe(3);
+    expect(hcpOf('overcall', 'N')).toBe(8);
+    expect(hcpOf('overcall', 'S')).toBe(14);
+  });
+
+  it('all bidding lessons actually finish their auction at the stated contract', () => {
+    for (const lesson of LESSONS.slice(11)) {
+      const r = walkLesson(lesson);
+      expect(r.auction.isComplete(), lesson.id).toBe(true);
+      expect(r.auction.contract(), lesson.id).toEqual(lesson.contract);
+    }
   });
 
   it('overcall: East opens 1D on a real opener; South overcalls on the A-K-Q-J-5 of hearts', () => {
@@ -173,14 +198,14 @@ describe('TutorialRunner mistakes', () => {
     const lesson = LESSONS.find(l => l.id === 'bidding')!;
     const r = new TutorialRunner(lesson);
     r.advance(); // info
-    tapToLearner(r); // N P, E 1D revealed
+    tapToLearner(r); // South opens the uncontested auction
     const before = r.stepIndex;
-    const res = r.submitBid('1S'); // legal but wrong (expected 1H)
+    const res = r.submitBid('1H'); // legal but wrong (expected 1S)
     expect(res.ok).toBe(false);
-    expect(res.hint).toContain('1H');
+    expect(res.hint).toContain('1S');
     expect(r.stepIndex).toBe(before);
     // Now the right bid advances.
-    expect(r.submitBid('1H').ok).toBe(true);
+    expect(r.submitBid('1S').ok).toBe(true);
   });
 
   it('rejects a garbage bid with the hint', () => {
@@ -292,9 +317,9 @@ describe('chinese lessons', () => {
       expect(z.steps.length).toBe(en.steps.length);
       expect(z.id).toBe(en.id);
     }
-    // The full-hand zh lesson scores the same 230.
+    // The full-hand zh lesson scores the same 110.
     const r = walkLesson(zh.find(l => l.id === 'full-hand')!);
-    expect(r.getResult()!.total).toBe(230);
+    expect(r.getResult()!.total).toBe(110);
   });
 });
 
