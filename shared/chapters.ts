@@ -1,103 +1,187 @@
-/**
- * ACBL Intro to Bridge Series 1: Chapter Structure.
- * Organizes the 16 interactive lessons into 4 progressive pedagogical units
- * matching the 10 classes in the ACBL Student Manual (Patty Tucker, 2022).
- */
-
 export type Lang = 'en' | 'zh';
-
+export type CourseTrack = 'basic' | 'advanced';
 export interface Chapter {
-  id: string;
-  title: Record<Lang, string>;
-  subtitle: Record<Lang, string>;
-  acblClasses: string; // e.g. "Classes 1 - 2"
-  lessonIds: string[];
+  id: string; track: CourseTrack; title: Record<Lang,string>;
+  subtitle: Record<Lang,string>; acblClasses: string; lessonIds: string[];
 }
-
 export const ACBL_CHAPTERS: Chapter[] = [
   {
-    id: 'ch1',
-    title: {
-      en: 'Part 1: The Basics & Card Play',
-      zh: '第一篇：规则破冰与做牌基础',
+    "id": "ch1",
+    "track": "basic",
+    "title": {
+      "en": "Basics 1: Cards and Play",
+      "zh": "基础一：牌与做牌"
     },
-    subtitle: {
-      en: 'Card mechanics, winning tricks, finessing, long suits, and trump power',
-      zh: '认识牌面、赢墩法则、飞牌技巧、树立长套与将牌威力',
+    "subtitle": {
+      "en": "Suits, tricks, planning and trump",
+      "zh": "花色、赢墩、计划与将牌"
     },
-    acblClasses: 'ACBL Classes 1 - 2',
-    lessonIds: ['deck', 'tricks', 'strategy', 'long-suits', 'trump'],
+    "acblClasses": "Foundations",
+    "lessonIds": [
+      "deck",
+      "tricks",
+      "strategy",
+      "long-suits",
+      "trump"
+    ]
   },
   {
-    id: 'ch2',
-    title: {
-      en: 'Part 2: Planning & Defense',
-      zh: '第二篇：做牌计划与防守艺术',
+    "id": "ch2",
+    "track": "basic",
+    "title": {
+      "en": "Basics 2: Planning and Defense",
+      "zh": "基础二：计划与防守"
     },
-    subtitle: {
-      en: 'Counting losers, ruffing in dummy, opening leads, and defensive cooperation',
-      zh: '有将数输墩、明手将吃消去、首攻技巧与防守同伴配合',
+    "subtitle": {
+      "en": "Losers, ruffing, opening leads and cooperation",
+      "zh": "输墩、将吃、首攻与配合"
     },
-    acblClasses: 'ACBL Classes 3 - 4',
-    lessonIds: ['losers', 'eliminate', 'defense-leads', 'defense-play', 'defense-rules'],
+    "acblClasses": "Foundations",
+    "lessonIds": [
+      "losers",
+      "eliminate",
+      "defense-leads",
+      "defense-play",
+      "defense-rules"
+    ]
   },
   {
-    id: 'ch3',
-    title: {
-      en: 'Part 3: Bidding & Contracts',
-      zh: '第三篇：叫牌语言与定约实战',
+    "id": "ch3",
+    "track": "basic",
+    "title": {
+      "en": "Basics 3: Bidding Is Communication",
+      "zh": "基础三：叫牌是沟通"
     },
-    subtitle: {
-      en: 'The contract promise, opening bids, responding to minors, and full-hand execution',
-      zh: '定约承诺、开叫阶梯、应叫低花法则与整副牌叫打实战',
+    "subtitle": {
+      "en": "Open, respond, find a fit and judge game",
+      "zh": "开叫、应叫、寻找配合与判断成局"
     },
-    acblClasses: 'ACBL Classes 5 - 7',
-    lessonIds: ['contract', 'bidding', 'minor-responses', 'full-hand'],
+    "acblClasses": "Foundations",
+    "lessonIds": [
+      "contract",
+      "bidding",
+      "minor-responses",
+      "full-hand"
+    ]
   },
   {
-    id: 'ch4',
-    title: {
-      en: 'Part 4: Advanced Rebids & Competition',
-      zh: '第四篇：进阶再叫与争叫竞争',
+    "id": "ch4",
+    "track": "basic",
+    "title": {
+      "en": "Basics 4: Rebidding and Game",
+      "zh": "基础四：再叫与成局"
     },
-    subtitle: {
-      en: 'Opener rebids, going for game bonuses, and 10-5-2 competitive overcalls',
-      zh: '开叫者再叫体系、冲成局记分、争叫抢庄与10-5-2竞争法则',
+    "subtitle": {
+      "en": "Natural rebids, strength, game and a simple overcall",
+      "zh": "自然再叫、实力、成局与简单争叫"
     },
-    acblClasses: 'ACBL Classes 8 - 10',
-    lessonIds: ['conversation', 'scoring', 'overcall'],
+    "acblClasses": "Foundations",
+    "lessonIds": [
+      "conversation",
+      "scoring",
+      "overcall"
+    ]
   },
   {
-    id: 'ch5',
-    title: { en: 'Part 5: Minor and Notrump Responses', zh: '第五篇：低花与无将应叫' },
-    subtitle: { en: 'Strength, Stayman, Smolen, Jacoby and Texas transfers', zh: '点力范围、斯台曼、斯莫伦、雅各比与德克萨斯转移' },
-    acblClasses: 'Course slides C6–C8',
-    lessonIds: ['strength-and-minors', 'stayman-fit', 'stayman-smolen', 'jacoby-transfers', 'texas-transfers'],
+    "id": "ch5",
+    "track": "basic",
+    "title": {
+      "en": "Basics 5: A Simple Two-over-One System",
+      "zh": "基础五：简单二盖一体系"
+    },
+    "subtitle": {
+      "en": "Natural strength ranges, simple rebids, reverses and game forcing",
+      "zh": "自然点力范围、顺叫、逆叫与二盖一逼局"
+    },
+    "acblClasses": "Foundations",
+    "lessonIds": [
+      "strength-and-minors",
+      "opener-rebids",
+      "reverse-bids",
+      "two-over-one-basics"
+    ]
   },
   {
-    id: 'ch6',
-    title: { en: 'Part 6: Major Raises and Opener Rebids', zh: '第六篇：高花支持与开叫者再叫' },
-    subtitle: { en: 'Bergen, Jacoby 2NT, splinters, semi-forcing 1NT and reverses', zh: '伯根、雅各比2NT、斯普林特、半逼叫1NT与逆叫' },
-    acblClasses: 'Course slides Class 8–10',
-    lessonIds: ['bergen-raises', 'major-forcing-raises', 'opener-rebids', 'reverse-bids'],
+    "id": "ch6",
+    "track": "advanced",
+    "title": {
+      "en": "Advanced 1: Notrump Conventions",
+      "zh": "进阶一：无将约定"
+    },
+    "subtitle": {
+      "en": "Stayman, Smolen, Jacoby and Texas transfers",
+      "zh": "斯台曼、斯莫伦、雅各比与德克萨斯转移"
+    },
+    "acblClasses": "Advanced agreements",
+    "lessonIds": [
+      "stayman-fit",
+      "stayman-smolen",
+      "jacoby-transfers",
+      "texas-transfers"
+    ]
   },
   {
-    id: 'ch7',
-    title: { en: 'Part 7: Competition and Doubles', zh: '第七篇：竞争叫牌与加倍' },
-    subtitle: { en: 'Advancing, takeout, negative and support doubles, bidding after interference', zh: '进叫、技术性加倍、负加倍、支持性加倍与受干扰后的应叫' },
-    acblClasses: 'Course slides Class 11–13',
-    lessonIds: ['overcall-strategy', 'takeout-doubles', 'negative-doubles', 'support-and-redoubles'],
+    "id": "ch7",
+    "track": "advanced",
+    "title": {
+      "en": "Advanced 2: Artificial Major Raises",
+      "zh": "进阶二：人工高花支持"
+    },
+    "subtitle": {
+      "en": "Bergen, Jacoby 2NT and splinters",
+      "zh": "伯根、雅各比2NT与斯普林特"
+    },
+    "acblClasses": "Advanced agreements",
+    "lessonIds": [
+      "bergen-raises",
+      "major-forcing-raises"
+    ]
   },
   {
-    id: 'ch8',
-    title: { en: 'Part 8: Game Forces and Slam Exploration', zh: '第八篇：逼局与满贯探索' },
-    subtitle: { en: 'Fourth-suit forcing, two-way checkback, controls and RKCB 1430', zh: '第四花色逼叫、双路重询、控制扣叫与1430关键张' },
-    acblClasses: 'Course slides Class 14',
-    lessonIds: ['game-forcing-auctions', 'two-way-checkback', 'controls-and-keycards'],
+    "id": "ch8",
+    "track": "advanced",
+    "title": {
+      "en": "Advanced 3: Competitive Agreements",
+      "zh": "进阶三：竞争叫牌约定"
+    },
+    "subtitle": {
+      "en": "Advancing, takeout, negative and support doubles",
+      "zh": "争叫后续、技术性加倍、负加倍与支持性加倍"
+    },
+    "acblClasses": "Advanced agreements",
+    "lessonIds": [
+      "overcall-strategy",
+      "takeout-doubles",
+      "negative-doubles",
+      "support-and-redoubles"
+    ]
   },
+  {
+    "id": "ch9",
+    "track": "advanced",
+    "title": {
+      "en": "Advanced 4: Forcing Tools and Slams",
+      "zh": "进阶四：逼叫工具与满贯"
+    },
+    "subtitle": {
+      "en": "Fourth-suit forcing, checkback, fast/slow arrival, controls and keycards",
+      "zh": "第四花色、重询、速缓达、扣叫与关键张"
+    },
+    "acblClasses": "Advanced agreements",
+    "lessonIds": [
+      "game-forcing-auctions",
+      "two-way-checkback",
+      "controls-and-keycards"
+    ]
+  }
 ];
-
-/** Get chapter info for a specific lesson ID. */
-export function getChapterForLesson(lessonId: string): Chapter | undefined {
-  return ACBL_CHAPTERS.find(ch => ch.lessonIds.includes(lessonId));
+export function getChapterForLesson(id: string): Chapter | undefined {
+  return ACBL_CHAPTERS.find(ch => ch.lessonIds.includes(id));
+}
+// The former index-only bookmarks are migrated by identity after reordering.
+export const PREVIOUS_LESSON_IDS = ["deck", "tricks", "strategy", "long-suits", "trump", "losers", "eliminate", "defense-leads", "defense-play", "defense-rules", "contract", "bidding", "minor-responses", "full-hand", "conversation", "scoring", "overcall", "strength-and-minors", "stayman-fit", "stayman-smolen", "jacoby-transfers", "texas-transfers", "bergen-raises", "major-forcing-raises", "opener-rebids", "reverse-bids", "overcall-strategy", "takeout-doubles", "negative-doubles", "support-and-redoubles", "game-forcing-auctions", "two-way-checkback", "controls-and-keycards"];
+export function savedLessonIndex(savedId: string | null, oldIndex: number): number {
+  const order = ACBL_CHAPTERS.flatMap(ch => ch.lessonIds);
+  const id = savedId ?? PREVIOUS_LESSON_IDS[oldIndex];
+  return Math.max(0, order.indexOf(id ?? ''));
 }

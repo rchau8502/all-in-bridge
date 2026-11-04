@@ -1,3 +1,4 @@
+import { savedLessonIndex } from '../../shared/chapters.js';
 import { createContext, useContext, useMemo, useState, useEffect, useCallback } from 'react';
 import { t, type Lang } from './i18n.js';
 import { audio } from './audio.js';
@@ -59,7 +60,7 @@ export function App() {
   const [currentLessonIdx, setCurrentLessonIdxState] = useState<number>(() => {
     const saved = localStorage.getItem('aib-lesson-idx');
     const parsed = saved !== null ? parseInt(saved, 10) : 0;
-    return Number.isFinite(parsed) ? Math.max(0, parsed) : 0;
+    return savedLessonIndex(localStorage.getItem('aib-lesson-id'), Number.isFinite(parsed) ? Math.max(0, parsed) : 0);
   });
   const [completedLessons, setCompletedLessons] = useState<Set<string>>(() => {
     try {
@@ -169,6 +170,8 @@ export function App() {
   const setCurrentLessonIdx = useCallback((idx: number) => {
     setCurrentLessonIdxState(idx);
     localStorage.setItem('aib-lesson-idx', String(idx));
+    const lesson = getLessons('en')[idx];
+    if (lesson) localStorage.setItem('aib-lesson-id', lesson.id);
   }, []);
 
   const markLessonCompleted = useCallback((id: string) => {

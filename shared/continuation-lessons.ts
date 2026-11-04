@@ -19,25 +19,25 @@ export const COURSE_MODULES = [
     ],
     "source": "C6",
     "focus": [
-      "Describe length and strength; use limited bids to decide whether to stop, invite or force.",
-      "描述长度与实力，通过有限叫品决定停叫、邀请还是逼叫。"
+      "Show your suit and strength naturally; choose partscore, invitation or game.",
+      "自然地描述花色与实力，选择部分定约、邀请或成局。"
     ],
     "notes": [
       [
-        "A one-level suit opening covers 12–21 points. An unpassed one-over-one response shows 6+ and four cards, and is forcing for one round. A limited bid narrows the range so partner can do the arithmetic. “Limited” and “forcing” answer different questions; an artificial limited bid can still require a response.",
-        "一阶花色开叫覆盖12–21点。未Pass过的一盖一应叫表示6点以上、四张，逼叫一轮。有限叫品缩小范围，搭档才好计算。“有限”与“逼叫”回答不同问题，有范围的人工叫品仍可能要求回应。"
+        "A one-level suit opening covers 12–21 points. A one-level new-suit response shows 6+ and four cards, forcing one round. Once a bid limits strength, partner can add the ranges and choose the next step.",
+        "一阶花色开叫覆盖12–21点。一阶新花应叫表示6点以上、四张，逼叫一轮。叫品限定实力后，搭档就能把范围加起来，决定下一步。"
       ],
       [
-        "Find a major fit before settling for a minor. In our Walsh style, a non-game-forcing responder to 1♣ bypasses diamonds to show a four-card major, even with longer diamonds. With game-going values and long diamonds, there is time to show diamonds first.",
-        "先找高花配合，再考虑低花。本课采用沃尔什风格：面对1♣，不足逼局实力时优先应叫四张高花，即使方块更长，也先越过方块；有逼局实力与长方块时，才有空间先报方块。"
+        "First look for an eight-card major fit. After a minor opening, show your four-card major before settling in a minor. A major response only promises four, so opener normally needs four to raise it.",
+        "先找八张高花配合。低花开叫后，先表示四张高花，再考虑停在低花。高花应叫只保证四张，因此开叫者通常需要四张才能加叫。"
       ],
       [
-        "Natural notrump responses to a minor are 1NT = 6–10, 2NT = 11–12 invitational, and 3NT = 13–15 without a four-card major. This 2NT is natural; after a major, Jacoby 2NT instead promises support and game-forcing strength.",
-        "对低花的自然无将应叫：1NT为6–10点，2NT为11–12点邀局，3NT为13–15点且无四张高花。这里2NT是自然叫；对高花的雅各比2NT则表示支持与逼局实力。"
+        "Natural NT responses to a minor show increasing strength: 1NT = 6–10, 2NT = 11–12 invitational, 3NT = 13–15 with no four-card major. Higher in the same natural response family means stronger.",
+        "对低花的自然无将应叫逐级表示实力：1NT为6–10点，2NT为11–12点邀局，3NT为13–15点且无四张高花。在同类自然无将应叫中，叫得越高，实力越强。"
       ],
       [
-        "A weak two opening is a separate preempt: usually 6–10 points and a six-card suit in diamonds, hearts or spades. 2♣ is strong, so a club preempt starts at 3♣. Strong 2♣ starts around 22 points or equivalent playing strength. Do not confuse an opening with a response or an overcall.",
-        "弱二开叫是另一类阻击：通常6–10点、六张方块、红桃或黑桃。2♣是强开叫，所以梅花阻击从3♣开始。强2♣约22点或等同赢墩实力。开叫、应叫和争叫不能混为一谈。"
+        "Our simple major raises are natural: 2M shows 6–9 with three+ support, 3M shows 10–12 and invites, and 4M places game with enough strength. In a two-over-one auction, a new suit at the cheapest two level shows 13+ and commits to game. The advanced part will introduce different agreements separately.",
+        "基础篇采用自然高花加叫：2高花为6–9点、三张以上支持，3高花为10–12点邀局，4高花是实力足够时选择成局。二盖一进程中，最经济二阶新花表示13点以上，承诺成局。进阶篇再单独引入不同约定。"
       ]
     ],
     "rows": [
@@ -53,12 +53,12 @@ export const COURSE_MODULES = [
       ],
       [
         [
-          "Walsh after 1♣",
-          "1♣后的沃尔什"
+          "2M / 3M / 4M",
+          "2／3／4高花"
         ],
         [
-          "Prefer a major without game strength",
-          "不足逼局实力时优先高花"
+          "Minimum / invite / game",
+          "低限／邀请／成局"
         ]
       ],
       [
@@ -77,8 +77,8 @@ export const COURSE_MODULES = [
           "二盖一"
         ],
         [
-          "13+ and game forcing in the course agreement",
-          "本课程约定13点以上逼局"
+          "13+, game forcing",
+          "13点以上，逼局"
         ]
       ]
     ],
@@ -1474,6 +1474,10 @@ export const COURSE_MODULES = [
     ],
     "notes": [
       [
+        "Advanced agreement change: the basic part used natural 3M as an invitation. From this lesson, Bergen uses direct 3M as weak and artificial 3♦ as the four-card limit raise. Do not combine these two meanings in the same auction.",
+        "进阶约定切换：基础篇的自然3高花是邀请。从本课开始，伯根把直接3高花改为弱牌，用人工3♦表示四张限制性邀局。两种含义不能在同一套约定里混用。"
+      ],
+      [
         "After an uncontested major opening by an unpassed responder, our simple raise to 2M shows exactly three-card support and 6–9 points. With four or more, use Bergen: 3♣ = 7–9 constructive; 3♦ = 10–12 limit raise; direct 3M = weak, about 0–6. These artificial minor bids promise support, not that minor.",
         "无干扰、应叫者未Pass过时，本课简单加到2高花表示恰好三张支持、6–9点。四张以上用伯根：3♣为7–9点建设性支持；3♦为10–12点限制性邀局；直接3高花为弱牌，约0–6点。这些人工低花叫品表示高花支持，不是低花长套。"
       ],
@@ -2060,6 +2064,10 @@ export const COURSE_MODULES = [
       [
         "A jump raise with a fit or jump rebid of a strong long suit shows extra values and invites. A jump SHIFT in a new suit is much stronger and game forcing. With a minimum response, do not pass a forcing new-suit jump just because you prefer the first suit.",
         "有配合的跳加叫、强长套的跳再叫表示额外实力并邀局；跳叫新花则更强并逼局。即使应叫低限，也不能因偏好第一套而Pass逼叫性跳新花。"
+      ],
+      [
+        "Beginner rule: compare natural bids that describe the same suit or hand type. A simple rebid is usually minimum; a jump in your own suit invites; a jump in a new suit forces to game. Higher commitments need greater strength. An artificial bid or an already game-forcing auction must be read in its own context.",
+        "入门规律：比较描述同一花色或同类牌型的自然叫品。简单再叫通常低限，跳再叫原花邀局，跳新花逼局。承诺越高，需要实力越强。人工叫品与已逼局进程，要按各自背景解读。"
       ]
     ],
     "rows": [
@@ -2310,8 +2318,8 @@ export const COURSE_MODULES = [
   {
     "id": "reverse-bids",
     "title": [
-      "Reverses and Bidding Space",
-      "逆叫与叫牌空间"
+      "Simple Rebids and Reverses",
+      "顺叫与逆叫"
     ],
     "source": "Class10",
     "focus": [
@@ -2328,8 +2336,8 @@ export const COURSE_MODULES = [
         "一盖一后的逆叫逼叫一轮，不自动等于逼局。应叫低限也必须完成回应，再由开叫澄清。二盖一已建立逼局时，更高的第二套可以单纯描述牌型，不必再保证普通逆叫的额外点力。"
       ],
       [
-        "For example, 1♥–2♣–2♠ describes hearts and spades within an established GF. Do not confuse the suits promised with a typo in an example: a 1♦–2♣–2♠ auction describes diamonds and spades, not hearts. When planning two five-card suits, consider the entire rebid route and agreed exceptions.",
-        "例如1♥—2♣—2♠在已逼局中描述红桃和黑桃。花色不能被例子笔误带偏：1♦—2♣—2♠描述方块和黑桃，不是红桃。规划两个五张套时，要结合整个再叫路线与约定例外。"
+        "A simple second-suit rebid can be made with minimum strength because partner can return cheaply. A reverse after a one-over-one response requires about 17+ and forces a reply. A jump shift shows still more strength and forces game. Once a two-over-one game force is established, a low descriptive bid is not a weak sign-off.",
+        "顺叫第二套时，搭档可以经济地回第一套，因此低限也能叫。一盖一后的逆叫约需17点以上，并逼搭档回应。跳新花表示更强实力并逼局。二盖一已逼局后，低阶描述牌型不是弱牌止叫。"
       ]
     ],
     "rows": [
@@ -2649,6 +2657,10 @@ export const COURSE_MODULES = [
       [
         "Scoring review: a partscore bonus is 50 once, not per trick. Game bonus is 300 nonvulnerable or 500 vulnerable; small-slam bonus adds 500 or 750, grand adds 1000 or 1500. For example 3NT exactly is 400 or 600; 6NT exactly is 990 or 1440. Do not add the partscore bonus to game.",
         "计分复习：部分定约奖分50只加一次，不是每墩50。成局奖分无局300、有局500；小满贯额外500或750，大满贯额外1000或1500。例如3NT正好400或600，6NT正好990或1440。成局不能再叠加部分定约奖分。"
+      ],
+      [
+        "Advanced preempts: a weak two opening normally has 6–10 points and six diamonds, hearts or spades; 3♣ is the first weak club opening because 2♣ is strong, around 22+ or equivalent playing strength. A weak opening and a jump overcall are different auction situations, even when both obstruct the opponents.",
+        "进阶阻击：弱二开叫通常6–10点，六张方块、红桃或黑桃；梅花弱开叫从3♣开始，因为2♣是强开叫，约22点以上或等同赢墩实力。弱开叫与跳争叫属于不同进程，即使都有阻碍对方的作用。"
       ]
     ],
     "rows": [
@@ -4167,6 +4179,10 @@ export const COURSE_MODULES = [
     ],
     "notes": [
       [
+        "Advanced response style: Walsh prioritizes a four-card major over diamonds after 1♣ when responder is below game strength, even with longer diamonds. With a game force and long diamonds, there is time to show diamonds first and then the major. The beginner part simply emphasized finding the major fit; this style adds the detailed order and exceptions.",
+        "进阶应叫风格：沃尔什在1♣后，应叫者不足逼局实力时优先四张高花，即使方块更长；逼局且有长方块时，可先方块再高花。基础篇只强调先找高花配合，这里进一步约定顺序与例外。"
+      ],
+      [
         "After a minor opening, a major response and a 1NT rebid, 2♣ is a relay: opener must bid 2♦. Responder may then describe an invitational hand, or pass 2♦ with a weak diamond hand. This 2♣ is not natural clubs or Stayman after a 1NT opening.",
         "低花开叫、高花应叫、1NT再叫后，2♣是接力，要求开叫者答2♦。应叫者之后可描述邀请牌，或弱方块牌直接Pass在2♦。这里2♣不是自然梅花，也不是1NT开叫后的斯台曼。"
       ],
@@ -4871,6 +4887,312 @@ export const COURSE_MODULES = [
           2,
           2,
           4,
+          5
+        ]
+      }
+    }
+  },
+  {
+    "id": "two-over-one-basics",
+    "title": [
+      "Two over One: Commit to Game First",
+      "二盖一：先确定成局"
+    ],
+    "source": "Class14",
+    "focus": [
+      "With 13+, establish a game force, then describe shape naturally to choose the game.",
+      "13点以上先建立逼局，再自然描述牌型，选择成局定约。"
+    ],
+    "notes": [
+      [
+        "Without interference, an unpassed responder’s cheapest two-level new suit over a one-level suit opening shows 13+ and forces to game. Our basic examples use at least four cards in the new suit; 1♠–2♥ requires five hearts.",
+        "无干扰、应叫者未Pass过时，对一阶花色开叫作最经济二阶新花应叫，表示13点以上并逼局。基础例子新花至少四张，1♠—2♥需要五张红桃。"
+      ],
+      [
+        "One-over-one only asks opener to bid once more. Two-over-one says neither partner may stop below game. Start by showing a second suit or supporting partner; the information chooses which game, not whether game is required.",
+        "一盖一只要求开叫者再说一轮，二盖一则要求双方不能停在成局以下。接着可报第二套或支持搭档，用这些信息选择打哪一种成局，而不是重新讨论是否必须成局。"
+      ],
+      [
+        "After 1♥–2♣–2♦–2♥, hearts are agreed and game is already forced. The low 2♥ keeps the description economical; it is not a weak stop. With a minimum opener and no further reason to continue, choose 4♥. Complex slam methods belong to the advanced part.",
+        "1♥—2♣—2♦—2♥后，红桃配合已定，而且已经逼局。低阶2♥是经济描述，不是弱牌止叫。开叫低限、没有进一步探索理由时，选择4♥。复杂满贯方法留到进阶篇。"
+      ]
+    ],
+    "rows": [
+      [
+        [
+          "Start the force",
+          "建立逼局"
+        ],
+        [
+          "13+, unpassed, no interference",
+          "13点以上、未Pass过、无干扰"
+        ]
+      ],
+      [
+        [
+          "1♠–2♥",
+          "1♠—2♥"
+        ],
+        [
+          "Five+ hearts",
+          "五张以上红桃"
+        ]
+      ],
+      [
+        [
+          "After the force",
+          "逼局之后"
+        ],
+        [
+          "Describe shape or support; do not stop below game",
+          "描述牌型或支持，不能停局以下"
+        ]
+      ],
+      [
+        [
+          "Low descriptive bid",
+          "低阶描述叫品"
+        ],
+        [
+          "Economical information, not a weak sign-off",
+          "经济传递信息，不是弱牌止叫"
+        ]
+      ]
+    ],
+    "specs": {
+      "S": [
+        13,
+        [
+          2,
+          5,
+          4,
+          2
+        ]
+      ],
+      "N": [
+        13,
+        [
+          3,
+          3,
+          3,
+          4
+        ]
+      ]
+    },
+    "auction": [
+      {
+        "seat": "S",
+        "bid": "1H",
+        "note": [
+          "Five hearts and opening values.",
+          "五张红桃与开叫实力。请结合已有叫牌确认含义。"
+        ],
+        "learn": true
+      },
+      {
+        "seat": "W",
+        "bid": "P",
+        "note": [
+          "Pass: no suitable constructive action at this turn.",
+          "不叫：这一轮没有合适的建设性行动。"
+        ],
+        "learn": false
+      },
+      {
+        "seat": "N",
+        "bid": "2C",
+        "note": [
+          "13 and clubs: establish the game force.",
+          "13点、有梅花，建立逼局。"
+        ],
+        "learn": false
+      },
+      {
+        "seat": "E",
+        "bid": "P",
+        "note": [
+          "Pass: no suitable constructive action at this turn.",
+          "不叫：这一轮没有合适的建设性行动。"
+        ],
+        "learn": false
+      },
+      {
+        "seat": "S",
+        "bid": "2D",
+        "note": [
+          "Describe four diamonds; this does not cancel the force.",
+          "描述四张方块，不取消逼局。"
+        ],
+        "learn": true
+      },
+      {
+        "seat": "W",
+        "bid": "P",
+        "note": [
+          "Pass: no suitable constructive action at this turn.",
+          "不叫：这一轮没有合适的建设性行动。"
+        ],
+        "learn": false
+      },
+      {
+        "seat": "N",
+        "bid": "2H",
+        "note": [
+          "Three hearts: support partner within the existing game force.",
+          "三张红桃：在已经逼局的进程中支持搭档。"
+        ],
+        "learn": false
+      },
+      {
+        "seat": "E",
+        "bid": "P",
+        "note": [
+          "Pass: no suitable constructive action at this turn.",
+          "不叫：这一轮没有合适的建设性行动。"
+        ],
+        "learn": false
+      },
+      {
+        "seat": "S",
+        "bid": "4H",
+        "note": [
+          "Minimum opener, fit found: choose 4♥ to fulfill the game commitment.",
+          "低限开叫、配合已定，选择4♥兑现成局承诺。"
+        ],
+        "learn": true
+      },
+      {
+        "seat": "W",
+        "bid": "P",
+        "note": [
+          "Pass: no suitable constructive action at this turn.",
+          "不叫：这一轮没有合适的建设性行动。"
+        ],
+        "learn": false
+      },
+      {
+        "seat": "N",
+        "bid": "P",
+        "note": [
+          "Pass: no suitable constructive action at this turn.",
+          "不叫：这一轮没有合适的建设性行动。"
+        ],
+        "learn": false
+      },
+      {
+        "seat": "E",
+        "bid": "P",
+        "note": [
+          "Pass: no suitable constructive action at this turn.",
+          "不叫：这一轮没有合适的建设性行动。"
+        ],
+        "learn": false
+      }
+    ],
+    "dealer": "S",
+    "contract": [
+      4,
+      "H",
+      "S"
+    ],
+    "fixed": null,
+    "needs": {},
+    "hands": {
+      "S": [
+        "4S",
+        "7S",
+        "5H",
+        "QH",
+        "JH",
+        "AH",
+        "KH",
+        "9D",
+        "QD",
+        "TD",
+        "8D",
+        "JC",
+        "2C"
+      ],
+      "N": [
+        "5S",
+        "6S",
+        "AS",
+        "8H",
+        "3H",
+        "9H",
+        "JD",
+        "4D",
+        "KD",
+        "8C",
+        "TC",
+        "QC",
+        "KC"
+      ],
+      "E": [
+        "3C",
+        "6D",
+        "9S",
+        "7D",
+        "3D",
+        "8S",
+        "KS",
+        "AD",
+        "3S",
+        "6C",
+        "5D",
+        "QS",
+        "2H"
+      ],
+      "W": [
+        "AC",
+        "2D",
+        "4C",
+        "6H",
+        "JS",
+        "9C",
+        "TH",
+        "2S",
+        "TS",
+        "7H",
+        "4H",
+        "5C",
+        "7C"
+      ]
+    },
+    "facts": {
+      "S": {
+        "hcp": 13,
+        "shape": [
+          2,
+          5,
+          4,
+          2
+        ]
+      },
+      "N": {
+        "hcp": 13,
+        "shape": [
+          3,
+          3,
+          3,
+          4
+        ]
+      },
+      "E": {
+        "hcp": 9,
+        "shape": [
+          5,
+          1,
+          5,
+          2
+        ]
+      },
+      "W": {
+        "hcp": 5,
+        "shape": [
+          3,
+          4,
+          1,
           5
         ]
       }

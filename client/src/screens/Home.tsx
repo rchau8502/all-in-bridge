@@ -76,7 +76,17 @@ export function Home() {
       </div>
 
       <div className="home-syllabus">
-        {ACBL_CHAPTERS.map(ch => {
+        {(['basic', 'advanced'] as const).map(track => {
+          const chapters = ACBL_CHAPTERS.filter(ch => ch.track === track);
+          const trackIds = chapters.flatMap(ch => ch.lessonIds);
+          const count = chapters.reduce((n, ch) => n + ch.lessonIds.length, 0);
+          const heading = lang === 'zh'
+            ? `${track === 'basic' ? '基础篇' : '进阶篇'} · ${count}课${track === 'advanced' ? '（选学）' : ''}`
+            : `${track === 'basic' ? 'Foundations' : 'Advanced'} · ${count} lessons${track === 'advanced' ? ' (optional)' : ''}`;
+          const description = lang === 'zh'
+            ? (track === 'basic' ? '先用简单自然叫牌、顺叫、逆叫和二盖一，学会判断成局。' : '掌握基础后，再学习人工约定、复杂竞争与满贯工具；部分约定会替代基础篇的简化处理。')
+            : (track === 'basic' ? 'Start with natural strength-showing bids, simple rebids, reverses and two-over-one.' : 'Optional conventions, competitive agreements and slam tools; some replace the beginner shortcuts.');
+          const content = chapters.map(ch => {
           const chLessons = ch.lessonIds
             .map(id => {
               const idx = lessonIdToIdx.get(id);
@@ -109,7 +119,7 @@ export function Home() {
                       className={`home-syllabus-item ${isDone ? 'completed' : ''} ${isCurrent ? 'current' : ''}`}
                       onClick={() => goToLesson(idx)}
                     >
-                      <span className="home-syllabus-no">{isDone ? '✓' : idx + 1}</span>
+                      <span className="home-syllabus-no">{isDone ? '✓' : trackIds.indexOf(l.id) + 1}</span>
                       <span className="home-syllabus-title">{l.title}</span>
                       <span className="home-syllabus-stars" title={isDone ? 'Mastered' : 'Not yet completed'}>
                         {isDone ? '★★★' : '☆☆☆'}
@@ -119,6 +129,16 @@ export function Home() {
                 })}
               </div>
             </div>
+          );
+          });
+          return track === 'advanced' ? (
+            <details className="course-track advanced-track" key={track}>
+              <summary>{heading}</summary><p>{description}</p>{content}
+            </details>
+          ) : (
+            <section className="course-track basic-track" key={track}>
+              <h2>{heading}</h2><p>{description}</p>{content}
+            </section>
           );
         })}
       </div>

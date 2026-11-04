@@ -6,7 +6,7 @@ presentation, bilingual EN/中文 from the ground up (both language versions
 hand-written in parallel, never machine-translated).
 
 **Play it:** https://rchau8502.github.io/all-in-bridge/ — the full
-33-lesson Bridge Bootcamp runs right in the browser, no account, no install.
+34-lesson Bridge Bootcamp runs right in the browser, no account, no install.
 
 ## Layout
 
@@ -31,18 +31,22 @@ only after the **opening card**; later play uses action hints without
 repeated card-by-card reviews. When the remaining tricks are provably
 cashable, the learner can claim them and continue to the lesson wrap-up.
 
-Bidding lessons use a **two-over-one game-forcing** teaching agreement,
-including the supplied course's Bergen raises and semi-forcing 1NT
-response to a major in an uncontested auction. Lesson 13 uses a Dating Model to distinguish
-invitations, counter-invitations, one-round forces and game forces.
+The catalog has **21 foundation lessons** and **13 optional advanced lessons**.
+Foundations use a simple natural two-over-one game-forcing system: natural
+major raises, minimum and invitational rebids, reverses and game decisions.
+Within the same natural bid family, higher commitments show more strength.
+Once game is already forced, economical shape-showing bids are not weak sign-offs.
+Lesson 13 retains the Dating Model for invitations and game forces.
 
-Lessons 18–33 extend the nine supplied course decks in teaching order:
-minor responses, Stayman/Smolen, transfers, major raises, rebids,
-overcalls, takeout doubles, bidding after interference, and game-forcing
-and slam tools. Every lesson ends with a bilingual review table.
+Advanced lessons hold Stayman, Smolen, transfers, Bergen, artificial raises,
+competitive agreements, fourth-suit forcing, checkback, fast/slow arrival,
+controls and keycards. They explicitly introduce any convention that replaces
+the foundation agreement, such as Bergen replacing the natural limit raise.
+The advanced syllabus starts collapsed; tutorial navigation shows one track
+at a time. Every lesson ends with a bilingual review table.
 Use **Back** or **Left arrow** to restore a previous teaching or auction
-position, including hands and scores. The original 17 lesson IDs stay
-stable for saved progress.
+position, including hands and scores. Lesson IDs remain stable, and old
+index-only bookmarks migrate by lesson identity after the reordering.
 
 1. Say Hi to the Cards — suits, colors, ranks; play your first trick
 2. Win the Tricks — follow suit, highest card wins, winner leads next

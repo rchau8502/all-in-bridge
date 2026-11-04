@@ -1,3 +1,4 @@
+import { ACBL_CHAPTERS, getChapterForLesson } from '../../../shared/chapters.js';
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { useApp } from '../App.js';
 import { t, bidLabelL, seatLabel, type Lang } from '../i18n.js';
@@ -778,6 +779,11 @@ export function Tutorial() {
    *  "your side" hangs off this — a defender's dummy must never be greeted
    *  as his partner. */
   const learnerSeat = learnerSeatOf(lesson);
+  const track = getChapterForLesson(lesson.id)?.track ?? 'basic';
+  const trackIndices = lessons.flatMap((l, i) => getChapterForLesson(l.id)?.track === track ? [i] : []);
+  const trackFirst = trackIndices[0]!;
+  const trackLast = trackIndices[trackIndices.length - 1]!;
+  const trackPosition = trackIndices.indexOf(lessonIdx) + 1;
   const runnerKey = `${lang}:${lesson.id}`;
   const runnerKeyRef = useRef('');
   if (!runnerRef.current || runnerKeyRef.current !== runnerKey) {
@@ -1020,15 +1026,15 @@ export function Tutorial() {
         e.preventDefault();
         doBack();
       } else if (e.key === 'ArrowLeft' && (e.altKey || e.metaKey)) {
-        if (lessonIdx > 0) startLesson(lessonIdx - 1);
+        if (lessonIdx > trackFirst) startLesson(lessonIdx - 1);
       } else if (e.key === 'ArrowRight' && (e.altKey || e.metaKey)) {
-        if (lessonIdx < lessons.length - 1) startLesson(lessonIdx + 1);
+        if (lessonIdx < trackLast) startLesson(lessonIdx + 1);
       }
     };
 
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [leadReview, recap, step, awaitingTap, done, lessonIdx, lessons.length]);
+  }, [leadReview, recap, step, awaitingTap, done, lessonIdx, lessons.length, trackFirst, trackLast]);
 
   const lastBidBySeat = useMemo(() => {
     const m = new Map<Seat, Bid>();
@@ -1187,18 +1193,18 @@ export function Tutorial() {
         <div className="tut-header-center">
           <button
             className="chip tut-nav-arrow"
-            disabled={lessonIdx === 0}
+            disabled={lessonIdx === trackFirst}
             onClick={() => { audio.sfx('click'); startLesson(lessonIdx - 1); }}
             title={t(lang, 'tut.prevLesson')}
           >
             ◀
           </button>
           <div className="tut-progress">
-            {t(lang, 'tut.lesson')} {lessonIdx + 1} {t(lang, 'tut.of')} {lessons.length}
+            {lang === 'zh' ? (track === 'basic' ? '基础篇 · ' : '进阶篇 · ') : (track === 'basic' ? 'Foundations · ' : 'Advanced · ')}{t(lang, 'tut.lesson')} {trackPosition} {t(lang, 'tut.of')} {trackIndices.length}
           </div>
           <button
             className="chip tut-nav-arrow"
-            disabled={lessonIdx >= lessons.length - 1}
+            disabled={lessonIdx >= trackLast}
             onClick={() => { audio.sfx('click'); startLesson(lessonIdx + 1); }}
             title={t(lang, 'tut.nextLesson')}
           >
@@ -1227,8 +1233,19 @@ export function Tutorial() {
         <div className="tut-title">🎓 {lessons[lessonIdx]?.title}</div>
       </div>
 
+      <div className="tut-tracks" role="group" aria-label={lang === 'zh' ? '课程分篇' : 'Course tracks'}>
+        {(['basic', 'advanced'] as const).map(value => (
+          <button className={`chip ${value === track ? 'active' : ''}`} key={value} onClick={() => {
+            const first = ACBL_CHAPTERS.find(ch => ch.track === value)?.lessonIds[0];
+            const idx = lessons.findIndex(l => l.id === first);
+            if (idx >= 0) startLesson(idx);
+          }}>
+            {lang === 'zh' ? (value === 'basic' ? '基础篇' : '进阶篇（选学）') : (value === 'basic' ? 'Foundations' : 'Advanced (optional)')}
+          </button>
+        ))}
+      </div>
       <div className="tut-lessons">
-        {lessons.map((l, i) => {
+        {lessons.map((l, i) => ({ l, i })).filter(({ l }) => getChapterForLesson(l.id)?.track === track).map(({ l, i }) => {
           const isDone = completedLessons.has(l.id);
           return (
             <button
@@ -1236,7 +1253,7 @@ export function Tutorial() {
               className={`chip ${i === lessonIdx ? 'active' : ''} ${isDone ? 'completed-chip' : ''}`}
               onClick={() => { audio.sfx('click'); startLesson(i); }}
             >
-              {isDone ? '✓ ' : ''}{i + 1}. {l.title}
+              {isDone ? '✓ ' : ''}{trackIndices.indexOf(i) + 1}. {l.title}
             </button>
           );
         })}
@@ -1253,7 +1270,7 @@ export function Tutorial() {
         {step?.kind === 'info' && (
           <SimTable
             lang={lang}
-            boardNo={lessonIdx + 1}
+            boardNo={trackPosition}
             dealer={lesson.dealer}
             title={lesson.title}
             contractLabel={null}
@@ -1281,7 +1298,7 @@ export function Tutorial() {
         {step?.kind === 'auction' && auctionView && (
           <SimTable
             lang={lang}
-            boardNo={lessonIdx + 1}
+            boardNo={trackPosition}
             dealer={lesson.dealer}
             title={lang === 'zh' ? '叫牌' : 'Auction'}
             contractLabel={null}
@@ -1368,7 +1385,7 @@ export function Tutorial() {
         {step?.kind === 'play' && playView && trickNo !== null && (
           <SimTable
             lang={lang}
-            boardNo={lessonIdx + 1}
+            boardNo={trackPosition}
             dealer={lesson.dealer}
             title={lang === 'zh' ? `第 ${trickNo} 墩` : `Trick ${trickNo}`}
             contractLabel={
@@ -1424,7 +1441,7 @@ export function Tutorial() {
             key={`done-${lang}-${lessonIdx}`}
             lang={lang}
             characterId={characterId}
-            nextTitle={lessonIdx + 1 < lessons.length ? lessons[lessonIdx + 1]!.title : null}
+            nextTitle={lessonIdx + 1 < lessons.length ? (lessonIdx === trackLast && track === 'basic' ? (lang === 'zh' ? '进阶篇（选学）：' : 'Advanced (optional): ') : '') + lessons[lessonIdx + 1]!.title : null}
             onNextLesson={() => startLesson(lessonIdx + 1)}
             onHome={() => go('home')}
           />

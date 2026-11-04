@@ -6165,3 +6165,11 @@ table.standings tr.leader td { color: var(--accent); font-weight: 800; }
   color:#173048; background:#e1edf5; border-color:#b5cedf;
 }
 .tut-overlay .recap-card { max-height:42vh; overflow-y:auto; box-sizing:border-box; }
+
+.course-track h2, .course-track summary { color:var(--gold); font-size:24px; font-weight:900; margin:14px 0 8px; }
+.course-track p { margin:0 0 18px; line-height:1.6; opacity:0.9; }
+.course-track .home-chapter-card { margin-bottom:20px; }
+.advanced-track { margin-top:28px; padding:20px; border:1px solid var(--gold-dim); border-radius:18px; }
+.advanced-track summary { cursor:pointer; }
+.tut-tracks { display:flex; justify-content:center; gap:12px; margin:8px 0; }
+.tut-tracks .active { background:var(--gold); color:#142b40; font-weight:800; }
