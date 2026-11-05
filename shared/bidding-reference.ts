@@ -88,6 +88,22 @@ export const REFERENCE_SECTIONS: ReferenceSection[] = [
     "lessonId": "conversation"
   },
   {
+    "id": "nt-responses",
+    "title": {
+      "zh": "1NT的应叫表",
+      "en": "Responses to a 1NT opening"
+    },
+    "context": {
+      "zh": "1NT开叫15–17点均型。先按点力决定高度，再按高花长度选择斯台曼或转移。",
+      "en": "1NT opens 15–17 balanced. Use strength for level, then major length for Stayman or transfers."
+    },
+    "pages": [
+      6,
+      7
+    ],
+    "lessonId": "notrump-responses"
+  },
+  {
     "id": "stayman",
     "title": {
       "zh": "1NT 后：Stayman",
@@ -1172,35 +1188,6 @@ export const REFERENCE_ROWS: ReferenceRow[] = [
     }
   },
   {
-    "id": "mini-splinter",
-    "section": "major-responses",
-    "level": "basic",
-    "sequence": "1♥ – 3♠",
-    "title": {
-      "zh": "Mini-Splinter 迷你爆裂叫",
-      "en": "Mini-Splinter raise"
-    },
-    "requirements": {
-      "zh": "本课约定9–11点，至少4张红桃支持，一门未指明的单张或缺门",
-      "en": "Course agreement: 9–11, 4+ heart support, an unspecified singleton or void"
-    },
-    "status": "GF",
-    "next": {
-      "zh": "开叫者可直接4♥；3NT询问短套。回答4♣=梅花短、4♦=方块短、4♥=黑桃短。",
-      "en": "Opener may bid 4♥ directly or ask with 3NT. Replies: 4♣ clubs short, 4♦ diamonds short, 4♥ spades short."
-    },
-    "note": {
-      "zh": "这一路已越过3♥，本课约定逼到4♥；有点力上限，仍然可以逼局。",
-      "en": "This route has passed 3♥ and forces to 4♥ by agreement. A limited range can still be game forcing."
-    },
-    "pages": [
-      3,
-      4,
-      5
-    ],
-    "lessonId": "mini-splinters"
-  },
-  {
     "id": "rebid-1nt",
     "section": "rebids",
     "level": "basic",
@@ -1260,14 +1247,14 @@ export const REFERENCE_ROWS: ReferenceRow[] = [
     "id": "rebid-own",
     "section": "rebids",
     "level": "basic",
-    "sequence": "1M – 1新花 – 2M",
+    "sequence": "1M – response – 2M",
     "title": {
       "zh": "原高花低限再叫",
       "en": "Minimum major rebid"
     },
     "requirements": {
-      "zh": "约12–15点，通常6张原高花",
-      "en": "About 12–15, normally a six-card major"
+      "zh": "约12–15点，通常6张原高花；应叫为一阶新花，也可以是1NT",
+      "en": "About 12–15, normally six in the opening major; the response may be a one-level new suit or 1NT"
     },
     "status": "NF",
     "next": {
@@ -1535,6 +1522,174 @@ export const REFERENCE_ROWS: ReferenceRow[] = [
       6
     ],
     "lessonId": "two-over-one-basics"
+  },
+  {
+    "id": "nt-response-pass",
+    "section": "nt-responses",
+    "level": "basic",
+    "sequence": "1NT – P",
+    "title": {
+      "zh": "弱牌不叫",
+      "en": "Weak pass"
+    },
+    "requirements": {
+      "zh": "通常0–7点，无花色方面的继续理由",
+      "en": "Normally 0–7, no suit reason to continue"
+    },
+    "status": "NF",
+    "next": {
+      "zh": "停在1NT；弱牌有五张高花时可考虑转移。",
+      "en": "Stop in 1NT; a weak hand with a five-card major may prefer a transfer."
+    },
+    "note": {
+      "zh": "",
+      "en": ""
+    },
+    "pages": [
+      6,
+      7
+    ],
+    "lessonId": "notrump-responses"
+  },
+  {
+    "id": "nt-response-invite",
+    "section": "nt-responses",
+    "level": "basic",
+    "sequence": "1NT – 2NT",
+    "title": {
+      "zh": "最简单的邀请",
+      "en": "The simplest invitation"
+    },
+    "requirements": {
+      "zh": "8–9点均型，没有待寻找的四张或五张高花",
+      "en": "8–9 balanced, no four- or five-card major still to investigate"
+    },
+    "status": "INV",
+    "next": {
+      "zh": "开叫15点低限通常Pass，17点高限通常3NT，16点看牌质。",
+      "en": "A 15-point minimum normally passes; a 17-point maximum normally bids 3NT; judge 16."
+    },
+    "note": {
+      "zh": "",
+      "en": ""
+    },
+    "pages": [
+      6,
+      7
+    ],
+    "lessonId": "notrump-responses"
+  },
+  {
+    "id": "nt-response-game",
+    "section": "nt-responses",
+    "level": "basic",
+    "sequence": "1NT – 3NT",
+    "title": {
+      "zh": "直接成局",
+      "en": "Direct game"
+    },
+    "requirements": {
+      "zh": "10–15点均型，无需再寻找高花配合",
+      "en": "10–15 balanced, no major fit still to investigate"
+    },
+    "status": "GF",
+    "next": {
+      "zh": "已经到达成局，逼局承诺已满足，开叫者通常Pass。",
+      "en": "Game has already been reached, fulfilling the commitment; opener normally passes."
+    },
+    "note": {
+      "zh": "",
+      "en": ""
+    },
+    "pages": [
+      6,
+      7
+    ],
+    "lessonId": "notrump-responses"
+  },
+  {
+    "id": "nt-response-stayman",
+    "section": "nt-responses",
+    "level": "basic",
+    "sequence": "1NT – 2♣",
+    "title": {
+      "zh": "Stayman 斯台曼",
+      "en": "Stayman inquiry"
+    },
+    "requirements": {
+      "zh": "通常8点以上，至少一门四张高花",
+      "en": "Normally 8+, at least one four-card major"
+    },
+    "status": "F1",
+    "next": {
+      "zh": "询问四张高花；开叫回答2♦、2♥或2♠，详见后续进程。",
+      "en": "Ask for a four-card major; opener replies 2♦, 2♥ or 2♠. Follow-ups are below."
+    },
+    "note": {
+      "zh": "",
+      "en": ""
+    },
+    "pages": [
+      6,
+      7
+    ],
+    "lessonId": "notrump-responses"
+  },
+  {
+    "id": "nt-response-transfer-hearts",
+    "section": "nt-responses",
+    "level": "basic",
+    "sequence": "1NT – 2♦ → 2♥",
+    "title": {
+      "zh": "转移到红桃",
+      "en": "Transfer to hearts"
+    },
+    "requirements": {
+      "zh": "至少5张红桃，转移本身不限定点力",
+      "en": "5+ hearts; transfer itself does not limit strength"
+    },
+    "status": "F1",
+    "next": {
+      "zh": "2♦是发起叫品，要求2♥；完成后再说明弱牌、邀请或成局实力。",
+      "en": "2♦ is the initiating call, asking 2♥; then show weak, invitational or game strength."
+    },
+    "note": {
+      "zh": "",
+      "en": ""
+    },
+    "pages": [
+      6,
+      7
+    ],
+    "lessonId": "notrump-responses"
+  },
+  {
+    "id": "nt-response-transfer-spades",
+    "section": "nt-responses",
+    "level": "basic",
+    "sequence": "1NT – 2♥ → 2♠",
+    "title": {
+      "zh": "转移到黑桃",
+      "en": "Transfer to spades"
+    },
+    "requirements": {
+      "zh": "至少5张黑桃，转移本身不限定点力",
+      "en": "5+ spades; transfer itself does not limit strength"
+    },
+    "status": "F1",
+    "next": {
+      "zh": "2♥是发起叫品，要求2♠；不要把目标2♠误认成发起转移。",
+      "en": "2♥ is the initiating call, asking 2♠; distinguish the target from the transfer call."
+    },
+    "note": {
+      "zh": "",
+      "en": ""
+    },
+    "pages": [
+      6,
+      7
+    ],
+    "lessonId": "notrump-responses"
   },
   {
     "id": "stayman-ask",
@@ -3804,5 +3959,5 @@ export function findReferenceRows(query = '', section = 'all', level: RefLevel |
 export function explainBiddingLabels(text: string, lang: 'en' | 'zh'): string {
   if (lang !== 'zh') return text;
   const names: Record<string, string> = { MIN: '低限', MED: '中限', MAX: '高限', INV: '邀请', GF: '逼局' };
-  return text.replace(/\b(MIN|MED|MAX|INV|GF)\b(?![（(])/g, term => `${term}（${names[term]}）`);
+  return text.replace(/\bresponse\b/g, '应叫').replace(/\b(MIN|MED|MAX|INV|GF)\b(?![（(])/g, term => `${term}（${names[term]}）`);
 }

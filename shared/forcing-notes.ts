@@ -15,7 +15,7 @@ export const BASIC_FORCING_STATUS: Record<string, ForcingStatus[]> = {
   'strength-and-minors': ['NF', 'SF', 'NF', 'NF', 'NF'],
   'inverted-minor-raises': ['NF', 'F1', 'F1', 'F1', 'F1', 'NF'],
   'major-forcing-raises': ['NF', 'GF', 'NF'],
-  'mini-splinters': ['NF', 'GF', 'GF', 'GF', 'NF'],
+  'notrump-responses': ['NF', 'NF', 'NF'],
   'reverse-bids': ['NF', 'F1', 'F1', 'GF', 'NF'],
   'two-over-one-basics': ['NF', 'GF', 'GF', 'GF', 'NF'],
 };

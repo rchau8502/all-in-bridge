@@ -4,8 +4,8 @@ import { getLessons } from './lessons.js';
 
 describe('bilingual bidding quick reference', () => {
   it('covers all handout topics with unique bilingual entries and valid source/lesson links', () => {
-    expect(REFERENCE_SECTIONS).toHaveLength(14);
-    expect(REFERENCE_ROWS).toHaveLength(127);
+    expect(REFERENCE_SECTIONS).toHaveLength(15);
+    expect(REFERENCE_ROWS).toHaveLength(132);
     expect(new Set(REFERENCE_ROWS.map(row => row.id)).size).toBe(REFERENCE_ROWS.length);
     const lessons = new Set(getLessons('en').map(l => l.id));
     for (const section of REFERENCE_SECTIONS) expect(REFERENCE_ROWS.some(r => r.section === section.id)).toBe(true);
@@ -32,7 +32,7 @@ describe('bilingual bidding quick reference', () => {
     expect(findReferenceRows('1NT')[0]!.id).toBe('open-notrump');
     expect(findReferenceRows('1NT', 'stayman').every(r => r.section === 'stayman')).toBe(true);
     expect(findReferenceRows('not-a-real-convention-987')).toEqual([]);
-    expect(findReferenceRows('   ')).toHaveLength(127);
+    expect(findReferenceRows('   ')).toHaveLength(132);
   });
 
   it('filters section, level and forcing status without mixing alternative raises', () => {
@@ -68,7 +68,9 @@ describe('bilingual bidding quick reference', () => {
     expect(REFERENCE_ROWS.find(r => r.id === 'major-semi')!.note.zh).toContain('缺门');
     expect(REFERENCE_ROWS.find(r => r.id === 'major-semi-pass')!.requirements.en).toContain('12–13');
     expect(REFERENCE_ROWS.find(r => r.id === 'jacoby-medium')!.requirements.en).toContain('14–15');
-    expect(REFERENCE_ROWS.find(r => r.id === 'mini-splinter')!.status).toBe('GF');
+    expect(REFERENCE_ROWS.some(r => r.id === 'mini-splinter')).toBe(false);
+    expect(REFERENCE_ROWS.find(r => r.id === 'nt-response-invite')!.status).toBe('INV');
+    expect(REFERENCE_ROWS.find(r => r.id === 'nt-response-game')!.status).toBe('GF');
     expect(REFERENCE_ROWS.find(r => r.id === 'rebid-one-suit')!.status).toBe('NF');
   });
 });

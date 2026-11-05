@@ -362,6 +362,290 @@ export const COURSE_MODULES = [
     }
   },
   {
+    "id": "notrump-responses",
+    "title": [
+      "Responding to 1NT: Pass, Invite or Bid Game",
+      "1NT应叫：不叫、邀请与直接成局"
+    ],
+    "source": "Combined handout 6",
+    "focus": [
+      "Use the limited 15–17 opening range to decide whether to stop, invite with 2NT, or commit to game with 3NT before learning suit inquiries.",
+      "利用1NT开叫15–17点的有限范围，先学停叫、2NT邀请与3NT直接成局，再学花色询问。"
+    ],
+    "notes": [
+      [
+        "Partner opened 1NT: 15–17 and balanced. That is a precise range, so responder can do the partnership arithmetic. First decide how high; a later lesson will supply Stayman and transfers when a major fit needs investigating. This is different from semi-forcing 1NT after a major opening.",
+        "搭档开叫1NT：15–17点、均型。这个范围很清楚，应叫者可以据此计算联手实力。先决定叫多高；需要找高花配合时，再用后续课程的斯台曼与转移。这不同于高花开叫后的半逼叫1NT。"
+      ],
+      [
+        "With 0–7 and no suit reason to move, pass. Even 7 opposite 17 totals only 24; there is usually no reason to force game. A weak hand with a five-card major may prefer a transfer, which comes later. A pass can mean “I have nothing more to say,” not a failure to cooperate.",
+        "0–7点、没有花色方面的继续理由时，不叫。即使7点面对17点也只有24点，通常没有理由强行成局。弱牌有五张高花时可能更适合转移，后面再学。不叫可以表示“我没有更多信息了”，不是不配合。"
+      ],
+      [
+        "With 8–9 balanced, no four-card major to investigate and no five-card major to show, respond 2NT. This is INV: an invitation, not a force. With 8, the partnership may have 23 opposite 15 or 25 opposite 17. Responder has finished describing the range; opener decides.",
+        "8–9点均型、没有要找的四张高花，也没有要说明的五张高花时，应叫2NT。这是INV（邀请），不是逼叫。有8点时，面对15点只有23点，面对17点则有25点。应叫者已说清范围，让开叫者决定。"
+      ],
+      [
+        "A MIN opener with 15 normally passes 2NT. A MAX opener with 17 normally bids 3NT. With 16, use judgment: a useful long suit, intermediate cards, stoppers and entries can improve the hand. The responder’s 2NT is not asking an automatic jump regardless of opener’s strength.",
+        "MIN（低限）开叫者15点通常Pass 2NT；MAX（高限）开叫者17点通常叫3NT。16点时看牌质：有用长套、中间张、挡张与进手都可能加分。应叫者2NT不是要求搭档不看实力就自动跳叫。"
+      ],
+      [
+        "With about 10–15, balanced and no major fit still to locate, bid 3NT directly. Even 10 opposite the minimum 15 makes 25. This is the direct game-going or GF commitment: no invitation to stop below game. Because 3NT is already game, the commitment is fulfilled and opener may pass; GF does not mean an extra reply is required after the chosen game is reached.",
+        "约10–15点均型、没有还需寻找的高花配合时，直接应叫3NT。10点面对最低15点，也有25点。这是直接成局的GF（逼局）承诺，不再邀请搭档停在局以下。因为3NT已经成局，承诺已兑现，开叫者可以Pass；GF不表示到达选定成局后还必须再叫。"
+      ],
+      [
+        "Keep level and strain as two decisions. Four-card majors usually use 2♣ Stayman with 8+; five-card hearts use 2♦ to ask 2♥, and five-card spades use 2♥ to ask 2♠. The transfer calls are 2♦ and 2♥, while their target contracts are hearts and spades. First learn today’s point-based decisions, then the next lessons refine the strain.",
+        "把高度与定约方向分开。8点以上有四张高花，通常用2♣斯台曼；五张红桃用2♦要求2♥，五张黑桃用2♥要求2♠。发起转移的叫品是2♦和2♥，目标花色才是红桃与黑桃。先学今天按点力作判断，再在后续课程细化定约方向。"
+      ],
+      [
+        "On the table North has 8 and a balanced 3334 hand with no four-card major: ♠Q83 / ♥K74 / ♦Q95 / ♣J863. South has a balanced 17: open 1NT. North’s 2NT invites, South’s maximum accepts with 3NT, and North passes the selected game. With 15 instead, South would normally decline the same invitation.",
+        "桌上北家8点、3334均型，没有四张高花：♠Q83 / ♥K74 / ♦Q95 / ♣J863。南家17点均型，开1NT。北家2NT邀请，南家以高限接受，叫3NT，北家在选定的成局上不叫。如果南家只有15点，通常会拒绝同样的邀请。"
+      ]
+    ],
+    "rows": [
+      [
+        [
+          "Pass",
+          "不叫"
+        ],
+        [
+          "0–7, no need to investigate a suit",
+          "0–7点，无花色方面的继续理由"
+        ]
+      ],
+      [
+        [
+          "2NT: INV",
+          "2NT：INV（邀请）"
+        ],
+        [
+          "8–9 balanced; opener may pass",
+          "8–9点均型，开叫者可以Pass"
+        ]
+      ],
+      [
+        [
+          "MIN / MAX",
+          "MIN（低限）／MAX（高限）"
+        ],
+        [
+          "15 normally passes; 17 normally accepts; judge 16",
+          "15点通常不叫，17点通常接受，16点看牌质"
+        ]
+      ],
+      [
+        [
+          "3NT: direct game",
+          "3NT：直接成局"
+        ],
+        [
+          "10–15, GF commitment fulfilled at game; opener may pass",
+          "10–15点，GF（逼局）承诺已兑现，开叫可Pass"
+        ]
+      ],
+      [
+        [
+          "2♣: Stayman",
+          "2♣：斯台曼"
+        ],
+        [
+          "Normally 8+ and a four-card major; forces a reply",
+          "通常8点以上与四张高花，要求回应"
+        ]
+      ],
+      [
+        [
+          "2♦ / 2♥: transfers",
+          "2♦／2♥：转移"
+        ],
+        [
+          "Ask 2♥ / 2♠ with five+ in the target major",
+          "五张以上目标高花，要求叫2♥／2♠"
+        ]
+      ]
+    ],
+    "hands": {
+      "S": [
+        "AS",
+        "KS",
+        "4S",
+        "QH",
+        "8H",
+        "3H",
+        "KD",
+        "JD",
+        "6D",
+        "AC",
+        "9C",
+        "7C",
+        "2C"
+      ],
+      "N": [
+        "QS",
+        "8S",
+        "3S",
+        "KH",
+        "7H",
+        "4H",
+        "QD",
+        "9D",
+        "5D",
+        "JC",
+        "8C",
+        "6C",
+        "3C"
+      ],
+      "E": [
+        "JS",
+        "TS",
+        "7S",
+        "6S",
+        "AH",
+        "JH",
+        "6H",
+        "AD",
+        "8D",
+        "4D",
+        "QC",
+        "5C",
+        "4C"
+      ],
+      "W": [
+        "9S",
+        "5S",
+        "2S",
+        "TH",
+        "9H",
+        "5H",
+        "2H",
+        "TD",
+        "7D",
+        "3D",
+        "2D",
+        "KC",
+        "TC"
+      ]
+    },
+    "facts": {
+      "S": {
+        "hcp": 17,
+        "shape": [
+          3,
+          3,
+          3,
+          4
+        ]
+      },
+      "N": {
+        "hcp": 8,
+        "shape": [
+          3,
+          3,
+          3,
+          4
+        ]
+      },
+      "E": {
+        "hcp": 12,
+        "shape": [
+          4,
+          3,
+          3,
+          3
+        ]
+      },
+      "W": {
+        "hcp": 3,
+        "shape": [
+          3,
+          4,
+          4,
+          2
+        ]
+      }
+    },
+    "dealer": "S",
+    "contract": [
+      3,
+      "NT",
+      "S"
+    ],
+    "auction": [
+      {
+        "seat": "S",
+        "bid": "1NT",
+        "note": [
+          "17 balanced: the maximum of the 15–17 opening.",
+          "17点均型：15–17点开叫范围的高限。"
+        ],
+        "learn": true
+      },
+      {
+        "seat": "W",
+        "bid": "P",
+        "note": [
+          "Pass: no suitable action.",
+          "不叫：这一轮没有合适的建设性行动。"
+        ],
+        "learn": false
+      },
+      {
+        "seat": "N",
+        "bid": "2NT",
+        "note": [
+          "8 balanced with no four-card major: invite game, do not force it.",
+          "8点均型，没有四张高花：邀请成局，不逼叫。"
+        ],
+        "learn": false
+      },
+      {
+        "seat": "E",
+        "bid": "P",
+        "note": [
+          "Pass: no suitable action.",
+          "不叫：这一轮没有合适的建设性行动。"
+        ],
+        "learn": false
+      },
+      {
+        "seat": "S",
+        "bid": "3NT",
+        "note": [
+          "MAX: 17 opposite 8–9 totals 25–26. Accept the invitation.",
+          "MAX（高限）：17点面对8–9点，联手25–26点，接受邀请。"
+        ],
+        "learn": true
+      },
+      {
+        "seat": "W",
+        "bid": "P",
+        "note": [
+          "Pass: no suitable action.",
+          "不叫：这一轮没有合适的建设性行动。"
+        ],
+        "learn": false
+      },
+      {
+        "seat": "N",
+        "bid": "P",
+        "note": [
+          "Pass: the selected game has been reached; no further reply is required.",
+          "不叫：已经到达选定成局，不再需要额外回应。"
+        ],
+        "learn": false
+      },
+      {
+        "seat": "E",
+        "bid": "P",
+        "note": [
+          "Pass: the third pass completes the auction.",
+          "不叫：第三次不叫结束叫牌。"
+        ],
+        "learn": false
+      }
+    ]
+  },
+  {
     "id": "stayman-fit",
     "title": [
       "Stayman: Find the Four–Four Fit",
@@ -1878,8 +2162,8 @@ export const COURSE_MODULES = [
         "高花开叫后的雅各比2NT：13点以上、四张支持，逼局。开叫三阶新花表示单缺。无短套时，本课约定4高花为12–13点，3NT为14–15点，3高花为16点以上并有满贯兴趣。这是本课程约定，不是所有体系都一样。"
       ],
       [
-        "A splinter shows game-going support, four+ trumps, about 12–15 points, and a singleton or void in the jumped suit. Revalue working honors outside the short suit. Use an agreed double-jump route such as 1♠–4♣. In this course, direct 1♥–3♠ is reserved for the Mini-Splinter taught next, not also a full spade splinter.",
-        "斯普林特表示成局支持、四张以上将牌、约12–15点，以及所跳花色的单缺。重新评估短套之外的有效大牌，使用1♠—4♣等约定双跳路线。本课直接1♥—3♠保留给下一课的迷你爆裂叫，不同时再作完整黑桃爆裂叫。"
+        "A splinter shows game-going support, four+ trumps, about 12–15 points, and a singleton or void in the jumped suit. Revalue working honors outside the short suit. Use an agreed double-jump route such as 1♠–4♣; a natural strong jump shift has a different meaning.",
+        "斯普林特表示成局支持、四张以上将牌、约12–15点，以及所跳花色的单缺。重新评估短套之外的有效大牌，使用1♠—4♣等约定双跳路线；自然强跳新花有不同含义。"
       ],
       [
         "These are named agreements, not natural NT or new-suit bids. Jacoby 2NT does not promise a balanced hand; it shows four+ support and 13+ with no upper limit, so it is game forcing. A splinter is also game forcing despite its limited range. Whether a bid is limited and whether it is forcing are separate questions.",
@@ -2144,322 +2428,6 @@ export const COURSE_MODULES = [
         ]
       }
     }
-  },
-  {
-    "id": "mini-splinters",
-    "title": [
-      "Mini-Splinter: Limited Strength, Forcing to Game",
-      "Mini-Splinter：有限实力的逼局支持"
-    ],
-    "source": "Combined handout 4.2",
-    "focus": [
-      "With 9–11, four-card heart support and side shortness, show a limited game-forcing raise; use 3NT to locate the short suit.",
-      "用9–11点、四张红桃支持与边花单缺，表达有限实力的逼局支持；用3NT询问短套。"
-    ],
-    "notes": [
-      [
-        "MIN means minimum and MAX means maximum: these describe strength within an already known range. INV means invitation and GF means game force: these describe whether partner may stop. Keep these two pairs separate; a limited hand can still make a game-forcing bid by agreement.",
-        "MIN（低限）与MAX（高限）表示已知范围内的高低限；INV（邀请）与GF（逼局）表示搭档能不能停叫。这是两组不同问题：牌力有上限，也可以按约定作逼局叫品。"
-      ],
-      [
-        "Our Mini-Splinter is the handout’s direct 1♥–3♠ treatment: 9–11 points, at least four hearts and a singleton or void somewhere outside hearts. It is artificial, does not show spades and does not yet identify the short suit. The nine-card or longer fit and shortness provide playing strength beyond the raw point count.",
-        "本课采用讲义的直接1♥—3♠迷你爆裂叫：9–11点、至少四张红桃，以及一门边花单张或缺门。这是人工叫品，不表示黑桃套，也尚未指明哪门短。九张以上配合与短套，提供了大牌点以外的赢墩实力。"
-      ],
-      [
-        "This sequence has already passed 3♥. It is therefore a game-forcing agreement to at least 4♥, not an invitation that opener can decline in 3♥. A minimum opener may bid 4♥ directly; useful extra strength can ask about shortness with artificial 3NT. Do not pass that inquiry as a natural notrump contract.",
-        "这个进程已经越过3♥，所以本课约定至少逼到4♥，不是让低限开叫停在3♥的邀请。开叫低限可直接4♥；有需要继续评估的有效实力时，可用人工3NT询问短套，不能把这声询问当自然无将而Pass。"
-      ],
-      [
-        "After 1♥–3♠–3NT, responder bids 4♣ with club shortness, 4♦ with diamond shortness, or 4♥ with spade shortness. The last step uses the agreed trump suit to encode the remaining side suit. Opener normally chooses 4♥ unless the working honors and controls justify further exploration.",
-        "1♥—3♠—3NT后，应叫者4♣表示梅花短、4♦表示方块短、4♥表示黑桃短。最后一档借用已定将牌，说明尚未表示的那门边花。开叫通常选择4♥，只有有效大牌与控制合适才继续探索。"
-      ],
-      [
-        "North has 9 points, four hearts and a singleton diamond: ♠K842 / ♥Q963 / ♦5 / ♣KJ74. South has 16 with five hearts and four clubs, an unbalanced opening. South’s low diamonds work well opposite North’s shortness; honors in hearts, spades and clubs are useful. The story is support, limited strength, then shortness—not a natural spade suit.",
-        "北家9点、四张红桃、方块单张：♠K842 / ♥Q963 / ♦5 / ♣KJ74。南家16点、五张红桃四张梅花，是非均型开叫。南家的小方块面对短套配合很好，红桃、黑桃和梅花大牌都有用。整段对话是支持、有限点力、再说明短套，不是在报自然黑桃。"
-      ],
-      [
-        "Compare the routes: Jacoby 2NT shows 13+ with four-card support and no upper limit; a full splinter is about 12–15 with four-card support and named shortness; this Mini-Splinter is 9–11 with initially unnamed shortness. This direct response is distinct from a shortness jump after a two-over-one game force has already established the fit.",
-        "比较三条路线：雅各比2NT为13点以上、四张支持且无上限；完整爆裂叫约12–15点、四张支持，直接说明短套；本课迷你爆裂叫为9–11点，先不指明短套。这种直接应叫，也不同于二盖一已逼局并找到配合后的短套跳叫。"
-      ]
-    ],
-    "rows": [
-      [
-        [
-          "Strength labels",
-          "实力标签"
-        ],
-        [
-          "MIN = minimum; MAX = maximum",
-          "MIN（低限）；MAX（高限）"
-        ]
-      ],
-      [
-        [
-          "Commitment labels",
-          "承诺标签"
-        ],
-        [
-          "INV may be declined; GF must reach game",
-          "INV（邀请）可拒绝；GF（逼局）须到成局"
-        ]
-      ],
-      [
-        [
-          "1♥–3♠",
-          "1♥—3♠"
-        ],
-        [
-          "9–11, four+ hearts, unnamed shortness, GF",
-          "9–11点、四张以上红桃、未知短套，逼局"
-        ]
-      ],
-      [
-        [
-          "3NT inquiry",
-          "3NT询问"
-        ],
-        [
-          "Artificial: ask where the shortness is",
-          "人工询问短套位置"
-        ]
-      ],
-      [
-        [
-          "4♣ / 4♦ / 4♥",
-          "4♣／4♦／4♥"
-        ],
-        [
-          "Club / diamond / spade shortness",
-          "梅花短／方块短／黑桃短"
-        ]
-      ],
-      [
-        [
-          "Minimum opener",
-          "低限开叫"
-        ],
-        [
-          "4♥ is a valid direct sign-off; 3♥ is no longer available",
-          "可直接4♥止叫，已无法回3♥"
-        ]
-      ]
-    ],
-    "dealer": "S",
-    "contract": [
-      4,
-      "H",
-      "S"
-    ],
-    "hands": {
-      "S": [
-        "AS",
-        "7S",
-        "AH",
-        "KH",
-        "JH",
-        "8H",
-        "5H",
-        "8D",
-        "2D",
-        "AC",
-        "9C",
-        "3C",
-        "2C"
-      ],
-      "N": [
-        "KS",
-        "8S",
-        "4S",
-        "2S",
-        "QH",
-        "9H",
-        "6H",
-        "3H",
-        "5D",
-        "KC",
-        "JC",
-        "7C",
-        "4C"
-      ],
-      "E": [
-        "QS",
-        "TS",
-        "6S",
-        "TH",
-        "7H",
-        "AD",
-        "KD",
-        "TD",
-        "7D",
-        "4D",
-        "TC",
-        "8C",
-        "6C"
-      ],
-      "W": [
-        "JS",
-        "9S",
-        "5S",
-        "3S",
-        "4H",
-        "2H",
-        "QD",
-        "JD",
-        "9D",
-        "6D",
-        "3D",
-        "QC",
-        "5C"
-      ]
-    },
-    "facts": {
-      "S": {
-        "hcp": 16,
-        "shape": [
-          2,
-          5,
-          2,
-          4
-        ]
-      },
-      "N": {
-        "hcp": 9,
-        "shape": [
-          4,
-          4,
-          1,
-          4
-        ]
-      },
-      "E": {
-        "hcp": 9,
-        "shape": [
-          3,
-          2,
-          5,
-          3
-        ]
-      },
-      "W": {
-        "hcp": 6,
-        "shape": [
-          4,
-          2,
-          5,
-          2
-        ]
-      }
-    },
-    "auction": [
-      {
-        "seat": "S",
-        "bid": "1H",
-        "note": [
-          "16 and five hearts with four clubs: open 1♥.",
-          "16点、五张红桃四张梅花，开1♥。"
-        ],
-        "learn": true
-      },
-      {
-        "seat": "W",
-        "bid": "P",
-        "note": [
-          "Pass: no suitable action here.",
-          "不叫：此处没有合适的行动。"
-        ],
-        "learn": false
-      },
-      {
-        "seat": "N",
-        "bid": "3S",
-        "note": [
-          "Mini-Splinter: 9–11, four+ hearts and unnamed shortness. Game forcing despite the limited range.",
-          "迷你爆裂叫：9–11点、四张以上红桃与未知短套。实力有限，仍按约定逼局。"
-        ],
-        "learn": false
-      },
-      {
-        "seat": "E",
-        "bid": "P",
-        "note": [
-          "Pass: no suitable action here.",
-          "不叫：此处没有合适的行动。"
-        ],
-        "learn": false
-      },
-      {
-        "seat": "S",
-        "bid": "3NT",
-        "note": [
-          "Artificial inquiry: where is your shortness? This is not natural 3NT to play.",
-          "人工询问：你的短套在哪里？不是自然3NT止叫。"
-        ],
-        "learn": true
-      },
-      {
-        "seat": "W",
-        "bid": "P",
-        "note": [
-          "Pass: no suitable action here.",
-          "不叫：此处没有合适的行动。"
-        ],
-        "learn": false
-      },
-      {
-        "seat": "N",
-        "bid": "4D",
-        "note": [
-          "Diamond shortness: here a singleton. The heart game force remains.",
-          "方块短套，本副是单张。红桃逼局承诺仍在。"
-        ],
-        "learn": false
-      },
-      {
-        "seat": "E",
-        "bid": "P",
-        "note": [
-          "Pass: no suitable action here.",
-          "不叫：此处没有合适的行动。"
-        ],
-        "learn": false
-      },
-      {
-        "seat": "S",
-        "bid": "4H",
-        "note": [
-          "Useful honors outside diamonds and the shortness described: choose 4♥.",
-          "方块之外的大牌有用，短套已说明，选择4♥。"
-        ],
-        "learn": true
-      },
-      {
-        "seat": "W",
-        "bid": "P",
-        "note": [
-          "Pass: no suitable action here.",
-          "不叫：此处没有合适的行动。"
-        ],
-        "learn": false
-      },
-      {
-        "seat": "N",
-        "bid": "P",
-        "note": [
-          "Pass: the agreed heart game has been reached.",
-          "不叫：已到达约定的红桃成局定约。"
-        ],
-        "learn": false
-      },
-      {
-        "seat": "E",
-        "bid": "P",
-        "note": [
-          "Pass: three passes end the auction.",
-          "不叫：连续三次不叫结束叫牌。"
-        ],
-        "learn": false
-      }
-    ]
   },
   {
     "id": "reverse-bids",

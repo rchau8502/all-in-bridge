@@ -114,8 +114,8 @@ the actual deals and contracts. The corrected full-hand lesson scores
 
 ## Bidding quick reference
 
-Open `#bidding` from the home menu or the top bar. Fourteen situation-based
-sections contain 127 bilingual entries adapted from the combined bidding
+Open `#bidding` from the home menu or the top bar. Fifteen situation-based
+sections contain 132 bilingual entries adapted from the combined bidding
 handout, with level and forcing-status filters, ranked Chinese/English search,
 ASCII/suit-symbol auction matching and a compact bilingual table.
 Section links such as `#bidding/slams` survive a refresh. Mobile navigation
@@ -126,9 +126,9 @@ The original PDF is retained at `reference/bidding-guide.pdf`. The reference
 uses the website's existing agreements. In particular, **4NT after
 completed Texas is RKCB**, as confirmed by the author, and is distinct from
 quantitative 4NT without agreed trumps. Foundation natural raises and advanced
-Bergen treatments are labeled separately. The direct Mini-Splinter is taught in its own foundation lesson: 1H–3S
-shows 9–11, four-card support and unspecified shortness, game forcing;
-3NT asks, with 4C/4D/4H showing club/diamond/spade shortness. Inverted
-minor raises follow natural minor responses in the same foundation chapter.
+Bergen treatments are labeled separately. The introductory 1NT-response lesson precedes Stayman and teaches pass,
+2NT invitation (8–9) and direct 3NT game (10–15). Once 3NT is reached,
+the game commitment is fulfilled and opener may pass. Mini-Splinter has
+been removed. Inverted minor raises remain with the minor-response chapter.
 The reference explains MIN/MAX and INV/GF in Chinese and shows the
 natural/Bergen 3M warning only beside those two alternative routes.

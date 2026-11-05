@@ -128,6 +128,7 @@ export function BiddingReference() {
 
       <section className="ref-results" ref={results} aria-label={lang === 'zh' ? '速查结果' : 'Reference results'}>
         <div className="ref-label-pairs" aria-label={lang === 'zh' ? '常用叫牌标签' : 'Bidding label pairs'}>
+          <div><strong>{lang === 'zh' ? '花色简称' : 'Suit shorthand'}</strong><span>{lang === 'zh' ? 'm（低花：♣／♦）' : 'm · minors ♣/♦'}</span><span>{lang === 'zh' ? 'M（高花：♥／♠）' : 'M · majors ♥/♠'}</span></div>
           <div><strong>{lang === 'zh' ? '实力范围' : 'Strength range'}</strong><span>{lang === 'zh' ? 'MIN（低限）' : 'MIN · Minimum'}</span><span>{lang === 'zh' ? 'MAX（高限）' : 'MAX · Maximum'}</span></div>
           <div><strong>{lang === 'zh' ? '继续义务' : 'Commitment'}</strong><span>{lang === 'zh' ? 'INV（邀请，可Pass）' : 'INV · Invitation, may pass'}</span><span>{lang === 'zh' ? 'GF（逼局）' : 'GF · Game force'}</span></div>
         </div>

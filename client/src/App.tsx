@@ -66,7 +66,8 @@ export function App() {
   const [completedLessons, setCompletedLessons] = useState<Set<string>>(() => {
     try {
       const saved = localStorage.getItem('aib-completed-lessons');
-      return saved ? new Set<string>((JSON.parse(saved) as string[]).map(canonicalLessonId)) : new Set<string>();
+      const activeIds = new Set(getLessons('en').map(lesson => lesson.id));
+      return saved ? new Set<string>((JSON.parse(saved) as string[]).map(canonicalLessonId).filter(id => activeIds.has(id))) : new Set<string>();
     } catch {
       return new Set<string>();
     }

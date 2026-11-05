@@ -28,6 +28,8 @@ describe('ACBL Chapters Module', () => {
     }
     expect(basic.map(l => l.id).slice(basic.findIndex(l => l.id === 'conversation'), basic.findIndex(l => l.id === 'conversation') + 5)).toEqual(['conversation', 'reverse-bids', 'two-over-one-basics', 'strength-and-minors', 'scoring']);
     expect(LESSONS.some(l => l.id === 'opener-rebids')).toBe(false);
+    expect(LESSONS.some(l => l.id === 'mini-splinters')).toBe(false);
+    expect(basic.findIndex(l => l.id === 'notrump-responses')).toBe(basic.findIndex(l => l.id === 'stayman-fit') - 1);
     expect(getChapterForLesson('inverted-minor-raises')?.id).toBe('ch3');
     expect(basic.findIndex(l => l.id === 'inverted-minor-raises')).toBe(basic.findIndex(l => l.id === 'minor-responses') + 1);
   });
@@ -36,6 +38,7 @@ describe('ACBL Chapters Module', () => {
     const order = LESSONS.map(l => l.id);
     PREVIOUS_LESSON_IDS.forEach((id, i) => expect(order[savedLessonIndex(null, i)]).toBe(canonicalLessonId(id)));
     order.forEach(id => expect(order[savedLessonIndex(id, 0)]).toBe(id));
+    expect(order[savedLessonIndex('mini-splinters', 0)]).toBe('notrump-responses');
     expect(savedLessonIndex('missing', 1000)).toBe(0);
   });
 

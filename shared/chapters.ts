@@ -93,15 +93,15 @@ export const ACBL_CHAPTERS: Chapter[] = [
       "zh": "基础五：无将工具与配合选择"
     },
     "subtitle": {
-      "zh": "斯台曼、转移、高花支持与简单争叫",
-      "en": "Stayman, transfers, major support and a simple overcall"
+      "zh": "先学1NT自然应叫，再学斯台曼、转移与高花支持",
+      "en": "Natural 1NT responses first, then Stayman, transfers and major raises"
     },
     "acblClasses": "Foundations",
     "lessonIds": [
+      "notrump-responses",
       "stayman-fit",
       "jacoby-transfers",
       "major-forcing-raises",
-      "mini-splinters",
       "overcall"
     ]
   },
@@ -183,7 +183,8 @@ export function getChapterForLesson(id: string): Chapter | undefined {
 export const PREVIOUS_LESSON_IDS = ["deck", "tricks", "strategy", "long-suits", "trump", "losers", "eliminate", "defense-leads", "defense-play", "defense-rules", "contract", "bidding", "minor-responses", "full-hand", "conversation", "scoring", "overcall", "strength-and-minors", "stayman-fit", "stayman-smolen", "jacoby-transfers", "texas-transfers", "bergen-raises", "major-forcing-raises", "opener-rebids", "reverse-bids", "overcall-strategy", "takeout-doubles", "negative-doubles", "support-and-redoubles", "game-forcing-auctions", "two-way-checkback", "controls-and-keycards"];
 export function savedLessonIndex(savedId: string | null, oldIndex: number): number {
   const order = ACBL_CHAPTERS.flatMap(ch => ch.lessonIds);
-  const id = savedId ?? PREVIOUS_LESSON_IDS[oldIndex];
+  const previousId = savedId ?? PREVIOUS_LESSON_IDS[oldIndex];
+  const id = previousId === 'mini-splinters' ? 'notrump-responses' : previousId;
   return Math.max(0, order.indexOf(canonicalLessonId(id ?? '')));
 }
 
