@@ -1,11 +1,11 @@
 import { describe, it, expect } from 'vitest';
-import { ACBL_CHAPTERS, getChapterForLesson, savedLessonIndex, PREVIOUS_LESSON_IDS } from './chapters.js';
+import { ACBL_CHAPTERS, getChapterForLesson, savedLessonIndex, PREVIOUS_LESSON_IDS, canonicalLessonId } from './chapters.js';
 import { LESSONS } from './lessons.js';
 
 describe('ACBL Chapters Module', () => {
   it('covers every lesson in teaching order with no duplicates', () => {
     const chapterLessonIds = ACBL_CHAPTERS.flatMap(ch => ch.lessonIds);
-    expect(chapterLessonIds).toHaveLength(35);
+    expect(chapterLessonIds).toHaveLength(34);
     expect(new Set(chapterLessonIds).size).toBe(chapterLessonIds.length);
 
     const allLessonIds = LESSONS.map(l => l.id);
@@ -15,7 +15,7 @@ describe('ACBL Chapters Module', () => {
   it('keeps advanced agreements out of the foundation lessons', () => {
     const basic = LESSONS.filter(l => getChapterForLesson(l.id)?.track === 'basic');
     const advanced = LESSONS.filter(l => getChapterForLesson(l.id)?.track === 'advanced');
-    expect(basic).toHaveLength(25);
+    expect(basic).toHaveLength(24);
     expect(advanced).toHaveLength(10);
     const advancedTerms = /Bergen|Smolen|Texas|negative doubles?|cue.bid|keycards?|fast arrival|slow arrival|fourth.suit|checkback|Walsh|伯根|斯莫伦|德克萨斯|负加倍|扣叫|关键张|速达|缓达|第四花色|重询|沃尔什/i;
     for (const lesson of basic) {
@@ -26,12 +26,13 @@ describe('ACBL Chapters Module', () => {
       })].join('\n');
       expect(text.match(advancedTerms), lesson.id).toBeNull();
     }
-    expect(basic[basic.length - 1]!.id).toBe('two-over-one-basics');
+    expect(basic.map(l => l.id).slice(14, 19)).toEqual(['conversation', 'reverse-bids', 'two-over-one-basics', 'strength-and-minors', 'scoring']);
+    expect(LESSONS.some(l => l.id === 'opener-rebids')).toBe(false);
   });
 
   it('migrates index-only bookmarks and preserves saved lesson identities', () => {
     const order = LESSONS.map(l => l.id);
-    PREVIOUS_LESSON_IDS.forEach((id, i) => expect(order[savedLessonIndex(null, i)]).toBe(id));
+    PREVIOUS_LESSON_IDS.forEach((id, i) => expect(order[savedLessonIndex(null, i)]).toBe(canonicalLessonId(id)));
     order.forEach(id => expect(order[savedLessonIndex(id, 0)]).toBe(id));
     expect(savedLessonIndex('missing', 1000)).toBe(0);
   });
@@ -50,7 +51,7 @@ describe('ACBL Chapters Module', () => {
     expect(getChapterForLesson('deck')?.id).toBe('ch1');
     expect(getChapterForLesson('losers')?.id).toBe('ch2');
     expect(getChapterForLesson('contract')?.id).toBe('ch3');
-    expect(getChapterForLesson('overcall')?.id).toBe('ch4');
+    expect(getChapterForLesson('overcall')?.id).toBe('ch5');
     expect(getChapterForLesson('non-existent')).toBeUndefined();
   });
 });

@@ -68,41 +68,40 @@ export const ACBL_CHAPTERS: Chapter[] = [
     "id": "ch4",
     "track": "basic",
     "title": {
-      "en": "Basics 4: Rebidding and Game",
-      "zh": "基础四：再叫与成局"
+      "en": "Basics 4: One Continuous Bidding Conversation",
+      "zh": "基础四：一条连续的叫牌对话"
     },
     "subtitle": {
-      "en": "Natural rebids, strength, game and a simple overcall",
-      "zh": "自然再叫、实力、成局与简单争叫"
+      "en": "Opener rebids, reverses, two-over-one game force, semi-forcing 1NT and game decisions",
+      "zh": "开叫者再叫、逆叫、二盖一逼局、半逼叫1NT与成局判断"
     },
     "acblClasses": "Foundations",
     "lessonIds": [
       "conversation",
-      "scoring",
-      "overcall"
+      "reverse-bids",
+      "two-over-one-basics",
+      "strength-and-minors",
+      "scoring"
     ]
   },
   {
     "id": "ch5",
     "track": "basic",
     "title": {
-      "en": "Basics 5: A Simple Two-over-One System",
-      "zh": "基础五：简单二盖一体系"
+      "en": "Basics 5: Notrump Tools and Fit Decisions",
+      "zh": "基础五：无将工具与配合选择"
     },
     "subtitle": {
-      "en": "Conversation, semi-forcing 1NT, notrump tools and major/minor support",
-      "zh": "叫牌对话、半逼叫1NT、无将工具与高低花支持"
+      "en": "Stayman, transfers, inverted minors, major support and a simple overcall",
+      "zh": "斯台曼、转移、低花反加叫、高花支持与简单争叫"
     },
     "acblClasses": "Foundations",
     "lessonIds": [
-      "strength-and-minors",
       "stayman-fit",
       "jacoby-transfers",
       "inverted-minor-raises",
       "major-forcing-raises",
-      "opener-rebids",
-      "reverse-bids",
-      "two-over-one-basics"
+      "overcall"
     ]
   },
   {
@@ -177,12 +176,15 @@ export const ACBL_CHAPTERS: Chapter[] = [
   }
 ];
 export function getChapterForLesson(id: string): Chapter | undefined {
-  return ACBL_CHAPTERS.find(ch => ch.lessonIds.includes(id));
+  return ACBL_CHAPTERS.find(ch => ch.lessonIds.includes(canonicalLessonId(id)));
 }
 // The former index-only bookmarks are migrated by identity after reordering.
 export const PREVIOUS_LESSON_IDS = ["deck", "tricks", "strategy", "long-suits", "trump", "losers", "eliminate", "defense-leads", "defense-play", "defense-rules", "contract", "bidding", "minor-responses", "full-hand", "conversation", "scoring", "overcall", "strength-and-minors", "stayman-fit", "stayman-smolen", "jacoby-transfers", "texas-transfers", "bergen-raises", "major-forcing-raises", "opener-rebids", "reverse-bids", "overcall-strategy", "takeout-doubles", "negative-doubles", "support-and-redoubles", "game-forcing-auctions", "two-way-checkback", "controls-and-keycards"];
 export function savedLessonIndex(savedId: string | null, oldIndex: number): number {
   const order = ACBL_CHAPTERS.flatMap(ch => ch.lessonIds);
   const id = savedId ?? PREVIOUS_LESSON_IDS[oldIndex];
-  return Math.max(0, order.indexOf(id ?? ''));
+  return Math.max(0, order.indexOf(canonicalLessonId(id ?? '')));
 }
+
+/** One consolidated lesson replaces the two former generic rebid lessons. */
+export function canonicalLessonId(id: string): string { return id === 'opener-rebids' ? 'conversation' : id; }

@@ -1,4 +1,4 @@
-import { savedLessonIndex } from '../../shared/chapters.js';
+import { savedLessonIndex, canonicalLessonId } from '../../shared/chapters.js';
 import { createContext, useContext, useMemo, useState, useEffect, useCallback } from 'react';
 import { t, type Lang } from './i18n.js';
 import { audio } from './audio.js';
@@ -65,7 +65,7 @@ export function App() {
   const [completedLessons, setCompletedLessons] = useState<Set<string>>(() => {
     try {
       const saved = localStorage.getItem('aib-completed-lessons');
-      return saved ? new Set<string>(JSON.parse(saved)) : new Set<string>();
+      return saved ? new Set<string>((JSON.parse(saved) as string[]).map(canonicalLessonId)) : new Set<string>();
     } catch {
       return new Set<string>();
     }

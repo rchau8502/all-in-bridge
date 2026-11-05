@@ -24,6 +24,10 @@ export const COURSE_MODULES = [
     ],
     "notes": [
       [
+        "The previous lesson made two-over-one game forcing. That agreement creates the need for this waiting response: many hands below game-forcing strength have a suit or support to describe, but cannot use a two-level new suit yet. Semi-forcing 1NT gives these unfinished stories a place to start; it does not replace an available economical one-level response or suitable direct raise.",
+        "上一课先把二盖一约定为逼局，才有这一课半逼叫1NT的需要：许多不够逼局的牌也有花色或支持要说明，却不能直接用二阶新花。半逼叫1NT给这些还没说完的话一个起点；若已有经济的一阶应叫或合适的直接加叫，仍优先使用。"
+      ],
+      [
         "Bidding is a conversation, not merely a point ladder. Before each call ask: do I have useful new information? Have I finished describing my hand? Does partner’s last call allow me to stop? If partner has forced a reply, “nothing exciting to add” is not permission to pass: give the cheapest truthful description.",
         "叫牌是对话，不只是点力阶梯。每次先问：我还有没有有用的新信息？我的手牌说完了吗？搭档上一声允许我停吗？如果搭档要求回应，“没什么精彩的可说”不等于可以Pass，仍须经济而真实地补充描述。"
       ],
@@ -2142,289 +2146,15 @@ export const COURSE_MODULES = [
     }
   },
   {
-    "id": "opener-rebids",
-    "title": [
-      "Describe Your Hand Again",
-      "再次描述你的手牌"
-    ],
-    "source": "Class10",
-    "focus": [
-      "Opener’s second bid narrows strength and shape; response context matters.",
-      "开叫者第二次叫牌缩小实力与牌型范围，含义取决于应叫背景。"
-    ],
-    "notes": [
-      [
-        "You already used a six-card major rebid in the earlier conversation lesson. This lesson adds the strength ranges to that conversation: minimum about 12–15, medium 16–18, maximum 19–21. A descriptive minimum rebid can finish opener’s message and let responder decide the level.",
-        "前面的对话课已经练过六张高花再叫。本课增加的是点力范围：低限约12–15、中限16–18、高限19–21。低限的描述性再叫，可以把开叫者的话说完，再由应叫者决定高度。"
-      ],
-      [
-        "Because a balanced 15–17 opens 1NT, a normal balanced 1NT rebid after opening a minor is 12–14. A jump to 2NT usually shows 18–19 balanced. Do not teach 15 as both a routine 1NT opening and a routine minimum 1NT rebid, or call a singleton a balanced hand.",
-        "15–17均型已经开1NT，因此低花开叫后正常的均型1NT再叫是12–14点；跳2NT通常18–19均型。不能把15点同时当常规1NT开叫与低限1NT再叫，也不能把单张直接称为均型。"
-      ],
-      [
-        "A jump raise with a fit or jump rebid of a strong long suit shows extra values and invites. A jump SHIFT in a new suit is much stronger and game forcing. With a minimum response, do not pass a forcing new-suit jump just because you prefer the first suit.",
-        "有配合的跳加叫、强长套的跳再叫表示额外实力并邀局；跳叫新花则更强并逼局。即使应叫低限，也不能因偏好第一套而Pass逼叫性跳新花。"
-      ],
-      [
-        "Beginner rule: compare natural bids that describe the same suit or hand type. A simple rebid is usually minimum; a jump in your own suit invites; a jump in a new suit forces to game. Higher commitments need greater strength. An artificial bid or an already game-forcing auction must be read in its own context.",
-        "入门规律：比较描述同一花色或同类牌型的自然叫品。简单再叫通常低限，跳再叫原花邀局，跳新花逼局。承诺越高，需要实力越强。人工叫品与已逼局进程，要按各自背景解读。"
-      ]
-    ],
-    "rows": [
-      [
-        [
-          "Minimum / medium / maximum",
-          "低限／中限／高限"
-        ],
-        [
-          "12–15 / 16–18 / 19–21 broad groups",
-          "12–15／16–18／19–21大致分组"
-        ]
-      ],
-      [
-        [
-          "1NT rebid / 2NT jump",
-          "1NT再叫／跳2NT"
-        ],
-        [
-          "12–14 / 18–19 balanced",
-          "12–14／18–19均型"
-        ]
-      ],
-      [
-        [
-          "Jump in own suit",
-          "跳再叫原花"
-        ],
-        [
-          "Extra strength, invitational",
-          "额外实力，邀请"
-        ]
-      ],
-      [
-        [
-          "Jump in a new suit",
-          "跳新花"
-        ],
-        [
-          "Game forcing",
-          "逼局"
-        ]
-      ]
-    ],
-    "specs": {
-      "S": [
-        14,
-        [
-          2,
-          3,
-          5,
-          3
-        ]
-      ],
-      "N": [
-        8,
-        [
-          4,
-          3,
-          3,
-          3
-        ]
-      ]
-    },
-    "auction": [
-      {
-        "seat": "S",
-        "bid": "1D",
-        "note": [
-          "14, five diamonds: open 1♦.",
-          "14点、五张方块，开1♦。"
-        ],
-        "learn": true
-      },
-      {
-        "seat": "W",
-        "bid": "P",
-        "note": [
-          "Pass: no suitable constructive action at this turn.",
-          "不叫：这一轮没有合适的建设性行动。"
-        ],
-        "learn": false
-      },
-      {
-        "seat": "N",
-        "bid": "1S",
-        "note": [
-          "Four spades, 8 points: one-round force.",
-          "四张黑桃、8点，逼叫一轮。"
-        ],
-        "learn": false
-      },
-      {
-        "seat": "E",
-        "bid": "P",
-        "note": [
-          "Pass: no suitable constructive action at this turn.",
-          "不叫：这一轮没有合适的建设性行动。"
-        ],
-        "learn": false
-      },
-      {
-        "seat": "S",
-        "bid": "1NT",
-        "note": [
-          "No four-card spade fit; 14 balanced, rebid 1NT.",
-          "无四张黑桃支持，14点均型，再叫1NT。"
-        ],
-        "learn": true
-      },
-      {
-        "seat": "W",
-        "bid": "P",
-        "note": [
-          "Pass: no suitable constructive action at this turn.",
-          "不叫：这一轮没有合适的建设性行动。"
-        ],
-        "learn": false
-      },
-      {
-        "seat": "N",
-        "bid": "P",
-        "note": [
-          "8 opposite 12–14 is short of game: pass.",
-          "8点面对12–14点，不够成局，不叫。"
-        ],
-        "learn": false
-      },
-      {
-        "seat": "E",
-        "bid": "P",
-        "note": [
-          "Pass: no suitable constructive action at this turn.",
-          "不叫：这一轮没有合适的建设性行动。"
-        ],
-        "learn": false
-      }
-    ],
-    "dealer": "S",
-    "contract": [
-      1,
-      "NT",
-      "S"
-    ],
-    "fixed": null,
-    "needs": {},
-    "hands": {
-      "S": [
-        "KS",
-        "2S",
-        "AH",
-        "8H",
-        "QH",
-        "AD",
-        "JD",
-        "5D",
-        "2D",
-        "7D",
-        "TC",
-        "6C",
-        "5C"
-      ],
-      "N": [
-        "JS",
-        "TS",
-        "7S",
-        "8S",
-        "9H",
-        "KH",
-        "3H",
-        "9D",
-        "QD",
-        "TD",
-        "QC",
-        "2C",
-        "7C"
-      ],
-      "E": [
-        "4H",
-        "TH",
-        "4D",
-        "2H",
-        "6S",
-        "5S",
-        "8C",
-        "KC",
-        "6H",
-        "9S",
-        "7H",
-        "AC",
-        "AS"
-      ],
-      "W": [
-        "6D",
-        "9C",
-        "KD",
-        "4S",
-        "3S",
-        "8D",
-        "3C",
-        "JC",
-        "JH",
-        "QS",
-        "3D",
-        "5H",
-        "4C"
-      ]
-    },
-    "facts": {
-      "S": {
-        "hcp": 14,
-        "shape": [
-          2,
-          3,
-          5,
-          3
-        ]
-      },
-      "N": {
-        "hcp": 8,
-        "shape": [
-          4,
-          3,
-          3,
-          3
-        ]
-      },
-      "E": {
-        "hcp": 11,
-        "shape": [
-          4,
-          5,
-          1,
-          3
-        ]
-      },
-      "W": {
-        "hcp": 7,
-        "shape": [
-          3,
-          2,
-          4,
-          4
-        ]
-      }
-    }
-  },
-  {
     "id": "reverse-bids",
     "title": [
-      "Simple Rebids and Reverses",
-      "顺叫与逆叫"
+      "Reverses: Why Space Needs Strength",
+      "逆叫：为什么需要额外实力"
     ],
     "source": "Class10",
     "focus": [
-      "A reverse spends bidding space; outside a game force it needs extra strength.",
-      "逆叫消耗叫牌空间，未逼局时需要额外实力。"
+      "A reverse raises the safety floor: understand its extra strength and reply obligation.",
+      "逆叫抬高了安全底线，理解额外实力要求与回应义务。"
     ],
     "notes": [
       [
@@ -2436,8 +2166,8 @@ export const COURSE_MODULES = [
         "一盖一后的逆叫逼叫一轮，不自动等于逼局。应叫低限也必须完成回应，再由开叫澄清。二盖一已建立逼局时，更高的第二套可以单纯描述牌型，不必再保证普通逆叫的额外点力。"
       ],
       [
-        "A simple second-suit rebid can be made with minimum strength because partner can return cheaply. A reverse after a one-over-one response requires about 17+ and forces a reply. A jump shift shows still more strength and forces game. Once a two-over-one game force is established, a low descriptive bid is not a weak sign-off.",
-        "顺叫第二套时，搭档可以经济地回第一套，因此低限也能叫。一盖一后的逆叫约需17点以上，并逼搭档回应。跳新花表示更强实力并逼局。二盖一已逼局后，低阶描述牌型不是弱牌止叫。"
+        "The ordinary rebid table was covered in the previous lesson. Here the key distinction is context: before game is forced, 1♦–1♠–2♥ normally needs about 17+ because returning to diamonds costs the three level. Inside an established two-over-one GF, a higher second suit describes shape without that same extra-strength requirement.",
+        "普通再叫表已在上一课统一讲过。这里重点是背景：未逼局时，1♦—1♠—2♥通常约需17点以上，因为回方块要到三阶；二盖一已逼局时，报更高第二套可以只说明牌型，不再要求同样的额外实力。"
       ]
     ],
     "rows": [
@@ -5019,6 +4749,10 @@ export const COURSE_MODULES = [
       [
         "After 1♥–2♣–2♦–2♥, hearts are agreed and game is already forced. The low 2♥ keeps the description economical; it is not a weak stop. With a minimum opener and no further reason to continue, choose 4♥. Complex slam methods belong to the advanced part.",
         "1♥—2♣—2♦—2♥后，红桃配合已定，而且已经逼局。低阶2♥是经济描述，不是弱牌止叫。开叫低限、没有进一步探索理由时，选择4♥。复杂满贯方法留到进阶篇。"
+      ],
+      [
+        "Why does the next lesson need semi-forcing 1NT? We have reserved a two-over-one new-suit response for game-forcing hands. A weaker responder cannot simply bid a long suit at the two level. When no economical one-level new suit or suitable direct raise describes the hand, 1NT provides a waiting route so that responder may describe it later.",
+        "下一课为什么需要半逼叫1NT？我们已经把二盖一新花应叫留给逼局牌。不够逼局的应叫者，不能只因有长套就直接在二阶报新花。若经济的一阶新花或合适的直接加叫都不能说明手牌，便需要先用1NT过渡，等待后续再把话说完。"
       ]
     ],
     "rows": [

@@ -330,28 +330,40 @@ const REVIEWS = {
   ],
   "conversation": [
     [
-      "Opening",
-      "开叫",
-      "At least five in the major",
-      "高花至少五张"
+      "Why rebid?",
+      "为什么再叫？",
+      "Answer a force, then narrow strength and shape",
+      "回应逼叫，再限定实力与牌型"
     ],
     [
-      "Rebid",
-      "再叫",
-      "Minimum 2♥ rebid normally shows six in this sequence",
-      "本进程低限再叫2♥通常表示六张"
+      "Minimum description",
+      "低限描述",
+      "Six-card major / four-card support / cheap second suit",
+      "六张高花／四张支持／经济第二套"
     ],
     [
-      "Decision",
-      "决策",
-      "Use the new range and fit, not repetition alone",
-      "根据新范围与配合判断，不为重复而叫"
+      "1NT rebid / 2NT jump",
+      "1NT再叫／跳2NT",
+      "12–14 / 18–19 balanced",
+      "12–14／18–19均型"
     ],
     [
-      "Whose turn to decide?",
-      "由谁决定？",
-      "Once my hand is limited, partner can judge the combined strength",
-      "自己的牌限定清楚后，让搭档判断联手实力"
+      "Jump in own suit or support",
+      "原花或支持的跳叫",
+      "About 16–18, invitational",
+      "约16–18点，邀请"
+    ],
+    [
+      "Strong jump new suit",
+      "强牌跳新花",
+      "Game forcing",
+      "逼局"
+    ],
+    [
+      "Finished message",
+      "话已说完",
+      "A limited description lets partner decide",
+      "有限描述后，让搭档决定"
     ]
   ],
   "scoring": [

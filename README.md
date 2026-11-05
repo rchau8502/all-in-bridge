@@ -6,7 +6,7 @@ presentation, bilingual EN/中文 from the ground up (both language versions
 hand-written in parallel, never machine-translated).
 
 **Play it:** https://rchau8502.github.io/all-in-bridge/ — the full
-35-lesson Bridge Bootcamp runs right in the browser, no account, no install.
+34-lesson Bridge Bootcamp runs right in the browser, no account, no install.
 
 ## Layout
 
@@ -31,7 +31,7 @@ only after the **opening card**; later play uses action hints without
 repeated card-by-card reviews. When the remaining tricks are provably
 cashable, the learner can claim them and continue to the lesson wrap-up.
 
-The catalog has **25 foundation lessons** and **10 optional advanced lessons**.
+The catalog has **24 foundation lessons** and **10 optional advanced lessons**.
 Foundations use a simple natural two-over-one game-forcing system: natural
 major raises, Stayman and Jacoby transfers (including the strong-hand
 declarer logic), inverted minor raises, Jacoby 2NT, splinters, minimum and
@@ -100,3 +100,8 @@ cd client && npm run build              # client type-check + bundle
 AI-generated EN/ZH placeholder voices ship in `client/public/voices/`;
 club recordings can replace them file-for-file
 (`voices/{en,zh}/{cowboy,gamer,grandma,robot}/{line}.mp3`).
+
+The two former generic opener-rebid lessons are consolidated into one
+shape-and-strength lesson. Reverses, two-over-one, semi-forcing 1NT and
+game decisions follow it consecutively. Old opener-rebid bookmarks and
+completion records map to the consolidated lesson.

@@ -2302,7 +2302,7 @@ const RAW_LESSONS: RawLesson[] = [
 { kind: 'info', text: T("Partner opens 1♣. Your job is to help answer both questions: how high, and in which strain? Respond with about 6 points or more to a one-level suit opening; with 0–5 you usually pass. A pass IS a reply. A forcing bid is different: you must keep the auction alive even if unsure.", "搭档开叫1♣。你要帮助回答两个问题：叫多高、打什么？对一阶花色开叫，约6点以上通常应叫；0–5点通常不叫。不叫也是回答。但逼叫不同：即使没把握，也要继续叫，不能随意停下。") },
 { kind: 'info', text: T("Over 1♣ or 1♦, look for a major fit before raising a minor. A one-level new-suit response needs at least four cards and about 6 points; bid four-card suits up the line, hearts before spades when both have four. A five-card suit may be shown first. When an unpassed responder faces a 1♥ or 1♠ opening without interference, a non-jump new suit at the two level is a two-over-one GAME FORCE: it shows game-going strength, 13+ points under the latest course agreement, not merely 10. Over 1♠, a 2♥ response also promises five hearts.", "对1♣或1♦，先寻找高花配合，再考虑加叫低花。一阶新花应叫至少四张、约6点；四张套尽量由低到高，红桃黑桃各四张时先红桃。五张长套可以先报。未Pass过的应叫者，在对方没有干扰时，对1♥或1♠作二阶不跳新花应叫，属于二盖一逼局：需要经评估达到成局实力，按最新课件采用13点以上，不能仅凭10点就这样叫。对1♠应叫2♥还保证五张红桃。") },
 { kind: 'info', text: T("Support needs context. After a five-card major OPENING, three-card support makes an eight-card fit; a simple raise shows about 6–9 support points. After a four-card major RESPONSE, opener normally needs FOUR to raise. Three cards do not prove a fit. Raising a minor needs more length: normally four diamonds or five clubs.", "支持要看前提。五张高花开叫后，三张支持就有八张配合；简单加叫约表示6–9支持点。但四张高花应叫后，开叫者通常需要四张才能加叫，三张不能确认配合。低花加叫需要更多张数：通常方块四张、梅花五张。") },
-{ kind: 'info', text: T("Without a fit or a four-card suit you can show at the one level, use the semi-forcing 1NT waiting response with about 5–12 points; it can include three-card invitational support or a void and long suit. A flat minimum opener may pass, while an unbalanced opener continues describing the hand. This waiting message is developed in the dedicated semi-forcing 1NT lesson (18). It is different from a 15–17 balanced 1NT opening. Basic Stayman and transfers follow later in foundations; further notrump conventions belong to the advanced part.", "没有配合，也没有能在一阶说明的四张花色时，可用约5–12点的半逼叫1NT过渡，可能包括三张邀请支持或带缺门的长套牌。平弱低限开叫可Pass，非均型继续描述。第18课会专门解释这种等待消息，与15–17均型的1NT开叫不同。基础篇稍后学习斯台曼与转移，其他无将约定留到进阶篇。") },
+{ kind: 'info', text: T("Without a fit or a four-card suit you can show at the one level, use the semi-forcing 1NT waiting response with about 5–12 points; it can include three-card invitational support or a void and long suit. A flat minimum opener may pass, while an unbalanced opener continues describing the hand. This waiting message is developed in the dedicated semi-forcing 1NT lesson. It is different from a 15–17 balanced 1NT opening. Basic Stayman and transfers follow later in foundations; further notrump conventions belong to the advanced part.", "没有配合，也没有能在一阶说明的四张花色时，可用约5–12点的半逼叫1NT过渡，可能包括三张邀请支持或带缺门的长套牌。平弱低限开叫可Pass，非均型继续描述。半逼叫1NT专课会解释这种等待消息，与15–17均型的1NT开叫不同。基础篇稍后学习斯台曼与转移，其他无将约定留到进阶篇。") },
 { kind: 'info', text: T("This deal: North has 13 points, four clubs and four hearts; no five-card major, and too little for 1NT. North opens 1♣. You have 8 points and five hearts: respond 1♥. Your bid only promises four, so North uses FOUR hearts to raise. You can count 5+4=9, but North’s decision does not rely on seeing your fifth heart.", "这副牌：北家13点、四张梅花和四张红桃，没有五张高花，点力又不够1NT，所以开1♣。你有8点、五张红桃，应叫1♥。你的应叫只保证四张，因此北家凭自己的四张红桃加叫。你能数出5+4=9，但北家的决定不能依赖偷看你的第五张红桃。") },
 { kind: 'info', text: T("Strength controls natural raises: with three or more cards supporting a major opening, 2 of the major shows 6–9 (minimum), 3 shows 10–12 with four+ support (invitational), and 4 chooses game when the combined strength is sufficient. In a natural raise, higher commitments show more strength. An explicitly named agreement, such as an inverted minor raise or Jacoby 2NT, must instead be read by its agreed meaning.", "实力决定自然加叫高度：对高花开叫有三张以上支持，2高花表示6–9点低限，3高花表示10–12点、四张以上支持的邀请，4高花在联手实力足够时选择成局。自然加叫越高，表示实力越强；明确约定的低花反加叫、雅各比2NT等则按约定含义判断。") },
 { kind: 'info', text: T("A forcing bid may require only one further round: an unpassed 1♥–1♠ response asks opener to speak again. By contrast, an uncontested 1♥–2♣ response with 13+ establishes a two-over-one game force. Even a minimum opener must continue until game; the next bids choose the best strain.", "逼叫可以只要求再说一轮：未Pass过的一盖一1♥—1♠要求开叫者再叫。相对地，无干扰时以13点以上应叫1♥—2♣，建立二盖一逼局。开叫即使低限也要继续到成局；后面的叫牌选择最佳定约方向。") },
@@ -2366,27 +2366,18 @@ const RAW_LESSONS: RawLesson[] = [
   },
   {
     id: 'conversation',
-    title: T('Opener Tells More', '开叫者再说'),
+    title: T('Opener Rebids: Shape and Strength', '开叫者再叫：牌型与实力'),
     dealer: 'S',
     hands: CONV_DEAL,
     contract: { level: 2, denom: 'H', declarer: 'S', doubled: 0 },
     vulnerable: false,
     steps: [
-      {
-        kind: 'info',
-        text: T(
-          "You know bids are messages. Now have a real conversation: “I have something new to say”; “I need another turn to finish”; “I have finished, so you decide.” A rebid can add length, strength or a second suit. A required reply keeps partner’s unfinished message alive even when your own hand is minimum.",
-          '你已经知道叫牌是消息了。现在来真正的对话：“我有新话”“我还需要一轮说完”“我说完了，你决定”。再叫可补长度、实力或第二套；即使自己低限，必要回应也能维持对话，让搭档把话说完。'
-        ),
-      },
-      {
-        kind: 'info',
-        text: T(
-          'This time YOU get to open the talk. The rule for opening: about 12 points or more. How do you open? With your LONGEST suit — it is the suit you most want to tell partner about. Count your hand: 6 hearts, 14 points. Textbook — you open.',
-          '这次由你开启对话。开叫的规矩：大约12点或以上。怎么开？用你最长的花色 —— 那是你最想告诉搭档的花色。数数你的牌：6张红桃，14点。太标准了 —— 你开叫。'
-        ),
-      },
-      {
+{ kind: 'info', text: T("This is the single opener-rebid lesson. The opening 12–21 range is broad; your next message narrows BOTH strength and shape. If responder’s one-over-one is forcing, a minimum opener must still answer. Then ask what is genuinely new: a sixth card, four-card support, a second suit, or a strength range.", "这是统一的开叫者再叫课。开叫12–21点的范围很宽，下一句话要同时缩小实力与牌型。如果应叫者的一盖一逼叫，低限开叫也必须回应。再问有什么新信息：第六张、四张支持、第二套，还是点力范围。") },
+{ kind: 'info', text: T("Minimum descriptive choices: rebid a major with six cards, raise responder’s major with four, show a second suit economically, or rebid 1NT with a balanced 12–14. These calls can finish opener’s minimum message: “I have described my hand; you decide.” Do not pass the forcing first response instead of describing your minimum.", "低限的描述方法：六张高花可再叫原花，四张支持可加叫应叫高花，经济地报第二套是顺叫，12–14点均型可再叫1NT。这些叫品可以把低限开叫者的话说完：“我的牌交代清楚了，你决定。”不能用Pass替代对应叫者逼叫的必要回应。") },
+{ kind: 'info', text: T("Keep the precise NT ranges separate from broad suit-strength groups. Balanced 15–17 normally opens 1NT, so a balanced 1NT REBID is 12–14; a jump to 2NT shows 18–19. A jump raise or a jump rebid in your own strong long suit, around 16–18, invites. A strong jump in a new suit forces game. In the same natural bid family, a bigger commitment requires greater strength.", "把精确无将范围与大致花色实力分组分开。15–17均型通常已开1NT，所以均型1NT再叫是12–14点，跳2NT为18–19点。跳加叫、或强长套的跳再叫约16–18点，表示邀请；强牌跳新花则逼局。同类自然叫品中，承诺越高，要求实力越强。") },
+{ kind: 'info', text: T("Compare messages, not just numbers: an economical second suit says “I have more shape to show”; a limited rebid says “my range is now clear”; an invitation says “my story is finished, choose with your strength.” The next lesson isolates the special cost of a reverse, instead of repeating this entire rebid table.", "比较消息，而不只盯着阶数：经济第二套表示“我还有牌型要说”；有限再叫表示“我的实力范围已清楚”；邀请表示“我说完了，请用你的实力决定”。下一课只研究逆叫额外消耗的空间，不再重复整张再叫表。") },
+{ kind: 'info', text: T("Use the deal: South has 14 points and six hearts; North has 7 points and five spades. South starts 1♥. North’s 1♠ only promises four spades and 6+, so South cannot pass it. The minimum 2♥ rebid adds the sixth heart and limits strength. North’s two hearts then make an eight-card fit, but 14+7=21 is short of game.", "看桌上牌例：南家14点、六张红桃，北家7点、五张黑桃。南家先1♥；北家1♠只保证四张黑桃、6点以上，所以南家不能Pass。低限再叫2♥，补充第六张并限定实力。北家的两张红桃组成八张配合，但14+7=21离成局仍远。") },
+{
         kind: 'auction',
         script: [
           {
@@ -2407,21 +2398,7 @@ const RAW_LESSONS: RawLesson[] = [
           ) },
         ],
       },
-      {
-        kind: 'info',
-        text: T(
-          'North answered 1♠. Translate it: "My news: I have spades — at least 4 — and at least 6 points." See how much one little bid says? Every bid is a compressed postcard.',
-          '北家回答1♠。翻译一下："我的新闻是：我有黑桃 —— 至少4张 —— 而且至少6点。"看到没，一个小小的叫牌能说多少话？每一个叫牌都是一张压缩的明信片。'
-        ),
-      },
-      {
-        kind: 'info',
-        text: T(
-          'Now you speak AGAIN. Your second message has a special name: a REBID. What new thing can you say? Your hearts are SIX long — that is news! One heart bid could have been 5. In this uncontested 1♥–1♠–2♥ sequence, the minimum rebid normally shows six hearts. That is why rebidding your suit is never "repeating yourself" — the second mention carries new information.',
-          '现在你再说一次。你的第二条消息有个专门的名字：再叫。你能说什么新东西？你的红桃有6张 —— 这就是新闻！叫一次红桃可能只有5张。在这里无争叫的1♥—1♠—2♥进程中，低限再叫通常表示六张红桃。所以再叫自己的花色从来不是"重复自己" —— 第二次提及带着新信息。'
-        ),
-      },
-      {
+{
         kind: 'auction',
         script: [
           { seat: 'E', bid: 'P', note: T(
@@ -2450,13 +2427,7 @@ const RAW_LESSONS: RawLesson[] = [
           ) },
         ],
       },
-      {
-        kind: 'info',
-        text: T(
-          'Three passes — conversation over, 2♥ is yours. Replay it like a chat log: 1♥ "I have hearts and 12+ points" → 1♠ "I have spades and 6+" → 2♥ "My hearts are SIX — they are my real suit." Three messages, zero words spoken aloud, and both of you know exactly where you stand. That is bridge bidding.',
-          '三次不叫 —— 对话结束，2♥归你们。像聊天记录一样回放：1♥"我有红桃，12点以上" → 1♠"我有黑桃，6点以上" → 2♥"我的红桃有6张 —— 这才是我真正的花色。"三条消息，一句话没说出口，你们俩却都清清楚楚。这就是桥牌的叫牌。'
-        ),
-      },
+{ kind: 'info', text: T("The conversation is complete: 1♥ showed an opening and five+ hearts, 1♠ kept the discussion open, and 2♥ completed the minimum six-card description. North can now choose to pass. Next, use this framework to understand reverses, then establish two-over-one game forcing before learning why semi-forcing 1NT is needed.", "对话完成：1♥表示开叫与五张以上红桃，1♠让对话继续，2♥把低限六张的描述说清。北家现在可以决定不叫。接下来用这一框架理解逆叫，再先学二盖一逼局，随后理解为什么需要半逼叫1NT。") },
     ],
   },
   {
