@@ -306,12 +306,6 @@ const REVIEWS = {
       "逼局",
       "Cannot stop below game, still choose strain",
       "不能停局以下，仍可选择定约"
-    ],
-    [
-      "Dating Model",
-      "约会模型",
-      "1–8, three spaces, target 9; 6+3 succeeds, 5+3 stops",
-      "1–8点、3格、目标9；6+3接受，5+3停下"
     ]
   ],
   "full-hand": [

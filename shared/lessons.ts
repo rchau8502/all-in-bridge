@@ -17,7 +17,6 @@ import { lessonReview } from './lesson-reviews.js';
  * (used by tests).
  */
 
-import { datingWalk } from './dating-model.js';
 import { parseCard } from './deck.js';
 import type { Hands, Seat } from './deck.js';
 import type { Lesson } from './tutorial.js';
@@ -120,15 +119,6 @@ const OVERCALL_DEAL: Hands = makeHands({
   W: ["TS", "8S", "6S", "2S", "3H", "2H", "8D", "7D", "6D", "5D", "TC", "9C", "AC"],
 });
 
-
-function datingExample(a: number, b: number): LText {
-  const r = datingWalk(a, b);
-  const path = r.moves.join(' → ');
-  return T(
-    `Dating example ${a}+${b}=${a+b}: moves ${path}. ${r.success ? 'Hug: target reached.' : 'Pass before the last space: below target.'}${r.counter ? ' The 3-point reply is a counter-invitation; only the inviter holding 6 accepts.' : ''}`,
-    `约会例子${a}+${b}=${a+b}：步数${path}。${r.success ? '拥抱：达到目标。' : '最后一格之前Pass：没有达到目标。'}${r.counter ? '3点的回应是反邀请，只有持6点的邀请者接受。' : ''}`
-  );
-}
 
 const RAW_LESSONS: RawLesson[] = [
   {
@@ -1065,16 +1055,6 @@ const RAW_LESSONS: RawLesson[] = [
 { kind: 'info', text: T("This deal: North has 13 points, four clubs and four hearts; no five-card major, and too little for 1NT. North opens 1♣. You have 8 points and five hearts: respond 1♥. Your bid only promises four, so North uses FOUR hearts to raise. You can count 5+4=9, but North’s decision does not rely on seeing your fifth heart.", "这副牌：北家13点、四张梅花和四张红桃，没有五张高花，点力又不够1NT，所以开1♣。你有8点、五张红桃，应叫1♥。你的应叫只保证四张，因此北家凭自己的四张红桃加叫。你能数出5+4=9，但北家的决定不能依赖偷看你的第五张红桃。") },
 { kind: 'info', text: T("Strength controls natural raises: with three or more cards supporting a major opening, 2 of the major shows 6–9 (minimum), 3 shows 10–12 with four+ support (invitational), and 4 chooses game when the combined strength is sufficient. In a natural raise, higher commitments show more strength. An explicitly named agreement, such as an inverted minor raise or Jacoby 2NT, must instead be read by its agreed meaning.", "实力决定自然加叫高度：对高花开叫有三张以上支持，2高花表示6–9点低限，3高花表示10–12点、四张以上支持的邀请，4高花在联手实力足够时选择成局。自然加叫越高，表示实力越强；明确约定的低花反加叫、雅各比2NT等则按约定含义判断。") },
 { kind: 'info', text: T("A forcing bid may require only one further round: an unpassed 1♥–1♠ response asks opener to speak again. By contrast, an uncontested 1♥–2♣ response with 13+ establishes a two-over-one game force. Even a minimum opener must continue until game; the next bids choose the best strain.", "逼叫可以只要求再说一轮：未Pass过的一盖一1♥—1♠要求开叫者再叫。相对地，无干扰时以13点以上应叫1♥—2♣，建立二盖一逼局。开叫即使低限也要继续到成局；后面的叫牌选择最佳定约方向。") },
-{ kind: 'info', text: T("Dating Model: two people each privately hold an affection value from 1–8. They start 3 spaces apart and may hug only when their total is at least 9. Moving a combined 3 spaces completes the hug. This is a toy model of exchanging ranges, not bridge point counts or bid levels.", "约会模型：两个人各自秘密持有1–8点爱意，相距3格；合计至少9点才可以拥抱，两人累计走满3格就拥抱。这是交换范围的信息模型，不是桥牌点数，也不是叫牌阶数。") },
-{ kind: 'info', text: T("Opening agreement: with 8, you can walk all 3 spaces, since even 8+1=9. With 7, walk 2 spaces as a strong invitation. With 5–6, walk 1 as an ordinary invitation. With 1–4, pass initially. That first pass leaves the other person a turn to invite; only two opening passes end the game.", "开局约定：8点可直接走3格，因为即使8+1=9也足够。7点走2格作强邀请；5–6点走1格作普通邀请；1–4点开局先Pass。第一次开局Pass后，另一人仍可邀请；两人开局都Pass才结束。") },
-{ kind: 'info', text: T("Invitation means “we may have enough; decide using your own value.” After the 7-point person walks 2, the other accepts by walking the last 1 with 2–8 points, but passes with 1. After a 5–6-point invitation of 1 space, a responder with 4–8 walks the remaining 2; with 1–2, pass.", "邀请的意思是：“我们可能够了，请用你自己的实力决定。”7点者走2格后，对方有2–8点就走最后1格接受，只有1点则Pass。5–6点走1格普通邀请后，对方4–8点就走余下2格接受，1–2点则Pass。") },
-{ kind: 'info', text: T("Counter-invitation: after a 5–6-point invitation, a responder with 3 walks just 1 space. The message is “my 3 is enough only if you are the top of your range.” The inviter with 6 walks the final 1; the inviter with 5 passes. You learned more without anyone revealing an exact value at the start.", "反邀请：面对5–6点的邀请，持3点者只走1格，表示：“我的3点，只有配上你范围里的高限才够。”原邀请者有6点就走最后1格，有5点则Pass。双方一开始没有公开精确点数，却通过行动补足了信息。") },
-{ kind: 'info', text: datingExample(8, 1) },
-{ kind: 'info', text: datingExample(7, 2) },
-{ kind: 'info', text: datingExample(6, 3) },
-{ kind: 'info', text: datingExample(5, 3) },
-{ kind: 'info', text: T("Game force is a commitment, not the same as jumping directly to game. An 8-point person knows the minimum total is already 9, so can declare a game-force commitment and walk only 1 first. Neither may stop below the hug; they can still exchange information about the route. Directly walking 3 instead finishes the conversation immediately.", "逼局是一项承诺，不等于直接跳到成局。8点者知道最低合计已经是9，可以先宣布逼局承诺，只走1格；双方都不能在拥抱之前停下，但仍能交换信息选择路线。若直接走3格，则是立即完成目标、结束交流。") },
-{ kind: 'info', text: T("Bridge connection: an invitation lets partner accept with extra strength or decline with a minimum. A game force says “we must reach game,” while leaving room to choose a major or no-trump and perhaps explore slam. Being unsure is not permission to pass a forcing bid. A counter-invitation is an analogy for a further conditional message, not a universal two-over-one bid with a fixed meaning.", "对应桥牌：邀请让搭档高限接受、低限拒绝；逼局表示“必须至少成局”，同时仍可选择高花或无将，甚至探索满贯。不确定，不能成为对逼叫随意Pass的理由。反邀请类比的是进一步有条件地交换信息，不是一种在所有二盖一进程中都具有固定含义的叫品。") },
 { kind: 'auction', script: [{ seat: 'N', bid: "1C", note: T("1♣: 13 points, four clubs, no five-card major.", "1♣：13点、四张梅花，没有五张高花。") },
 { seat: 'E', bid: "P", note: T("East has no suitable overcall and passes.", "东家没有合适的争叫，选择不叫。") },
 { seat: 'S', learner: true, expected: "1H", hint: T("Choose 1H.", "请选择1H。"), note: T("1♥: at least four hearts and 6+ points; this hand has five and 8.", "1♥：至少四张红桃、6点以上；这手实际五张、8点。") },
