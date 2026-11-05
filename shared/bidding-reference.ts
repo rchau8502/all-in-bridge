@@ -1,10 +1,10 @@
 /** Bilingual quick reference adapted from Yuqi Hu’s combined handout.
  * Explicit website agreements take precedence where the source differs. */
 export interface RefText { en: string; zh: string }
-export type RefStatus = 'NF' | 'F1' | 'GF' | 'SF' | 'RULE' | 'AGREEMENT' | 'REPLY';
+export type RefStatus = 'NF' | 'F1' | 'GF' | 'SF' | 'RULE' | 'AGREEMENT' | 'REPLY' | 'INV';
 export type RefLevel = 'basic' | 'advanced';
 export interface ReferenceSection { id: string; title: RefText; context: RefText; pages: number[]; lessonId: string }
-export interface ReferenceRow { id: string; section: string; level: RefLevel; sequence: string; title: RefText; requirements: RefText; status: RefStatus; next: RefText; note: RefText; pages: number[]; lessonId: string }
+export interface ReferenceRow { id: string; section: string; level: RefLevel; sequence: string; title: RefText; requirements: RefText; status: RefStatus; next: RefText; note: RefText; pages: number[]; lessonId: string; warning?: RefText }
 export const REFERENCE_SECTIONS: ReferenceSection[] = [
   {
     "id": "principles",
@@ -61,8 +61,8 @@ export const REFERENCE_SECTIONS: ReferenceSection[] = [
       "en": "Responding to a major"
     },
     "context": {
-      "zh": "无干扰、应叫者未Pass。基础自然3M与进阶伯根3M是替代约定。",
-      "en": "Uncontested, unpassed responder. Natural 3M and Bergen 3M are alternative agreements."
+      "zh": "无干扰、应叫者未Pass；按支持张数、实力与短套选择应叫。",
+      "en": "Uncontested, unpassed responder; choose from support length, strength and shortness."
     },
     "pages": [
       3,
@@ -317,7 +317,7 @@ export const REFERENCE_ROWS: ReferenceRow[] = [
     "id": "talk",
     "section": "principles",
     "level": "basic",
-    "sequence": "MIN / INV / GF",
+    "sequence": "MIN / MAX · INV / GF",
     "title": {
       "zh": "叫牌就是说话",
       "en": "Bidding is a conversation"
@@ -578,7 +578,7 @@ export const REFERENCE_ROWS: ReferenceRow[] = [
       "zh": "11–12点，均型，无高花可先报",
       "en": "11–12, balanced, no major to show first"
     },
-    "status": "NF",
+    "status": "INV",
     "next": {
       "zh": "开叫者按高低限与挡张选择Pass或3NT。",
       "en": "Opener chooses pass or 3NT from strength and stoppers."
@@ -741,7 +741,7 @@ export const REFERENCE_ROWS: ReferenceRow[] = [
       "zh": "10–12点，至少4张支持；未启用伯根",
       "en": "10–12, 4+ support; Bergen off"
     },
-    "status": "NF",
+    "status": "INV",
     "next": {
       "zh": "开叫者按高低限决定Pass或4M。",
       "en": "Opener accepts or declines with the range."
@@ -755,7 +755,11 @@ export const REFERENCE_ROWS: ReferenceRow[] = [
       4,
       5
     ],
-    "lessonId": "strength-and-minors"
+    "lessonId": "strength-and-minors",
+    "warning": {
+      "zh": "基础直接3M为自然邀请；伯根进阶3M为弱阻击。两种处理不可在同一进程混用。",
+      "en": "Foundation direct 3M is a natural invitation; advanced Bergen 3M is weak and preemptive. Do not mix these treatments in the same auction."
+    }
   },
   {
     "id": "major-three-limit",
@@ -770,7 +774,7 @@ export const REFERENCE_ROWS: ReferenceRow[] = [
       "zh": "10–12点，恰好3张支持；开叫续叫后跳回3M",
       "en": "10–12, exactly 3-card support; jump back after opener continues"
     },
-    "status": "NF",
+    "status": "INV",
     "next": {
       "zh": "先1NT保留说话空间，再用3M限定实力，让搭档决定。",
       "en": "Start with 1NT, then limit the hand with 3M and let partner decide."
@@ -854,8 +858,8 @@ export const REFERENCE_ROWS: ReferenceRow[] = [
       "en": "Semi-forcing 1NT"
     },
     "requirements": {
-      "zh": "约5–12点；未够二盖一逼局，又不适合经济新花或直接支持",
-      "en": "About 5–12; below 2/1 GF, without a better economical suit bid or raise"
+      "zh": "约5–12点；可含11点三张支持或缺门长套。不保证均型，也不否认配合。",
+      "en": "About 5–12; may include 11 with three-card support or a void and a long suit. Not necessarily balanced or without a fit."
     },
     "status": "SF",
     "next": {
@@ -1066,7 +1070,7 @@ export const REFERENCE_ROWS: ReferenceRow[] = [
       "en": "Evaluate working honors; game is the minimum target."
     },
     "note": {
-      "zh": "须是约定的爆裂进程，例如1♠—4♣或1♥—3♠的特定处理；不能把任意跳新花都当短套。",
+      "zh": "须是约定的爆裂进程，例如1♠—4♣；不能把任意跳新花都当短套。",
       "en": "Must be an agreed splinter sequence, not any jump in a new suit."
     },
     "pages": [
@@ -1118,7 +1122,7 @@ export const REFERENCE_ROWS: ReferenceRow[] = [
       "zh": "10–12点，至少4张支持",
       "en": "10–12, 4+ support"
     },
-    "status": "NF",
+    "status": "INV",
     "next": {
       "zh": "约12–13点通常拒绝；合适的14点以上可接受。",
       "en": "About 12–13 normally declines; a suitable 14+ may accept."
@@ -1161,36 +1165,40 @@ export const REFERENCE_ROWS: ReferenceRow[] = [
       4,
       5
     ],
-    "lessonId": "bergen-raises"
+    "lessonId": "bergen-raises",
+    "warning": {
+      "zh": "基础直接3M为自然邀请；伯根进阶3M为弱阻击。两种处理不可在同一进程混用。",
+      "en": "Foundation direct 3M is a natural invitation; advanced Bergen 3M is weak and preemptive. Do not mix these treatments in the same auction."
+    }
   },
   {
     "id": "mini-splinter",
     "section": "major-responses",
-    "level": "advanced",
+    "level": "basic",
     "sequence": "1♥ – 3♠",
     "title": {
-      "zh": "原讲义 Mini-Splinter",
-      "en": "Source Mini-Splinter treatment"
+      "zh": "Mini-Splinter 迷你爆裂叫",
+      "en": "Mini-Splinter raise"
     },
     "requirements": {
-      "zh": "讲义列9–11点、4张支持、未知短套；网站未启用这个直接应叫版本",
-      "en": "PDF: 9–11, 4-card support, unspecified shortness; not enabled as a direct response on the website"
+      "zh": "本课约定9–11点，至少4张红桃支持，一门未指明的单张或缺门",
+      "en": "Course agreement: 9–11, 4+ heart support, an unspecified singleton or void"
     },
-    "status": "AGREEMENT",
+    "status": "GF",
     "next": {
-      "zh": "先与搭档明确约定再用；不能套用到二盖一后表示满贯兴趣的3♠。",
-      "en": "Agree the treatment first; do not apply it to a 3♠ splinter after a 2/1 GF."
+      "zh": "开叫者可直接4♥；3NT询问短套。回答4♣=梅花短、4♦=方块短、4♥=黑桃短。",
+      "en": "Opener may bid 4♥ directly or ask with 3NT. Replies: 4♣ clubs short, 4♦ diamonds short, 4♥ spades short."
     },
     "note": {
-      "zh": "作为讲义索引保留，不作为当前体系可直接照叫的条目。",
-      "en": "Retained as a source index, not an active default agreement."
+      "zh": "这一路已越过3♥，本课约定逼到4♥；有点力上限，仍然可以逼局。",
+      "en": "This route has passed 3♥ and forces to 4♥ by agreement. A limited range can still be game forcing."
     },
     "pages": [
       3,
       4,
       5
     ],
-    "lessonId": "major-forcing-raises"
+    "lessonId": "mini-splinters"
   },
   {
     "id": "rebid-1nt",
@@ -1345,7 +1353,7 @@ export const REFERENCE_ROWS: ReferenceRow[] = [
       "zh": "约16–18点，4张高花支持",
       "en": "About 16–18, four-card major support"
     },
-    "status": "NF",
+    "status": "INV",
     "next": {
       "zh": "邀请应叫者以高低限决定是否4M。",
       "en": "Invites responder to choose whether to bid 4M."
@@ -1373,7 +1381,7 @@ export const REFERENCE_ROWS: ReferenceRow[] = [
       "zh": "约16–18点，好的6张以上长套",
       "en": "About 16–18, a good six-card or longer suit"
     },
-    "status": "NF",
+    "status": "INV",
     "next": {
       "zh": "邀请，不是自动逼局；应叫者可Pass。",
       "en": "Invitational, not automatically GF; responder may pass."
@@ -1653,7 +1661,7 @@ export const REFERENCE_ROWS: ReferenceRow[] = [
       "zh": "8–9点，没有已知八张高花配合",
       "en": "8–9, no known eight-card major fit"
     },
-    "status": "NF",
+    "status": "INV",
     "next": {
       "zh": "开叫15点通常Pass，17点通常3NT，16点看牌质。",
       "en": "With 15 normally pass, with 17 normally bid 3NT; judge a 16-point hand."
@@ -1709,7 +1717,7 @@ export const REFERENCE_ROWS: ReferenceRow[] = [
       "zh": "8–9点，4张支持",
       "en": "8–9, four-card support"
     },
-    "status": "NF",
+    "status": "INV",
     "next": {
       "zh": "开叫低限Pass，高限4M。",
       "en": "Minimum passes; maximum bids 4M."
@@ -1874,7 +1882,7 @@ export const REFERENCE_ROWS: ReferenceRow[] = [
       "zh": "8–9点，恰好5张所转高花",
       "en": "8–9, exactly five in the transferred major"
     },
-    "status": "NF",
+    "status": "INV",
     "next": {
       "zh": "开叫在Pass、3M、3NT、4M间按实力与支持选择。",
       "en": "Opener chooses among pass, 3M, 3NT and 4M from strength and support."
@@ -1928,7 +1936,7 @@ export const REFERENCE_ROWS: ReferenceRow[] = [
       "zh": "8–9点，至少6张所转高花",
       "en": "8–9, 6+ in the transferred major"
     },
-    "status": "NF",
+    "status": "INV",
     "next": {
       "zh": "八张以上配合已知，开叫按高低限决定是否4M。",
       "en": "An eight-card fit is known; opener accepts or declines game."
@@ -1982,7 +1990,7 @@ export const REFERENCE_ROWS: ReferenceRow[] = [
       "zh": "8–9点，所叫高花5张，另一门4张",
       "en": "8–9, five in the bid major and four in the other"
     },
-    "status": "NF",
+    "status": "INV",
     "next": {
       "zh": "开叫按实力与三张支持选择合适定约。",
       "en": "Opener chooses from strength and three-card support."
@@ -2094,7 +2102,7 @@ export const REFERENCE_ROWS: ReferenceRow[] = [
       "zh": "约8–9点，5张红桃、5张黑桃",
       "en": "About 8–9, five hearts and five spades"
     },
-    "status": "NF",
+    "status": "INV",
     "next": {
       "zh": "按本课特定约定，邀请并让开叫者选择高花。",
       "en": "An agreed invitational route asking opener to choose the major."
@@ -2542,7 +2550,7 @@ export const REFERENCE_ROWS: ReferenceRow[] = [
       "zh": "约13–15点，好6张以上套",
       "en": "About 13–15, a good 6+ suit"
     },
-    "status": "NF",
+    "status": "INV",
     "next": {
       "zh": "自然邀请；与开叫后遇干扰的弱跳新花区分。",
       "en": "Natural invitation, unlike a weak jump response after interference over partner’s opening."
@@ -2570,7 +2578,7 @@ export const REFERENCE_ROWS: ReferenceRow[] = [
       "zh": "约10点以上总点，至少4张支持，邀请",
       "en": "About 10+ total points, 4+ support, invitational"
     },
-    "status": "NF",
+    "status": "INV",
     "next": {
       "zh": "用配合与重估实力邀请；不是自然方块套。",
       "en": "Invite with support and revaluation, not natural diamonds."
@@ -2654,7 +2662,7 @@ export const REFERENCE_ROWS: ReferenceRow[] = [
       "zh": "约13–15点，均型，好挡张",
       "en": "About 13–15, balanced, good stoppers"
     },
-    "status": "NF",
+    "status": "INV",
     "next": {
       "zh": "邀请3NT；二阶争叫后的非跳2NT范围不同。",
       "en": "Invites 3NT; a non-jump 2NT after a two-level overcall has a different range."
@@ -2682,7 +2690,7 @@ export const REFERENCE_ROWS: ReferenceRow[] = [
       "zh": "好的9点至较弱12点，有对方花色挡张",
       "en": "Good 9 to weak 12, stopper in the opponents’ suit"
     },
-    "status": "NF",
+    "status": "INV",
     "next": {
       "zh": "结合争叫者的二阶实力，邀请合适的3NT。",
       "en": "Invites a suitable 3NT opposite the two-level overcall."
@@ -2764,7 +2772,7 @@ export const REFERENCE_ROWS: ReferenceRow[] = [
       "zh": "9–11点，通常至少4张所叫套",
       "en": "9–11, normally 4+ cards in the suit"
     },
-    "status": "NF",
+    "status": "INV",
     "next": {
       "zh": "邀请，不是弱阻击；加倍者据高低限决定。",
       "en": "Invitational, not weak; doubler accepts or declines."
@@ -2845,7 +2853,7 @@ export const REFERENCE_ROWS: ReferenceRow[] = [
       "zh": "10–12点，均型，有挡张",
       "en": "10–12, balanced, stopper"
     },
-    "status": "NF",
+    "status": "INV",
     "next": {
       "zh": "邀请3NT。",
       "en": "Invites 3NT."
@@ -3746,7 +3754,7 @@ export const REFERENCE_ROWS: ReferenceRow[] = [
       "zh": "通常约16–17点均型，邀请6NT；未定将牌",
       "en": "Normally about 16–17 balanced, inviting 6NT without agreed trumps"
     },
-    "status": "NF",
+    "status": "INV",
     "next": {
       "zh": "开叫低限可Pass，高限评估6NT；与Texas后的RKCB完全分开。",
       "en": "A minimum may pass; a maximum assesses 6NT. Distinct from RKCB after Texas."
@@ -3773,10 +3781,10 @@ export function findReferenceRows(query = '', section = 'all', level: RefLevel |
   const matches = REFERENCE_ROWS.filter(row => {
     if (section !== 'all' && row.section !== section) return false;
     if (level !== 'all' && row.level !== level) return false;
-    if (status !== 'all' && row.status !== status) return false;
+    if (status !== 'all' && row.status !== status && !(status === 'NF' && row.status === 'INV')) return false;
     const group = REFERENCE_SECTIONS.find(s => s.id === row.section)!;
     const haystack = normalizeReferenceQuery([row.sequence, row.title.en, row.title.zh,
-      row.requirements.en, row.requirements.zh, row.next.en, row.next.zh, row.note.en, row.note.zh,
+      row.requirements.en, row.requirements.zh, row.next.en, row.next.zh, row.warning?.en ?? '', row.warning?.zh ?? '',
       group.title.en, group.title.zh, row.status].join(' '));
     return terms.every(term => haystack.includes(term));
   });
@@ -3790,4 +3798,11 @@ export function findReferenceRows(query = '', section = 'all', level: RefLevel |
       + terms.filter(term => sequence.includes(term)).length * 30;
   };
   return matches.sort((a, b) => score(b) - score(a));
+}
+
+/** Keep the four teaching labels paired with their Chinese meanings. */
+export function explainBiddingLabels(text: string, lang: 'en' | 'zh'): string {
+  if (lang !== 'zh') return text;
+  const names: Record<string, string> = { MIN: '低限', MED: '中限', MAX: '高限', INV: '邀请', GF: '逼局' };
+  return text.replace(/\b(MIN|MED|MAX|INV|GF)\b(?![（(])/g, term => `${term}（${names[term]}）`);
 }

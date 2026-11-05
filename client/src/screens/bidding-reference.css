@@ -32,17 +32,11 @@
 .ref-sidebar nav > button > span:last-child { font-size: 11px; opacity: .8; }
 .ref-sidebar small { margin-right: 8px; font-size: 10px; opacity: .7; font-variant-numeric: tabular-nums; }
 .ref-results { min-width: 0; scroll-margin-top: calc(var(--ref-controls-height, 160px) + 82px); }
-.ref-convention-note { color: #e6f0f9; background: #112f50; border-left: 3px solid #f5c951; padding: 13px 16px; border-radius: 4px 9px 9px 4px; font-size: 13px; line-height: 1.7; }
-.ref-agreements { margin: 10px 0 20px; padding: 12px 16px; background: #143350; border: 1px solid #56708a; border-radius: 9px; font-size: 13px; color: #d9e6f2; line-height: 1.75; }
-.ref-agreements summary { cursor: pointer; font-weight: 700; color: #f3d681; }
-.ref-agreements ul { padding-left: 20px; }
-.ref-agreements li + li { margin-top: 5px; }
 .ref-group { margin: 0 0 22px; border-radius: 13px; overflow: hidden; border: 1px solid #b5c6d5; background: #fcfaf4; color: #1a3048; }
 .ref-group-heading { background: #e9eef2; display: flex; justify-content: space-between; align-items: center; gap: 12px; padding: 16px 19px; border-bottom: 1px solid #c9d3dc; }
 .ref-group-heading h2 { font-size: 20px; color: #153651; margin: 0 0 5px; }
 .ref-group-heading h2 > span { font-size: 11px; vertical-align: middle; color: #526779; margin-left: 9px; background: #d6e0e8; padding: 2px 6px; border-radius: 5px; }
 .ref-group-heading p { margin: 0; color: #52667a; font-size: 12px; line-height: 1.6; }
-.ref-lesson-link { flex-shrink: 0; color: #285b7e; background: transparent; border: 1px solid #b9c8d3; border-radius: 7px; padding: 8px; font: inherit; font-size: 11px; cursor: pointer; }
 .ref-table { width: 100%; border-collapse: collapse; table-layout: fixed; text-align: left; font-size: 13px; line-height: 1.7; }
 .ref-table th, .ref-table td { padding: 14px; vertical-align: top; overflow-wrap: anywhere; }
 .ref-table thead { background: #f0f3f5; color: #5a6f80; font-size: 11px; }
@@ -62,6 +56,7 @@
 .ref-level-advanced { background: #ece3f1; color: #6e477d; }
 .ref-status { display: inline-block; border-radius: 6px; font-size: 11px; font-weight: 700; padding: 4px 7px; line-height: 1.5; }
 .ref-status-nf { background: #e2e8eb; color: #415465; }
+.ref-status-inv { background: #fff0c9; color: #77550c; }
 .ref-status-f1 { background: #d7e9f8; color: #205c8a; }
 .ref-status-gf { background: #d5ebdf; color: #246441; }
 .ref-status-sf { background: #e9def4; color: #694a8c; }
@@ -69,11 +64,6 @@
 .ref-status-rule { background: #ece9de; color: #6d6042; }
 .ref-status-agreement { background: #f3e1de; color: #8c4337; }
 .ref-inactive { opacity: .84; }
-.ref-row-detail { margin-top: 8px; font-size: 11px; color: #5b6f7f; }
-.ref-row-detail summary { cursor: pointer; width: fit-content; color: #326d8c; }
-.ref-row-detail p { margin: 8px 0; line-height: 1.8; }
-.ref-source-links { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 7px; }
-.ref-source-links a, .ref-source-links button { color: #255c7e; text-decoration: underline; font: inherit; font-size: 11px; padding: 0; border: 0; background: transparent; cursor: pointer; }
 .ref-suit { font-size: 1.12em; }
 .ref-suit-s { color: #172b44; }
 .ref-suit-h { color: #bb293a; }
@@ -83,6 +73,11 @@
 .ref-empty h2 { font-size: 20px; margin-top: 0; }
 .ref-empty p { color: #bdcfe0; font-size: 14px; }
 .ref-footer { padding: 12px 0 25px; color: #d3e0ee; font-size: 12px; text-align: center; }
+.ref-label-pairs { display: flex; flex-wrap: wrap; gap: 9px 24px; padding: 12px 15px; margin-bottom: 18px; border: 1px solid #55718b; background: #143350; border-radius: 9px; font-size: 12px; color: #dfeaf4; }
+.ref-label-pairs > div { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 12px; }
+.ref-label-pairs strong { color: #a9bfd3; font-size: 11px; font-weight: 500; }
+.ref-label-pairs span { color: #f5d47a; }
+.ref-route-note { margin: 9px 0 0; padding: 7px 9px; background: #fff0c9; border-left: 2px solid #d0a341; border-radius: 3px; color: #78580e; font-size: 11px; line-height: 1.7; }
 .bidding-reference button:focus-visible, .bidding-reference a:focus-visible, .bidding-reference summary:focus-visible, .bidding-reference select:focus-visible { outline: 3px solid #d69c13; outline-offset: 3px; }
 @media (max-width: 1000px) {
   .ref-layout { grid-template-columns: 1fr; gap: 12px; }
@@ -118,7 +113,6 @@
   .ref-group-heading { padding: 13px; align-items: flex-start; }
   .ref-group-heading h2 { font-size: 18px; }
   .ref-group-heading p { font-size: 11px; }
-  .ref-lesson-link { font-size: 10px; padding: 6px; }
   .ref-table, .ref-table tbody, .ref-table tr, .ref-table th, .ref-table td { display: block; width: 100%; }
   .ref-table thead { display: none; }
   .ref-table tbody tr { padding: 13px; }

@@ -305,11 +305,11 @@ describe('chinese lessons', () => {
     expect(zh[9]!.title).toBe('防守三：三条法则，一副牌');
     expect(zh[10]!.title).toBe('定约：一份承诺');
     expect(zh[11]!.title).toBe('叫牌就是说话');
-    expect(zh[12]!.title).toBe('回答搭档');
-    expect(zh[13]!.title).toBe('加叫，然后打牌');
-    expect(zh[14]!.title).toBe('开叫者再叫：牌型与实力');
-    expect(zh[15]!.title).toBe('逆叫：为什么需要额外实力');
-    expect(zh[16]!.title).toBe('二盖一：先确定成局');
+    expect(zh[12]!.title).toBe('对低花开叫的应叫');
+    expect(zh.find(l=>l.id==='full-hand')!.title).toBe('加叫，然后打牌');
+    expect(zh.find(l=>l.id==='conversation')!.title).toBe('开叫者再叫：牌型与实力');
+    expect(zh.find(l=>l.id==='reverse-bids')!.title).toBe('逆叫：为什么需要额外实力');
+    expect(zh.find(l=>l.id==='two-over-one-basics')!.title).toBe('二盖一：先确定成局');
     // Same step structure, same scripts — only text differs.
     for (let i = 0; i < LESSONS.length; i++) {
       const en = LESSONS[i]!;

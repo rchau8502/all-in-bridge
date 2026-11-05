@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { findReferenceRows, normalizeReferenceQuery, REFERENCE_ROWS, REFERENCE_SECTIONS } from './bidding-reference.js';
+import { findReferenceRows, normalizeReferenceQuery, explainBiddingLabels, REFERENCE_ROWS, REFERENCE_SECTIONS } from './bidding-reference.js';
 import { getLessons } from './lessons.js';
 
 describe('bilingual bidding quick reference', () => {
@@ -51,10 +51,16 @@ describe('bilingual bidding quick reference', () => {
     expect(texas.title.en).toContain('RKCB');
     expect(texas.status).toBe('F1');
     expect(texas.requirements.zh).not.toContain('8–9');
-    expect(REFERENCE_ROWS.find(r => r.id === 'quantitative-4nt')!.status).toBe('NF');
+    expect(REFERENCE_ROWS.find(r => r.id === 'quantitative-4nt')!.status).toBe('INV');
     for (const id of ['rkcb-one-four', 'rkcb-zero-three', 'rkcb-two-noq', 'rkcb-two-q']) {
       expect(REFERENCE_ROWS.find(r => r.id === id)!.status).toBe('REPLY');
     }
+  });
+
+  it('explains the two label pairs and confines the alternative-raise warning to its two routes', () => {
+    expect(explainBiddingLabels('MIN / MAX · INV / GF', 'zh')).toBe('MIN（低限） / MAX（高限） · INV（邀请） / GF（逼局）');
+    expect(REFERENCE_ROWS.filter(r => r.warning).map(r => r.id)).toEqual(['major-natural-limit', 'bergen-weak']);
+    expect(findReferenceRows('', 'all', 'all', 'INV').every(r => r.status === 'INV')).toBe(true);
   });
 
   it('preserves key course agreements rather than copying source inconsistencies', () => {
@@ -62,7 +68,7 @@ describe('bilingual bidding quick reference', () => {
     expect(REFERENCE_ROWS.find(r => r.id === 'major-semi')!.note.zh).toContain('缺门');
     expect(REFERENCE_ROWS.find(r => r.id === 'major-semi-pass')!.requirements.en).toContain('12–13');
     expect(REFERENCE_ROWS.find(r => r.id === 'jacoby-medium')!.requirements.en).toContain('14–15');
-    expect(REFERENCE_ROWS.find(r => r.id === 'mini-splinter')!.status).toBe('AGREEMENT');
+    expect(REFERENCE_ROWS.find(r => r.id === 'mini-splinter')!.status).toBe('GF');
     expect(REFERENCE_ROWS.find(r => r.id === 'rebid-one-suit')!.status).toBe('NF');
   });
 });

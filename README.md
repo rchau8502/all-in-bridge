@@ -6,7 +6,7 @@ presentation, bilingual EN/中文 from the ground up (both language versions
 hand-written in parallel, never machine-translated).
 
 **Play it:** https://rchau8502.github.io/all-in-bridge/ — the full
-34-lesson Bridge Bootcamp runs right in the browser, no account, no install.
+35-lesson Bridge Bootcamp runs right in the browser, no account, no install.
 
 ## Layout
 
@@ -31,7 +31,7 @@ only after the **opening card**; later play uses action hints without
 repeated card-by-card reviews. When the remaining tricks are provably
 cashable, the learner can claim them and continue to the lesson wrap-up.
 
-The catalog has **24 foundation lessons** and **10 optional advanced lessons**.
+The catalog has **25 foundation lessons** and **10 optional advanced lessons**.
 Foundations use a simple natural two-over-one game-forcing system: natural
 major raises, Stayman and Jacoby transfers (including the strong-hand
 declarer logic), inverted minor raises, Jacoby 2NT, splinters, minimum and
@@ -107,7 +107,7 @@ game decisions follow it consecutively. Old opener-rebid bookmarks and
 completion records map to the consolidated lesson.
 
 The [bidding and play audit](docs/LESSON_AUDIT.md) records the independent
-review of all 34 lessons and the classroom demonstrations. Its exact DDS
+review of the original 34 lessons and the classroom demonstrations. Its exact DDS
 check covers all 500 authored cards; regression tests bind the results to
 the actual deals and contracts. The corrected full-hand lesson scores
 2H+1 (140), and the long-suit lesson can claim its final two spade tricks.
@@ -117,15 +117,18 @@ the actual deals and contracts. The corrected full-hand lesson scores
 Open `#bidding` from the home menu or the top bar. Fourteen situation-based
 sections contain 127 bilingual entries adapted from the combined bidding
 handout, with level and forcing-status filters, ranked Chinese/English search,
-ASCII/suit-symbol auction matching, source-page links and related lessons.
+ASCII/suit-symbol auction matching and a compact bilingual table.
 Section links such as `#bidding/slams` survive a refresh. Mobile navigation
 and search remain available while scrolling, and the current selection can
 be printed.
 
 The original PDF is retained at `reference/bidding-guide.pdf`. The reference
-uses the website's existing agreements where its ranges differ from the
-handout; these choices are listed under agreements. In particular, **4NT after
+uses the website's existing agreements. In particular, **4NT after
 completed Texas is RKCB**, as confirmed by the author, and is distinct from
 quantitative 4NT without agreed trumps. Foundation natural raises and advanced
-Bergen treatments are labeled separately. This page does not change the
-lesson order or silently enable the handout's direct Mini-Splinter treatment.
+Bergen treatments are labeled separately. The direct Mini-Splinter is taught in its own foundation lesson: 1H–3S
+shows 9–11, four-card support and unspecified shortness, game forcing;
+3NT asks, with 4C/4D/4H showing club/diamond/spade shortness. Inverted
+minor raises follow natural minor responses in the same foundation chapter.
+The reference explains MIN/MAX and INV/GF in Chinese and shows the
+natural/Bergen 3M warning only beside those two alternative routes.

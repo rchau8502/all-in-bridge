@@ -53,14 +53,15 @@ export const ACBL_CHAPTERS: Chapter[] = [
       "zh": "基础三：叫牌是沟通"
     },
     "subtitle": {
-      "en": "Open, respond, find a fit and judge game",
-      "zh": "开叫、应叫、寻找配合与判断成局"
+      "zh": "开叫、对低花应叫、反加叫与完整做牌",
+      "en": "Opening, minor responses, inverted raises and a complete hand"
     },
     "acblClasses": "Foundations",
     "lessonIds": [
       "contract",
       "bidding",
       "minor-responses",
+      "inverted-minor-raises",
       "full-hand"
     ]
   },
@@ -92,15 +93,15 @@ export const ACBL_CHAPTERS: Chapter[] = [
       "zh": "基础五：无将工具与配合选择"
     },
     "subtitle": {
-      "en": "Stayman, transfers, inverted minors, major support and a simple overcall",
-      "zh": "斯台曼、转移、低花反加叫、高花支持与简单争叫"
+      "zh": "斯台曼、转移、高花支持与简单争叫",
+      "en": "Stayman, transfers, major support and a simple overcall"
     },
     "acblClasses": "Foundations",
     "lessonIds": [
       "stayman-fit",
       "jacoby-transfers",
-      "inverted-minor-raises",
       "major-forcing-raises",
+      "mini-splinters",
       "overcall"
     ]
   },

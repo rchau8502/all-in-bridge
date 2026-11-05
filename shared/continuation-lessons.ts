@@ -1878,8 +1878,8 @@ export const COURSE_MODULES = [
         "高花开叫后的雅各比2NT：13点以上、四张支持，逼局。开叫三阶新花表示单缺。无短套时，本课约定4高花为12–13点，3NT为14–15点，3高花为16点以上并有满贯兴趣。这是本课程约定，不是所有体系都一样。"
       ],
       [
-        "A splinter shows game-going support, four+ trumps, about 12–15 points, and a singleton or void in the jumped suit. Revalue working honors outside the short suit. A double jump has this artificial meaning; a natural jump shift is different. Mini-splinters require a separate agreement and are not silently assigned the same meaning.",
-        "斯普林特表示成局支持、四张以上将牌、约12–15点，以及所跳花色的单缺。重新评估短套之外的有效大牌。双跳新花有这种人工含义，与自然跳新花不同；迷你斯普林特需要另行约定，不能默认为同一叫法。"
+        "A splinter shows game-going support, four+ trumps, about 12–15 points, and a singleton or void in the jumped suit. Revalue working honors outside the short suit. Use an agreed double-jump route such as 1♠–4♣. In this course, direct 1♥–3♠ is reserved for the Mini-Splinter taught next, not also a full spade splinter.",
+        "斯普林特表示成局支持、四张以上将牌、约12–15点，以及所跳花色的单缺。重新评估短套之外的有效大牌，使用1♠—4♣等约定双跳路线。本课直接1♥—3♠保留给下一课的迷你爆裂叫，不同时再作完整黑桃爆裂叫。"
       ],
       [
         "These are named agreements, not natural NT or new-suit bids. Jacoby 2NT does not promise a balanced hand; it shows four+ support and 13+ with no upper limit, so it is game forcing. A splinter is also game forcing despite its limited range. Whether a bid is limited and whether it is forcing are separate questions.",
@@ -2144,6 +2144,322 @@ export const COURSE_MODULES = [
         ]
       }
     }
+  },
+  {
+    "id": "mini-splinters",
+    "title": [
+      "Mini-Splinter: Limited Strength, Forcing to Game",
+      "Mini-Splinter：有限实力的逼局支持"
+    ],
+    "source": "Combined handout 4.2",
+    "focus": [
+      "With 9–11, four-card heart support and side shortness, show a limited game-forcing raise; use 3NT to locate the short suit.",
+      "用9–11点、四张红桃支持与边花单缺，表达有限实力的逼局支持；用3NT询问短套。"
+    ],
+    "notes": [
+      [
+        "MIN means minimum and MAX means maximum: these describe strength within an already known range. INV means invitation and GF means game force: these describe whether partner may stop. Keep these two pairs separate; a limited hand can still make a game-forcing bid by agreement.",
+        "MIN（低限）与MAX（高限）表示已知范围内的高低限；INV（邀请）与GF（逼局）表示搭档能不能停叫。这是两组不同问题：牌力有上限，也可以按约定作逼局叫品。"
+      ],
+      [
+        "Our Mini-Splinter is the handout’s direct 1♥–3♠ treatment: 9–11 points, at least four hearts and a singleton or void somewhere outside hearts. It is artificial, does not show spades and does not yet identify the short suit. The nine-card or longer fit and shortness provide playing strength beyond the raw point count.",
+        "本课采用讲义的直接1♥—3♠迷你爆裂叫：9–11点、至少四张红桃，以及一门边花单张或缺门。这是人工叫品，不表示黑桃套，也尚未指明哪门短。九张以上配合与短套，提供了大牌点以外的赢墩实力。"
+      ],
+      [
+        "This sequence has already passed 3♥. It is therefore a game-forcing agreement to at least 4♥, not an invitation that opener can decline in 3♥. A minimum opener may bid 4♥ directly; useful extra strength can ask about shortness with artificial 3NT. Do not pass that inquiry as a natural notrump contract.",
+        "这个进程已经越过3♥，所以本课约定至少逼到4♥，不是让低限开叫停在3♥的邀请。开叫低限可直接4♥；有需要继续评估的有效实力时，可用人工3NT询问短套，不能把这声询问当自然无将而Pass。"
+      ],
+      [
+        "After 1♥–3♠–3NT, responder bids 4♣ with club shortness, 4♦ with diamond shortness, or 4♥ with spade shortness. The last step uses the agreed trump suit to encode the remaining side suit. Opener normally chooses 4♥ unless the working honors and controls justify further exploration.",
+        "1♥—3♠—3NT后，应叫者4♣表示梅花短、4♦表示方块短、4♥表示黑桃短。最后一档借用已定将牌，说明尚未表示的那门边花。开叫通常选择4♥，只有有效大牌与控制合适才继续探索。"
+      ],
+      [
+        "North has 9 points, four hearts and a singleton diamond: ♠K842 / ♥Q963 / ♦5 / ♣KJ74. South has 16 with five hearts and four clubs, an unbalanced opening. South’s low diamonds work well opposite North’s shortness; honors in hearts, spades and clubs are useful. The story is support, limited strength, then shortness—not a natural spade suit.",
+        "北家9点、四张红桃、方块单张：♠K842 / ♥Q963 / ♦5 / ♣KJ74。南家16点、五张红桃四张梅花，是非均型开叫。南家的小方块面对短套配合很好，红桃、黑桃和梅花大牌都有用。整段对话是支持、有限点力、再说明短套，不是在报自然黑桃。"
+      ],
+      [
+        "Compare the routes: Jacoby 2NT shows 13+ with four-card support and no upper limit; a full splinter is about 12–15 with four-card support and named shortness; this Mini-Splinter is 9–11 with initially unnamed shortness. This direct response is distinct from a shortness jump after a two-over-one game force has already established the fit.",
+        "比较三条路线：雅各比2NT为13点以上、四张支持且无上限；完整爆裂叫约12–15点、四张支持，直接说明短套；本课迷你爆裂叫为9–11点，先不指明短套。这种直接应叫，也不同于二盖一已逼局并找到配合后的短套跳叫。"
+      ]
+    ],
+    "rows": [
+      [
+        [
+          "Strength labels",
+          "实力标签"
+        ],
+        [
+          "MIN = minimum; MAX = maximum",
+          "MIN（低限）；MAX（高限）"
+        ]
+      ],
+      [
+        [
+          "Commitment labels",
+          "承诺标签"
+        ],
+        [
+          "INV may be declined; GF must reach game",
+          "INV（邀请）可拒绝；GF（逼局）须到成局"
+        ]
+      ],
+      [
+        [
+          "1♥–3♠",
+          "1♥—3♠"
+        ],
+        [
+          "9–11, four+ hearts, unnamed shortness, GF",
+          "9–11点、四张以上红桃、未知短套，逼局"
+        ]
+      ],
+      [
+        [
+          "3NT inquiry",
+          "3NT询问"
+        ],
+        [
+          "Artificial: ask where the shortness is",
+          "人工询问短套位置"
+        ]
+      ],
+      [
+        [
+          "4♣ / 4♦ / 4♥",
+          "4♣／4♦／4♥"
+        ],
+        [
+          "Club / diamond / spade shortness",
+          "梅花短／方块短／黑桃短"
+        ]
+      ],
+      [
+        [
+          "Minimum opener",
+          "低限开叫"
+        ],
+        [
+          "4♥ is a valid direct sign-off; 3♥ is no longer available",
+          "可直接4♥止叫，已无法回3♥"
+        ]
+      ]
+    ],
+    "dealer": "S",
+    "contract": [
+      4,
+      "H",
+      "S"
+    ],
+    "hands": {
+      "S": [
+        "AS",
+        "7S",
+        "AH",
+        "KH",
+        "JH",
+        "8H",
+        "5H",
+        "8D",
+        "2D",
+        "AC",
+        "9C",
+        "3C",
+        "2C"
+      ],
+      "N": [
+        "KS",
+        "8S",
+        "4S",
+        "2S",
+        "QH",
+        "9H",
+        "6H",
+        "3H",
+        "5D",
+        "KC",
+        "JC",
+        "7C",
+        "4C"
+      ],
+      "E": [
+        "QS",
+        "TS",
+        "6S",
+        "TH",
+        "7H",
+        "AD",
+        "KD",
+        "TD",
+        "7D",
+        "4D",
+        "TC",
+        "8C",
+        "6C"
+      ],
+      "W": [
+        "JS",
+        "9S",
+        "5S",
+        "3S",
+        "4H",
+        "2H",
+        "QD",
+        "JD",
+        "9D",
+        "6D",
+        "3D",
+        "QC",
+        "5C"
+      ]
+    },
+    "facts": {
+      "S": {
+        "hcp": 16,
+        "shape": [
+          2,
+          5,
+          2,
+          4
+        ]
+      },
+      "N": {
+        "hcp": 9,
+        "shape": [
+          4,
+          4,
+          1,
+          4
+        ]
+      },
+      "E": {
+        "hcp": 9,
+        "shape": [
+          3,
+          2,
+          5,
+          3
+        ]
+      },
+      "W": {
+        "hcp": 6,
+        "shape": [
+          4,
+          2,
+          5,
+          2
+        ]
+      }
+    },
+    "auction": [
+      {
+        "seat": "S",
+        "bid": "1H",
+        "note": [
+          "16 and five hearts with four clubs: open 1♥.",
+          "16点、五张红桃四张梅花，开1♥。"
+        ],
+        "learn": true
+      },
+      {
+        "seat": "W",
+        "bid": "P",
+        "note": [
+          "Pass: no suitable action here.",
+          "不叫：此处没有合适的行动。"
+        ],
+        "learn": false
+      },
+      {
+        "seat": "N",
+        "bid": "3S",
+        "note": [
+          "Mini-Splinter: 9–11, four+ hearts and unnamed shortness. Game forcing despite the limited range.",
+          "迷你爆裂叫：9–11点、四张以上红桃与未知短套。实力有限，仍按约定逼局。"
+        ],
+        "learn": false
+      },
+      {
+        "seat": "E",
+        "bid": "P",
+        "note": [
+          "Pass: no suitable action here.",
+          "不叫：此处没有合适的行动。"
+        ],
+        "learn": false
+      },
+      {
+        "seat": "S",
+        "bid": "3NT",
+        "note": [
+          "Artificial inquiry: where is your shortness? This is not natural 3NT to play.",
+          "人工询问：你的短套在哪里？不是自然3NT止叫。"
+        ],
+        "learn": true
+      },
+      {
+        "seat": "W",
+        "bid": "P",
+        "note": [
+          "Pass: no suitable action here.",
+          "不叫：此处没有合适的行动。"
+        ],
+        "learn": false
+      },
+      {
+        "seat": "N",
+        "bid": "4D",
+        "note": [
+          "Diamond shortness: here a singleton. The heart game force remains.",
+          "方块短套，本副是单张。红桃逼局承诺仍在。"
+        ],
+        "learn": false
+      },
+      {
+        "seat": "E",
+        "bid": "P",
+        "note": [
+          "Pass: no suitable action here.",
+          "不叫：此处没有合适的行动。"
+        ],
+        "learn": false
+      },
+      {
+        "seat": "S",
+        "bid": "4H",
+        "note": [
+          "Useful honors outside diamonds and the shortness described: choose 4♥.",
+          "方块之外的大牌有用，短套已说明，选择4♥。"
+        ],
+        "learn": true
+      },
+      {
+        "seat": "W",
+        "bid": "P",
+        "note": [
+          "Pass: no suitable action here.",
+          "不叫：此处没有合适的行动。"
+        ],
+        "learn": false
+      },
+      {
+        "seat": "N",
+        "bid": "P",
+        "note": [
+          "Pass: the agreed heart game has been reached.",
+          "不叫：已到达约定的红桃成局定约。"
+        ],
+        "learn": false
+      },
+      {
+        "seat": "E",
+        "bid": "P",
+        "note": [
+          "Pass: three passes end the auction.",
+          "不叫：连续三次不叫结束叫牌。"
+        ],
+        "learn": false
+      }
+    ]
   },
   {
     "id": "reverse-bids",
@@ -5075,8 +5391,8 @@ export const COURSE_MODULES = [
   {
     "id": "inverted-minor-raises",
     "title": [
-      "Inverted Minors: Support and Stoppers",
-      "低花反加叫：支持与挡张"
+      "Minor Responses: Inverted Raises and Stoppers",
+      "对低花应叫：反加叫与挡张"
     ],
     "source": "User course agreement",
     "focus": [

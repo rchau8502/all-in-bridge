@@ -5,7 +5,7 @@ import { LESSONS } from './lessons.js';
 describe('ACBL Chapters Module', () => {
   it('covers every lesson in teaching order with no duplicates', () => {
     const chapterLessonIds = ACBL_CHAPTERS.flatMap(ch => ch.lessonIds);
-    expect(chapterLessonIds).toHaveLength(34);
+    expect(chapterLessonIds).toHaveLength(35);
     expect(new Set(chapterLessonIds).size).toBe(chapterLessonIds.length);
 
     const allLessonIds = LESSONS.map(l => l.id);
@@ -15,7 +15,7 @@ describe('ACBL Chapters Module', () => {
   it('keeps advanced agreements out of the foundation lessons', () => {
     const basic = LESSONS.filter(l => getChapterForLesson(l.id)?.track === 'basic');
     const advanced = LESSONS.filter(l => getChapterForLesson(l.id)?.track === 'advanced');
-    expect(basic).toHaveLength(24);
+    expect(basic).toHaveLength(25);
     expect(advanced).toHaveLength(10);
     const advancedTerms = /Bergen|Smolen|Texas|negative doubles?|cue.bid|keycards?|fast arrival|slow arrival|fourth.suit|checkback|Walsh|伯根|斯莫伦|德克萨斯|负加倍|扣叫|关键张|速达|缓达|第四花色|重询|沃尔什/i;
     for (const lesson of basic) {
@@ -26,8 +26,10 @@ describe('ACBL Chapters Module', () => {
       })].join('\n');
       expect(text.match(advancedTerms), lesson.id).toBeNull();
     }
-    expect(basic.map(l => l.id).slice(14, 19)).toEqual(['conversation', 'reverse-bids', 'two-over-one-basics', 'strength-and-minors', 'scoring']);
+    expect(basic.map(l => l.id).slice(basic.findIndex(l => l.id === 'conversation'), basic.findIndex(l => l.id === 'conversation') + 5)).toEqual(['conversation', 'reverse-bids', 'two-over-one-basics', 'strength-and-minors', 'scoring']);
     expect(LESSONS.some(l => l.id === 'opener-rebids')).toBe(false);
+    expect(getChapterForLesson('inverted-minor-raises')?.id).toBe('ch3');
+    expect(basic.findIndex(l => l.id === 'inverted-minor-raises')).toBe(basic.findIndex(l => l.id === 'minor-responses') + 1);
   });
 
   it('migrates index-only bookmarks and preserves saved lesson identities', () => {

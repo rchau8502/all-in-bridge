@@ -1050,7 +1050,7 @@ const RAW_LESSONS: RawLesson[] = [
   },
   {
     id: 'minor-responses',
-    title: T("Answer Partner", "回答搭档"),
+    title: T("Responding to a Minor Opening", "对低花开叫的应叫"),
     dealer: 'N',
     hands: RESPONSE_DEAL,
     contract: { level: 2, denom: 'H', declarer: 'S', doubled: 0 },
@@ -1087,7 +1087,7 @@ const RAW_LESSONS: RawLesson[] = [
     ],
   },
   { id: "full-hand", title: T("Raise and Play", "加叫，然后打牌"), dealer: "N", hands: RESPONSE_DEAL, contract: {"level": 2, "denom": "H", "declarer": "S", "doubled": 0}, vulnerable: false, steps: [
-{ kind: 'info', text: T("Continue the previous lesson’s auction into a complete hand; here the new objective is card play. North has 13 points, you have 8: the same 1♣–1♥–2♥ conversation stops in a partscore. A fit tells us WHERE; the combined strength tells us HOW HIGH. Both partners use the strength ranges they have actually shown.", "沿用上一课的叫牌，接着打完一整副牌；这一课的新重点是做牌。北家13点，你8点；同样的1♣—1♥—2♥对话停在部分定约。配合告诉我们打什么，联手实力告诉我们叫多高，两人都根据已经承诺的实力范围作决定。") },
+{ kind: 'info', text: T("Return to the natural minor-response auction and play a complete hand; here the new objective is card play. North has 13 points, you have 8: the same 1♣–1♥–2♥ conversation stops in a partscore. A fit tells us WHERE; the combined strength tells us HOW HIGH. Both partners use the strength ranges they have actually shown.", "回到对低花开叫的自然应叫，接着打完一整副牌；这一课的新重点是做牌。北家13点，你8点；同样的1♣—1♥—2♥对话停在部分定约。配合告诉我们打什么，联手实力告诉我们叫多高，两人都根据已经承诺的实力范围作决定。") },
 { kind: 'auction', script: [{ seat: 'N', bid: "1C", note: T("1♣: 13 points, four clubs, no five-card major.", "1♣：13点、四张梅花，没有五张高花。") },
 { seat: 'E', bid: "P", note: T("East has no suitable overcall and passes.", "东家没有合适的争叫，选择不叫。") },
 { seat: 'S', learner: true, expected: "1H", hint: T("Choose 1H.", "请选择1H。"), note: T("1♥: at least four hearts and 6+ points; this hand has five and 8.", "1♥：至少四张红桃、6点以上；这手实际五张、8点。") },
