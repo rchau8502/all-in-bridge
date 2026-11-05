@@ -59,6 +59,9 @@ export function Home() {
         <button className="btn ghost big menu-btn drill-launch-btn" onClick={() => go('drill')}>
           🌱 {t(lang, 'drill.modeBasics')}
         </button>
+        <button className="btn ghost big menu-btn" onClick={() => go('reference')}>
+          ▦ {lang === 'zh' ? '叫牌速查表 · 分区与搜索' : 'Bidding reference · Browse & search'}
+        </button>
         <button className="btn ghost big menu-btn freeplay-launch-btn" onClick={() => go('freeplay')}>
           🃏 {t(lang, 'freeplay.title')}
         </button>

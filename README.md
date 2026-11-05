@@ -111,3 +111,21 @@ review of all 34 lessons and the classroom demonstrations. Its exact DDS
 check covers all 500 authored cards; regression tests bind the results to
 the actual deals and contracts. The corrected full-hand lesson scores
 2H+1 (140), and the long-suit lesson can claim its final two spade tricks.
+
+## Bidding quick reference
+
+Open `#bidding` from the home menu or the top bar. Fourteen situation-based
+sections contain 127 bilingual entries adapted from the combined bidding
+handout, with level and forcing-status filters, ranked Chinese/English search,
+ASCII/suit-symbol auction matching, source-page links and related lessons.
+Section links such as `#bidding/slams` survive a refresh. Mobile navigation
+and search remain available while scrolling, and the current selection can
+be printed.
+
+The original PDF is retained at `reference/bidding-guide.pdf`. The reference
+uses the website's existing agreements where its ranges differ from the
+handout; these choices are listed under agreements. In particular, **4NT after
+completed Texas is RKCB**, as confirmed by the author, and is distinct from
+quantitative 4NT without agreed trumps. Foundation natural raises and advanced
+Bergen treatments are labeled separately. This page does not change the
+lesson order or silently enable the handout's direct Mini-Splinter treatment.

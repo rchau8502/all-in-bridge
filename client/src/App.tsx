@@ -6,6 +6,7 @@ import { Home } from './screens/Home.js';
 import { Tutorial } from './screens/Tutorial.js';
 import { Drill } from './screens/Drill.js';
 import { FreePlay } from './screens/FreePlay.js';
+import { BiddingReference } from './screens/BiddingReference.js';
 import { GlossaryModal } from './components/GlossaryModal.js';
 import { AchievementsModal } from './components/AchievementsModal.js';
 import { SettingsModal } from './components/SettingsModal.js';
@@ -15,7 +16,7 @@ import { ACHIEVEMENTS, getAchievement, type Achievement } from '../../shared/ach
 import type { SuitOrderPref } from '../../shared/deck.js';
 import './styles.css';
 
-export type ScreenName = 'home' | 'tutorial' | 'drill' | 'freeplay';
+export type ScreenName = 'home' | 'tutorial' | 'drill' | 'freeplay' | 'reference';
 export type FeltTheme = 'teal' | 'green' | 'navy';
 export type FreePlayMode = 'quick' | 'minibridge' | 'auction' | 'duo';
 
@@ -88,8 +89,21 @@ export function App() {
   const [settingsOpen, setSettingsOpen] = useState(false);
   const [teachingGuideOpen, setTeachingGuideOpen] = useState(false);
   const [recentAchievement, setRecentAchievement] = useState<Achievement | null>(null);
-  const [screen, setScreen] = useState<ScreenName>('home');
+  const [screen, setScreen] = useState<ScreenName>(() => window.location.hash === '#bidding' || window.location.hash.startsWith('#bidding/') ? 'reference' : 'home');
   const [tick, setTick] = useState(0);
+
+  useEffect(() => {
+    const handleHash = () => {
+      if (window.location.hash === '#bidding' || window.location.hash.startsWith('#bidding/')) setScreen('reference');
+      else setScreen(previous => previous === 'reference' ? 'home' : previous);
+    };
+    window.addEventListener('hashchange', handleHash);
+    return () => window.removeEventListener('hashchange', handleHash);
+  }, []);
+  useEffect(() => {
+    if (screen === 'reference' && !window.location.hash.startsWith('#bidding')) window.history.replaceState(null, '', '#bidding');
+    if (screen !== 'reference' && window.location.hash.startsWith('#bidding')) window.history.replaceState(null, '', window.location.pathname + window.location.search);
+  }, [screen]);
 
   const openTeachingGuide = useCallback(() => {
     audio.sfx('click');
@@ -280,7 +294,7 @@ export function App() {
 
   return (
     <Ctx.Provider value={ctx}>
-      <div className={`app ${fourColor ? 'four-color' : ''} ${presentationMode ? 'presentation-mode' : ''} theme-felt-${feltTheme}${screen === 'tutorial' || screen === 'freeplay' ? ' scene-fixed' : ''}`}>
+      <div className={`app ${fourColor ? 'four-color' : ''} ${presentationMode ? 'presentation-mode' : ''} theme-felt-${feltTheme}${screen === 'tutorial' || screen === 'freeplay' ? ' scene-fixed' : ''}${screen === 'reference' ? ' reference-screen' : ''}`}>
         <header className="topbar">
           <div className="logo" onClick={() => go('home')}>
             <span className="logo-suit">♠</span> {t(lang, 'app.title')}
@@ -313,6 +327,9 @@ export function App() {
               title={t(lang, 'drill.title')}
             >
               🎯 {t(lang, 'drill.title')}
+            </button>
+            <button className={`chip ${screen === 'reference' ? 'active' : ''}`} onClick={() => go('reference')}>
+              ▦ {lang === 'zh' ? '叫牌速查' : 'Bid reference'}
             </button>
             <button
               className={`chip ${screen === 'freeplay' ? 'active' : ''}`}
@@ -365,6 +382,7 @@ export function App() {
         {screen === 'home' && <Home />}
         {screen === 'tutorial' && <Tutorial />}
         {screen === 'drill' && <Drill />}
+        {screen === 'reference' && <BiddingReference />}
         {screen === 'freeplay' && (
           <FreePlay
             initialMode={freePlayInitialMode}
