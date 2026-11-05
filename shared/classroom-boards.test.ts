@@ -8,6 +8,18 @@ describe('CLASSROOM_BOARDS (Curated Demonstration Deals)', () => {
     expect(CLASSROOM_BOARDS).toHaveLength(5);
   });
 
+  it('uses a real 26-point planning deal with nine top winners', () => {
+    const board = CLASSROOM_BOARDS.find(b => b.id === 'lecture_nt_planning')!;
+    const { hands } = importDealFromPbn(board.deal);
+    const hcp = [...hands.N, ...hands.S].reduce((sum, c) => sum + Math.max(0, c.rank - 10), 0);
+    expect(hcp).toBe(26);
+    expect(hands.S.filter(c => c.suit === 'S').map(c => c.rank).sort((a, b) => b - a)).toEqual([14, 13, 12, 11, 10]);
+    expect([...hands.N, ...hands.S].filter(c => c.suit === 'D' && c.rank >= 13)).toHaveLength(2);
+    expect(hands.N.filter(c => c.suit === 'C' && c.rank >= 13)).toHaveLength(2);
+    expect(board.taTakeaway.en).toContain('5 + 2 + 2 = 9');
+    expect(board.taTakeaway.zh).toContain('5 + 2 + 2 = 9');
+  });
+
   CLASSROOM_BOARDS.forEach(board => {
     describe(`Board #${board.boardNumber} (${board.id})`, () => {
       it('has valid PBN deal containing exactly 52 unique cards (13 per hand)', () => {

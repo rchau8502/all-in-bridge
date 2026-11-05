@@ -105,3 +105,9 @@ The two former generic opener-rebid lessons are consolidated into one
 shape-and-strength lesson. Reverses, two-over-one, semi-forcing 1NT and
 game decisions follow it consecutively. Old opener-rebid bookmarks and
 completion records map to the consolidated lesson.
+
+The [bidding and play audit](docs/LESSON_AUDIT.md) records the independent
+review of all 34 lessons and the classroom demonstrations. Its exact DDS
+check covers all 500 authored cards; regression tests bind the results to
+the actual deals and contracts. The corrected full-hand lesson scores
+2H+1 (140), and the long-suit lesson can claim its final two spade tricks.

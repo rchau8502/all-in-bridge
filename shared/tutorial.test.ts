@@ -36,15 +36,15 @@ describe('all lessons', () => {
     }
   });
 
-  it('the modest full-hand lesson makes eight tricks and scores 110', () => {
+  it('the modest full-hand lesson makes nine tricks without wasting the remaining trumps', () => {
     const lesson = LESSONS.find(l => l.id === 'full-hand')!;
     const r = walkLesson(lesson);
     const result = r.getResult();
     expect(result).not.toBeNull();
-    expect(result!.tricksTaken).toBe(8);
+    expect(result!.tricksTaken).toBe(9);
     expect(result!.made).toBe(true);
-    // 2H exactly: 2×30 trick points + 50 partscore bonus = 110
-    expect(result!.total).toBe(110);
+    // 2H +1: 60 contract + 30 overtrick + 50 partscore bonus = 140
+    expect(result!.total).toBe(140);
   });
 
   it('lesson ids are unique', () => {
@@ -317,9 +317,9 @@ describe('chinese lessons', () => {
       expect(z.steps.length).toBe(en.steps.length);
       expect(z.id).toBe(en.id);
     }
-    // The full-hand zh lesson scores the same 110.
+    // The full-hand zh lesson scores the same 140.
     const r = walkLesson(zh.find(l => l.id === 'full-hand')!);
-    expect(r.getResult()!.total).toBe(110);
+    expect(r.getResult()!.total).toBe(140);
   });
 });
 

@@ -2168,6 +2168,10 @@ export const COURSE_MODULES = [
       [
         "The ordinary rebid table was covered in the previous lesson. Here the key distinction is context: before game is forced, 1♦–1♠–2♥ normally needs about 17+ because returning to diamonds costs the three level. Inside an established two-over-one GF, a higher second suit describes shape without that same extra-strength requirement.",
         "普通再叫表已在上一课统一讲过。这里重点是背景：未逼局时，1♦—1♠—2♥通常约需17点以上，因为回方块要到三阶；二盖一已逼局时，报更高第二套可以只说明牌型，不再要求同样的额外实力。"
+      ],
+      [
+        "In this deal responder has 8, not a bare minimum: 17+ opposite 8 is enough to commit to game. Our direct 3♦ support is game forcing. A genuinely weak responder needs an agreed braking route, such as an artificial 2NT, rather than treating every return to the first suit as non-forcing.",
+        "本副应叫者有8点，不是勉强应叫的最低限：17点以上加8点，已够承诺成局。本课直接支持3♦按逼局处理。真正弱牌应叫者需要另行约定的刹车路线，例如人工2NT，不能把所有回第一套都当成不逼叫。"
       ]
     ],
     "rows": [
@@ -2209,6 +2213,16 @@ export const COURSE_MODULES = [
         [
           "Primarily describes shape",
           "主要描述牌型"
+        ]
+      ],
+      [
+        [
+          "This 3♦",
+          "本副3♦"
+        ],
+        [
+          "8 points, constructive support, game forcing",
+          "8点，建设性支持，逼局"
         ]
       ]
     ],
@@ -2291,8 +2305,8 @@ export const COURSE_MODULES = [
         "seat": "N",
         "bid": "3D",
         "note": [
-          "Minimum preference for diamonds, a required reply.",
-          "低限偏好方块，完成必要回应。"
+          "With 8 points opposite a 17+ reverse, show three-card diamond support and commit to game. This constructive 3♦ is not a weak sign-off.",
+          "8点面对17点以上逆叫，表示三张方块支持并承诺成局。这个建设性3♦不是弱牌止叫。"
         ],
         "learn": false
       },
@@ -3698,8 +3712,8 @@ export const COURSE_MODULES = [
     ],
     "source": "Class14",
     "focus": [
-      "Once game is forced, bid slowly to find the best strain rather than treating every low bid as weak.",
-      "逼局建立后，慢叫寻找最佳定约，不能把每个低叫都当弱牌。"
+      "Use an actual fourth-suit game force to ask for three-card support, then choose game in the fit.",
+      "用真正的第四花色逼局询问三张支持，再选择有配合的成局定约。"
     ],
     "notes": [
       [
@@ -3713,6 +3727,10 @@ export const COURSE_MODULES = [
       [
         "Without a GF, returning to partner’s suit at 2 is usually a preference to play; 2NT or a jump in a known suit invites. Within a GF, the same economical support may keep slam exploration alive. Fast arrival to the agreed game says minimum GF strength and no slam interest; slow support keeps room for more information.",
         "未逼局时，二阶回搭档花色通常是选择止叫；2NT或已叫花色的跳叫可邀局。已逼局时，经济支持则可继续探索满贯。快到已定高花成局表示逼局低限、无满贯兴趣；慢支持保留更多交流空间。"
+      ],
+      [
+        "Now the table demonstrates the fourth suit itself: 1♥–1♠–2♣–2♦. South has five hearts, four clubs and three spades; North has five spades and game-going strength. Artificial 2♦ does not promise diamonds. South’s economical 2♠ shows three-card support inside the game force, and North chooses 4♠.",
+        "现在桌上实际演示第四花色本身：1♥—1♠—2♣—2♦。南家五张红桃、四张梅花、三张黑桃，北家五张黑桃与成局实力。人工2♦不保证方块。南家经济地叫2♠，在逼局中说明三张支持，北家选择4♠。"
       ]
     ],
     "rows": [
@@ -3782,8 +3800,8 @@ export const COURSE_MODULES = [
         "seat": "S",
         "bid": "1H",
         "note": [
-          "Five hearts and opening values.",
-          "五张红桃与开叫实力。请结合已有叫牌确认含义。"
+          "14 points and five hearts: open 1♥.",
+          "14点、五张红桃，开叫1♥。"
         ],
         "learn": true
       },
@@ -3791,53 +3809,53 @@ export const COURSE_MODULES = [
         "seat": "W",
         "bid": "P",
         "note": [
-          "Pass: no suitable constructive action at this turn.",
-          "不叫：这一轮没有合适的建设性行动。"
+          "Pass: no suitable constructive action here.",
+          "不叫：这里没有合适的建设性行动。"
         ],
         "learn": false
       },
       {
         "seat": "N",
+        "bid": "1S",
+        "note": [
+          "13 points and five spades; the one-level response promises four and is forcing.",
+          "13点、五张黑桃；一阶应叫保证四张，并逼叫。"
+        ],
+        "learn": false
+      },
+      {
+        "seat": "E",
+        "bid": "P",
+        "note": [
+          "Pass: no suitable constructive action here.",
+          "不叫：这里没有合适的建设性行动。"
+        ],
+        "learn": false
+      },
+      {
+        "seat": "S",
         "bid": "2C",
         "note": [
-          "13 and clubs: establish the game force.",
-          "13点、有梅花，建立逼局。"
+          "Four clubs: an economical second suit, not extra strength.",
+          "四张梅花：经济地报第二套，不额外保证强牌。"
         ],
-        "learn": false
+        "learn": true
       },
       {
-        "seat": "E",
+        "seat": "W",
         "bid": "P",
         "note": [
-          "Pass: no suitable constructive action at this turn.",
-          "不叫：这一轮没有合适的建设性行动。"
+          "Pass: no suitable constructive action here.",
+          "不叫：这里没有合适的建设性行动。"
         ],
         "learn": false
       },
       {
-        "seat": "S",
+        "seat": "N",
         "bid": "2D",
         "note": [
-          "Describe four diamonds; this does not cancel the force.",
-          "描述四张方块，不取消逼局。"
-        ],
-        "learn": true
-      },
-      {
-        "seat": "W",
-        "bid": "P",
-        "note": [
-          "Pass: no suitable constructive action at this turn.",
-          "不叫：这一轮没有合适的建设性行动。"
-        ],
-        "learn": false
-      },
-      {
-        "seat": "N",
-        "bid": "2H",
-        "note": [
-          "Three-card support, slow arrival in a GF auction.",
-          "三张支持，在逼局中慢到。"
+          "Artificial fourth suit, game forcing: ask for more information, not diamonds.",
+          "人工第四花色逼局：请继续说明，不是自然方块套。"
         ],
         "learn": false
       },
@@ -3845,17 +3863,17 @@ export const COURSE_MODULES = [
         "seat": "E",
         "bid": "P",
         "note": [
-          "Pass: no suitable constructive action at this turn.",
-          "不叫：这一轮没有合适的建设性行动。"
+          "Pass: no suitable constructive action here.",
+          "不叫：这里没有合适的建设性行动。"
         ],
         "learn": false
       },
       {
         "seat": "S",
-        "bid": "4H",
+        "bid": "2S",
         "note": [
-          "Minimum with no slam interest: fast arrival to game.",
-          "低限且无满贯兴趣，快到成局。"
+          "Three spades: support within the established game force.",
+          "三张黑桃：在已经建立的逼局中表示支持。"
         ],
         "learn": true
       },
@@ -3863,17 +3881,17 @@ export const COURSE_MODULES = [
         "seat": "W",
         "bid": "P",
         "note": [
-          "Pass: no suitable constructive action at this turn.",
-          "不叫：这一轮没有合适的建设性行动。"
+          "Pass: no suitable constructive action here.",
+          "不叫：这里没有合适的建设性行动。"
         ],
         "learn": false
       },
       {
         "seat": "N",
-        "bid": "P",
+        "bid": "4S",
         "note": [
-          "Pass: no suitable constructive action at this turn.",
-          "不叫：这一轮没有合适的建设性行动。"
+          "Five plus three: choose the major game with no further slam interest.",
+          "五加三：选择高花成局，没有进一步满贯兴趣。"
         ],
         "learn": false
       },
@@ -3881,8 +3899,26 @@ export const COURSE_MODULES = [
         "seat": "E",
         "bid": "P",
         "note": [
-          "Pass: no suitable constructive action at this turn.",
-          "不叫：这一轮没有合适的建设性行动。"
+          "Pass: no suitable constructive action here.",
+          "不叫：这里没有合适的建设性行动。"
+        ],
+        "learn": false
+      },
+      {
+        "seat": "S",
+        "bid": "P",
+        "note": [
+          "Pass: game has been chosen within the existing force.",
+          "不叫：已经按逼局承诺选定成局定约。"
+        ],
+        "learn": true
+      },
+      {
+        "seat": "W",
+        "bid": "P",
+        "note": [
+          "Pass: the third pass completes the auction.",
+          "不叫：第三次不叫结束叫牌。"
         ],
         "learn": false
       }
@@ -3890,108 +3926,108 @@ export const COURSE_MODULES = [
     "dealer": "S",
     "contract": [
       4,
-      "H",
-      "S"
+      "S",
+      "N"
     ],
     "fixed": null,
     "needs": {},
     "hands": {
       "S": [
-        "4S",
+        "AS",
         "7S",
-        "5H",
+        "3S",
+        "KH",
         "QH",
         "JH",
-        "AH",
-        "KH",
-        "9D",
-        "QD",
-        "TD",
+        "6H",
+        "4H",
         "8D",
-        "JC",
+        "AC",
+        "9C",
+        "7C",
         "2C"
       ],
       "N": [
+        "KS",
+        "QS",
+        "JS",
+        "8S",
         "5S",
-        "6S",
-        "AS",
         "8H",
-        "3H",
-        "9H",
-        "JD",
-        "4D",
-        "KD",
-        "8C",
-        "TC",
-        "QC",
-        "KC"
+        "2H",
+        "AD",
+        "QD",
+        "3D",
+        "JC",
+        "6C",
+        "4C"
       ],
       "E": [
+        "KC",
+        "6S",
+        "2D",
+        "4D",
+        "7H",
         "3C",
+        "KD",
+        "AH",
         "6D",
-        "9S",
-        "7D",
-        "3D",
-        "8S",
-        "KS",
-        "AD",
-        "3S",
-        "6C",
-        "5D",
-        "QS",
-        "2H"
+        "TS",
+        "5C",
+        "JD",
+        "9S"
       ],
       "W": [
-        "AC",
-        "2D",
-        "4C",
-        "6H",
-        "JS",
-        "9C",
-        "TH",
+        "9H",
+        "7D",
+        "TD",
+        "9D",
+        "5H",
+        "3H",
+        "5D",
+        "TC",
+        "4S",
+        "8C",
         "2S",
-        "TS",
-        "7H",
-        "4H",
-        "5C",
-        "7C"
+        "QC",
+        "TH"
       ]
     },
     "facts": {
       "S": {
-        "hcp": 13,
+        "hcp": 14,
         "shape": [
-          2,
+          3,
           5,
-          4,
-          2
+          1,
+          4
         ]
       },
       "N": {
         "hcp": 13,
         "shape": [
+          5,
+          2,
           3,
-          3,
-          3,
-          4
+          3
         ]
       },
       "E": {
-        "hcp": 9,
+        "hcp": 11,
         "shape": [
+          3,
+          2,
           5,
-          1,
-          5,
-          2
+          3
         ]
       },
       "W": {
-        "hcp": 5,
+        "hcp": 2,
         "shape": [
-          3,
+          2,
           4,
-          1,
-          5
+          4,
+          3
         ]
       }
     }
@@ -4353,8 +4389,8 @@ export const COURSE_MODULES = [
         "对照例：1♠—2NT—3NT后，4♦控制扣叫越过梅花；若开叫者也无梅花控制，回4♠。总点高不能补救梅花立即输两墩。自然1NT开叫且未定将牌时，4NT通常是定量邀满贯，不自动是关键张问叫。"
       ],
       [
-        "Now use the course’s distributional slam: South has no spades, six hearts and five diamonds; North has 17 points and three hearts. South’s 3♠ is a void control, not a natural spade suit. After showing controls, North can ask keycards; South’s two keycards and trump queen allow 6♥. Points guide you, while controls, length and entries decide whether the slam is sound.",
-        "现在用课件的牌型满贯：南家黑桃缺门、六张红桃五张方块，北家17点、三张红桃。南家3♠表示缺门控制，不是自然黑桃套。双方报控制后，北家问关键张；南家两张关键张加将牌Q，支持叫到6♥。点数是参考，控制、长度与进手共同决定满贯是否合理。"
+        "Now use the course’s distributional slam: South has no spades, six hearts and five diamonds; North has 17 points and three hearts. South’s jump to 3♠ is an agreed splinter showing spade shortness, actually a void here, not a natural spade suit. This shortness jump is distinct from a cheapest control bid; it does not deny a diamond control. After showing controls, North can ask keycards; South’s two keycards and trump queen allow 6♥. Points guide you, while controls, length and entries decide whether the slam is sound.",
+        "现在用课件的牌型满贯：南家黑桃缺门、六张红桃五张方块，北家17点、三张红桃。南家跳叫3♠按约定是爆裂叫，表示黑桃短套，本副实际缺门，不是自然黑桃套。这种短套跳叫与最经济控制扣叫不同，不表示否认方块控制。双方报控制后，北家问关键张；南家两张关键张加将牌Q，支持叫到6♥。点数是参考，控制、长度与进手共同决定满贯是否合理。"
       ]
     ],
     "rows": [
@@ -4487,8 +4523,8 @@ export const COURSE_MODULES = [
         "seat": "S",
         "bid": "3S",
         "note": [
-          "Spade void: show the control and slam interest.",
-          "黑桃缺门，表示控制与满贯兴趣。"
+          "Agreed splinter: spade shortness, here a void, with slam interest. This jump does not deny the ace of diamonds.",
+          "约定的爆裂叫：黑桃短套，本副缺门，有满贯兴趣。这种跳叫不否认方块A。"
         ],
         "learn": true
       },

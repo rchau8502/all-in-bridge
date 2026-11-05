@@ -312,10 +312,20 @@ export class TutorialRunner {
     const trump = ps.contract.denom === 'NT' ? null : ps.contract.denom;
     const others = (['N', 'E', 'S', 'W'] as Seat[]).filter(s => s !== ps.turn);
     const opponents = others.filter(s => seatSide(s) !== seatSide(ps.turn));
-    if (!ps.hands[ps.turn].every(c =>
+    const oneHandWinners = ps.hands[ps.turn].every(c =>
       !others.some(s => ps.hands[s].some(d => d.suit === c.suit && d.rank > c.rank)) &&
       (c.suit === trump || !opponents.some(s => ps.hands[s].some(d => d.suit === trump)))
-    )) return 0;
+    );
+    // Both hands holding only the same established suit cannot block each
+    // other: whichever partner wins must be able to lead that suit again.
+    const partner = others.find(s => seatSide(s) === seatSide(ps.turn))!;
+    const suit = ps.hands[ps.turn][0]!.suit;
+    const sharedCards = [...ps.hands[ps.turn], ...ps.hands[partner]];
+    const opposingHigh = Math.max(0, ...opponents.flatMap(s => ps.hands[s].filter(c => c.suit === suit).map(c => c.rank)));
+    const sharedSuitWinners = sharedCards.every(c => c.suit === suit)
+      && sharedCards.filter(c => c.rank > opposingHigh).length >= n
+      && (suit === trump || !opponents.some(s => ps.hands[s].some(c => c.suit === trump)));
+    if (!oneHandWinners && !sharedSuitWinners) return 0;
     const tail = this.simulateTail();
     if (!tail || tail.completedTricks.slice(ps.completedTricks.length)
       .some(trick => seatSide(trickWinner(trick, trump)) !== seatSide(ps.turn))) return 0;

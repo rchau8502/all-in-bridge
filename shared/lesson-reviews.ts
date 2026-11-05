@@ -64,6 +64,12 @@ const REVIEWS = {
       "进手",
       "Save access to the winners",
       "保留兑现赢墩的通道"
+    ],
+    [
+      "Unblock",
+      "解封",
+      "AK4 opposite QJ can take three club tricks with entries",
+      "AK4对QJ配合进手可拿三墩梅花"
     ]
   ],
   "long-suits": [
@@ -326,6 +332,12 @@ const REVIEWS = {
       "完成",
       "Cash proven winners; claim only certain remaining tricks",
       "兑现已知赢墩，确定余墩才能摊牌"
+    ],
+    [
+      "Result",
+      "结果",
+      "2♥ +1: nine tricks, 140",
+      "2♥超一：九墩，140分"
     ]
   ],
   "conversation": [

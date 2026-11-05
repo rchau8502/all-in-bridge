@@ -141,15 +141,15 @@ export const CLASSROOM_BOARDS: ClassroomBoard[] = [
     },
     targetTricks: 10,
     taTakeaway: {
-      en: 'When void in a side suit, even the ♠2 (trump) beats an outside Ace! Ruffing losers in the short hand (dummy) adds tricks.',
-      zh: '只要手中边花断门，哪怕打出最小的将牌 2，也能吃掉敌方的 A！在短将牌方（明手）将吃输墩，是获得超额赢墩的绝技。',
+      en: 'When void in a side suit, even the ♠2 (trump) beats an outside Ace! Ruffing losers in dummy can add tricks when trumps are preserved for that purpose.',
+      zh: '只要手中边花断门，哪怕打出最小的将牌 2，也能吃掉敌方的 A！保留明手将牌来将吃输牌，可以增加赢墩。',
     },
     quizzes: [
       {
         id: 'q1',
         question: {
           en: 'North is void in Hearts. West leads ♥K. Can North play a Spade trump to win the trick?',
-          zh: '明手北家红心已断门（0张）。东家打出 ♥A。明手打出将牌 ♠T，这墩谁赢？',
+          zh: '北家红桃缺门。西家领红桃K，北家用黑桃10将吃，东家跟红桃A，这墩谁赢？',
         },
         options: [
           {
@@ -190,8 +190,8 @@ export const CLASSROOM_BOARDS: ClassroomBoard[] = [
     },
     targetTricks: 9,
     taTakeaway: {
-      en: 'Never lead high cards away from your honors! Always lead low from the weak hand towards the tenace (A-Q).',
-      zh: '飞牌金箴：绝不从大牌手中强冲大牌！始终从弱手打出小牌，引向强手的 A-Q 叉子套。',
+      en: 'In this combination, lead low from South toward North’s A-Q tenace. Leading the ace first gives up this finesse; other combinations and safety plays can require a different order.',
+      zh: '本例应从南家领小牌，朝北家A-Q坎张飞牌。先兑现A会放弃这次飞牌；其他组合或安全打法，可能需要不同的次序。',
     },
     quizzes: [
       {
@@ -230,7 +230,7 @@ export const CLASSROOM_BOARDS: ClassroomBoard[] = [
       zh: '两手合力 26 点达成 3NT。庄家在出第 1 张牌前停顿思考，数清 9 个确凿赢墩',
     },
     acblClassRef: 'ACBL Class 3: Counting Winners & Line of Play in NT (Patty Tucker, 2022)',
-    deal: 'N:AK2.K65.A87.K872 T98.JT9.JT9.J965 Q43.AQ4.KQ5.AQ43 J765.8732.6432.T',
+    deal: 'N:32.7654.K43.AK65 987.AKJ.QJT9.QJT AKQJT.Q32.A2.943 654.T98.8765.872',
     contract: {
       level: 3,
       denom: 'NT',
@@ -239,8 +239,8 @@ export const CLASSROOM_BOARDS: ClassroomBoard[] = [
     },
     targetTricks: 9,
     taTakeaway: {
-      en: 'The Book = 6 tricks. 3NT requires 6 + 3 = 9 tricks. With 26 HCP, count: ♠3 + ♥3 + ♦3 + ♣3 = 12 sure tricks!',
-      zh: '底墩公理：底墩是 6 墩。3NT 目标是 6 + 3 = 9 墩。全手 26 点，数出 ♠3+♥3+♦3+♣3=12 个必赢墩，稳操胜券！',
+      en: 'The Book = 6 tricks. 3NT requires 6 + 3 = 9 tricks. With 26 HCP, count five spades, two diamonds and two clubs: 5 + 2 + 2 = 9 top winners. Keep a club entry to dummy for the king of diamonds; hearts have no sure winner.',
+      zh: '底墩是6墩，3NT需要6 + 3 = 9墩。联手26点，数五墩黑桃、两墩方块、两墩梅花：5 + 2 + 2 = 9个顶张赢墩。保留梅花进手到明手兑现方块K；红桃没有稳赢墩。',
     },
     quizzes: [
       {
@@ -273,7 +273,7 @@ export const CLASSROOM_BOARDS: ClassroomBoard[] = [
     boardNumber: 5,
     phase: 4,
     phaseLabel: { en: 'Phase 4: MiniBridge Play (30-40m)', zh: '第四阶段：迷你桥牌实战 (30-40分)' },
-    title: { en: 'MiniBridge in Action: 8-Card Fit to Game', zh: '迷你桥牌实战：9张黄金配合直通成局' },
+    title: { en: 'MiniBridge in Action: 9-Card Fit to Game', zh: '迷你桥牌实战：9张黄金配合直通成局' },
     subtitle: {
       en: 'Skip the bidding box! Count 25 combined HCP and find the 9-card spade fit for 4♠ game',
       zh: '免去繁复叫牌！北南合计 25 点且黑桃 9 张配合，直接选定 4♠ 局定约打满 13 墩',
