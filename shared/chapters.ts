@@ -60,6 +60,7 @@ export const ACBL_CHAPTERS: Chapter[] = [
     "lessonIds": [
       "contract",
       "bidding",
+      "preemptive-openings",
       "minor-responses",
       "inverted-minor-raises",
       "full-hand"

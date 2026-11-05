@@ -305,7 +305,7 @@ describe('chinese lessons', () => {
     expect(zh[9]!.title).toBe('防守三：三条法则，一副牌');
     expect(zh[10]!.title).toBe('定约：一份承诺');
     expect(zh[11]!.title).toBe('叫牌就是说话');
-    expect(zh[12]!.title).toBe('对低花开叫的应叫');
+    expect(zh.find(l => l.id === 'minor-responses')!.title).toBe('对低花开叫的应叫');
     expect(zh.find(l=>l.id==='full-hand')!.title).toBe('加叫，然后打牌');
     expect(zh.find(l=>l.id==='conversation')!.title).toBe('开叫者再叫：牌型与实力');
     expect(zh.find(l=>l.id==='reverse-bids')!.title).toBe('逆叫：为什么需要额外实力');

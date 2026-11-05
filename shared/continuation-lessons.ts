@@ -1,16 +1,18 @@
+import { PREEMPTIVE_OPENINGS } from './preemptive-openings.js';
 import { parseCard } from './deck.js';
 import type { Seat } from './deck.js';
 import type { Lesson, Step, BidAction } from './tutorial.js';
 type Pair = [string, string];
-interface CourseModule {
+export interface CourseModule {
   id: string; title: Pair; source: string; focus: Pair; notes: Pair[]; rows: Pair[][];
   dealer: string; contract: [number, string, string]; hands: Record<string, string[]>;
   auction: Array<{ seat: string; bid: string; note: Pair; learn: boolean }>;
   facts: Record<string, { hcp: number; shape: number[] }>;
 }
-// Original teaching prose adapted from the supplied course slides.
+// Teaching prose adapted from the supplied course slides and CCBA v2.2 openings.
 // Animation-only duplicate PDF pages were collapsed before authoring.
 export const COURSE_MODULES = [
+  PREEMPTIVE_OPENINGS,
   {
     "id": "strength-and-minors",
     "title": [
@@ -2785,10 +2787,6 @@ export const COURSE_MODULES = [
       [
         "Scoring review: a partscore bonus is 50 once, not per trick. Game bonus is 300 nonvulnerable or 500 vulnerable; small-slam bonus adds 500 or 750, grand adds 1000 or 1500. For example 3NT exactly is 400 or 600; 6NT exactly is 990 or 1440. Do not add the partscore bonus to game.",
         "计分复习：部分定约奖分50只加一次，不是每墩50。成局奖分无局300、有局500；小满贯额外500或750，大满贯额外1000或1500。例如3NT正好400或600，6NT正好990或1440。成局不能再叠加部分定约奖分。"
-      ],
-      [
-        "Advanced preempts: a weak two opening normally has 6–10 points and six diamonds, hearts or spades; 3♣ is the first weak club opening because 2♣ is strong, around 22+ or equivalent playing strength. A weak opening and a jump overcall are different auction situations, even when both obstruct the opponents.",
-        "进阶阻击：弱二开叫通常6–10点，六张方块、红桃或黑桃；梅花弱开叫从3♣开始，因为2♣是强开叫，约22点以上或等同赢墩实力。弱开叫与跳争叫属于不同进程，即使都有阻碍对方的作用。"
       ]
     ],
     "rows": [

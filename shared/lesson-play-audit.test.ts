@@ -80,7 +80,13 @@ describe('bidding examples follow their stated agreements', () => {
       const call = 'expected' in first ? first.expected : first.bid;
       const hand = l.hands[first.seat];
       const hcp = hand.reduce((n, c) => n + Math.max(0, c.rank - 10), 0);
-      expect(hcp, l.id).toBeGreaterThanOrEqual(12);
+      if (/^2[DHS]$/.test(call)) {
+        expect(hcp, l.id).toBeGreaterThanOrEqual(6);
+        expect(hcp, l.id).toBeLessThanOrEqual(10);
+        expect(hand.filter(c => c.suit === call[1]).length, l.id).toBeGreaterThanOrEqual(6);
+      } else {
+        expect(hcp, l.id).toBeGreaterThanOrEqual(12);
+      }
       if (call === '1S' || call === '1H') expect(hand.filter(c => c.suit === call[1]).length, l.id).toBeGreaterThanOrEqual(5);
       if (call === '1NT') {
         expect(hcp, l.id).toBeGreaterThanOrEqual(15);

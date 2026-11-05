@@ -5,6 +5,7 @@ export type ForcingStatus = 'NF' | 'F1' | 'GF' | 'SF';
  * A force ends at its agreed stopping point, not just on any limited bid. */
 export const BASIC_FORCING_STATUS: Record<string, ForcingStatus[]> = {
   bidding: ['NF', 'NF'],
+  'preemptive-openings': ['NF', 'NF'],
   'minor-responses': ['NF', 'F1', 'NF'],
   'full-hand': ['NF', 'F1', 'NF'],
   conversation: ['NF', 'F1', 'NF'],

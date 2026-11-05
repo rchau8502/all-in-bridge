@@ -25,12 +25,12 @@ export const REFERENCE_SECTIONS: ReferenceSection[] = [
   {
     "id": "openings",
     "title": {
-      "zh": "五种一阶开叫",
-      "en": "One-level openings"
+      "zh": "开叫",
+      "en": "Opening bids"
     },
     "context": {
-      "zh": "未有人开叫。以下为网站的五张高花、强无将开叫。",
-      "en": "No previous opening. Five-card majors and a strong notrump."
+      "zh": "未有人开叫。一阶采用五张高花、强无将；弱二、三阶阻击与强2♣按CCBA标准。",
+      "en": "No previous opening. Five-card majors and a strong notrump; CCBA weak twos, three-level preempts and strong 2♣."
     },
     "pages": [
       3,
@@ -496,6 +496,131 @@ export const REFERENCE_ROWS: ReferenceRow[] = [
       5
     ],
     "lessonId": "bidding"
+  },
+  {
+    "id": "open-weak-two-diamonds",
+    "section": "openings",
+    "level": "basic",
+    "sequence": "2♦",
+    "title": {
+      "zh": "方块弱二开叫",
+      "en": "Weak two in diamonds"
+    },
+    "requirements": {
+      "zh": "第一／二／三家：6–10大牌点、六张以上方块；套更长时点力可酌情降低。第四家：9–12点、六张以上好套。",
+      "en": "Seats 1–3: 6–10 HCP, 6+ diamonds; extra length can justify fewer points. Fourth seat: 9–12 HCP, a good 6+ suit."
+    },
+    "status": "NF",
+    "next": {
+      "zh": "占用对手空间，也说明长套赢墩潜力；搭档够强可进局。加到三阶是加深阻击，不是邀请。",
+      "en": "Take opponents’ space and show long-suit playing strength; a strong partner may bid game. A raise to three extends the preempt, not an invitation."
+    },
+    "note": {
+      "zh": "",
+      "en": ""
+    },
+    "pages": [],
+    "lessonId": "preemptive-openings"
+  },
+  {
+    "id": "open-weak-two-hearts",
+    "section": "openings",
+    "level": "basic",
+    "sequence": "2♥",
+    "title": {
+      "zh": "红桃弱二开叫",
+      "en": "Weak two in hearts"
+    },
+    "requirements": {
+      "zh": "第一／二／三家：6–10大牌点、六张以上红桃；套更长时点力可酌情降低。第四家：9–12点、六张以上好套。",
+      "en": "Seats 1–3: 6–10 HCP, 6+ hearts; extra length can justify fewer points. Fourth seat: 9–12 HCP, a good 6+ suit."
+    },
+    "status": "NF",
+    "next": {
+      "zh": "占用对手空间，也说明长套赢墩潜力；搭档够强可进局。加到三阶是加深阻击，不是邀请。",
+      "en": "Take opponents’ space and show long-suit playing strength; a strong partner may bid game. A raise to three extends the preempt, not an invitation."
+    },
+    "note": {
+      "zh": "",
+      "en": ""
+    },
+    "pages": [],
+    "lessonId": "preemptive-openings"
+  },
+  {
+    "id": "open-weak-two-spades",
+    "section": "openings",
+    "level": "basic",
+    "sequence": "2♠",
+    "title": {
+      "zh": "黑桃弱二开叫",
+      "en": "Weak two in spades"
+    },
+    "requirements": {
+      "zh": "第一／二／三家：6–10大牌点、六张以上黑桃；套更长时点力可酌情降低。第四家：9–12点、六张以上好套。",
+      "en": "Seats 1–3: 6–10 HCP, 6+ spades; extra length can justify fewer points. Fourth seat: 9–12 HCP, a good 6+ suit."
+    },
+    "status": "NF",
+    "next": {
+      "zh": "占用对手空间，也说明长套赢墩潜力；搭档够强可进局。加到三阶是加深阻击，不是邀请。",
+      "en": "Take opponents’ space and show long-suit playing strength; a strong partner may bid game. A raise to three extends the preempt, not an invitation."
+    },
+    "note": {
+      "zh": "",
+      "en": ""
+    },
+    "pages": [],
+    "lessonId": "preemptive-openings"
+  },
+  {
+    "id": "open-three-preempt",
+    "section": "openings",
+    "level": "basic",
+    "sequence": "3♣ / 3♦ / 3♥ / 3♠",
+    "title": {
+      "zh": "三阶阻击开叫",
+      "en": "Three-level preempt"
+    },
+    "requirements": {
+      "zh": "5–10大牌点，通常七张所叫花色，满足二三法则。",
+      "en": "5–10 HCP, normally seven cards in the bid suit; satisfy the rule of two and three."
+    },
+    "status": "NF",
+    "next": {
+      "zh": "保守估算赢墩：有局最多约宕二，无局最多约宕三；搭档按支持、有效实力与赢墩判断是否进局。",
+      "en": "Estimate playing tricks conservatively: about two down at most vulnerable, three not vulnerable. Partner assesses support, useful strength and tricks before choosing game."
+    },
+    "note": {
+      "zh": "",
+      "en": ""
+    },
+    "pages": [],
+    "lessonId": "preemptive-openings"
+  },
+  {
+    "id": "open-strong-two-clubs",
+    "section": "openings",
+    "level": "basic",
+    "sequence": "2♣",
+    "title": {
+      "zh": "人工强开叫",
+      "en": "Artificial strong opening"
+    },
+    "requirements": {
+      "zh": "均型22+大牌点；至少3个防守速胜墩。非均型高花单套9+赢墩／低花单套10+赢墩，且18+大牌点；5–5以上双套20+大牌点。",
+      "en": "Balanced: 22+ HCP; at least three defensive quick tricks. Unbalanced: a major one-suiter with 9+ playing tricks or a minor one-suiter with 10+, with 18+ HCP; a 5–5 or longer two-suiter with 20+ HCP."
+    },
+    "status": "F1",
+    "next": {
+      "zh": "表示强牌，不保证梅花，也不是弱二；搭档不能直接Pass。要求回应，不自动逼局。梅花弱阻击从3♣开始，本页暂不展开强开叫后续。",
+      "en": "Shows strength, not clubs; not a weak two. Partner must reply: forcing, but not automatically game forcing. Weak clubs start at 3♣; strong-opening continuations are not developed here."
+    },
+    "note": {
+      "zh": "",
+      "en": ""
+    },
+    "pages": [],
+    "lessonId": "preemptive-openings"
   },
   {
     "id": "minor-pass",
