@@ -4,7 +4,7 @@ export interface RefText { en: string; zh: string }
 export type RefStatus = 'NF' | 'F1' | 'GF' | 'SF' | 'RULE' | 'AGREEMENT' | 'REPLY' | 'INV';
 export type RefLevel = 'basic' | 'advanced';
 export interface ReferenceSection { id: string; title: RefText; context: RefText; pages: number[]; lessonId: string }
-export interface ReferenceRow { id: string; section: string; level: RefLevel; sequence: string; title: RefText; requirements: RefText; status: RefStatus; next: RefText; note: RefText; pages: number[]; lessonId: string; warning?: RefText }
+export interface ReferenceRow { id: string; section: string; level: RefLevel; sequence: string; sequenceZh?: string; title: RefText; requirements: RefText; status: RefStatus; next: RefText; note: RefText; pages: number[]; lessonId: string; warning?: RefText }
 export const REFERENCE_SECTIONS: ReferenceSection[] = [
   {
     "id": "principles",
@@ -1080,7 +1080,8 @@ export const REFERENCE_ROWS: ReferenceRow[] = [
     "id": "jacoby-short",
     "section": "major-responses",
     "level": "basic",
-    "sequence": "1M – 2NT – 3新花",
+    "sequence": "1M – 2NT – 3(new suit)",
+    "sequenceZh": "1M – 2NT – 3新花",
     "title": {
       "zh": "Jacoby 后报单缺",
       "en": "Shortness after Jacoby"
@@ -1196,7 +1197,8 @@ export const REFERENCE_ROWS: ReferenceRow[] = [
     "id": "major-splinter",
     "section": "major-responses",
     "level": "basic",
-    "sequence": "1M – 4新花",
+    "sequence": "1M – 4(new suit)",
+    "sequenceZh": "1M – 4新花",
     "title": {
       "zh": "Splinter 爆裂叫",
       "en": "Splinter raise"
@@ -1484,7 +1486,8 @@ export const REFERENCE_ROWS: ReferenceRow[] = [
     "id": "rebid-jump-own",
     "section": "rebids",
     "level": "basic",
-    "sequence": "1M – 1新花 – 3M",
+    "sequence": "1M – 1(new suit) – 3M",
+    "sequenceZh": "1M – 1新花 – 3M",
     "title": {
       "zh": "强长套跳再叫",
       "en": "Jump rebid of a strong suit"
@@ -2126,7 +2129,8 @@ export const REFERENCE_ROWS: ReferenceRow[] = [
     "id": "transfer-pass",
     "section": "transfers",
     "level": "basic",
-    "sequence": "1NT – 转移 – 2M – P",
+    "sequence": "1NT – transfer – 2M – P",
+    "sequenceZh": "1NT – 转移 – 2M – P",
     "title": {
       "zh": "转移后弱牌止叫",
       "en": "Weak transfer sign-off"
@@ -2153,7 +2157,8 @@ export const REFERENCE_ROWS: ReferenceRow[] = [
     "id": "transfer-2nt",
     "section": "transfers",
     "level": "basic",
-    "sequence": "1NT – 转移 – 2M – 2NT",
+    "sequence": "1NT – transfer – 2M – 2NT",
+    "sequenceZh": "1NT – 转移 – 2M – 2NT",
     "title": {
       "zh": "五张高花邀请",
       "en": "Invite with five"
@@ -2180,7 +2185,8 @@ export const REFERENCE_ROWS: ReferenceRow[] = [
     "id": "transfer-3nt",
     "section": "transfers",
     "level": "basic",
-    "sequence": "1NT – 转移 – 2M – 3NT",
+    "sequence": "1NT – transfer – 2M – 3NT",
+    "sequenceZh": "1NT – 转移 – 2M – 3NT",
     "title": {
       "zh": "五张高花成局选择",
       "en": "Game choice with five"
@@ -2207,7 +2213,8 @@ export const REFERENCE_ROWS: ReferenceRow[] = [
     "id": "transfer-invite-six",
     "section": "transfers",
     "level": "basic",
-    "sequence": "1NT – 转移 – 2M – 3M",
+    "sequence": "1NT – transfer – 2M – 3M",
+    "sequenceZh": "1NT – 转移 – 2M – 3M",
     "title": {
       "zh": "六张高花邀请",
       "en": "Invite with six"
@@ -2234,7 +2241,8 @@ export const REFERENCE_ROWS: ReferenceRow[] = [
     "id": "transfer-new-minor",
     "section": "transfers",
     "level": "basic",
-    "sequence": "1NT – 转移 – 2M – 3m",
+    "sequence": "1NT – transfer – 2M – 3m",
+    "sequenceZh": "1NT – 转移 – 2M – 3m",
     "title": {
       "zh": "转移后第二套",
       "en": "Second suit after a transfer"
@@ -2345,7 +2353,8 @@ export const REFERENCE_ROWS: ReferenceRow[] = [
     "id": "garbage-stayman",
     "section": "nt-advanced",
     "level": "advanced",
-    "sequence": "1NT – 2♣ – 任意回答 – P",
+    "sequence": "1NT – 2♣ – any reply – P",
+    "sequenceZh": "1NT – 2♣ – 任意回答 – P",
     "title": {
       "zh": "垃圾斯台曼",
       "en": "Garbage Stayman"
@@ -2513,7 +2522,8 @@ export const REFERENCE_ROWS: ReferenceRow[] = [
     "id": "jacoby-slam-invite",
     "section": "nt-advanced",
     "level": "advanced",
-    "sequence": "1NT – 转移 – 2M – 4M",
+    "sequence": "1NT – transfer – 2M – 4M",
+    "sequenceZh": "1NT – 转移 – 2M – 4M",
     "title": {
       "zh": "雅各比后跳成局邀满贯",
       "en": "Jacoby then game: slam invitation"
@@ -2625,7 +2635,8 @@ export const REFERENCE_ROWS: ReferenceRow[] = [
     "id": "overcall-nt",
     "section": "overcalls",
     "level": "advanced",
-    "sequence": "(1花色) – 1NT",
+    "sequence": "(1 of a suit) – 1NT",
+    "sequenceZh": "(1花色) – 1NT",
     "title": {
       "zh": "直接无将争叫",
       "en": "Direct 1NT overcall"
@@ -2653,7 +2664,8 @@ export const REFERENCE_ROWS: ReferenceRow[] = [
     "id": "overcall-balancing-nt",
     "section": "overcalls",
     "level": "advanced",
-    "sequence": "(1花色) – P – (P) – 1NT",
+    "sequence": "(1 of a suit) – P – (P) – 1NT",
+    "sequenceZh": "(1花色) – P – (P) – 1NT",
     "title": {
       "zh": "平衡位置无将",
       "en": "Balancing 1NT"
@@ -2681,7 +2693,8 @@ export const REFERENCE_ROWS: ReferenceRow[] = [
     "id": "overcall-power-suit",
     "section": "overcalls",
     "level": "advanced",
-    "sequence": "(1花色) – X – … – 新花",
+    "sequence": "(1 of a suit) – X – … – new suit",
+    "sequenceZh": "(1花色) – X – … – 新花",
     "title": {
       "zh": "先加倍后报强套",
       "en": "Double then bid a strong suit"
@@ -2709,7 +2722,8 @@ export const REFERENCE_ROWS: ReferenceRow[] = [
     "id": "overcall-power-nt",
     "section": "overcalls",
     "level": "advanced",
-    "sequence": "(1花色) – X – … – NT",
+    "sequence": "(1 of a suit) – X – … – NT",
+    "sequenceZh": "(1花色) – X – … – NT",
     "title": {
       "zh": "先加倍后无将",
       "en": "Double then notrump"
@@ -2989,7 +3003,8 @@ export const REFERENCE_ROWS: ReferenceRow[] = [
     "id": "takeout-shape",
     "section": "takeout",
     "level": "advanced",
-    "sequence": "(1花色) – X",
+    "sequence": "(1 of a suit) – X",
+    "sequenceZh": "(1花色) – X",
     "title": {
       "zh": "技术性加倍",
       "en": "Takeout double"
@@ -3232,7 +3247,8 @@ export const REFERENCE_ROWS: ReferenceRow[] = [
     "id": "contested-raise",
     "section": "after-overcall",
     "level": "advanced",
-    "sequence": "1M – (争叫) – 2M",
+    "sequence": "1M – (overcall) – 2M",
+    "sequenceZh": "1M – (争叫) – 2M",
     "title": {
       "zh": "竞争中的简单支持",
       "en": "Contested simple raise"
@@ -3260,7 +3276,8 @@ export const REFERENCE_ROWS: ReferenceRow[] = [
     "id": "contested-jump-raise",
     "section": "after-overcall",
     "level": "advanced",
-    "sequence": "1M – (争叫) – 3M / 4M",
+    "sequence": "1M – (overcall) – 3M / 4M",
+    "sequenceZh": "1M – (争叫) – 3M / 4M",
     "title": {
       "zh": "竞争中的跳加叫",
       "en": "Contested jump raise"
@@ -3288,7 +3305,8 @@ export const REFERENCE_ROWS: ReferenceRow[] = [
     "id": "contested-cue",
     "section": "after-overcall",
     "level": "advanced",
-    "sequence": "1M – (新花) – 扣叫对方花色",
+    "sequence": "1M – (new suit) – cue-bid opponents’ suit",
+    "sequenceZh": "1M – (新花) – 扣叫对方花色",
     "title": {
       "zh": "竞争扣叫支持",
       "en": "Contested cue-bid raise"
@@ -3372,7 +3390,8 @@ export const REFERENCE_ROWS: ReferenceRow[] = [
     "id": "free-weak-jump",
     "section": "after-overcall",
     "level": "advanced",
-    "sequence": "1m – (争叫) – 跳新花",
+    "sequence": "1m – (overcall) – jump in a new suit",
+    "sequenceZh": "1m – (争叫) – 跳新花",
     "title": {
       "zh": "遭干扰后弱跳新花",
       "en": "Weak jump response after interference"
@@ -3456,7 +3475,8 @@ export const REFERENCE_ROWS: ReferenceRow[] = [
     "id": "negative-long-weak",
     "section": "after-overcall",
     "level": "advanced",
-    "sequence": "1m – (争叫) – X – … – 新花",
+    "sequence": "1m – (overcall) – X – … – new suit",
+    "sequenceZh": "1m – (争叫) – X – … – 新花",
     "title": {
       "zh": "先负加倍后报长套",
       "en": "Double then show the weak long suit"
@@ -3484,7 +3504,8 @@ export const REFERENCE_ROWS: ReferenceRow[] = [
     "id": "negative-other",
     "section": "after-overcall",
     "level": "advanced",
-    "sequence": "1m – (争叫) – X – …",
+    "sequence": "1m – (overcall) – X – …",
+    "sequenceZh": "1m – (争叫) – X – …",
     "title": {
       "zh": "负加倍的其他用途",
       "en": "Other negative-double hands"
@@ -3512,7 +3533,8 @@ export const REFERENCE_ROWS: ReferenceRow[] = [
     "id": "double-new",
     "section": "after-double",
     "level": "advanced",
-    "sequence": "1m / 1♥ – (X) – 1新花",
+    "sequence": "1m / 1♥ – (X) – 1(new suit)",
+    "sequenceZh": "1m / 1♥ – (X) – 1新花",
     "title": {
       "zh": "加倍后一阶新花",
       "en": "One-level suit after a double"
@@ -3539,7 +3561,8 @@ export const REFERENCE_ROWS: ReferenceRow[] = [
     "id": "double-weak-jump",
     "section": "after-double",
     "level": "advanced",
-    "sequence": "1花色 – (X) – 跳新花",
+    "sequence": "1 of a suit – (X) – jump in a new suit",
+    "sequenceZh": "1花色 – (X) – 跳新花",
     "title": {
       "zh": "加倍后弱跳新花",
       "en": "Weak jump after a double"
@@ -3701,7 +3724,8 @@ export const REFERENCE_ROWS: ReferenceRow[] = [
     "id": "double-redouble",
     "section": "after-double",
     "level": "advanced",
-    "sequence": "1花色 – (X) – XX",
+    "sequence": "1 of a suit – (X) – XX",
+    "sequenceZh": "1花色 – (X) – XX",
     "title": {
       "zh": "应叫者再加倍",
       "en": "Responder’s redouble"
@@ -3782,7 +3806,8 @@ export const REFERENCE_ROWS: ReferenceRow[] = [
     "id": "slam-targets",
     "section": "slams",
     "level": "advanced",
-    "sequence": "6花色 / 6NT / 7花色 / 7NT",
+    "sequence": "6 of a suit / 6NT / 7 of a suit / 7NT",
+    "sequenceZh": "6花色 / 6NT / 7花色 / 7NT",
     "title": {
       "zh": "满贯目标与点力参考",
       "en": "Slam targets and point guides"
@@ -3809,7 +3834,8 @@ export const REFERENCE_ROWS: ReferenceRow[] = [
     "id": "slam-controls",
     "section": "slams",
     "level": "advanced",
-    "sequence": "已定将牌后的边花扣叫",
+    "sequence": "Side-suit cue-bid after agreeing trumps",
+    "sequenceZh": "已定将牌后的边花扣叫",
     "title": {
       "zh": "控制扣叫",
       "en": "Control bid"
@@ -3836,7 +3862,8 @@ export const REFERENCE_ROWS: ReferenceRow[] = [
     "id": "rkcb-ask",
     "section": "slams",
     "level": "advanced",
-    "sequence": "已定将牌 – 4NT",
+    "sequence": "Trumps agreed – 4NT",
+    "sequenceZh": "已定将牌 – 4NT",
     "title": {
       "zh": "RKCB 1430 问关键张",
       "en": "RKCB 1430"
@@ -3971,7 +3998,8 @@ export const REFERENCE_ROWS: ReferenceRow[] = [
     "id": "rkcb-queen",
     "section": "slams",
     "level": "advanced",
-    "sequence": "4NT – 5♣ / 5♦ – 最低非将牌花色",
+    "sequence": "4NT – 5♣ / 5♦ – cheapest non-trump suit",
+    "sequenceZh": "4NT – 5♣ / 5♦ – 最低非将牌花色",
     "title": {
       "zh": "问将牌Q",
       "en": "Trump-queen inquiry"
@@ -3998,7 +4026,8 @@ export const REFERENCE_ROWS: ReferenceRow[] = [
     "id": "rkcb-kings",
     "section": "slams",
     "level": "advanced",
-    "sequence": "关键张齐全后 – 5NT",
+    "sequence": "All keycards established – 5NT",
+    "sequenceZh": "关键张齐全后 – 5NT",
     "title": {
       "zh": "问具体边花K",
       "en": "Specific-king inquiry"
@@ -4063,7 +4092,7 @@ export function findReferenceRows(query = '', section = 'all', level: RefLevel |
     if (level !== 'all' && row.level !== level) return false;
     if (status !== 'all' && row.status !== status && !(status === 'NF' && row.status === 'INV')) return false;
     const group = REFERENCE_SECTIONS.find(s => s.id === row.section)!;
-    const haystack = normalizeReferenceQuery([row.sequence, row.title.en, row.title.zh,
+    const haystack = normalizeReferenceQuery([row.sequence, row.sequenceZh ?? '', row.title.en, row.title.zh,
       row.requirements.en, row.requirements.zh, row.next.en, row.next.zh, row.warning?.en ?? '', row.warning?.zh ?? '',
       group.title.en, group.title.zh, row.status].join(' '));
     return terms.every(term => haystack.includes(term));
@@ -4072,10 +4101,11 @@ export function findReferenceRows(query = '', section = 'all', level: RefLevel |
   const score = (row: ReferenceRow) => {
     const title = normalizeReferenceQuery(row.title.en + row.title.zh);
     const sequence = normalizeReferenceQuery(row.sequence);
-    return (sequence === terms.join('') ? 200 : 0)
+    const sequenceZh = normalizeReferenceQuery(row.sequenceZh ?? '');
+    return (sequence === terms.join('') || sequenceZh === terms.join('') ? 200 : 0)
       + (terms.every(term => title.includes(term)) ? 100 : 0)
       + terms.filter(term => title.includes(term)).length * 20
-      + terms.filter(term => sequence.includes(term)).length * 30;
+      + terms.filter(term => sequence.includes(term) || sequenceZh.includes(term)).length * 30;
   };
   return matches.sort((a, b) => score(b) - score(a));
 }
@@ -4085,4 +4115,9 @@ export function explainBiddingLabels(text: string, lang: 'en' | 'zh'): string {
   if (lang !== 'zh') return text;
   const names: Record<string, string> = { MIN: '低限', MED: '中限', MAX: '高限', INV: '邀请', GF: '逼局' };
   return text.replace(/\bresponse\b/g, '应叫').replace(/\b(MIN|MED|MAX|INV|GF)\b(?![（(])/g, term => `${term}（${names[term]}）`);
+}
+
+/** Sequence prose is localized separately from the shared bridge symbols. */
+export function referenceSequence(row: ReferenceRow, lang: 'en' | 'zh'): string {
+  return explainBiddingLabels(lang === 'zh' ? row.sequenceZh ?? row.sequence : row.sequence, lang);
 }

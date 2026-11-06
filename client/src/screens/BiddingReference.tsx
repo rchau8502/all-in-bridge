@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { useApp } from '../App.js';
-import { REFERENCE_ROWS, REFERENCE_SECTIONS, findReferenceRows, explainBiddingLabels, type RefLevel, type RefStatus, type RefText } from '../../../shared/bidding-reference.js';
+import { REFERENCE_ROWS, REFERENCE_SECTIONS, findReferenceRows, explainBiddingLabels, referenceSequence, type RefLevel, type RefStatus, type RefText } from '../../../shared/bidding-reference.js';
 import './bidding-reference.css';
 
 const STATUS: Record<RefStatus, RefText> = {
@@ -71,7 +71,7 @@ export function BiddingReference() {
     return () => observer.disconnect();
   }, []);
 
-  return <main className="bidding-reference" ref={root}>
+  return <main className="bidding-reference" lang={lang === 'zh' ? 'zh-CN' : 'en'} ref={root}>
     <header className="ref-heading">
       <div>
         <div className="ref-eyebrow">2/1 GAME FORCE · QUICK REFERENCE</div>
@@ -147,7 +147,7 @@ export function BiddingReference() {
             <thead><tr><th>{lang === 'zh' ? '叫品 / 进程' : 'Call / sequence'}</th><th>{lang === 'zh' ? '点力与牌型' : 'Strength & shape'}</th><th>{lang === 'zh' ? '状态' : 'Status'}</th><th>{lang === 'zh' ? '下一步 / 注意' : 'Next / remember'}</th></tr></thead>
             <tbody>{group.rows.map(row => <tr key={row.id} data-reference-id={row.id} className={row.status === 'AGREEMENT' ? 'ref-inactive' : ''}>
               <th scope="row">
-                <div className="ref-sequence"><SuitText text={explainBiddingLabels(row.sequence, lang)} /></div>
+                <div className="ref-sequence"><SuitText text={referenceSequence(row, lang)} /></div>
                 <div className="ref-row-name">{explainBiddingLabels(tr(row.title), lang)}</div>
                 <span className={`ref-level ref-level-${row.level}`}>{lang === 'zh' ? (row.level === 'basic' ? '基础' : '进阶') : (row.level === 'basic' ? 'Basic' : 'Advanced')}</span>
               </th>

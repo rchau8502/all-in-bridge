@@ -1,8 +1,41 @@
 import { describe, it, expect } from 'vitest';
-import { findReferenceRows, normalizeReferenceQuery, explainBiddingLabels, REFERENCE_ROWS, REFERENCE_SECTIONS } from './bidding-reference.js';
+import { findReferenceRows, normalizeReferenceQuery, explainBiddingLabels, referenceSequence, REFERENCE_ROWS, REFERENCE_SECTIONS } from './bidding-reference.js';
 import { getLessons } from './lessons.js';
 
 describe('bilingual bidding quick reference', () => {
+  it('keeps every English section, sequence and explanation free of Chinese text', () => {
+    const han = /\p{Script=Han}/u;
+    for (const section of REFERENCE_SECTIONS) {
+      for (const text of [section.title.en, section.context.en]) expect(text, section.id).not.toMatch(han);
+    }
+    for (const row of REFERENCE_ROWS) {
+      for (const text of [referenceSequence(row, 'en'), row.title.en, row.requirements.en, row.next.en, row.note.en, row.warning?.en ?? '']) {
+        expect(text, row.id).not.toMatch(han);
+      }
+    }
+  });
+
+  it('preserves Chinese sequences and searches either language after localizing shared prose', () => {
+    const expected = [
+      ['jacoby-short', 'new suit', '新花'],
+      ['transfer-pass', 'transfer', '转移'],
+      ['garbage-stayman', 'any reply', '任意回答'],
+      ['overcall-nt', 'of a suit', '花色'],
+      ['contested-cue', 'cue-bid', '扣叫'],
+      ['rkcb-ask', 'Trumps agreed', '已定将牌'],
+      ['rkcb-queen', 'cheapest non-trump suit', '最低非将牌花色'],
+      ['rkcb-kings', 'All keycards established', '关键张齐全后'],
+    ];
+    for (const [id, en, zh] of expected) {
+      const row = REFERENCE_ROWS.find(r => r.id === id)!;
+      expect(referenceSequence(row, 'en')).toContain(en);
+      expect(referenceSequence(row, 'zh')).toContain(zh);
+    }
+    expect(findReferenceRows('关键张齐全后 5NT').some(r => r.id === 'rkcb-kings')).toBe(true);
+    expect(findReferenceRows('keycards established 5NT').some(r => r.id === 'rkcb-kings')).toBe(true);
+    expect(REFERENCE_ROWS.filter(r => r.sequenceZh)).toHaveLength(29);
+  });
+
   it('covers all handout topics with unique bilingual entries and valid source/lesson links', () => {
     expect(REFERENCE_SECTIONS).toHaveLength(15);
     expect(REFERENCE_ROWS).toHaveLength(137);
