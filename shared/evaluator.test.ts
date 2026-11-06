@@ -271,7 +271,7 @@ describe('Responder Evaluation — ACBL Class 6 & 7 Standards', () => {
     expect(ev.recommendedBid).toBe('2S');
   });
 
-  it('1S response: 3+ support & 10-12 pts makes limit raise to 3S', () => {
+  it('1S response: three-card invitational support starts with semi-forcing 1NT', () => {
     // 3 Spades, 11 HCP
     const hand: Card[] = [
       { suit: 'S', rank: 14 }, { suit: 'S', rank: 8 }, { suit: 'S', rank: 4 }, // 4
@@ -281,10 +281,10 @@ describe('Responder Evaluation — ACBL Class 6 & 7 Standards', () => {
     ];
     const ev = evaluateResponse(hand, '1S');
     expect(ev.hasGoldenFit).toBe(true);
-    expect(ev.recommendedBid).toBe('3S');
+    expect(ev.recommendedBid).toBe('1NT');
   });
 
-  it('1S response: 3+ support & 13+ pts raises to game 4S', () => {
+  it('1S response: three-card support and 13+ starts with a game force', () => {
     // 3 Spades, 14 HCP
     const hand: Card[] = [
       { suit: 'S', rank: 14 }, { suit: 'S', rank: 13 }, { suit: 'S', rank: 4 }, // 7
@@ -294,7 +294,7 @@ describe('Responder Evaluation — ACBL Class 6 & 7 Standards', () => {
     ];
     const ev = evaluateResponse(hand, '1S');
     expect(ev.hasGoldenFit).toBe(true);
-    expect(ev.recommendedBid).toBe('4S');
+    expect(ev.recommendedBid).toBe('2C');
   });
 
   it('1C response: holding both 4-card majors follows "Four on the Floor" and bids 1H', () => {
@@ -311,8 +311,8 @@ describe('Responder Evaluation — ACBL Class 6 & 7 Standards', () => {
     expect(ev.mnemonic?.en).toContain('Four on the Floor');
   });
 
-  describe('Overcalling — ACBL Class 10 (10-5-2 Rule)', () => {
-    it('overcalls 1S over 1D with 10+ HCP, 5+ suit, and 2 honors (10-5-2)', () => {
+  describe('Overcalling — course agreement', () => {
+    it('overcalls 1S over 1D with a suitable five-card suit', () => {
       // 5 Spades (AQ984 -> A, Q = 2 of top 3), 11 HCP
       const hand: Card[] = [
         { suit: 'S', rank: 14 }, { suit: 'S', rank: 12 }, { suit: 'S', rank: 9 }, { suit: 'S', rank: 8 }, { suit: 'S', rank: 4 }, // 6
@@ -321,10 +321,10 @@ describe('Responder Evaluation — ACBL Class 6 & 7 Standards', () => {
         { suit: 'C', rank: 13 }, { suit: 'C', rank: 7 }, { suit: 'C', rank: 4 }, { suit: 'C', rank: 2 }, // 3 (Wait: 6+3+3 = 12 HCP)
       ];
       const ev = evaluateOvercall(hand, '1D');
-      expect(ev.is10_5_2).toBe(true);
+      expect(ev.isSuitOvercall).toBe(true);
       expect(ev.recommendedBid).toBe('1S');
-      expect(ev.ruleId).toBe('overcall_10_5_2');
-      expect(ev.mnemonic.en).toContain('10-5-2');
+      expect(ev.ruleId).toBe('overcall_one_level');
+      expect(ev.mnemonic.en).toContain('8+');
     });
 
     it('bids 1NT overcall with 15-17 HCP, balanced, and stopper in opponent suit', () => {

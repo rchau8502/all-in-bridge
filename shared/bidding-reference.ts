@@ -3000,8 +3000,8 @@ export const REFERENCE_ROWS: ReferenceRow[] = [
     },
     "status": "F1",
     "next": {
-      "zh": "请求搭档选套；未叫高花理想4张，其余通常3张以上。",
-      "en": "Asks partner to choose; ideally four in unbid majors, normally 3+ in the other unbid suits."
+      "zh": "请求搭档选套；未叫高花理想4张，其余通常3张以上。更高阶通常需额外实力，可粗略按每升一阶多约3点理解，仍须结合牌型与局况。",
+      "en": "Asks partner to choose; ideally four in unbid majors, normally 3+ in the other unbid suits. Higher levels normally need extra strength: roughly three more points per level is a guide, with shape and vulnerability still relevant."
     },
     "note": {
       "zh": "此处F1表示对手Pass后须回应的义务；强牌先加倍后另作澄清是特例。",

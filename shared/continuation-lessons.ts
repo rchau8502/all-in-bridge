@@ -3105,8 +3105,8 @@ export const COURSE_MODULES = [
     ],
     "notes": [
       [
-        "A normal takeout double shows about 12+, shortness (usually 0–2) in their suit and three+ in every unbid suit, ideally four in unbid majors. After opponents show two suits, support both remaining suits. With length and strength in their suit, do not make a takeout double merely to seek penalties.",
-        "普通技术性加倍约12点以上，对方花色短，通常0–2张，所有未叫花色至少三张，未叫高花最好四张。对手已报两套时，支持余下两套。对方花色又长又强时，不能只为惩罚而误用技术性加倍。"
+        "A normal takeout double at the one level shows about 12+, shortness (usually 0–2) in their suit and three+ in every unbid suit, ideally four in unbid majors. At higher levels, roughly three more points per level is a guide, not a substitute for shape and vulnerability. After opponents show two suits, support both remaining suits. With length and strength in their suit, do not make a takeout double merely to seek penalties.",
+        "一阶普通技术性加倍约12点以上，对方花色短，通常0–2张，所有未叫花色至少三张，未叫高花最好四张。更高阶时可粗略按每升一阶多约3点理解，仍要结合牌型与局况。对手已报两套时，支持余下两套。对方花色又长又强时，不能只为惩罚而误用技术性加倍。"
       ],
       [
         "When RHO passes after partner’s double, a cheapest suit response shows 0–8; a jump 9–11 invites; 12+ can cue-bid to force game or place game with a clear fit. NT responses need a stopper: 1NT 6–9, 2NT 10–12, 3NT 13+. Passing converts to penalties and requires exceptional trump strength.",

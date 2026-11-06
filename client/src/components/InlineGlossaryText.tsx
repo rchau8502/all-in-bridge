@@ -66,7 +66,6 @@ export function InlineGlossaryText({
         map.set(lang === 'zh' ? '定约' : 'contract', item);
       } else if (item.id === 'overcall') {
         map.set(lang === 'zh' ? '争叫' : 'overcall', item);
-        map.set('10-5-2', item);
       } else if (item.id === 'high-five') {
         map.set('high five', item);
       } else if (item.id === 'four-on-the-floor') {

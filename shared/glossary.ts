@@ -312,12 +312,12 @@ export const ACBL_GLOSSARY: RawGlossaryTerm[] = [
     term: { en: 'Overcall', zh: '争叫' },
     category: 'bidding',
     definition: {
-      en: 'A bid made by one of the Opener’s opponents after the auction has already opened. Follows the ACBL 10-5-2 rule.',
+      en: 'A bid made by one of the Opener’s opponents after the auction has already opened. Use our course agreement for strength, suit quality and bidding level.',
       zh: '在敌方开叫之后，由防家做出的首次竞争性出价。用于抢夺定约、指引防守首攻或干扰敌方叫牌通道。',
     },
     mnemonic: {
-      en: '10-5-2 Rule: At least 10+ HCP, a 5+ card suit, and at least 2 honors in that suit.',
-      zh: '10-5-2争叫法则：整手牌至少10+大牌点、该花色至少5张长、且该花色至少含有2张大牌。',
+      en: 'Natural non-jump overcalls: 8+ HCP at one, 11+ at two, with a good five-card suit. A one-level takeout double starts at 12+ with suitable shape.',
+      zh: '自然不跳争叫：一阶8点起，二阶11点起，配好五张套；一阶技术性加倍12点起并要求合适牌型。每升一阶约多需3点只是参考，弱跳阻击另论。',
     },
     acblClass: 10,
   },

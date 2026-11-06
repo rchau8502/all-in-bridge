@@ -6,6 +6,8 @@ import { CardView, Avatar } from '../components/ui.js';
 import {
   generateDrillHand,
   generateResponseDrillHand,
+  isLegalDrillResponse,
+  isLegalDrillOvercall,
   generateOvercallDrillHand,
   generateOpeningLeadDrillHand,
   calculateHcp,
@@ -49,6 +51,7 @@ const OPENING_BID_OPTIONS = [
 
 const RESPONDING_BID_OPTIONS = [
   { id: 'Pass', label: 'Pass', denom: 'pass' },
+  { id: '1D', label: '1♦', denom: 'D' },
   { id: '1H', label: '1♥', denom: 'H' },
   { id: '1S', label: '1♠', denom: 'S' },
   { id: '1NT', label: '1NT', denom: 'NT' },
@@ -57,11 +60,17 @@ const RESPONDING_BID_OPTIONS = [
   { id: '2H', label: '2♥', denom: 'H' },
   { id: '2S', label: '2♠', denom: 'S' },
   { id: '2NT', label: '2NT', denom: 'NT' },
+  { id: '3C', label: '3♣', denom: 'C' },
+  { id: '3D', label: '3♦', denom: 'D' },
   { id: '3H', label: '3♥', denom: 'H' },
   { id: '3S', label: '3♠', denom: 'S' },
   { id: '3NT', label: '3NT', denom: 'NT' },
   { id: '4H', label: '4♥', denom: 'H' },
   { id: '4S', label: '4♠', denom: 'S' },
+  { id: '4NT', label: '4NT', denom: 'NT' },
+  { id: '5NT', label: '5NT', denom: 'NT' },
+  { id: '6NT', label: '6NT', denom: 'NT' },
+  { id: '7NT', label: '7NT', denom: 'NT' },
 ];
 
 const OVERCALL_BID_OPTIONS = [
@@ -758,7 +767,7 @@ export function Drill() {
             )
           ) : (
             <div className={`drill-bid-grid ${mode === 'responding' ? 'responding-grid' : mode === 'overcall' ? 'overcall-grid' : ''}`}>
-              {(mode === 'opening' ? OPENING_BID_OPTIONS : mode === 'responding' ? RESPONDING_BID_OPTIONS : OVERCALL_BID_OPTIONS).map(opt => {
+              {(mode === 'opening' ? OPENING_BID_OPTIONS : mode === 'responding' ? RESPONDING_BID_OPTIONS.filter(opt => isLegalDrillResponse(partnerBid, opt.id)) : OVERCALL_BID_OPTIONS.filter(opt => isLegalDrillOvercall(oppBid, opt.id))).map(opt => {
                 let cls = `drill-bid-btn denom-${opt.denom}`;
                 if (isAnswered) {
                   if (opt.id === targetBid) {
@@ -835,7 +844,7 @@ export function Drill() {
 
               {(mode === 'basics' ? basicsProblem.mnemonic : mode === 'lead' ? leadDeal.evaluation.mnemonic : activeEval.mnemonic) && (
                 <div className="feedback-mnemonic">
-                  💡 <strong>ACBL 口诀：</strong> {(mode === 'basics' ? basicsProblem.mnemonic : mode === 'lead' ? leadDeal.evaluation.mnemonic : activeEval.mnemonic)![lang]}
+                  💡 <strong>{lang === 'zh' ? '学习提示：' : 'Learning tip: '}</strong> {(mode === 'basics' ? basicsProblem.mnemonic : mode === 'lead' ? leadDeal.evaluation.mnemonic : activeEval.mnemonic)![lang]}
                 </div>
               )}
 

@@ -7,7 +7,7 @@
  */
 
 import { buildDeck, shuffle, cardLabel, type Card, type Suit } from './deck.js';
-import type { Contract } from './bidding.js';
+import { Auction, parseBid, type Contract } from './bidding.js';
 
 export interface HandEvaluation {
   hcp: number;
@@ -338,6 +338,21 @@ export type DrillCategory = 'all' | 'pass' | '1nt' | 'major' | 'minor' | 'strong
 
 export type PartnerOpeningBid = '1NT' | '1S' | '1H' | '1D' | '1C';
 
+/** Uncontested first response: partner opens, right-hand opponent passes. */
+export function isLegalDrillResponse(partnerBid: PartnerOpeningBid, response: string): boolean {
+  const auction = new Auction('N');
+  auction.apply(parseBid(partnerBid));
+  auction.apply(parseBid('P'));
+  return auction.isLegal(parseBid(response));
+}
+
+/** Direct action after the opponent opens; doubling is allowed here. */
+export function isLegalDrillOvercall(oppBid: OpponentOpeningBid, call: string): boolean {
+  const auction = new Auction('N');
+  auction.apply(parseBid(oppBid));
+  return auction.isLegal(parseBid(call));
+}
+
 export interface ResponseEvaluation {
   partnerBid: PartnerOpeningBid;
   hcp: number;
@@ -375,7 +390,7 @@ export function calculateDummyPoints(suitLengths: Record<Suit, number>, trumpSui
 }
 
 /**
- * Evaluate responder's hand based on ACBL Class 6 & Class 7 rules.
+ * Evaluate the first response under the site's natural 2/1 course agreement.
  */
 export function evaluateResponse(hand: Card[], partnerBid: PartnerOpeningBid): ResponseEvaluation {
   const hcp = calculateHcp(hand);
@@ -385,6 +400,37 @@ export function evaluateResponse(hand: Card[], partnerBid: PartnerOpeningBid): R
   // 1. Partner Opened 1NT (15–17 HCP, Balanced) — ACBL Class 7
   // -------------------------------------------------------------
   if (partnerBid === '1NT') {
+    // Choose the route to a major fit before the natural NT point ladder.
+    const fiveFour = (suitLengths.H === 5 && suitLengths.S === 4)
+      || (suitLengths.S === 5 && suitLengths.H === 4);
+    const hasFourCardMajor = suitLengths.S === 4 || suitLengths.H === 4;
+    if (hcp >= 8 && hasFourCardMajor && (fiveFour || Math.max(suitLengths.S, suitLengths.H) === 4)) {
+      return {
+        partnerBid, hcp, supportPoints: 0, totalPoints: hcp,
+        supportLength: 0, hasGoldenFit: false,
+        recommendedBid: '2C', ruleId: 'resp_1nt_stayman',
+        trafficLight: hcp <= 9 ? 'invite' : 'go',
+        explanation: {
+          en: `With ${hcp} HCP and a four-card major, start with 2♣ Stayman, forcing one round. Ask for a four-card major before choosing notrump. A club suit does not change the meaning of 2♣; it is an inquiry. Then use strength to invite or choose game.`,
+          zh: `本手${hcp}大牌点，有四张高花，先叫2♣斯台曼，逼叫一轮，询问搭档是否有四张高花。先找高花配合，再决定是否打无将；即使自己有梅花长套，这里的2♣仍是问叫。搭档答叫后，再按实力邀请或选择成局。`,
+        },
+        mnemonic: { en: '8+ HCP and a four-card major: Stayman before natural NT.', zh: '8点以上有四张高花：先斯台曼，再定高度与方向。' },
+      };
+    }
+    if (suitLengths.H >= 5 || suitLengths.S >= 5) {
+      const hearts = suitLengths.H > suitLengths.S;
+      const target = hearts ? '♥' : '♠';
+      return {
+        partnerBid, hcp, supportPoints: 0, totalPoints: hcp,
+        supportLength: 0, hasGoldenFit: false,
+        recommendedBid: hearts ? '2D' : '2H', ruleId: 'resp_1nt_transfer',
+        trafficLight: hcp <= 7 ? 'stop' : hcp <= 9 ? 'invite' : 'go',
+        explanation: {
+          en: `Show your five-card or longer major with ${hearts ? '2♦' : '2♥'}, asking opener to bid 2${target}. The transfer is forcing one round and does not promise game strength. Opener can declare the major; after completion, pass with a weak hand or describe invitational or game-going strength.`,
+          zh: `有五张以上${hearts ? '红桃' : '黑桃'}，先叫${hearts ? '2♦' : '2♥'}转移，要求开叫者叫2${target}。转移逼叫一轮，不保证成局实力，让强无将开叫手有机会坐庄。完成转移后，弱牌可Pass；邀请或成局实力则继续描述。`,
+        },
+      };
+    }
     // Traffic Light rule:
     // 0–7 HCP: STOP (Pass)
     if (hcp <= 7) {
@@ -399,8 +445,8 @@ export function evaluateResponse(hand: Card[], partnerBid: PartnerOpeningBid): R
         ruleId: 'resp_1nt_stop',
         trafficLight: 'stop',
         explanation: {
-          en: `With 0–7 HCP (${hcp} HCP), partnership total is at most 15+7 = 22 pts (not enough for 25-pt game). Traffic light: RED (STOP) → Pass.`,
-          zh: `手握 0–7 大牌点（本手 ${hcp} 点），与同伴合计最多 22 点，无法达到成局线（25点）。红绿灯法则：红灯停（STOP）→ 应当 Pass。`,
+          en: `With ${hcp} HCP, no five-card major to transfer and insufficient strength for ordinary Stayman, pass. At most 17+7=24 HCP, below the usual 25-point game guideline.`,
+          zh: `本手${hcp}大牌点，没有五张高花可转移，也不够普通斯台曼的实力，选择Pass。联手最多17+7=24点，低于通常25点的成局参考线。`,
         },
         mnemonic: {
           en: '1NT Response Traffic Light: 0-7 Stop (Pass)',
@@ -422,8 +468,8 @@ export function evaluateResponse(hand: Card[], partnerBid: PartnerOpeningBid): R
         ruleId: 'resp_1nt_invite',
         trafficLight: 'invite',
         explanation: {
-          en: `With 8–9 HCP (${hcp} HCP), partnership total is 23–26 pts. If partner has 16 or 17, 3NT is on! Traffic light: YELLOW (INVITE) → 2NT.`,
-          zh: `手握 8–9 大牌点（本手 ${hcp} 点），双方合计 23–26 点。若同伴是 16 或 17 点的高限则可成局。红绿灯法则：黄灯邀叫（INVITE）→ 叫 2NT。`,
+          en: `With ${hcp} HCP and no major to investigate, invite with 2NT. Opener normally declines with 15, accepts with 17, and judges with 16. Invitation is non-forcing.`,
+          zh: `本手${hcp}大牌点，没有还需寻找的高花配合，应叫2NT邀请，不逼叫。开叫者通常15点拒绝、17点接受，16点结合牌质判断。`,
         },
         mnemonic: {
           en: '1NT Response Traffic Light: 8-9 Invite (2NT)',
@@ -432,6 +478,18 @@ export function evaluateResponse(hand: Card[], partnerBid: PartnerOpeningBid): R
       };
     }
 
+    // Do not turn slam-strength balanced responses into a game sign-off.
+    if (hcp >= 16) {
+      const bid = hcp <= 17 ? '4NT' : hcp <= 19 ? '6NT' : hcp <= 21 ? '5NT' : '7NT';
+      return {
+        partnerBid, hcp, supportPoints: 0, totalPoints: hcp, supportLength: 0, hasGoldenFit: false,
+        recommendedBid: bid, ruleId: 'resp_1nt_slam', trafficLight: 'go',
+        explanation: {
+          en: `${hcp} HCP with no major to investigate: ${bid}. 16–17 invites slam quantitatively with 4NT; 18–19 chooses 6NT; 20–21 uses 5NT to force small slam and invite grand; 22+ chooses 7NT. With no agreed trump suit, these notrump bids are not RKCB. Do not hide slam strength with a 3NT sign-off.`,
+          zh: `本手${hcp}大牌点，没有还需寻找的高花配合，选择${bid}。16–17点用4NT示量邀小满贯；18–19点选择6NT；20–21点用5NT逼小满贯、邀大满贯；22点以上选择7NT。尚无约定将牌，这些无将叫品不是关键张问叫。不要用3NT封局掩盖满贯实力。`,
+        },
+      };
+    }
     // 10–15 HCP: GO (3NT)
     return {
       partnerBid,
@@ -444,8 +502,8 @@ export function evaluateResponse(hand: Card[], partnerBid: PartnerOpeningBid): R
       ruleId: 'resp_1nt_go',
       trafficLight: 'go',
       explanation: {
-        en: `With 10+ HCP (${hcp} HCP), partnership total is at least 15+10 = 25 pts (game guaranteed!). Traffic light: GREEN (GO) → 3NT.`,
-        zh: `手握 10 点及以上（本手 ${hcp} 点），双方合计至少 25 点确保成局！红绿灯法则：绿灯冲局（GO）→ 直叫 3NT。`,
+        en: `With ${hcp} HCP and no major to investigate, the partnership has at least 25 HCP: choose 3NT. This is a game-going strength guideline, not a guarantee of nine tricks.`,
+        zh: `本手${hcp}大牌点，没有还需寻找的高花配合，联手至少25点，选择3NT。这是成局实力的参考，不是必得九墩的保证。`,
       },
       mnemonic: {
         en: '1NT Response Traffic Light: 10+ Go (3NT)',
@@ -454,257 +512,89 @@ export function evaluateResponse(hand: Card[], partnerBid: PartnerOpeningBid): R
     };
   }
 
-  // -------------------------------------------------------------
-  // 2. Partner Opened 1 Major (1♠ or 1♥) — ACBL Class 6
-  // -------------------------------------------------------------
-  if (partnerBid === '1S' || partnerBid === '1H') {
-    const trumpSuit: Suit = partnerBid === '1S' ? 'S' : 'H';
-    const supportLen = suitLengths[trumpSuit];
-    const hasGoldenFit = supportLen >= 3; // Partner has 5+, so 3+ gives 8+ Golden Fit
-
-    if (hasGoldenFit) {
-      const dummyPts = calculateDummyPoints(suitLengths, trumpSuit);
-      const totalPoints = hcp + dummyPts;
-
-      if (totalPoints < 6) {
-        return {
-          partnerBid,
-          hcp,
-          supportPoints: dummyPts,
-          totalPoints,
-          supportLength: supportLen,
-          hasGoldenFit: true,
-          recommendedBid: 'Pass',
-          ruleId: 'resp_major_sub_6',
-          explanation: {
-            en: `Even with support (${supportLen} cards), hand has fewer than 6 points (${totalPoints} pts). Pass.`,
-            zh: `即使持有 ${supportLen} 张支持，点力不足 6 点（${totalPoints} 点）。应当 Pass。`,
-          },
-        };
-      }
-
-      // 6–9 pts: Simple Raise (2-level)
-      if (totalPoints <= 9) {
-        const bid = `2${trumpSuit}`;
-        return {
-          partnerBid,
-          hcp,
-          supportPoints: dummyPts,
-          totalPoints,
-          supportLength: supportLen,
-          hasGoldenFit: true,
-          recommendedBid: bid,
-          ruleId: 'resp_major_raise_2',
-          explanation: {
-            en: `Golden Fit (${supportLen}-card support) with 6–9 points (${hcp} HCP + ${dummyPts} dummy = ${totalPoints} pts). Make a simple raise to ${bid}.`,
-            zh: `黄金配合（持 ${supportLen} 张支持）且有 6–9 点（${hcp} HCP + ${dummyPts} 短门 = ${totalPoints} 点）。简单加叫至 ${bid}。`,
-          },
-          mnemonic: {
-            en: 'Golden Fit (8+ cards): 6-9 pts = Raise to 2',
-            zh: '8 张黄金配合口诀：6-9 点加叫 2 阶',
-          },
-        };
-      }
-
-      // 10–12 pts: Limit Raise (3-level)
-      if (totalPoints <= 12) {
-        const bid = `3${trumpSuit}`;
-        return {
-          partnerBid,
-          hcp,
-          supportPoints: dummyPts,
-          totalPoints,
-          supportLength: supportLen,
-          hasGoldenFit: true,
-          recommendedBid: bid,
-          ruleId: 'resp_major_raise_3',
-          explanation: {
-            en: `Golden Fit (${supportLen}-card support) with 10–12 points (${hcp} HCP + ${dummyPts} dummy = ${totalPoints} pts). Limit raise to ${bid} (invitational).`,
-            zh: `黄金配合（持 ${supportLen} 张支持）且有 10–12 邀请点（${hcp} HCP + ${dummyPts} 短门 = ${totalPoints} 点）。进逼性加叫至 ${bid}。`,
-          },
-          mnemonic: {
-            en: 'Golden Fit (8+ cards): 10-12 pts = Limit Raise to 3',
-            zh: '8 张黄金配合口诀：10-12 点邀叫加叫 3 阶',
-          },
-        };
-      }
-
-      // 13+ pts: Game Raise (4-level)
-      const bid = `4${trumpSuit}`;
-      return {
-        partnerBid,
-        hcp,
-        supportPoints: dummyPts,
-        totalPoints,
-        supportLength: supportLen,
-        hasGoldenFit: true,
-        recommendedBid: bid,
-        ruleId: 'resp_major_raise_4',
-        explanation: {
-          en: `Golden Fit (${supportLen}-card support) with 13+ points (${hcp} HCP + ${dummyPts} dummy = ${totalPoints} pts). Jump directly to game: ${bid}!`,
-          zh: `黄金配合（持 ${supportLen} 张支持）且手握 13 点及以上进局实力（${totalPoints} 点）。直接跳叫成局：${bid}！`,
-        },
-        mnemonic: {
-          en: 'Golden Fit (8+ cards): 13+ pts = Game Raise to 4',
-          zh: '8 张黄金配合口诀：13 点以上直接加叫到 4 阶成局',
-        },
-      };
-    }
-
-    // No golden fit in partner's major
-    const lengthPts = calculateLengthPoints(suitLengths);
-    const totalPoints = hcp + lengthPts;
-
-    if (totalPoints < 6) {
-      return {
-        partnerBid,
-        hcp,
-        supportPoints: 0,
-        totalPoints,
-        supportLength: supportLen,
-        hasGoldenFit: false,
-        recommendedBid: 'Pass',
-        ruleId: 'resp_major_unfit_pass',
-        explanation: {
-          en: `No support and fewer than 6 points (${totalPoints} pts). Pass.`,
-          zh: `无将牌配合且点力不足 6 点（${totalPoints} 点）。应当 Pass。`,
-        },
-      };
-    }
-
-    // Partner opened 1H: with 4+ Spades and 6+ pts, bid 1S!
-    if (partnerBid === '1H' && suitLengths.S >= 4) {
-      return {
-        partnerBid,
-        hcp,
-        supportPoints: 0,
-        totalPoints,
-        supportLength: supportLen,
-        hasGoldenFit: false,
-        recommendedBid: '1S',
-        ruleId: 'resp_1h_bid_1s',
-        explanation: {
-          en: `No Heart fit, but holding a 4+ card Spade suit (${suitLengths.S}♠) with 6+ points. Bid your 4-card major at the 1-level: 1♠.`,
-          zh: `红心无配合，但持有 4 张以上黑桃（${suitLengths.S}♠）且点力达到 6 点以上。在 1 阶应叫你的高花新套：1♠。`,
-        },
-      };
-    }
-
-    // Otherwise with 6–9 pts and no major: bid 1NT
-    return {
-      partnerBid,
-      hcp,
-      supportPoints: 0,
-      totalPoints,
-      supportLength: supportLen,
-      hasGoldenFit: false,
-      recommendedBid: '1NT',
-      ruleId: 'resp_major_unfit_1nt',
-      explanation: {
-        en: `No fit in partner's major and no other 1-level major to bid. With 6–9 points, bid 1NT.`,
-        zh: `高花无配合且无其它 1 阶高花可叫。在 6–9 点区间应叫 1NT。`,
-      },
-    };
-  }
-
-  // -------------------------------------------------------------
-  // 3. Partner Opened 1 Minor (1♣ or 1♦) — ACBL Class 6
-  // -------------------------------------------------------------
-  const lengthPts = calculateLengthPoints(suitLengths);
-  const totalPoints = hcp + lengthPts;
-
-  if (totalPoints < 6) {
-    return {
-      partnerBid,
-      hcp,
-      supportPoints: 0,
-      totalPoints,
-      supportLength: suitLengths[partnerBid === '1C' ? 'C' : 'D'],
-      hasGoldenFit: false,
-      recommendedBid: 'Pass',
-      ruleId: 'resp_minor_sub_6',
-      explanation: {
-        en: `Fewer than 6 points (${totalPoints} pts). Pass.`,
-        zh: `点力不足 6 点（${totalPoints} 点）。应当 Pass。`,
-      },
-    };
-  }
-
-  const spades = suitLengths.S;
-  const hearts = suitLengths.H;
-
-  // Holding both 4-card majors: Four on the Floor rule -> bid 1H first!
-  if (spades >= 4 && hearts >= 4) {
-    return {
-      partnerBid,
-      hcp,
-      supportPoints: 0,
-      totalPoints,
-      supportLength: suitLengths[partnerBid === '1C' ? 'C' : 'D'],
-      hasGoldenFit: false,
-      recommendedBid: '1H',
-      ruleId: 'resp_minor_four_on_floor',
-      explanation: {
-        en: `Holding both 4-card majors (${spades}♠ and ${hearts}♥). Apply the "Four on the Floor" rule: bid the lower-ranking major (1♥) first so partner can bid 1♠ if they hold it!`,
-        zh: `同时持有两门 4 张高花（${spades}♠ 与 ${hearts}♥）。遵从 "Four on the Floor" 经典口诀：先叫级别更低的 1♥，方便同伴若持黑桃能顺畅叫出 1♠！`,
-      },
-      mnemonic: {
-        en: 'Four on the Floor: With two 4-card majors, bid 1♥ first',
-        zh: 'Four on the Floor 口诀：双 4 张高花，先应叫 1♥',
-      },
-    };
-  }
-
-  // Single 4-card major: bid it up the line
-  if (hearts >= 4) {
-    return {
-      partnerBid,
-      hcp,
-      supportPoints: 0,
-      totalPoints,
-      supportLength: suitLengths[partnerBid === '1C' ? 'C' : 'D'],
-      hasGoldenFit: false,
-      recommendedBid: '1H',
-      ruleId: 'resp_minor_1h',
-      explanation: {
-        en: `Search for a major fit first! With 4+ hearts (${hearts}♥) and 6+ points, bid 1♥.`,
-        zh: `优先寻找高花配合！持有 4 张以上红心（${hearts}♥）且点力达到 6 点以上，应叫 1♥。`,
-      },
-    };
-  }
-
-  if (spades >= 4) {
-    return {
-      partnerBid,
-      hcp,
-      supportPoints: 0,
-      totalPoints,
-      supportLength: suitLengths[partnerBid === '1C' ? 'C' : 'D'],
-      hasGoldenFit: false,
-      recommendedBid: '1S',
-      ruleId: 'resp_minor_1s',
-      explanation: {
-        en: `Search for a major fit first! With 4+ spades (${spades}♠) and 6+ points, bid 1♠.`,
-        zh: `优先寻找高花配合！持有 4 张以上黑桃（${spades}♠）且点力达到 6 点以上，应叫 1♠。`,
-      },
-    };
-  }
-
-  // No 4-card major: with 6-9 pts, bid 1NT
-  return {
-    partnerBid,
-    hcp,
-    supportPoints: 0,
-    totalPoints,
-    supportLength: suitLengths[partnerBid === '1C' ? 'C' : 'D'],
-    hasGoldenFit: false,
-    recommendedBid: '1NT',
-    ruleId: 'resp_minor_1nt',
-    explanation: {
-      en: `No 4-card major to show. With 6–9 points (${hcp} HCP), bid 1NT.`,
-      zh: `无 4 张高花可叫。持 6–9 点（${hcp} HCP）应叫 1NT。`,
-    },
+  // Natural first responses in the site's foundation 2/1 agreement.
+  const makeResponse = (bid: string, ruleId: string, en: string, zh: string,
+    supportPoints = 0, supportLength = 0, hasGoldenFit = false): ResponseEvaluation => ({
+    partnerBid, hcp, supportPoints, totalPoints: hcp + supportPoints,
+    supportLength, hasGoldenFit, recommendedBid: bid, ruleId,
+    explanation: { en, zh },
+  });
+  const twoOverOne = (supportLength = 0): ResponseEvaluation => {
+    const suit = partnerBid === '1S' && suitLengths.H >= 5 ? 'H'
+      : suitLengths.D > suitLengths.C && suitLengths.D >= 4 ? 'D' : 'C';
+    const symbol = { H: '♥', D: '♦', C: '♣' }[suit];
+    return makeResponse(`2${suit}`, 'resp_major_two_over_one',
+      `${hcp} HCP: respond 2${symbol}, a two-over-one game force. Describe your suit economically; partner must continue below game. Keep room to find the best game and explore slam rather than signing off immediately.`,
+      `本手${hcp}大牌点，先应叫2${symbol}，二盖一逼局。经济地描述花色，搭档在局以下不能Pass；保留寻找最佳成局与探索满贯的空间，不要过早封局。`,
+      0, supportLength, supportLength >= 3);
   };
+
+  if (partnerBid === '1S' || partnerBid === '1H') {
+    const trump: Suit = partnerBid === '1S' ? 'S' : 'H';
+    const support = suitLengths[trump];
+    const dummy = support >= 3 ? calculateDummyPoints(suitLengths, trump) : 0;
+    const points = hcp + dummy;
+    if (points < 6) return makeResponse('Pass', 'resp_major_sub_6',
+      `${points} points: too weak to respond to this major opening. Pass.`,
+      `本手${points}点，实力不足，面对高花开叫选择Pass。`, dummy, support, support >= 3);
+    if (support >= 3 && points <= 9) return makeResponse(`2${trump}`, 'resp_major_raise_2',
+      `${support}-card support and ${points} support points: a simple raise, 6–9, non-forcing.`,
+      `${support}张支持、${points}支持点：简单加叫到二阶，6–9点，不逼叫。`, dummy, support, true);
+    if (support >= 4 && points <= 12) return makeResponse(`3${trump}`, 'resp_major_raise_3',
+      `${support}-card support and ${points} support points: a natural 10–12 invitation. This is the foundation route.`,
+      `${support}张支持、${points}支持点：基础直接加到三阶为自然邀请，10–12点，至少四张支持。`, dummy, support, true);
+    if (support >= 4 && points >= 13) return makeResponse('2NT', 'resp_major_jacoby',
+      `${support}-card support and ${points} support points: Jacoby 2NT, game forcing with no upper limit. Let opener describe the hand and preserve slam space.`,
+      `${support}张支持、${points}支持点：雅各比2NT，四张以上支持、逼局、没有上限。让开叫者继续描述，保留满贯空间。`, dummy, support, true);
+    if (partnerBid === '1H' && suitLengths.S >= 4) return makeResponse('1S', 'resp_1h_bid_1s',
+      `${hcp} HCP and ${suitLengths.S} spades: 1♠ shows at least four spades and is forcing one round, with no upper limit.`,
+      `本手${hcp}大牌点、${suitLengths.S}张黑桃：1♠表示四张以上，没上限，逼叫一轮；强牌也可以先经济地说话。`);
+    if (hcp >= 13) return twoOverOne(support);
+    return makeResponse('1NT', 'resp_major_semi_1nt',
+      `${hcp} HCP: semi-forcing 1NT, about 5–12. This hand has not promised game and may still have a suit or three-card invitational support to describe. It does not promise balance; opener normally helps keep the conversation open.`,
+      `本手${hcp}大牌点：半逼叫1NT，约5–12点，暂未承诺成局，可能还有长套或三张邀请支持没说完。不保证均型，开叫者通常应帮助维持对话。`, dummy, support, support >= 3);
+  }
+
+  const minor: Suit = partnerBid === '1C' ? 'C' : 'D';
+  const support = suitLengths[minor];
+  if (hcp + calculateLengthPoints(suitLengths) < 6) return makeResponse('Pass', 'resp_minor_sub_6',
+    `${hcp} HCP: insufficient strength for a normal response. Pass.`,
+    `本手${hcp}大牌点，实力不足以正常应叫，选择Pass。`);
+  if (suitLengths.H >= 4 || suitLengths.S >= 4) {
+    const spadesFirst = suitLengths.S > suitLengths.H || (suitLengths.S === suitLengths.H && suitLengths.S >= 5);
+    const bid = spadesFirst ? '1S' : '1H';
+    const bothFour = suitLengths.H === 4 && suitLengths.S === 4;
+    const result = makeResponse(bid, bothFour ? 'resp_minor_four_on_floor' : `resp_minor_${bid.toLowerCase()}`,
+      `${hcp} HCP: show the ${spadesFirst ? 'spade' : 'heart'} suit first. This one-level new suit has no upper limit and forces one round. With two four-card majors, bid hearts first; with 5–5, bid spades first.`,
+      `本手${hcp}大牌点，先应叫${spadesFirst ? '1♠' : '1♥'}寻找高花配合。一阶新花没有上限，逼叫一轮；双四张高花先红桃，双五张先黑桃。`);
+    if (bothFour) result.mnemonic = { en: 'Four on the Floor: With two 4-card majors, bid 1♥ first', zh: '双四张高花，先应叫1♥。' };
+    return result;
+  }
+  if (support >= 5 && hcp >= 11) return makeResponse(`2${minor}`, 'resp_minor_inverted',
+    `${hcp} HCP and ${support}-card support: an inverted minor raise, forcing one round, not automatically game forcing. Partner prioritizes stoppers while looking for 3NT.`,
+    `本手${hcp}大牌点、${support}张低花支持：低花反加叫，11点以上、五张以上支持，逼叫一轮，不自动逼局。搭档优先展示挡张，仍以寻找3NT为重要方向。`, 0, support);
+  if (partnerBid === '1C' && suitLengths.D >= 4) return makeResponse('1D', 'resp_minor_1d',
+    `${hcp} HCP and ${suitLengths.D} diamonds: 1♦ is natural, unlimited and forcing one round. A strong hand can start economically and continue later.`,
+    `本手${hcp}大牌点、${suitLengths.D}张方块：1♦自然应叫，没上限，逼叫一轮。强牌也先经济地描述，再继续说明。`);
+  if (hcp >= 13 && partnerBid === '1D' && suitLengths.C >= 4) return makeResponse('2C', 'resp_minor_two_clubs',
+    `${hcp} HCP and ${suitLengths.C} clubs: 1♦–2♣ is a natural two-over-one game force. Partner must continue below game. Neither the limited 1NT response nor a premature 3NT sign-off describes this strong hand; leave room to investigate slam.`,
+    `本手${hcp}大牌点、${suitLengths.C}张梅花：对1♦先叫2♣，自然二盖一逼局。搭档在局以下不能Pass；不能套用有限的1NT，强牌也不宜过早用3NT封局，以免漏贯。`);
+  // CCBA permits four-card minor support in a genuinely game-forcing raise.
+  if (hcp >= 16 && support >= 4) return makeResponse(`2${minor}`, 'resp_minor_strong_support',
+    `${hcp} HCP and four-card minor support: a strong inverted raise. In the CCBA game-forcing branch four-card support is sufficient; this is not the ordinary 11+ invitational raise, which needs five. Keep describing stoppers and possible slam strength.`,
+    `本手${hcp}大牌点、四张低花支持：强牌先反加叫逼叫。按CCBA，逼局实力的反加叫可仅有四张支持；这与普通11点以上邀请范围需五张支持不同。继续交流挡张与满贯可能，不能错放进有限1NT。`, 0, support);
+  if (support >= 5 && hcp <= 10) return makeResponse(`3${minor}`, 'resp_minor_weak_raise',
+    `${hcp} HCP and ${support}-card support: a weak preemptive raise to three, not an invitation.`,
+    `本手${hcp}大牌点、${support}张支持：弱牌跳加叫三阶，阻击性，不是邀请。`, 0, support);
+  if (hcp >= 13) return makeResponse('3NT', 'resp_minor_game_nt',
+    `${hcp} HCP, no major to show or stronger forcing route: choose natural 3NT with a balanced hand and side-suit stoppers.`,
+    `本手${hcp}大牌点，没有高花可报；在均型、边花有挡张且没有更合适的强牌逼叫路线时，选择自然3NT。`);
+  if (hcp >= 11) return makeResponse('2NT', 'resp_minor_invite_nt',
+    `${hcp} HCP, no major to show: natural 2NT, an 11–12 invitation, non-forcing.`,
+    `本手${hcp}大牌点，没有高花可报：自然2NT，11–12点邀请，不逼叫。`);
+  return makeResponse('1NT', 'resp_minor_1nt',
+    `${hcp} HCP, no four-card major or economical suit response: natural 1NT, 6–10 HCP, non-forcing.`,
+    `本手${hcp}大牌点，没有四张高花或经济的花色应叫：自然1NT，6–10点，不逼叫。`);
 }
 
 /**
@@ -759,7 +649,7 @@ export function generateDrillHand(
 }
 
 // -------------------------------------------------------------
-// ACBL Class 10: Overcalling & Advancing ("10-5-2" Rule)
+// Competitive bidding under the course agreement.
 // -------------------------------------------------------------
 
 export type OpponentOpeningBid = '1C' | '1D' | '1H' | '1S';
@@ -769,7 +659,7 @@ export interface OvercallEvaluation {
   hcp: number;
   recommendedBid: string; // 'Pass' | '1D' | '1H' | '1S' | '1NT' | 'Dbl' | '2C' | '2D' | '2H' | '2S'
   ruleId: string;
-  is10_5_2: boolean;
+  isSuitOvercall: boolean;
   explanation: { en: string; zh: string };
   mnemonic: { en: string; zh: string };
   breakdown: {
@@ -812,225 +702,75 @@ function countSuitHonors(hand: Card[], suit: Suit): { top3: number; top5: number
   return { top3, top5 };
 }
 
-/**
- * Evaluate competitive overcall decision based strictly on ACBL Class 10 ("10-5-2" rule).
- */
-export function evaluateOvercall(
-  hand: Card[],
-  oppBid: OpponentOpeningBid
-): OvercallEvaluation {
+/** Competitive entry under the course agreement, not a universal honor-count rule. */
+export function evaluateOvercall(hand: Card[], oppBid: OpponentOpeningBid): OvercallEvaluation {
   const hcp = calculateHcp(hand);
-  const suitLengths = getSuitLengths(hand);
-  const oppSuit = oppBid[1] as Suit;
-  const oppSuitRank = SUIT_RANK_ORDER[oppSuit];
-
-  // 1. 1NT Overcall (15–17 HCP, Balanced, with stopper in opponent's suit)
-  if (hcp >= 15 && hcp <= 17 && isBalancedHand(suitLengths) && hasStopperInSuit(hand, oppSuit)) {
-    return {
-      oppBid,
-      hcp,
-      recommendedBid: '1NT',
-      ruleId: 'overcall_1nt',
-      is10_5_2: false,
-      explanation: {
-        en: `Holding 15–17 HCP (${hcp} HCP) with a balanced hand and at least one stopper in opponent's ${oppSuit} suit. Bid 1NT Overcall.`,
-        zh: `手握 15–17 大牌点（本手 ${hcp} 点），牌型均型，且在敌方 ${oppSuit} 花色中持有止张。应当进行 1NT 争叫。`,
-      },
-      mnemonic: {
-        en: '1NT Overcall = 15–17 HCP, Balanced with Opponent Stopper',
-        zh: '1NT 争叫口诀：15-17点均型，敌花有止张',
-      },
-      breakdown: {
-        pointsOk: true,
-        lengthOk: true,
-        honorsOk: true,
-        suit: null,
-      },
-    };
-  }
-
-  // 2. Takeout Double (12+ HCP, shortness in opponent's suit <= 2, 3+ in all unbid suits)
-  const unbidSuits = (['S', 'H', 'D', 'C'] as Suit[]).filter(s => s !== oppSuit);
-  const hasSupportForAllUnbid = unbidSuits.every(s => suitLengths[s] >= 3);
-  if (hcp >= 12 && suitLengths[oppSuit] <= 2 && hasSupportForAllUnbid) {
-    return {
-      oppBid,
-      hcp,
-      recommendedBid: 'Dbl',
-      ruleId: 'overcall_takeout_double',
-      is10_5_2: false,
-      explanation: {
-        en: `With 12+ HCP (${hcp} HCP), shortness in opponent's ${oppSuit} (<= 2 cards), and support (3+ cards) for all unbid suits. Call Takeout Double (Dbl)!`,
-        zh: `持有 12+ 大牌点（本手 ${hcp} 点），敌方 ${oppSuit} 短门（<=2张），且对所有未叫花色均有支持（3张以上）。应当叫技术性加倍（Dbl）！`,
-      },
-      mnemonic: {
-        en: 'Takeout Double = 12+ pts, Short Opponent Suit, Support for Other 3 Suits',
-        zh: '技术性加倍口诀：12点以上，敌花短，三门未叫均有支持',
-      },
-      breakdown: {
-        pointsOk: true,
-        lengthOk: true,
-        honorsOk: true,
-        suit: null,
-      },
-    };
-  }
-
-  // 3. One-Level Suit Overcall — ACBL "10-5-2" Rule
-  // Available suits at 1-level must rank higher than oppSuit
-  const oneLevelSuits = (['S', 'H', 'D', 'C'] as Suit[]).filter(
-    s => s !== oppSuit && SUIT_RANK_ORDER[s] > oppSuitRank
-  );
-
-  // Check 10-5-2 on 1-level suits
-  // Sort candidate suits by length desc, then rank desc
-  oneLevelSuits.sort((a, b) => suitLengths[b] - suitLengths[a] || SUIT_RANK_ORDER[b] - SUIT_RANK_ORDER[a]);
-
-  for (const s of oneLevelSuits) {
-    const len = suitLengths[s];
+  const lengths = getSuitLengths(hand);
+  const enemy = oppBid[1] as Suit;
+  const suits = (['S', 'H', 'D', 'C'] as Suit[]).filter(s => s !== enemy)
+    .sort((a, b) => lengths[b] - lengths[a] || SUIT_RANK_ORDER[b] - SUIT_RANK_ORDER[a]);
+  const quality = (s: Suit) => {
     const honors = countSuitHonors(hand, s);
-    const pointsOk = hcp >= 10 && hcp <= 17;
-    const lengthOk = len >= 5;
-    const honorsOk = honors.top5 >= 2;
-
-    if (pointsOk && lengthOk && honorsOk) {
-      return {
-        oppBid,
-        hcp,
-        recommendedBid: `1${s}`,
-        ruleId: 'overcall_10_5_2',
-        is10_5_2: true,
-        explanation: {
-          en: `Meets ACBL "10-5-2" rule: 10+ HCP (${hcp} HCP), 5+ cards in ${s} (${len} cards), and 2+ honors in top 5. Overcall 1${s}!`,
-          zh: `完全符合 ACBL "10-5-2" 争叫法则：10点以上（本手 ${hcp} 点）、5张以上 ${s}（${len}张）、且包含2张前5大牌。争叫 1${s}！`,
-        },
-        mnemonic: {
-          en: 'ACBL 10-5-2 Rule: 10+ Points, 5+ Suit Length, 2 Honors in Top 5',
-          zh: 'ACBL 10-5-2 争叫口诀：10点以上、5张套、2张大牌',
-        },
-        breakdown: {
-          pointsOk: true,
-          lengthOk: true,
-          honorsOk: true,
-          suit: s,
-        },
-      };
-    }
-  }
-
-  // 4. Two-Level Weak Jump Overcall (6–10 HCP, 6 cards with 2 top honors)
-  if (hcp >= 6 && hcp <= 10) {
-    for (const s of (['S', 'H'] as Suit[])) {
-      if (s === oppSuit) continue;
-      const len = suitLengths[s];
-      const honors = countSuitHonors(hand, s);
-      if (len === 6 && honors.top3 >= 2) {
-        return {
-          oppBid,
-          hcp,
-          recommendedBid: `2${s}`,
-          ruleId: 'overcall_weak_two',
-          is10_5_2: false,
-          explanation: {
-            en: `With 6–10 HCP (${hcp} HCP) and a good 6-card ${s} suit (2 of top 3 honors). Jump overcall 2${s} (Weak Two / Preemptive)!`,
-            zh: `手握 6–10 大牌点（本手 ${hcp} 点）与优质6张 ${s} 套（含2张前三大牌）。跳争叫 2${s}（弱二阻击争叫）！`,
-          },
-          mnemonic: {
-            en: 'Weak Two Overcall = 6–10 HCP, 6-Card Suit, Preemptive Jump',
-            zh: '弱二争叫口诀：6-10点，6张好套，跳叫阻击',
-          },
-          breakdown: {
-            pointsOk: true,
-            lengthOk: true,
-            honorsOk: true,
-            suit: s,
-          },
-        };
-      }
-    }
-  }
-
-  // 5. Two-Level Suit Overcall (12+ HCP, 5+ good suit that ranks lower than oppSuit)
-  if (hcp >= 12) {
-    const twoLevelSuits = (['S', 'H', 'D', 'C'] as Suit[]).filter(
-      s => s !== oppSuit && SUIT_RANK_ORDER[s] < oppSuitRank
-    );
-    twoLevelSuits.sort((a, b) => suitLengths[b] - suitLengths[a]);
-    for (const s of twoLevelSuits) {
-      const len = suitLengths[s];
-      const honors = countSuitHonors(hand, s);
-      if (len >= 5 && honors.top5 >= 2) {
-        return {
-          oppBid,
-          hcp,
-          recommendedBid: `2${s}`,
-          ruleId: 'overcall_two_level',
-          is10_5_2: false,
-          explanation: {
-            en: `To overcall at the 2-level without jumping requires 12+ HCP (${hcp} HCP) and a good 5+ card suit (${s}). Overcall 2${s}.`,
-            zh: `在2阶非跳叫争叫需要 12+ 大牌点（本手 ${hcp} 点）与优质5张以上套（${s}）。争叫 2${s}。`,
-          },
-          mnemonic: {
-            en: '2-Level Overcall = 12+ HCP, 5+ Quality Suit',
-            zh: '2阶争叫口诀：2阶需12点，5张优质套',
-          },
-          breakdown: {
-            pointsOk: true,
-            lengthOk: true,
-            honorsOk: true,
-            suit: s,
-          },
-        };
-      }
-    }
-  }
-
-  // 6. Pass
-  // Diagnose why not 10-5-2
-  const bestSuit = (['S', 'H', 'D', 'C'] as Suit[])
-    .filter(s => s !== oppSuit)
-    .sort((a, b) => suitLengths[b] - suitLengths[a])[0]!;
-  const bestLen = suitLengths[bestSuit];
-  const bestHonors = countSuitHonors(hand, bestSuit);
-
-  const pointsOk = hcp >= 10;
-  const lengthOk = bestLen >= 5;
-  const honorsOk = bestHonors.top5 >= 2;
-
-  let reasonEn = `Insufficient values to overcall (${hcp} HCP).`;
-  let reasonZh = `点力不足以争叫（本手仅 ${hcp} 点）。`;
-
-  if (hcp >= 10) {
-    if (!lengthOk) {
-      reasonEn = `Holding ${hcp} HCP but longest suit is only ${bestLen} cards (needs 5+ for 10-5-2).`;
-      reasonZh = `手握 ${hcp} 点但最长套仅 ${bestLen} 张（10-5-2 法则要求至少 5 张）。`;
-    } else if (!honorsOk) {
-      reasonEn = `Holding ${hcp} HCP and 5+ ${bestSuit}, but lacks 2 honors in the top 5 (fails "2" in 10-5-2).`;
-      reasonZh = `手握 ${hcp} 点和 5张 ${bestSuit}，但缺乏前5大牌中的2张（不符合 10-5-2 中的"2"张大牌要求）。`;
-    }
-  }
-
-  return {
-    oppBid,
-    hcp,
-    recommendedBid: 'Pass',
-    ruleId: 'overcall_pass',
-    is10_5_2: false,
-    explanation: {
-      en: `${reasonEn} ACBL Class 10 Rule: Do not enter a competitive auction without a clear plan → Pass.`,
-      zh: `${reasonZh} ACBL 第10课准则：没有明确战术理由切勿贸然争叫 → 应当 Pass。`,
-    },
+    return honors.top3 >= 1 || honors.top5 >= 2;
+  };
+  const result = (bid: string, ruleId: string, en: string, zh: string,
+    suit: Suit | null = null, threshold = 8): OvercallEvaluation => ({
+    oppBid, hcp, recommendedBid: bid, ruleId,
+    isSuitOvercall: suit !== null && bid !== 'Pass',
+    explanation: { en, zh },
     mnemonic: {
-      en: 'When in Doubt, Pass (Do not overcall without 10-5-2)',
-      zh: '争叫口诀：不合 10-5-2 莫争叫，果断 Pass',
+      en: 'Natural overcalls: 8+ at one, 11+ at two, with a good 5+ suit. One-level takeout double: 12+ and suitable shape. About 3 more points per extra level is a guide, not a rule for preemptive jumps.',
+      zh: '自然不跳争叫：一阶8点起、二阶11点起，要有好五张套；一阶技术性加倍12点起且牌型合适。每抬一阶约多需3点是参考，不套用于弱跳阻击。',
     },
     breakdown: {
-      pointsOk,
-      lengthOk,
-      honorsOk,
-      suit: bestSuit,
+      pointsOk: hcp >= threshold,
+      lengthOk: suit === null || lengths[suit] >= 5,
+      honorsOk: suit === null || quality(suit),
+      suit,
     },
-  };
+  });
+  if (hcp >= 15 && hcp <= 18 && isBalancedHand(lengths) && hasStopperInSuit(hand, enemy)) {
+    return result('1NT', 'overcall_1nt',
+      `${hcp} HCP, balanced, with a stopper in the opened suit: a 15–18 1NT overcall.`,
+      `本手${hcp}大牌点，均型，敌方花色有挡张：1NT争叫，15–18点。`, null, 15);
+  }
+  if (hcp >= 19 && isBalancedHand(lengths)) {
+    return result('Dbl', 'overcall_strong_balanced',
+      `${hcp} HCP, balanced: start with a strong double rather than understating the hand with 1NT. A later notrump rebid needs a stopper in their suit.`,
+      `本手${hcp}大牌点、均型：先用强牌加倍保留后续，不能低报成15–18点的1NT。之后若再叫无将，仍需敌方花色有挡张。`, null, 19);
+  }
+  if (hcp >= 17 && suits.some(s => lengths[s] >= 5 && quality(s))) {
+    return result('Dbl', 'overcall_strong_double',
+      `${hcp} HCP with a strong suit: too strong for the normal 8–16 or 11–16 overcall range. Double first, then name the suit to show extra strength; this strong-hand exception does not promise support for every unbid suit.`,
+      `本手${hcp}大牌点，有强长套，超出普通一阶8–16、二阶11–16的争叫范围。先加倍，再出套表示额外实力；这种强牌例外不保证所有未叫花色都有支持。`, null, 17);
+  }
+  // A two-level jump is possible only when this suit could be bid at one.
+  const weakJump = suits.find(s => SUIT_RANK_ORDER[s] > SUIT_RANK_ORDER[enemy]
+    && lengths[s] >= 6 && countSuitHonors(hand, s).top3 >= 2);
+  if (hcp >= 6 && hcp <= 10 && weakJump) {
+    return result(`2${weakJump}`, 'overcall_weak_two',
+      `${hcp} HCP and a good six-card or longer suit: a weak jump overcall. The 11-point minimum applies to a non-jump two-level overcall, not this preempt.`,
+      `本手${hcp}大牌点、六张以上好套：弱跳争叫，阻击性。二阶11点起说的是不跳争叫，不是这种弱跳阻击。`, weakJump, 6);
+  }
+  const natural = suits.find(s => lengths[s] >= 5 && quality(s)
+    && hcp >= (SUIT_RANK_ORDER[s] > SUIT_RANK_ORDER[enemy] ? 8 : 11) && hcp <= 16);
+  if (natural) {
+    const level = SUIT_RANK_ORDER[natural] > SUIT_RANK_ORDER[enemy] ? 1 : 2;
+    const minimum = level === 1 ? 8 : 11;
+    return result(`${level}${natural}`, level === 1 ? 'overcall_one_level' : 'overcall_two_level',
+      `${hcp} HCP and ${lengths[natural]} cards in a useful suit: a natural non-jump ${level}-level overcall, starting at ${minimum} HCP. Evaluate suit quality and vulnerability; no fixed two-honor count is a universal requirement.`,
+      `本手${hcp}大牌点、${lengths[natural]}张有质量的长套：自然不跳${level}阶争叫，${minimum}点起。还要结合套质与局况，不把固定两张大牌作为所有争叫的统一门槛。`, natural, minimum);
+  }
+  if (hcp >= 12 && lengths[enemy] <= 2 && suits.every(s => lengths[s] >= 3)) {
+    return result('Dbl', 'overcall_takeout_double',
+      `${hcp} HCP, shortness in the opened suit and support for all unbid suits: a one-level takeout double, 12+. Points alone are not enough; partner needs playable alternatives.`,
+      `本手${hcp}大牌点，敌花短，未叫三门均有支持：一阶技术性加倍，12点以上。不能只看点数，还要有适合搭档选择的牌型。`, null, 12);
+  }
+  const best = suits[0]!;
+  const minimum = SUIT_RANK_ORDER[best] > SUIT_RANK_ORDER[enemy] ? 8 : 11;
+  return result('Pass', 'overcall_pass',
+    `${hcp} HCP: no suitable natural overcall or takeout double. One-level suit entry needs 8+, two-level non-jump entry 11+, each with a good five-card or longer suit. A normal double needs 12+ and support for the unbid suits. Pass.`,
+    `本手${hcp}大牌点，没有合适的自然争叫或技术性加倍。一阶争叫8点起、二阶不跳争叫11点起，均需好五张以上套；普通技术性加倍12点起并支持未叫花色。选择Pass。`, best, minimum);
 }
 
 /**

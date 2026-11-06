@@ -72,7 +72,7 @@ export function GlossaryModal({ lang, isOpen, onClose, initialQuery = '' }: Glos
           <input
             type="search"
             className="input glossary-search-input"
-            placeholder={lang === 'zh' ? '搜索术语、口诀或规则（如 飞牌、HCP、10-5-2）...' : 'Search terms or mnemonics (e.g. Finesse, HCP, High Five)...'}
+            placeholder={lang === 'zh' ? '搜索术语、口诀或规则（如 飞牌、HCP、争叫）...' : 'Search terms or mnemonics (e.g. Finesse, HCP, High Five)...'}
             value={query}
             onChange={e => setQuery(e.target.value)}
             autoFocus

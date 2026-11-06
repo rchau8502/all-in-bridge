@@ -49,6 +49,6 @@ describe('ACBL Glossary Module', () => {
     expect(fotf?.mnemonic).toContain('Four on the floor');
 
     const oc = findGlossaryTerm('overcall', 'en');
-    expect(oc?.mnemonic).toContain('10-5-2');
+    expect(oc?.mnemonic).toContain('8+ HCP');
   });
 });

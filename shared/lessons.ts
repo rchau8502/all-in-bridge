@@ -1274,8 +1274,8 @@ const RAW_LESSONS: RawLesson[] = [
       {
         kind: 'info',
         text: T(
-          'But an overcall is a promise made in the dark: partner has not spoken, so you know NOTHING about their hand. That is why the entry fee is strict — a GOOD suit: 5 cards or more, with strong top cards (think A, K, Q up top). If your suit is weak and partner is broke, a bad overcall gets doubled and crushed. Suit quality, point strength, vulnerability and the level all matter; a good suit alone is not permission to bid indefinitely.',
-          '但争叫是在黑暗里许下的承诺：搭档还没说话，你对他的牌一无所知。所以入场费很严格 —— 一个好花色：5张或以上，顶端要有大牌（A、K、Q坐镇）。如果你的花色很弱，搭档又很穷，烂争叫会被加倍打得很惨。还要看点力、局况和阶数；好花色不等于可以无限往上叫。'
+          'But an overcall is a promise made in the dark: partner has not spoken, so you know NOTHING about their hand. That is why the entry fee is strict — a GOOD suit: 5 cards or more, with strong top cards (think A, K, Q up top). If your suit is weak and partner is broke, a bad overcall gets doubled and crushed. Our natural non-jump overcalls start at 8 HCP at one and 11 HCP at two, usually with a good five-card suit. About three extra points per extra level is a guide. Suit quality and vulnerability matter too; preemptive jumps use different criteria.',
+          '但争叫是在黑暗里许下的承诺：搭档还没说话，你对他的牌一无所知。所以入场费很严格 —— 一个好花色：5张或以上，顶端要有大牌（A、K、Q坐镇）。如果你的花色很弱，搭档又很穷，烂争叫会被加倍打得很惨。本课自然不跳争叫一阶8点起、二阶11点起，通常需要好五张套。每升一阶约多需3点只是参考，还要看套质与局况；弱跳阻击另按弱牌规则。'
         ),
       },
       {
