@@ -1,17 +1,16 @@
 /**
  * evaluator.ts — Hand evaluation and opening bidding logic.
  *
- * Implements the standard ACBL Series 1 Student Manual (Patty Tucker, 2022)
- * rules for high card points (HCP), length points, distribution/shape,
- * and standard opening bids.
+ * Opening and response training follows the website partnership agreement.
+ * Opening thresholds use HCP and explicit shape/playing-strength criteria;
+ * no automatic points are added for suit length.
  */
 
-import { buildDeck, shuffle, cardLabel, type Card, type Suit } from './deck.js';
+import { buildDeck, shuffle, cardLabel, parseCard, type Card, type Suit } from './deck.js';
 import { Auction, parseBid, type Contract } from './bidding.js';
 
 export interface HandEvaluation {
   hcp: number;
-  lengthPoints: number;
   totalPoints: number;
   suitLengths: Record<Suit, number>;
   shape: string; // e.g. "5-3-3-2"
@@ -50,20 +49,6 @@ export function getSuitLengths(hand: Card[]): Record<Suit, number> {
 }
 
 /**
- * ACBL Series 1 Length Points:
- * 1 point for each card in a suit beyond 4 (i.e. 5th card = +1, 6th = +2, etc.)
- */
-export function calculateLengthPoints(suitLengths: Record<Suit, number>): number {
-  let pts = 0;
-  for (const suit of ['C', 'D', 'H', 'S'] as const) {
-    if (suitLengths[suit] > 4) {
-      pts += suitLengths[suit] - 4;
-    }
-  }
-  return pts;
-}
-
-/**
  * ACBL Balanced Hand:
  * No voids (0 cards), no singletons (1 card), at most one doubleton (2 cards).
  * The standard patterns are 4-3-3-3, 4-4-3-2, and 5-3-3-2.
@@ -84,14 +69,36 @@ export function getDistributionString(suitLengths: Record<Suit, number>): string
     .join('-');
 }
 
+/** Conservative standalone playing-strength checks for the CCBA strong-opening exceptions. */
+function hasStrongOpeningPlayingStrength(hand: Card[]): boolean {
+  const hcp = calculateHcp(hand);
+  const lengths = getSuitLengths(hand);
+  if (hcp < 18) return false;
+  let quickTricks = 0;
+  let playingTricks = 0;
+  for (const suit of ['S', 'H', 'D', 'C'] as const) {
+    const ranks = new Set(hand.filter(c => c.suit === suit).map(c => c.rank));
+    const len = lengths[suit];
+    quickTricks += ranks.has(14) ? (ranks.has(13) ? 2 : ranks.has(12) ? 1.5 : 1)
+      : ranks.has(13) ? (ranks.has(12) ? 1 : len >= 2 ? 0.5 : 0) : 0;
+    let topRun = 0;
+    for (let rank = 14; rank >= 2 && ranks.has(rank); rank--) topRun++;
+    // Cash top cards, then conservatively allow every outstanding card to sit together.
+    playingTricks += Math.max(topRun, len - Math.max(0, 13 - len - topRun));
+  }
+  if (quickTricks < 3) return false;
+  const longSuit = (['S', 'H', 'D', 'C'] as const).find(s => lengths[s] >= 6);
+  if (longSuit && playingTricks >= (longSuit === 'S' || longSuit === 'H' ? 9 : 10)) return true;
+  return hcp >= 20 && Object.values(lengths).filter(n => n >= 5).length >= 2;
+}
+
 /**
- * Evaluate a 13-card hand and determine the standard ACBL opening bid.
+ * Evaluate a 13-card hand under the course opening agreement, using HCP.
  */
 export function evaluateHand(hand: Card[]): HandEvaluation {
   const hcp = calculateHcp(hand);
   const suitLengths = getSuitLengths(hand);
-  const lengthPoints = calculateLengthPoints(suitLengths);
-  const totalPoints = hcp + lengthPoints;
+  const totalPoints = hcp;
   const balanced = isBalancedHand(suitLengths);
   const shape = getDistributionString(suitLengths);
 
@@ -103,7 +110,7 @@ export function evaluateHand(hand: Card[]): HandEvaluation {
   if (hcp >= 6 && hcp <= 10 && weakSuit) {
     const symbol = { S: '♠', H: '♥', D: '♦', C: '♣' }[weakSuit];
     return {
-      hcp, lengthPoints, totalPoints, suitLengths, shape, isBalanced: balanced,
+      hcp, totalPoints, suitLengths, shape, isBalanced: balanced,
       recommendedBid: `2${weakSuit}`, ruleId: 'open_weak_two',
       explanation: {
         en: `${hcp} HCP and ${suitLengths[weakSuit]} ${symbol}: a weak 2${symbol} opening in first, second or third seat, 6–10 HCP and a six-card or longer suit. Take opponents' bidding space while showing a long suit; a strong partner may still choose game. Count HCP here, not HCP plus length points. 2♣ is strong, not a weak club opening.`,
@@ -116,10 +123,9 @@ export function evaluateHand(hand: Card[]): HandEvaluation {
     };
   }
   // 1. Pass with fewer than 12 points and no weak-two opening.
-  if (totalPoints < 12) {
+  if (hcp < 12) {
     return {
       hcp,
-      lengthPoints,
       totalPoints,
       suitLengths,
       shape,
@@ -127,17 +133,16 @@ export function evaluateHand(hand: Card[]): HandEvaluation {
       recommendedBid: 'Pass',
       ruleId: 'pass_sub_12',
       explanation: {
-        en: `Fewer than 12 points (${hcp} HCP + ${lengthPoints} length = ${totalPoints} total) and no qualifying weak two in diamonds, hearts or spades. Pass. Weak clubs do not open 2♣: that is strong.`,
-        zh: `总点力不足12点（${hcp}大牌点＋${lengthPoints}长度点＝${totalPoints}总点），也不符合方块、红桃或黑桃弱二开叫条件，选择Pass。梅花弱牌不能开2♣，那是强开叫。`,
+        en: `Only ${hcp} HCP: below the 12-HCP one-level opening threshold, with no qualifying weak two. Pass. Do not add points for a long suit; 2♣ remains a strong opening.`,
+        zh: `本手${hcp}大牌点，未达到一阶开叫12大牌点的标准，也不符合弱二开叫条件，选择Pass。开叫不自动加长套点；2♣仍是强开叫。`,
       },
     };
   }
 
   // 2. Strong opening with 22+ points
-  if (totalPoints >= 22) {
+  if (hcp >= 22 || hasStrongOpeningPlayingStrength(hand)) {
     return {
       hcp,
-      lengthPoints,
       totalPoints,
       suitLengths,
       shape,
@@ -145,8 +150,8 @@ export function evaluateHand(hand: Card[]): HandEvaluation {
       recommendedBid: '2C',
       ruleId: 'open_2c_strong',
       explanation: {
-        en: `Massive hand with ${totalPoints} points (${hcp} HCP). Open 2♣: artificial and strong, requiring a reply but not automatically game forcing.`,
-        zh: `手握 ${totalPoints} 点强牌（${hcp} 大牌点）。开叫 2♣（逼叫性强开叫，同伴不可 Pass）。`,
+        en: `With ${hcp} HCP, this hand meets the strong-opening point or playing-strength standard. Open artificial 2♣: partner must reply, but it is not automatically game forcing. No length points are added.`,
+        zh: `本手${hcp}大牌点，符合强开叫的点力或赢墩实力标准，开叫人工强2♣。同伴必须回应，但不自动逼局；不靠增加长套点凑出强开叫。`,
       },
     };
   }
@@ -156,7 +161,6 @@ export function evaluateHand(hand: Card[]): HandEvaluation {
     if (hcp >= 15 && hcp <= 17) {
       return {
         hcp,
-        lengthPoints,
         totalPoints,
         suitLengths,
         shape,
@@ -176,7 +180,6 @@ export function evaluateHand(hand: Card[]): HandEvaluation {
     if (hcp >= 20 && hcp <= 21) {
       return {
         hcp,
-        lengthPoints,
         totalPoints,
         suitLengths,
         shape,
@@ -200,7 +203,6 @@ export function evaluateHand(hand: Card[]): HandEvaluation {
     if (spades === hearts) {
       return {
         hcp,
-        lengthPoints,
         totalPoints,
         suitLengths,
         shape,
@@ -220,7 +222,6 @@ export function evaluateHand(hand: Card[]): HandEvaluation {
     const betterMajor = spades > hearts ? '1S' : '1H';
     return {
       hcp,
-      lengthPoints,
       totalPoints,
       suitLengths,
       shape,
@@ -237,7 +238,6 @@ export function evaluateHand(hand: Card[]): HandEvaluation {
   if (spades >= 5) {
     return {
       hcp,
-      lengthPoints,
       totalPoints,
       suitLengths,
       shape,
@@ -245,8 +245,8 @@ export function evaluateHand(hand: Card[]): HandEvaluation {
       recommendedBid: '1S',
       ruleId: 'open_1s_major',
       explanation: {
-        en: `12–21 points with a 5+ card Spade suit (${spades}♠). Open your 5-card major 1♠.`,
-        zh: `12–21 总点且持有 5 张以上黑桃（${spades}♠）。开叫 5 张高花 1♠。`,
+        en: `12–21 HCP with a 5+ card Spade suit (${spades}♠). Open your 5-card major 1♠.`,
+        zh: `12–21 大牌点且持有 5 张以上黑桃（${spades}♠）。开叫 5 张高花 1♠。`,
       },
     };
   }
@@ -254,7 +254,6 @@ export function evaluateHand(hand: Card[]): HandEvaluation {
   if (hearts >= 5) {
     return {
       hcp,
-      lengthPoints,
       totalPoints,
       suitLengths,
       shape,
@@ -262,8 +261,8 @@ export function evaluateHand(hand: Card[]): HandEvaluation {
       recommendedBid: '1H',
       ruleId: 'open_1h_major',
       explanation: {
-        en: `12–21 points with a 5+ card Heart suit (${hearts}♥). Open your 5-card major 1♥.`,
-        zh: `12–21 总点且持有 5 张以上红心（${hearts}♥）。开叫 5 张高花 1♥。`,
+        en: `12–21 HCP with a 5+ card Heart suit (${hearts}♥). Open your 5-card major 1♥.`,
+        zh: `12–21 大牌点且持有 5 张以上红心（${hearts}♥）。开叫 5 张高花 1♥。`,
       },
     };
   }
@@ -275,7 +274,6 @@ export function evaluateHand(hand: Card[]): HandEvaluation {
   if (diamonds > clubs) {
     return {
       hcp,
-      lengthPoints,
       totalPoints,
       suitLengths,
       shape,
@@ -292,7 +290,6 @@ export function evaluateHand(hand: Card[]): HandEvaluation {
   if (clubs > diamonds) {
     return {
       hcp,
-      lengthPoints,
       totalPoints,
       suitLengths,
       shape,
@@ -311,7 +308,6 @@ export function evaluateHand(hand: Card[]): HandEvaluation {
   if (diamonds === 4 && clubs === 4) {
     return {
       hcp,
-      lengthPoints,
       totalPoints,
       suitLengths,
       shape,
@@ -319,8 +315,8 @@ export function evaluateHand(hand: Card[]): HandEvaluation {
       recommendedBid: '1D',
       ruleId: 'open_1d_equal_44',
       explanation: {
-        en: `No 5-card major, 4-4 in minors. ACBL standard: with equal 4-card minors, open 1♦.`,
-        zh: `无 5 张高花，低花各 4 张（4-4）。ACBL 官方标准：双 4 张低花开叫 1♦。`,
+        en: `No 5-card major, 4-4 in minors. Our course agreement: with equal 4-card minors, open 1♦.`,
+        zh: `无 5 张高花，低花各 4 张（4-4）。本课约定：双 4 张低花开叫 1♦。`,
       },
     };
   }
@@ -328,7 +324,6 @@ export function evaluateHand(hand: Card[]): HandEvaluation {
   // If 3-3: Open 1C
   return {
     hcp,
-    lengthPoints,
     totalPoints,
     suitLengths,
     shape,
@@ -336,8 +331,8 @@ export function evaluateHand(hand: Card[]): HandEvaluation {
     recommendedBid: '1C',
     ruleId: 'open_1c_equal_33',
     explanation: {
-      en: `No 5-card major, 3-3 in minors (4-4-3-3 or 4-3-3-3). ACBL standard: with 3-3 in minors, open 1♣.`,
-      zh: `无 5 张高花，低花各 3 张。ACBL 官方标准：双 3 张低花开叫 1♣。`,
+      en: `No 5-card major, 3-3 in minors (4-4-3-3 or 4-3-3-3). Our course agreement: with 3-3 in minors, open 1♣.`,
+      zh: `无 5 张高花，低花各 3 张。本课约定：双 3 张低花开叫 1♣。`,
     },
   };
 }
@@ -577,7 +572,7 @@ export function evaluateResponse(hand: Card[], partnerBid: PartnerOpeningBid): R
 
   const minor: Suit = partnerBid === '1C' ? 'C' : 'D';
   const support = suitLengths[minor];
-  if (hcp + calculateLengthPoints(suitLengths) < 6) return makeResponse('Pass', 'resp_minor_sub_6',
+  if (hcp < 6) return makeResponse('Pass', 'resp_minor_sub_6',
     `${hcp} HCP: insufficient strength for a normal response. Pass.`,
     `本手${hcp}大牌点，实力不足以正常应叫，选择Pass。`);
   if (suitLengths.H >= 4 || suitLengths.S >= 4) {
@@ -631,58 +626,60 @@ export function generateResponseDrillHand(
   return { hand, evaluation };
 }
 
-/**
- * Generate a drill problem, optionally targeting a specific lesson category.
- */
+export const OPENING_DRILL_BIDS = ['Pass', '1C', '1D', '1H', '1S', '1NT', '2C', '2D', '2H', '2S', '2NT'] as const;
+type OpeningDrillBid = typeof OPENING_DRILL_BIDS[number];
+const OPENING_CATEGORY_BIDS: Record<DrillCategory, readonly OpeningDrillBid[]> = {
+  all: OPENING_DRILL_BIDS, pass: ['Pass'], '1nt': ['1NT'],
+  major: ['1H', '1S'], minor: ['1C', '1D'], strong: ['2C', '2NT'], 'weak-two': ['2D', '2H', '2S'],
+};
+/** Valid examples also guarantee that a targeted drill never silently falls back to Pass. */
+const OPENING_FALLBACKS: Record<OpeningDrillBid, string> = {
+  Pass: '8S 7S 6S 4S 9H 5H 3H 8D 6D 2D 9C 7C 4C',
+  '1C': 'AS KS 4S QH 8H 3H KD 6D 2D JC 8C 5C 2C',
+  '1D': 'AS KS 4S QH 8H 3H KD 8D 6D 2D JC 5C 2C',
+  '1H': 'AS 8S 4S KH QH 9H 7H 5H KD 6D 2D 8C 3C',
+  '1S': 'KS QS 9S 7S 5S AH 8H 4H KD 6D 2D 8C 3C',
+  '1NT': 'AS KS 4S QH 8H 3H KD JD 6D AC 9C 7C 2C',
+  '2C': 'AS KS 4S AH KH 3H AD QD 6D KC JC 8C 2C',
+  '2D': 'AS 8S 3S JH 7H QD JD TD 9D 8D 7D 8C 2C',
+  '2H': 'AS 8S 3S QH JH TH 9H 8H 7H JD 7D 8C 2C',
+  '2S': 'QS JS TS 9S 8S 7S AH 8H 3H JD 7D 8C 2C',
+  '2NT': 'AS KS 4S AH QH 3H KD 6D 2D KC QC 8C 2C',
+};
+const OPENING_SHAPES: Record<OpeningDrillBid, number[][]> = {
+  Pass: [[4, 3, 3, 3], [3, 3, 3, 4], [3, 4, 3, 3]],
+  '1C': [[3, 3, 3, 4], [3, 3, 2, 5], [4, 3, 3, 3]],
+  '1D': [[3, 3, 4, 3], [3, 2, 5, 3], [4, 4, 3, 2]],
+  '1H': [[3, 5, 3, 2], [2, 5, 4, 2], [3, 6, 2, 2], [1, 5, 3, 4]],
+  '1S': [[5, 3, 3, 2], [5, 2, 4, 2], [6, 3, 2, 2], [5, 1, 3, 4]],
+  '1NT': [[3, 3, 3, 4], [4, 3, 3, 3], [4, 4, 3, 2]],
+  '2C': [[3, 3, 3, 4], [4, 3, 3, 3], [4, 4, 3, 2]],
+  '2D': [[3, 2, 6, 2], [2, 3, 6, 2], [3, 2, 6, 2]],
+  '2H': [[3, 6, 2, 2], [2, 6, 3, 2], [3, 6, 2, 2]],
+  '2S': [[6, 3, 2, 2], [6, 2, 3, 2], [6, 3, 2, 2]],
+  '2NT': [[3, 3, 3, 4], [4, 3, 3, 3], [4, 4, 3, 2]],
+};
+
+/** Select the training answer first, rather than copying the distribution of random deals. */
 export function generateDrillHand(
-  category: DrillCategory = 'all',
-  maxAttempts = 200,
-  rng: () => number = Math.random
+  category: DrillCategory = 'all', maxAttempts = 200, rng: () => number = Math.random
 ): { hand: Card[]; evaluation: HandEvaluation } {
-  if (category === 'weak-two') {
-    // Construct six-card candidates so targeted practice never falls back to
-    // an unrelated random opening after exhausting a rejection loop.
-    for (let attempt = 0; attempt < maxAttempts; attempt++) {
-      const suit = (['D', 'H', 'S'] as const)[Math.floor(rng() * 3)]!;
-      const deck = buildDeck();
-      const hand = [
-        ...shuffle(deck.filter(c => c.suit === suit), rng).slice(0, 6),
-        ...shuffle(deck.filter(c => c.suit !== suit), rng).slice(0, 7),
-      ];
-      const evaluation = evaluateHand(hand);
-      if (evaluation.ruleId === 'open_weak_two' && Object.values(evaluation.suitLengths).every(n => n <= 6)) return { hand, evaluation };
-    }
-    const hand = buildDeck().filter(c => ({
-      S: [12, 11, 10, 9, 8, 7], H: [14, 8, 3], D: [11, 7], C: [8, 2],
-    })[c.suit].includes(c.rank));
-    return { hand, evaluation: evaluateHand(hand) };
-  }
-  for (let i = 0; i < maxAttempts; i++) {
-    const hand = dealRandomHand(rng);
+  const choices = OPENING_CATEGORY_BIDS[category];
+  const target = choices[Math.floor(rng() * choices.length)]!;
+  const shapes = OPENING_SHAPES[target];
+  const deck = buildDeck();
+  for (let attempt = 0; attempt < maxAttempts; attempt++) {
+    const shape = shapes[Math.floor(rng() * shapes.length)]!;
+    const hand = (['S', 'H', 'D', 'C'] as const).flatMap((suit, index) => {
+      // Higher-rank pools make genuinely strong hands frequent enough to vary,
+      // without changing any card's HCP or the evaluator's opening standards.
+      const minimumRank = target === '2C' ? 9 : target === '2NT' ? 7 : 2;
+      return shuffle(deck.filter(c => c.suit === suit && c.rank >= minimumRank), rng).slice(0, shape[index]!);
+    });
     const evaluation = evaluateHand(hand);
-
-    if (category === 'all') {
-      return { hand, evaluation };
-    }
-    if (category === 'pass' && evaluation.recommendedBid === 'Pass') {
-      return { hand, evaluation };
-    }
-    if (category === '1nt' && evaluation.recommendedBid === '1NT') {
-      return { hand, evaluation };
-    }
-    if (category === 'major' && (evaluation.recommendedBid === '1H' || evaluation.recommendedBid === '1S')) {
-      return { hand, evaluation };
-    }
-    if (category === 'minor' && (evaluation.recommendedBid === '1C' || evaluation.recommendedBid === '1D')) {
-      return { hand, evaluation };
-    }
-    if (category === 'strong' && (evaluation.recommendedBid === '2C' || evaluation.recommendedBid === '2NT')) {
-      return { hand, evaluation };
-    }
+    if (hand.length === 13 && evaluation.recommendedBid === target) return { hand, evaluation };
   }
-
-  // Fallback to any random hand if attempt limit reached
-  const hand = dealRandomHand(rng);
+  const hand = OPENING_FALLBACKS[target].split(' ').map(parseCard);
   return { hand, evaluation: evaluateHand(hand) };
 }
 

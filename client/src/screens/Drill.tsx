@@ -91,17 +91,17 @@ const OVERCALL_BID_OPTIONS = [
 
 const PARTNER_OPENINGS: Array<{ id: PartnerOpeningBid; label: string; desc: { en: string; zh: string } }> = [
   { id: '1NT', label: '1NT', desc: { en: '15–17 HCP, Balanced', zh: '15–17 大牌点，均型' } },
-  { id: '1S', label: '1♠', desc: { en: '12–21 pts, 5+ ♠', zh: '12–21 总点，5张以上黑桃' } },
-  { id: '1H', label: '1♥', desc: { en: '12–21 pts, 5+ ♥', zh: '12–21 总点，5张以上红心' } },
-  { id: '1D', label: '1♦', desc: { en: '12–21 pts, 3+ ♦', zh: '12–21 总点，3张以上方块' } },
-  { id: '1C', label: '1♣', desc: { en: '12–21 pts, 3+ ♣', zh: '12–21 总点，3张以上梅花' } },
+  { id: '1S', label: '1♠', desc: { en: '12–21 HCP, 5+ ♠', zh: '12–21 大牌点，5张以上黑桃' } },
+  { id: '1H', label: '1♥', desc: { en: '12–21 HCP, 5+ ♥', zh: '12–21 大牌点，5张以上红心' } },
+  { id: '1D', label: '1♦', desc: { en: '12–21 HCP, 3+ ♦', zh: '12–21 大牌点，3张以上方块' } },
+  { id: '1C', label: '1♣', desc: { en: '12–21 HCP, 3+ ♣', zh: '12–21 大牌点，3张以上梅花' } },
 ];
 
 const OPPONENT_OPENINGS: Array<{ id: OpponentOpeningBid; label: string; desc: { en: string; zh: string } }> = [
-  { id: '1C', label: '1♣', desc: { en: '12–21 pts, 3+ ♣', zh: '12–21 点，3张以上梅花' } },
-  { id: '1D', label: '1♦', desc: { en: '12–21 pts, 3+ ♦', zh: '12–21 点，3张以上方块' } },
-  { id: '1H', label: '1♥', desc: { en: '12–21 pts, 5+ ♥', zh: '12–21 点，5张以上红心' } },
-  { id: '1S', label: '1♠', desc: { en: '12–21 pts, 5+ ♠', zh: '12–21 点，5张以上黑桃' } },
+  { id: '1C', label: '1♣', desc: { en: '12–21 HCP, 3+ ♣', zh: '12–21 点，3张以上梅花' } },
+  { id: '1D', label: '1♦', desc: { en: '12–21 HCP, 3+ ♦', zh: '12–21 点，3张以上方块' } },
+  { id: '1H', label: '1♥', desc: { en: '12–21 HCP, 5+ ♥', zh: '12–21 点，5张以上红心' } },
+  { id: '1S', label: '1♠', desc: { en: '12–21 HCP, 5+ ♠', zh: '12–21 点，5张以上黑桃' } },
 ];
 
 function groupHandBySuit(cards: Card[]): Array<{ suit: Suit; cards: Card[] }> {
@@ -647,12 +647,6 @@ export function Drill() {
                     </span>
                     {mode === 'opening' ? (
                       <>
-                        <span className="metric-chip">
-                          <strong>{t(lang, 'drill.lengthLabel')}:</strong> +{(activeEval as HandEvaluation).lengthPoints}
-                        </span>
-                        <span className="metric-chip highlight">
-                          <strong>{t(lang, 'drill.totalLabel')}:</strong> {(activeEval as HandEvaluation).totalPoints}
-                        </span>
                         <span className="metric-chip">
                           <strong>{t(lang, 'drill.shapeLabel')}:</strong> {(activeEval as HandEvaluation).shape} (
                           {(activeEval as HandEvaluation).isBalanced ? t(lang, 'drill.balanced') : t(lang, 'drill.unbalanced')})

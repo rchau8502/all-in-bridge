@@ -2,7 +2,6 @@ import { describe, it, expect } from 'vitest';
 import {
   calculateHcp,
   getSuitLengths,
-  calculateLengthPoints,
   isBalancedHand,
   evaluateHand,
   dealRandomHand,
@@ -34,12 +33,6 @@ describe('Hand Evaluator — ACBL Standards', () => {
     expect(calculateHcp(hand)).toBe(10);
   });
 
-  it('calculates length points correctly for 5+ card suits', () => {
-    const lengths = { S: 5, H: 6, D: 2, C: 0 };
-    // S: 5-4 = 1 pt; H: 6-4 = 2 pts; total = 3 pts
-    expect(calculateLengthPoints(lengths)).toBe(3);
-  });
-
   it('identifies balanced distributions (4-3-3-3, 4-4-3-2, 5-3-3-2)', () => {
     expect(isBalancedHand({ S: 4, H: 3, D: 3, C: 3 })).toBe(true);
     expect(isBalancedHand({ S: 4, H: 4, D: 3, C: 2 })).toBe(true);
@@ -53,7 +46,7 @@ describe('Hand Evaluator — ACBL Standards', () => {
     expect(isBalancedHand({ S: 5, H: 4, D: 2, C: 2 })).toBe(false);
   });
 
-  it('recommends Pass for hands under 12 total points', () => {
+  it('recommends Pass for hands under 12 HCP', () => {
     // 8 HCP, 4-3-3-3 balanced
     const hand: Card[] = [
       { suit: 'S', rank: 13 }, { suit: 'S', rank: 8 }, { suit: 'S', rank: 7 }, { suit: 'S', rank: 2 },

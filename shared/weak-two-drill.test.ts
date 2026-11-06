@@ -26,7 +26,7 @@ describe('weak-two opening training', () => {
     expect(six.recommendedBid).toBe('2D');
     const ten = evaluateHand(hand('QD JD TD 9D 8D 7D AS 4S 2S KH 7H 9C 3C'));
     expect(ten.hcp).toBe(10);
-    expect(ten.totalPoints).toBe(12);
+    expect(ten.totalPoints).toBe(10);
     expect(ten.recommendedBid).toBe('2D');
     expect(evaluateHand(hand('QD JD TD 9D 8D 7D 8S 4S 2S QH 7H 9C 3C')).recommendedBid).toBe('Pass');
     expect(evaluateHand(hand('QD JD TD 9D 8D 7D AS 4S 2S KH 7H JC 3C')).ruleId).not.toBe('open_weak_two');
