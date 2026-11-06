@@ -95,7 +95,27 @@ export function evaluateHand(hand: Card[]): HandEvaluation {
   const balanced = isBalancedHand(suitLengths);
   const shape = getDistributionString(suitLengths);
 
-  // 1. Pass with fewer than 12 points
+  // First/second/third-seat weak twos precede the ordinary opening threshold.
+  // Six-card examples are used in the dedicated drill; 2C remains strong.
+  const weakSuit = (['S', 'H', 'D'] as Suit[])
+    .filter(s => suitLengths[s] >= 6)
+    .sort((a, b) => suitLengths[b] - suitLengths[a])[0];
+  if (hcp >= 6 && hcp <= 10 && weakSuit) {
+    const symbol = { S: '♠', H: '♥', D: '♦', C: '♣' }[weakSuit];
+    return {
+      hcp, lengthPoints, totalPoints, suitLengths, shape, isBalanced: balanced,
+      recommendedBid: `2${weakSuit}`, ruleId: 'open_weak_two',
+      explanation: {
+        en: `${hcp} HCP and ${suitLengths[weakSuit]} ${symbol}: a weak 2${symbol} opening in first, second or third seat, 6–10 HCP and a six-card or longer suit. Take opponents' bidding space while showing a long suit; a strong partner may still choose game. Count HCP here, not HCP plus length points. 2♣ is strong, not a weak club opening.`,
+        zh: `本手${hcp}大牌点、${suitLengths[weakSuit]}张${symbol}：前三家可以弱二开叫2${symbol}，6–10大牌点、六张以上套。既抢占对手说话空间，也告诉搭档长套的赢墩潜力；强搭档仍可选择进局。这里按大牌点判断，不把长度点加进去跨越弱二范围。2♣是强开叫，不是梅花弱二。`,
+      },
+      mnemonic: {
+        en: 'Seats 1–3: 2♦ / 2♥ / 2♠ = 6–10 HCP, 6+ cards. Fourth seat instead uses 9–12 and a good 6+ suit.',
+        zh: '前三家2♦／2♥／2♠：6–10大牌点、六张以上；第四家另用9–12点、六张以上好套。',
+      },
+    };
+  }
+  // 1. Pass with fewer than 12 points and no weak-two opening.
   if (totalPoints < 12) {
     return {
       hcp,
@@ -107,8 +127,8 @@ export function evaluateHand(hand: Card[]): HandEvaluation {
       recommendedBid: 'Pass',
       ruleId: 'pass_sub_12',
       explanation: {
-        en: `Fewer than 12 points (${hcp} HCP + ${lengthPoints} length = ${totalPoints} total). Pass and wait to hear from partner.`,
-        zh: `总点力不足 12 点（${hcp} 大牌点 + ${lengthPoints} 长度点 = ${totalPoints} 总点）。应当 Pass，等待同伴或敌方叫牌。`,
+        en: `Fewer than 12 points (${hcp} HCP + ${lengthPoints} length = ${totalPoints} total) and no qualifying weak two in diamonds, hearts or spades. Pass. Weak clubs do not open 2♣: that is strong.`,
+        zh: `总点力不足12点（${hcp}大牌点＋${lengthPoints}长度点＝${totalPoints}总点），也不符合方块、红桃或黑桃弱二开叫条件，选择Pass。梅花弱牌不能开2♣，那是强开叫。`,
       },
     };
   }
@@ -125,7 +145,7 @@ export function evaluateHand(hand: Card[]): HandEvaluation {
       recommendedBid: '2C',
       ruleId: 'open_2c_strong',
       explanation: {
-        en: `Massive hand with ${totalPoints} points (${hcp} HCP). Open 2♣ (artificial strong and game-forcing).`,
+        en: `Massive hand with ${totalPoints} points (${hcp} HCP). Open 2♣: artificial and strong, requiring a reply but not automatically game forcing.`,
         zh: `手握 ${totalPoints} 点强牌（${hcp} 大牌点）。开叫 2♣（逼叫性强开叫，同伴不可 Pass）。`,
       },
     };
@@ -334,7 +354,7 @@ export function dealRandomHand(rng: () => number = Math.random): Card[] {
 /**
  * Pre-configured drill category filters.
  */
-export type DrillCategory = 'all' | 'pass' | '1nt' | 'major' | 'minor' | 'strong';
+export type DrillCategory = 'all' | 'pass' | '1nt' | 'major' | 'minor' | 'strong' | 'weak-two';
 
 export type PartnerOpeningBid = '1NT' | '1S' | '1H' | '1D' | '1C';
 
@@ -619,6 +639,24 @@ export function generateDrillHand(
   maxAttempts = 200,
   rng: () => number = Math.random
 ): { hand: Card[]; evaluation: HandEvaluation } {
+  if (category === 'weak-two') {
+    // Construct six-card candidates so targeted practice never falls back to
+    // an unrelated random opening after exhausting a rejection loop.
+    for (let attempt = 0; attempt < maxAttempts; attempt++) {
+      const suit = (['D', 'H', 'S'] as const)[Math.floor(rng() * 3)]!;
+      const deck = buildDeck();
+      const hand = [
+        ...shuffle(deck.filter(c => c.suit === suit), rng).slice(0, 6),
+        ...shuffle(deck.filter(c => c.suit !== suit), rng).slice(0, 7),
+      ];
+      const evaluation = evaluateHand(hand);
+      if (evaluation.ruleId === 'open_weak_two' && Object.values(evaluation.suitLengths).every(n => n <= 6)) return { hand, evaluation };
+    }
+    const hand = buildDeck().filter(c => ({
+      S: [12, 11, 10, 9, 8, 7], H: [14, 8, 3], D: [11, 7], C: [8, 2],
+    })[c.suit].includes(c.rank));
+    return { hand, evaluation: evaluateHand(hand) };
+  }
   for (let i = 0; i < maxAttempts; i++) {
     const hand = dealRandomHand(rng);
     const evaluation = evaluateHand(hand);

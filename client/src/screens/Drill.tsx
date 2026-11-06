@@ -46,6 +46,9 @@ const OPENING_BID_OPTIONS = [
   { id: '1S', label: '1♠', denom: 'S' },
   { id: '1NT', label: '1NT', denom: 'NT' },
   { id: '2C', label: '2♣', denom: 'C' },
+  { id: '2D', label: '2♦', denom: 'D' },
+  { id: '2H', label: '2♥', denom: 'H' },
+  { id: '2S', label: '2♠', denom: 'S' },
   { id: '2NT', label: '2NT', denom: 'NT' },
 ];
 
@@ -435,6 +438,7 @@ export function Drill() {
               { id: 'major', label: t(lang, 'drill.categoryMajor') },
               { id: 'minor', label: t(lang, 'drill.categoryMinor') },
               { id: 'strong', label: t(lang, 'drill.categoryStrong') },
+              { id: 'weak-two', label: t(lang, 'drill.categoryWeakTwo') },
             ] as const
           ).map(cat => (
             <button
