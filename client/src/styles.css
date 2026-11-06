@@ -2311,6 +2311,9 @@ table.standings tr.leader td { color: var(--accent); font-weight: 800; }
 /* Mode Switcher Tabs */
 .drill-mode-tabs {
   display: flex;
+  flex-wrap: wrap;
+  max-width: 100%;
+  box-sizing: border-box;
   gap: 8px;
   background: rgba(255, 255, 255, 0.06);
   padding: 4px;

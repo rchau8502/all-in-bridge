@@ -134,7 +134,7 @@ export function evaluateHand(hand: Card[]): HandEvaluation {
       ruleId: 'pass_sub_12',
       explanation: {
         en: `Only ${hcp} HCP: below the 12-HCP one-level opening threshold, with no qualifying weak two. Pass. Do not add points for a long suit; 2♣ remains a strong opening.`,
-        zh: `本手${hcp}大牌点，未达到一阶开叫12大牌点的标准，也不符合弱二开叫条件，选择Pass。开叫不自动加长套点；2♣仍是强开叫。`,
+        zh: `本手${hcp}大牌点，未达到一阶开叫12大牌点的标准，也不符合弱二开叫条件，选择不叫。开叫不自动加长套点；2♣仍是强开叫。`,
       },
     };
   }
@@ -211,11 +211,11 @@ export function evaluateHand(hand: Card[]): HandEvaluation {
         ruleId: 'open_major_high_five',
         explanation: {
           en: `Both majors are 5+ cards (${spades}♠, ${hearts}♥). Apply the "High Five" rule: open the higher-ranking major (1♠) first.`,
-          zh: `同时持有两门 5 张及以上高花（${spades}♠ 与 ${hearts}♥）。遵从 "High Five" 经典口诀：先开叫级别更高的高花（1♠）。`,
+          zh: `同时持有两门 5 张及以上高花（${spades}♠ 与 ${hearts}♥）。先开叫级别更高的高花（1♠）。`,
         },
         mnemonic: {
           en: 'High Five: With two 5-card suits, open the higher ranking first',
-          zh: 'High Five 口诀：手握两门 5 张套，先叫级别高者',
+          zh: '双五张套口诀：手握两门 5 张套，先叫级别高者',
         },
       };
     }
@@ -442,7 +442,7 @@ export function evaluateResponse(hand: Card[], partnerBid: PartnerOpeningBid): R
         trafficLight: hcp <= 7 ? 'stop' : hcp <= 9 ? 'invite' : 'go',
         explanation: {
           en: `Show your five-card or longer major with ${hearts ? '2♦' : '2♥'}, asking opener to bid 2${target}. The transfer is forcing one round and does not promise game strength. Opener can declare the major; after completion, pass with a weak hand or describe invitational or game-going strength.`,
-          zh: `有五张以上${hearts ? '红桃' : '黑桃'}，先叫${hearts ? '2♦' : '2♥'}转移，要求开叫者叫2${target}。转移逼叫一轮，不保证成局实力，让强无将开叫手有机会坐庄。完成转移后，弱牌可Pass；邀请或成局实力则继续描述。`,
+          zh: `有五张以上${hearts ? '红桃' : '黑桃'}，先叫${hearts ? '2♦' : '2♥'}转移，要求开叫者叫2${target}。转移逼叫一轮，不保证成局实力，让强无将开叫手有机会坐庄。完成转移后，弱牌可不叫；邀请或成局实力则继续描述。`,
         },
       };
     }
@@ -461,11 +461,11 @@ export function evaluateResponse(hand: Card[], partnerBid: PartnerOpeningBid): R
         trafficLight: 'stop',
         explanation: {
           en: `With ${hcp} HCP, no five-card major to transfer and insufficient strength for ordinary Stayman, pass. At most 17+7=24 HCP, below the usual 25-point game guideline.`,
-          zh: `本手${hcp}大牌点，没有五张高花可转移，也不够普通斯台曼的实力，选择Pass。联手最多17+7=24点，低于通常25点的成局参考线。`,
+          zh: `本手${hcp}大牌点，没有五张高花可转移，也不够普通斯台曼的实力，选择不叫。联手最多17+7=24点，低于通常25点的成局参考线。`,
         },
         mnemonic: {
           en: '1NT Response Traffic Light: 0-7 Stop (Pass)',
-          zh: '1NT 应叫红绿灯口诀：0-7 点红灯停（Pass）',
+          zh: '1NT 应叫红绿灯口诀：0-7 点红灯停（不叫）',
         },
       };
     }
@@ -540,7 +540,7 @@ export function evaluateResponse(hand: Card[], partnerBid: PartnerOpeningBid): R
     const symbol = { H: '♥', D: '♦', C: '♣' }[suit];
     return makeResponse(`2${suit}`, 'resp_major_two_over_one',
       `${hcp} HCP: respond 2${symbol}, a two-over-one game force. Describe your suit economically; partner must continue below game. Keep room to find the best game and explore slam rather than signing off immediately.`,
-      `本手${hcp}大牌点，先应叫2${symbol}，二盖一逼局。经济地描述花色，搭档在局以下不能Pass；保留寻找最佳成局与探索满贯的空间，不要过早封局。`,
+      `本手${hcp}大牌点，先应叫2${symbol}，二盖一逼局。经济地描述花色，搭档在局以下不能不叫；保留寻找最佳成局与探索满贯的空间，不要过早封局。`,
       0, supportLength, supportLength >= 3);
   };
 
@@ -551,7 +551,7 @@ export function evaluateResponse(hand: Card[], partnerBid: PartnerOpeningBid): R
     const points = hcp + dummy;
     if (points < 6) return makeResponse('Pass', 'resp_major_sub_6',
       `${points} points: too weak to respond to this major opening. Pass.`,
-      `本手${points}点，实力不足，面对高花开叫选择Pass。`, dummy, support, support >= 3);
+      `本手${points}点，实力不足，面对高花开叫选择不叫。`, dummy, support, support >= 3);
     if (support >= 3 && points <= 9) return makeResponse(`2${trump}`, 'resp_major_raise_2',
       `${support}-card support and ${points} support points: a simple raise, 6–9, non-forcing.`,
       `${support}张支持、${points}支持点：简单加叫到二阶，6–9点，不逼叫。`, dummy, support, true);
@@ -574,7 +574,7 @@ export function evaluateResponse(hand: Card[], partnerBid: PartnerOpeningBid): R
   const support = suitLengths[minor];
   if (hcp < 6) return makeResponse('Pass', 'resp_minor_sub_6',
     `${hcp} HCP: insufficient strength for a normal response. Pass.`,
-    `本手${hcp}大牌点，实力不足以正常应叫，选择Pass。`);
+    `本手${hcp}大牌点，实力不足以正常应叫，选择不叫。`);
   if (suitLengths.H >= 4 || suitLengths.S >= 4) {
     const spadesFirst = suitLengths.S > suitLengths.H || (suitLengths.S === suitLengths.H && suitLengths.S >= 5);
     const bid = spadesFirst ? '1S' : '1H';
@@ -593,7 +593,7 @@ export function evaluateResponse(hand: Card[], partnerBid: PartnerOpeningBid): R
     `本手${hcp}大牌点、${suitLengths.D}张方块：1♦自然应叫，没上限，逼叫一轮。强牌也先经济地描述，再继续说明。`);
   if (hcp >= 13 && partnerBid === '1D' && suitLengths.C >= 4) return makeResponse('2C', 'resp_minor_two_clubs',
     `${hcp} HCP and ${suitLengths.C} clubs: 1♦–2♣ is a natural two-over-one game force. Partner must continue below game. Neither the limited 1NT response nor a premature 3NT sign-off describes this strong hand; leave room to investigate slam.`,
-    `本手${hcp}大牌点、${suitLengths.C}张梅花：对1♦先叫2♣，自然二盖一逼局。搭档在局以下不能Pass；不能套用有限的1NT，强牌也不宜过早用3NT封局，以免漏贯。`);
+    `本手${hcp}大牌点、${suitLengths.C}张梅花：对1♦先叫2♣，自然二盖一逼局。搭档在局以下不能不叫；不能套用有限的1NT，强牌也不宜过早用3NT封局，以免漏贯。`);
   // CCBA permits four-card minor support in a genuinely game-forcing raise.
   if (hcp >= 16 && support >= 4) return makeResponse(`2${minor}`, 'resp_minor_strong_support',
     `${hcp} HCP and four-card minor support: a strong inverted raise. In the CCBA game-forcing branch four-card support is sufficient; this is not the ordinary 11+ invitational raise, which needs five. Keep describing stoppers and possible slam strength.`,
@@ -805,7 +805,7 @@ export function evaluateOvercall(hand: Card[], oppBid: OpponentOpeningBid): Over
   const minimum = SUIT_RANK_ORDER[best] > SUIT_RANK_ORDER[enemy] ? 8 : 11;
   return result('Pass', 'overcall_pass',
     `${hcp} HCP: no suitable natural overcall or takeout double. One-level suit entry needs 8+, two-level non-jump entry 11+, each with a good five-card or longer suit. A normal double needs 12+ and support for the unbid suits. Pass.`,
-    `本手${hcp}大牌点，没有合适的自然争叫或技术性加倍。一阶争叫8点起、二阶不跳争叫11点起，均需好五张以上套；普通技术性加倍12点起并支持未叫花色。选择Pass。`, best, minimum);
+    `本手${hcp}大牌点，没有合适的自然争叫或技术性加倍。一阶争叫8点起、二阶不跳争叫11点起，均需好五张以上套；普通技术性加倍12点起并支持未叫花色。选择不叫。`, best, minimum);
 }
 
 /**

@@ -94,6 +94,15 @@ export function App() {
   const [tick, setTick] = useState(0);
 
   useEffect(() => {
+    document.documentElement.lang = lang === 'zh' ? 'zh-CN' : 'en';
+    const titles: Record<ScreenName, string> = {
+      home: '', tutorial: t(lang, 'home.tutorial'), drill: t(lang, 'drill.title'),
+      freeplay: t(lang, 'freeplay.title'), reference: lang === 'zh' ? '叫牌速查表' : 'Bidding quick reference',
+    };
+    document.title = titles[screen] ? `${titles[screen]} | ${t(lang, 'app.title')}` : t(lang, 'app.title');
+  }, [lang, screen]);
+
+  useEffect(() => {
     const handleHash = () => {
       if (window.location.hash === '#bidding' || window.location.hash.startsWith('#bidding/')) setScreen('reference');
       else setScreen(previous => previous === 'reference' ? 'home' : previous);

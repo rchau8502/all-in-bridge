@@ -1,6 +1,7 @@
 import { useState, useMemo, useCallback } from 'react';
 import { useApp } from '../App.js';
-import { t, type I18nKey } from '../i18n.js';
+import { t, bidLabelL, type I18nKey } from '../i18n.js';
+import { parseBid } from '../../../shared/bidding.js';
 import { audio } from '../audio.js';
 import { CardView, Avatar } from '../components/ui.js';
 import {
@@ -28,6 +29,10 @@ import type { Card, Suit } from '../../../shared/deck.js';
 import { sortHand, cardLabel } from '../../../shared/deck.js';
 
 type DrillMode = 'basics' | 'opening' | 'responding' | 'overcall' | 'lead';
+const MODE_TITLES: Record<DrillMode, I18nKey> = {
+  basics: 'drill.modeBasics', opening: 'drill.modeOpening', responding: 'drill.modeResponding',
+  overcall: 'drill.modeOvercall', lead: 'drill.modeOpeningLead',
+};
 
 const BASICS_CATEGORIES: Array<{ id: BeginnerDrillCategory; labelKey: I18nKey }> = [
   { id: 'all', labelKey: 'drill.categoryBasicsAll' },
@@ -345,7 +350,7 @@ export function Drill() {
     : overcallDeal.evaluation;
 
   return (
-    <div className="drill-screen">
+    <div className="drill-screen" lang={lang === 'zh' ? 'zh-CN' : 'en'}>
       {/* Top control bar */}
       <div className="drill-header">
         <div className="drill-nav">
@@ -353,7 +358,7 @@ export function Drill() {
             ← {t(lang, 'tut.back')}
           </button>
           <div className="drill-title-wrap">
-            <h1 className="drill-title">🎯 {t(lang, 'drill.title')}</h1>
+            <h1 className="drill-title">🎯 {t(lang, MODE_TITLES[mode])}</h1>
             <span className="drill-subtitle">{t(lang, 'drill.subtitle')}</span>
           </div>
         </div>
@@ -523,7 +528,7 @@ export function Drill() {
             <div className="drill-partner-badge">
               <span className="partner-avatar-icon">🫱</span>
               <span className="partner-bid-lead">{t(lang, 'drill.partnerOpened')}</span>
-              <span className="partner-bid-val">{partnerBid}</span>
+              <span className="partner-bid-val">{bidLabelL(lang, parseBid(partnerBid))}</span>
               <span className="partner-bid-desc">
                 ({PARTNER_OPENINGS.find(p => p.id === partnerBid)?.desc[lang]})
               </span>
@@ -535,7 +540,7 @@ export function Drill() {
             <div className="drill-partner-badge opp-badge">
               <span className="partner-avatar-icon">⚔️</span>
               <span className="partner-bid-lead">{t(lang, 'drill.oppOpened')}</span>
-              <span className="partner-bid-val">{oppBid}</span>
+              <span className="partner-bid-val">{bidLabelL(lang, parseBid(oppBid))}</span>
               <span className="partner-bid-desc">
                 ({OPPONENT_OPENINGS.find(p => p.id === oppBid)?.desc[lang]})
               </span>
@@ -561,17 +566,17 @@ export function Drill() {
                 <div className="basics-trick-felt">
                   {basicsProblem.trickPlays.map(tp => (
                     <div key={tp.seat} className="basics-trick-player-card">
-                      <span className="basics-seat-pill">{tp.label ?? tp.seat}</span>
-                      <CardView card={tp.card} />
+                      <span className="basics-seat-pill">{tp.label?.[lang] ?? tp.seat}</span>
+                      <CardView card={tp.card} lang={lang} />
                     </div>
                   ))}
                 </div>
               </div>
             ) : basicsProblem.cards && basicsProblem.cards.length > 0 ? (
-              <div className="drill-hand-display" role="region" aria-label="Problem cards">
+              <div className="drill-hand-display" role="region" aria-label={t(lang, 'drill.problemCards')}>
                 {basicsProblem.cards.map((c, i) => (
                   <div key={`${c.suit}${c.rank}-${i}`} className="card-fan-wrapper">
-                    <CardView card={c} />
+                    <CardView card={c} lang={lang} />
                   </div>
                 ))}
               </div>
@@ -586,7 +591,7 @@ export function Drill() {
               </div>
             )
           ) : (
-            <div className="drill-hand-display" role="region" aria-label="13-card hand">
+            <div className="drill-hand-display" role="region" aria-label={t(lang, 'drill.handCards')}>
               {handGroups.map(group => {
                 const count = group.cards.length;
                 const mid = (count - 1) / 2;
@@ -610,6 +615,7 @@ export function Drill() {
                         >
                           <CardView
                             card={c}
+                            lang={lang}
                             playable={mode === 'lead' && !isLeadAnswered}
                             selected={isSelectedLead}
                             target={isTargetLead}
@@ -662,20 +668,20 @@ export function Drill() {
                         </span>
                         {(activeEval as ResponseEvaluation).hasGoldenFit && (
                           <span className="metric-chip fit-gold">
-                            ✨ {t(lang, 'drill.goldenFit')} ({(activeEval as ResponseEvaluation).supportLength}张)
+                            ✨ {t(lang, 'drill.goldenFit')} ({t(lang, 'drill.supportCount', { n: (activeEval as ResponseEvaluation).supportLength })})
                           </span>
                         )}
                       </>
                     ) : mode === 'overcall' ? (
                       <>
                         <span className={`metric-chip ${(activeEval as OvercallEvaluation).breakdown.pointsOk ? 'highlight' : ''}`}>
-                          {(activeEval as OvercallEvaluation).breakdown.pointsOk ? '✓' : '✗'} 10+ {t(lang, 'drill.hcpLabel')}
+                          {(activeEval as OvercallEvaluation).breakdown.pointsOk ? '✓' : '✗'} {t(lang, 'drill.strengthCheck')}
                         </span>
                         <span className={`metric-chip ${(activeEval as OvercallEvaluation).breakdown.lengthOk ? 'highlight' : ''}`}>
-                          {(activeEval as OvercallEvaluation).breakdown.lengthOk ? '✓' : '✗'} 5+ {lang === 'zh' ? '套长' : 'Length'}
+                          {(activeEval as OvercallEvaluation).breakdown.lengthOk ? '✓' : '✗'} {t(lang, 'drill.shapeCheck')}
                         </span>
                         <span className={`metric-chip ${(activeEval as OvercallEvaluation).breakdown.honorsOk ? 'highlight' : ''}`}>
-                          {(activeEval as OvercallEvaluation).breakdown.honorsOk ? '✓' : '✗'} 2 {lang === 'zh' ? '大牌' : 'Honors'}
+                          {(activeEval as OvercallEvaluation).breakdown.honorsOk ? '✓' : '✗'} {t(lang, 'drill.qualityCheck')}
                         </span>
                       </>
                     ) : (
@@ -784,7 +790,7 @@ export function Drill() {
                     onClick={() => handleSelectBid(opt.id)}
                     disabled={isAnswered}
                   >
-                    {opt.label}
+                    {bidLabelL(lang, parseBid(opt.id))}
                   </button>
                 );
               })}
@@ -822,8 +828,8 @@ export function Drill() {
                         ? '🎉 回答完全正确！'
                         : '🎉 Excellent Call!'
                       : lang === 'zh'
-                      ? `💪 标准决策应为 ${targetBid}`
-                      : `💪 Correct Call is ${targetBid}`}
+                      ? `💪 标准决策应为 ${bidLabelL(lang, parseBid(targetBid))}`
+                      : `💪 Correct Call is ${bidLabelL(lang, parseBid(targetBid))}`}
                   </h3>
                   {mode === 'lead' && (
                     <div className="feedback-rule-badge">

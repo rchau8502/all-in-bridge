@@ -16,18 +16,20 @@ const RANK_NAME: Record<number, string> = {
 const SUIT_NAME: Record<string, string> = { S: 'Spades', H: 'Hearts', D: 'Diamonds', C: 'Clubs' };
 
 /** Spoken name for screen readers, e.g. "Ace of Diamonds". */
-export function cardName(card: Card): string {
+export function cardName(card: Card, lang: Lang = 'en'): string {
+  if (lang === 'zh') return `${{ S: '黑桃', H: '红桃', D: '方块', C: '梅花' }[card.suit]}${RANK_LABEL[card.rank]}`;
   return `${RANK_NAME[card.rank]} of ${SUIT_NAME[card.suit]}`;
 }
 
 export function CardView({
-  card, small, dim, onClick, playable, selected, target, focus,
+  card, small, dim, onClick, playable, selected, target, focus, lang,
 }: {
   card: Card; small?: boolean; dim?: boolean;
   onClick?: () => void; playable?: boolean; selected?: boolean; target?: boolean;
   /** The coach is talking about this card right now — highlight it so the
    *  learner can find it in their hand, without implying "click to play". */
   focus?: boolean;
+  lang?: Lang;
 }) {
   const cls = [
     'card', SUIT_CLASS[card.suit], small ? 'small' : '',
@@ -45,10 +47,10 @@ export function CardView({
     <div
       className={cls}
       onClick={onClick}
-      title={cardLabel(card)}
+      title={lang ? cardName(card, lang) : cardLabel(card)}
       role={onClick ? 'button' : undefined}
       tabIndex={onClick ? 0 : undefined}
-      aria-label={onClick ? cardName(card) : undefined}
+      aria-label={onClick ? cardName(card, lang) : undefined}
       onKeyDown={onClick ? handleKey : undefined}
     >
       <span className="corner tl">

@@ -35,7 +35,7 @@ export interface BeginnerDrillProblem {
   question: { en: string; zh: string };
   contextBadge?: { en: string; zh: string } | undefined;
   cards?: Card[] | undefined;
-  trickPlays?: Array<{ seat: Seat; card: Card; label?: string }> | undefined;
+  trickPlays?: Array<{ seat: Seat; card: Card; label?: { en: string; zh: string } }> | undefined;
   trump?: Suit | null | undefined;
   options: BeginnerDrillOption[];
   explanation: { en: string; zh: string };
@@ -101,7 +101,7 @@ function generateFollowSuitProblem(rng: () => number): BeginnerDrillProblem {
       options,
       explanation: {
         en: `Universal Bridge Law: You MUST follow suit if you hold a card of the suit led (${suitNamesEN[leadSuit]}). You hold ${cardLabel(followCard)}, so you must play it regardless of high cards in other suits!`,
-        zh: `桥牌铁律：有同花色必须跟出（Follow Suit）！你手中持有同门的 ${cardLabel(followCard)}（${suitNamesZH[leadSuit]}），因此必须跟出该花色，绝对不能贪大垫其他花色！`,
+        zh: `桥牌铁律：有同花色必须跟出！你手中持有同门的 ${cardLabel(followCard)}（${suitNamesZH[leadSuit]}），因此必须跟出该花色，绝对不能贪大垫其他花色！`,
       },
       mnemonic: {
         en: 'Follow Suit: You must play the led suit if you have it!',
@@ -211,7 +211,7 @@ function generateBookMathProblem(rng: () => number): BeginnerDrillProblem {
     options,
     explanation: {
       en: `In bridge, the "Book" is always 6 tricks. The contract level (${level}) is added to the 6-trick book: 6 + ${level} = ${targetTricks} total tricks required!`,
-      zh: `桥牌的『底墩 (Book)』恒定为 6 墩。定约阶数（${level} 阶）代表在底墩之上的承诺增量：目标墩数 = 6 + ${level} = ${targetTricks} 墩！`,
+      zh: `桥牌的底墩恒定为 6 墩。定约阶数（${level} 阶）代表在底墩之上的承诺增量：目标墩数 = 6 + ${level} = ${targetTricks} 墩！`,
     },
     mnemonic: {
       en: 'The Book is 6: Target Tricks = 6 + Bid Level',
@@ -238,10 +238,10 @@ function generateTrickWinnerProblem(rng: () => number): BeginnerDrillProblem {
     const fourthCard: Card = { suit: offSuit, rank: 13 }; // K in off suit (discard, cannot win)
 
     const plays = [
-      { seat: 'W' as Seat, card: leadCard, label: 'West (Leader)' },
-      { seat: 'N' as Seat, card: secondCard, label: 'North' },
-      { seat: 'E' as Seat, card: thirdCard, label: 'East' },
-      { seat: 'S' as Seat, card: fourthCard, label: 'South (Discard)' },
+      { seat: 'W' as Seat, card: leadCard, label: {"en": "West (Leader)", "zh": "西家（首引）"} },
+      { seat: 'N' as Seat, card: secondCard, label: {"en": "North", "zh": "北家"} },
+      { seat: 'E' as Seat, card: thirdCard, label: {"en": "East", "zh": "东家"} },
+      { seat: 'S' as Seat, card: fourthCard, label: {"en": "South (Discard)", "zh": "南家（垫牌）"} },
     ];
 
     const options: BeginnerDrillOption[] = [
@@ -286,10 +286,10 @@ function generateTrickWinnerProblem(rng: () => number): BeginnerDrillProblem {
     const fourthCard: Card = { suit: leadSuit, rank: 13 }; // ♣K
 
     const plays = [
-      { seat: 'W' as Seat, card: leadCard, label: 'West (♣A led)' },
-      { seat: 'N' as Seat, card: secondCard, label: 'North (♣8)' },
-      { seat: 'E' as Seat, card: thirdCard, label: 'East (♥2 Ruff)' },
-      { seat: 'S' as Seat, card: fourthCard, label: 'South (♣K)' },
+      { seat: 'W' as Seat, card: leadCard, label: {"en": "West (♣A led)", "zh": "西家（首引♣A）"} },
+      { seat: 'N' as Seat, card: secondCard, label: {"en": "North (♣8)", "zh": "北家（♣8）"} },
+      { seat: 'E' as Seat, card: thirdCard, label: {"en": "East (♥2 Ruff)", "zh": "东家（♥2将吃）"} },
+      { seat: 'S' as Seat, card: fourthCard, label: {"en": "South (♣K)", "zh": "南家（♣K）"} },
     ];
 
     const options: BeginnerDrillOption[] = [
