@@ -1085,7 +1085,9 @@ export function evaluateOpeningLead(
     }
   }
 
-  const safeGroup = sideGroups.find(g => !g.cards.some(c => c.rank === 14)) ?? sideGroups[0]!;
+  const safeGroup = sideGroups.find(g => g.len > 0 && !g.cards.some(c => c.rank === 14))
+    ?? sideGroups.find(g => g.len > 0)
+    ?? { cards: trumpCards };
   const leadCard = safeGroup.cards[safeGroup.cards.length - 1]!;
   return {
     contract,

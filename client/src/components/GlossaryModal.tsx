@@ -1,3 +1,4 @@
+import { useModal } from './useModal.js';
 import { useState, useMemo, useEffect } from 'react';
 import type { Lang } from '../i18n.js';
 import { getGlossaryTerms, type TermCategory } from '../../../shared/glossary.js';
@@ -34,26 +35,20 @@ export function GlossaryModal({ lang, isOpen, onClose, initialQuery = '' }: Glos
   useEffect(() => {
     if (isOpen) {
       setQuery(initialQuery);
-      const handleKeyDown = (e: KeyboardEvent) => {
-        if (e.key === 'Escape') {
-          e.preventDefault();
-          onClose();
-        }
-      };
-      window.addEventListener('keydown', handleKeyDown);
-      return () => window.removeEventListener('keydown', handleKeyDown);
     }
-  }, [isOpen, initialQuery, onClose]);
+  }, [isOpen, initialQuery]);
 
   const terms = useMemo(() => {
     return getGlossaryTerms(lang, selectedCat, query);
   }, [lang, selectedCat, query]);
 
+  const dialogRef = useModal(isOpen, onClose);
+
   if (!isOpen) return null;
 
   return (
-    <div className="glossary-backdrop" onClick={onClose} role="dialog" aria-modal="true">
-      <div className="glossary-dialog" onClick={e => e.stopPropagation()}>
+    <div className="glossary-backdrop" onClick={onClose}>
+      <div ref={dialogRef} tabIndex={-1} role="dialog" aria-modal="true" aria-label={lang === 'zh' ? '桥牌词典' : 'Bridge glossary'} className="glossary-dialog" onClick={e => e.stopPropagation()}>
         <div className="glossary-header">
           <div className="glossary-title">
             <span className="glossary-icon">📖</span>
@@ -75,7 +70,6 @@ export function GlossaryModal({ lang, isOpen, onClose, initialQuery = '' }: Glos
             placeholder={lang === 'zh' ? '搜索术语、口诀或规则（如 飞牌、HCP、争叫）...' : 'Search terms or mnemonics (e.g. Finesse, HCP, High Five)...'}
             value={query}
             onChange={e => setQuery(e.target.value)}
-            autoFocus
           />
         </div>
 

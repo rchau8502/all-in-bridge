@@ -74,8 +74,8 @@ describe('dds - Double Dummy Analysis & Makeable Contracts', () => {
     const par = calculateParScore(table, 'None');
     expect(par.score).toBeGreaterThanOrEqual(400); // 4S makes (+420)
     expect(par.contract).toContain('4');
-    expect(par.text.en).toContain('Par:');
-    expect(par.text.zh).toContain('标准定约:');
+    expect(par.text.en).toContain('Estimated best making score:');
+    expect(par.text.zh).toContain('估算最佳成约得分:');
   });
 
   it('analyzes deal completely with HCP breakdown and par score', () => {

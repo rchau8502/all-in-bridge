@@ -1,9 +1,9 @@
 /**
- * dds.ts — Double Dummy Analysis & Makeable Contracts Matrix
+ * dds.ts — Heuristic trick and contract estimates (not a double-dummy solver)
  *
- * Implements standard duplicate bridge makeable contracts evaluation (20 combinations:
- * 4 seats x 5 strains: NT, Spades, Hearts, Diamonds, Clubs), Optimum Result calculation,
- * Par Score calculation, and PBN [Ability] tag formatting.
+ * Estimates 20 seat/strain combinations from hand strength and shape.
+ * Contract comparisons omit competitive bidding and sacrifices; they are not par.
+ * PBN tag helpers are retained for callers with independently validated solver data.
  */
 
 import type { Card, Hands, Seat, Suit } from './deck.js';
@@ -244,7 +244,7 @@ function estimateTricks(
 }
 
 /**
- * Compute the complete 4x5 Makeable Contracts Table (Double Dummy Matrix).
+ * Estimate a 4x5 trick table. Values are heuristic, not proven makeable tricks.
  */
 export function calculateMakeableContracts(hands: Hands): MakeableTable {
   const table: MakeableTable = {
@@ -313,7 +313,8 @@ export function parseAbilityTag(tagValue: string): MakeableTable {
 }
 
 /**
- * Calculate the Par Score and Par Contract from a MakeableTable.
+ * Compare the highest-scoring estimated making contracts. This does not compute par.
+ * The legacy function name is retained for compatibility.
  */
 export function calculateParScore(
   table: MakeableTable,
@@ -372,7 +373,7 @@ export function calculateParScore(
     }
   }
 
-  // Equilibrium Par contract
+  // Highest estimated making score; sacrifices are not evaluated.
   if (bestNsContract && (!bestEwContract || bestNsScore >= bestEwScore)) {
     const cStr = `${bestNsContract.level}${bestNsContract.strain} ${bestNsContract.seat}`;
     return {
@@ -384,8 +385,8 @@ export function calculateParScore(
       seat: bestNsContract.seat,
       doubled: false,
       text: {
-        en: `Par: NS ${cStr} (+${bestNsScore})`,
-        zh: `标准定约: 北南 ${cStr} (+${bestNsScore})`,
+        en: `Estimated best making score: NS ${cStr} (+${bestNsScore})`,
+        zh: `估算最佳成约得分: 北南 ${cStr} (+${bestNsScore})`,
       },
     };
   } else if (bestEwContract) {
@@ -399,8 +400,8 @@ export function calculateParScore(
       seat: bestEwContract.seat,
       doubled: false,
       text: {
-        en: `Par: EW ${cStr} (-${bestEwScore})`,
-        zh: `标准定约: 东西 ${cStr} (-${bestEwScore})`,
+        en: `Estimated best making score: EW ${cStr} (-${bestEwScore})`,
+        zh: `估算最佳成约得分: 东西 ${cStr} (-${bestEwScore})`,
       },
     };
   }
@@ -414,14 +415,14 @@ export function calculateParScore(
     seat: 'N',
     doubled: false,
     text: {
-      en: 'Par: Pass Out (0)',
-      zh: '标准定约: 全场弃牌 (0)',
+      en: 'Estimated best making score: Pass Out (0)',
+      zh: '估算最佳成约得分: 全场弃牌 (0)',
     },
   };
 }
 
 /**
- * Full deal analysis packaging makeable table, par result, and HCP breakdown.
+ * Full deal analysis packaging heuristic trick/score estimates and HCP breakdown.
  */
 export function analyzeDeal(hands: Hands): DealAnalysis {
   const hcp: Record<Seat, number> = {

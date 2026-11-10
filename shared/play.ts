@@ -106,11 +106,10 @@ export class PlayState {
       const trump = this.contract.denom === 'NT' ? null : this.contract.denom;
       const winner = trickWinner(lastTrick, trump);
       this.tricksWon[seatSide(winner)]--;
-      for (let i = 1; i < 4; i++) {
-        this.hands[lastTrick[i]!.seat].push(lastTrick[i]!.card);
-      }
-      this.currentTrick = [lastTrick[0]!];
-      this.turn = lastTrick[1]!.seat;
+      const last = lastTrick[3]!;
+      this.hands[last.seat].push(last.card);
+      this.currentTrick = lastTrick.slice(0, 3);
+      this.turn = last.seat;
       return true;
     }
     return false;

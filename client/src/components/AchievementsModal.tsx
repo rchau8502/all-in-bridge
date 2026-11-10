@@ -1,4 +1,5 @@
-import { useState, useEffect, useRef } from 'react';
+import { useModal } from './useModal.js';
+import { useState } from 'react';
 import type { Lang } from '../i18n.js';
 import { t } from '../i18n.js';
 import { ACHIEVEMENTS } from '../../../shared/achievements.js';
@@ -18,19 +19,7 @@ export function AchievementsModal({
   onClose,
 }: AchievementsModalProps) {
   const [activeTab, setActiveTab] = useState<'all' | 'tutorial' | 'drill' | 'play'>('all');
-  const dialogRef = useRef<HTMLDivElement>(null);
-
-  useEffect(() => {
-    if (!isOpen) return;
-    const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') {
-        audio.sfx('click');
-        onClose();
-      }
-    };
-    window.addEventListener('keydown', handleKeyDown);
-    return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [isOpen, onClose]);
+  const dialogRef = useModal(isOpen, onClose);
 
   if (!isOpen) return null;
 
@@ -51,6 +40,7 @@ export function AchievementsModal({
       <div
         className="modal-dialog achievements-dialog"
         ref={dialogRef}
+        tabIndex={-1}
         role="dialog"
         aria-modal="true"
         aria-label={t(lang, 'achievements.title')}

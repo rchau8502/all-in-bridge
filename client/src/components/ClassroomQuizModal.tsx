@@ -1,3 +1,4 @@
+import { useModal } from './useModal.js';
 import { useState, useEffect } from 'react';
 import { t, type Lang } from '../i18n.js';
 import { audio } from '../audio.js';
@@ -23,14 +24,7 @@ export function ClassroomQuizModal({ isOpen, onClose, lang, board }: ClassroomQu
     }
   }, [isOpen, board.id]);
 
-  useEffect(() => {
-    if (!isOpen) return;
-    const onKey = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') onClose();
-    };
-    window.addEventListener('keydown', onKey);
-    return () => window.removeEventListener('keydown', onKey);
-  }, [isOpen, onClose]);
+  const dialogRef = useModal(isOpen && board.quizzes.length > 0, onClose);
 
   if (!isOpen || board.quizzes.length === 0) return null;
 
@@ -61,7 +55,7 @@ export function ClassroomQuizModal({ isOpen, onClose, lang, board }: ClassroomQu
 
   return (
     <div className="glossary-backdrop" onClick={onClose}>
-      <div className="classroom-quiz-card" onClick={e => e.stopPropagation()}>
+      <div ref={dialogRef} tabIndex={-1} role="dialog" aria-modal="true" aria-label={t(lang, 'quiz.modalTitle')} className="classroom-quiz-card" onClick={e => e.stopPropagation()}>
         {/* Header */}
         <div className="quiz-card-header">
           <div className="quiz-header-titles">

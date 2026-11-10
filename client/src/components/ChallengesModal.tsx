@@ -1,4 +1,5 @@
-import { useEffect, useRef } from 'react';
+import { useModal } from './useModal.js';
+
 import type { Lang } from '../i18n.js';
 import { t, bidLabelL } from '../i18n.js';
 import { audio } from '../audio.js';
@@ -19,19 +20,7 @@ export function ChallengesModal({
   onSelectChallenge,
   onClose,
 }: ChallengesModalProps) {
-  const dialogRef = useRef<HTMLDivElement>(null);
-
-  useEffect(() => {
-    if (!isOpen) return;
-    const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') {
-        audio.sfx('click');
-        onClose();
-      }
-    };
-    window.addEventListener('keydown', handleKeyDown);
-    return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [isOpen, onClose]);
+  const dialogRef = useModal(isOpen, onClose);
 
   if (!isOpen) return null;
 
@@ -50,6 +39,7 @@ export function ChallengesModal({
       <div
         className="modal-dialog challenges-dialog"
         ref={dialogRef}
+        tabIndex={-1}
         role="dialog"
         aria-modal="true"
         aria-label={t(lang, 'challenges.modalTitle')}

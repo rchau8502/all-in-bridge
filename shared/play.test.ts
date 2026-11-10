@@ -133,6 +133,30 @@ describe('PlayState', () => {
     expect(JSON.stringify(hands)).toBe(before);
   });
 
+  it('undoes only the fourth card of a completed trick and can replay it', () => {
+    const ps = setup();
+    const cards = [];
+    for (let i = 0; i < 4; i++) {
+      const seat = ps.turn;
+      const card = ps.legalPlays()[0]!;
+      cards.push({ seat, card });
+      ps.play(card);
+    }
+    const winner = ps.turn;
+    const remaining = JSON.stringify(ps.hands);
+    expect(ps.undoPlay()).toBe(true);
+    expect(ps.currentTrick).toEqual(cards.slice(0, 3));
+    expect(ps.completedTricks).toHaveLength(0);
+    expect(ps.tricksWon.NS + ps.tricksWon.EW).toBe(0);
+    expect(ps.turn).toBe(cards[3]!.seat);
+    expect(ps.legalPlays()).toContainEqual(cards[3]!.card);
+    ps.play(cards[3]!.card);
+    expect(ps.turn).toBe(winner);
+    expect(ps.completedTricks).toEqual([cards]);
+    expect(ps.tricksWon.NS + ps.tricksWon.EW).toBe(1);
+    expect(JSON.stringify(ps.hands)).toBe(remaining);
+  });
+
   it('can undo an in-progress card play or full completed trick', () => {
     const ps = setup();
     expect(ps.canUndo()).toBe(false);

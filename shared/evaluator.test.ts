@@ -16,6 +16,23 @@ import {
 import { buildDeck, type Card } from './deck.js';
 
 describe('Hand Evaluator — ACBL Standards', () => {
+  it('recommends a held card when the only side suit without an ace is void', () => {
+    const hand: Card[] = [
+      ...[14, 13, 12, 11].map(rank => ({ suit: 'S' as const, rank })),
+      ...[14, 8, 6, 4].map(rank => ({ suit: 'H' as const, rank })),
+      ...[14, 9, 7, 5, 3].map(rank => ({ suit: 'C' as const, rank })),
+    ];
+    const result = evaluateOpeningLead(hand, { level: 4, denom: 'S', declarer: 'S', doubled: 0 }, null);
+    expect(hand).toContainEqual(result.recommendedCard);
+    expect(result.explanation.en).not.toContain('undefined');
+  });
+
+  it('can recommend a trump when the hand has no side-suit cards', () => {
+    const hand: Card[] = Array.from({ length: 13 }, (_, i) => ({ suit: 'S', rank: i + 2 }));
+    const result = evaluateOpeningLead(hand, { level: 4, denom: 'S', declarer: 'S', doubled: 0 }, null);
+    expect(hand).toContainEqual(result.recommendedCard);
+  });
+
   it('entire 52-card deck totals 40 HCP', () => {
     const deck = buildDeck();
     expect(calculateHcp(deck)).toBe(40);

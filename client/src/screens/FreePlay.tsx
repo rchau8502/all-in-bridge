@@ -19,7 +19,7 @@ import { Auction, DENOM_ORDER, type Bid, type Contract, type Denom } from '../..
 import { explainBid } from '../../../shared/bidding-explain.js';
 import { generateArchetypeDeal, DEAL_ARCHETYPES, type DealArchetype } from '../../../shared/deal-generator.js';
 import { calculateHcp } from '../../../shared/evaluator.js';
-import { analyzeDeal, formatAbilityTag, STRAINS } from '../../../shared/dds.js';
+import { analyzeDeal, STRAINS } from '../../../shared/dds.js';
 import { evaluateMiniBridgeDeal, type MiniBridgeEvaluation } from '../../../shared/minibridge.js';
 import { CLASSROOM_BOARDS, type ClassroomBoard } from '../../../shared/classroom-boards.js';
 import { ClassroomQuizModal } from '../components/ClassroomQuizModal.js';
@@ -1447,14 +1447,17 @@ export function FreePlay(props?: FreePlayProps) {
               </div>
             </div>
 
-            {/* Double Dummy Makeable Contracts Matrix */}
+            {/* Heuristic trick estimates */}
             <div className="result-dds-section">
               <div className="dds-header-row">
                 <span className="dds-title">
-                  📊 {lang === 'zh' ? '双明手可成定约 (Makeable Contracts)' : 'Makeable Contracts (Double Dummy)'}
+                  📊 {lang === 'zh' ? '预计赢墩（启发式估算）' : 'Estimated tricks (heuristic)'}
                 </span>
                 <span className="dds-par-tag">{dealAnalysis.par.text[lang]}</span>
               </div>
+              <p>{lang === 'zh'
+                ? '按牌力与牌型粗略估算，并非双明手求解。得分比较未考虑竞争叫牌或牺牲叫，不是标准分。'
+                : 'Approximate estimates from strength and shape, not double-dummy analysis. Score comparisons omit competitive bidding and sacrifices; they are not par.'}</p>
               <table className="dds-matrix-table">
                 <thead>
                   <tr>
@@ -1541,7 +1544,7 @@ export function FreePlay(props?: FreePlayProps) {
       <PbnModal
         lang={lang}
         isOpen={pbnOpen}
-        currentDealPbn={exportFullPbn(dealHands, boardNo, 'N', 'None', formatAbilityTag(dealAnalysis.makeable))}
+        currentDealPbn={exportFullPbn(dealHands, boardNo, 'N', 'None')}
         onLoadPbn={(pbnStr) => {
           const imported = importDealFromPbn(pbnStr);
           setActiveChallenge(null);

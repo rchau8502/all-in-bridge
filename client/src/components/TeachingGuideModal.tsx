@@ -1,4 +1,5 @@
-import { useState, useEffect } from 'react';
+import { useModal } from './useModal.js';
+import { useState } from 'react';
 import { t, type Lang } from '../i18n.js';
 import { audio } from '../audio.js';
 
@@ -25,20 +26,13 @@ export function TeachingGuideModal({
 }: TeachingGuideModalProps) {
   const [activeTab, setActiveTab] = useState<GuideTab>('flow');
 
-  useEffect(() => {
-    if (!isOpen) return;
-    const onKey = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') onClose();
-    };
-    window.addEventListener('keydown', onKey);
-    return () => window.removeEventListener('keydown', onKey);
-  }, [isOpen, onClose]);
+  const dialogRef = useModal(isOpen, onClose);
 
   if (!isOpen) return null;
 
   return (
     <div className="glossary-backdrop" onClick={onClose}>
-      <div className="teaching-guide-modal-card" onClick={e => e.stopPropagation()}>
+      <div ref={dialogRef} tabIndex={-1} role="dialog" aria-modal="true" aria-label={t(lang, 'guide.title')} className="teaching-guide-modal-card" onClick={e => e.stopPropagation()}>
         {/* Modal Header */}
         <div className="glossary-header">
           <div className="glossary-title-wrap">

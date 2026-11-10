@@ -1,3 +1,4 @@
+import { useModal } from './useModal.js';
 import { useState, useMemo, useEffect } from 'react';
 import { t, type Lang, seatLabel, bidLabelL } from '../i18n.js';
 import { audio } from '../audio.js';
@@ -55,17 +56,11 @@ export function DealBuilderModal(props: DealBuilderModalProps) {
   const [declarer, setDeclarer] = useState<Seat>(() => props.initialContract?.declarer ?? 'S');
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
 
+  const dialogRef = useModal(isOpen, onClose);
+
   useEffect(() => {
-    if (!isOpen) {
-      setErrorMsg(null);
-      return;
-    }
-    const onKey = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') onClose();
-    };
-    window.addEventListener('keydown', onKey);
-    return () => window.removeEventListener('keydown', onKey);
-  }, [isOpen, onClose]);
+    if (!isOpen) setErrorMsg(null);
+  }, [isOpen]);
 
   // Derive 4 hands from assignment mapping
   const hands = useMemo<Hands>(() => {
@@ -205,7 +200,7 @@ export function DealBuilderModal(props: DealBuilderModalProps) {
 
   return (
     <div className="glossary-backdrop" onClick={onClose}>
-      <div className="deal-builder-card" onClick={e => e.stopPropagation()}>
+      <div ref={dialogRef} tabIndex={-1} role="dialog" aria-modal="true" aria-label={t(lang, 'builder.title')} className="deal-builder-card" onClick={e => e.stopPropagation()}>
         {/* Header */}
         <div className="glossary-header">
           <div className="glossary-title-wrap">

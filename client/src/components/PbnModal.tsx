@@ -1,4 +1,5 @@
-import { useState, useEffect, useRef } from 'react';
+import { useModal } from './useModal.js';
+import { useState, useEffect } from 'react';
 import type { Lang } from '../i18n.js';
 import { t } from '../i18n.js';
 import { audio } from '../audio.js';
@@ -21,7 +22,7 @@ export function PbnModal({
   const [pasteText, setPasteText] = useState('');
   const [copied, setCopied] = useState(false);
   const [errorMsg, setErrorMsg] = useState('');
-  const dialogRef = useRef<HTMLDivElement>(null);
+  const dialogRef = useModal(isOpen, onClose);
 
   useEffect(() => {
     if (!isOpen) return;
@@ -29,18 +30,6 @@ export function PbnModal({
     setCopied(false);
     setErrorMsg('');
   }, [isOpen]);
-
-  useEffect(() => {
-    if (!isOpen) return;
-    const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') {
-        audio.sfx('click');
-        onClose();
-      }
-    };
-    window.addEventListener('keydown', handleKeyDown);
-    return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [isOpen, onClose]);
 
   if (!isOpen) return null;
 
@@ -85,6 +74,7 @@ export function PbnModal({
       <div
         className="modal-dialog pbn-dialog"
         ref={dialogRef}
+        tabIndex={-1}
         role="dialog"
         aria-modal="true"
         aria-label={t(lang, 'pbn.modalTitle')}

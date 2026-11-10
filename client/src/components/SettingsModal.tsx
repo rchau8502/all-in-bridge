@@ -1,3 +1,4 @@
+import { useModal } from './useModal.js';
 import { useState, useEffect } from 'react';
 import { t, type Lang } from '../i18n.js';
 import { audio } from '../audio.js';
@@ -32,17 +33,11 @@ export function SettingsModal(props: SettingsModalProps) {
   const [hapticsOn, setHapticsOn] = useState(() => audio.hapticsOn);
   const [confirmReset, setConfirmReset] = useState(false);
 
+  const dialogRef = useModal(isOpen, onClose);
+
   useEffect(() => {
-    if (!isOpen) {
-      setConfirmReset(false);
-      return;
-    }
-    const onKey = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') onClose();
-    };
-    window.addEventListener('keydown', onKey);
-    return () => window.removeEventListener('keydown', onKey);
-  }, [isOpen, onClose]);
+    if (!isOpen) setConfirmReset(false);
+  }, [isOpen]);
 
   if (!isOpen) return null;
 
@@ -82,7 +77,7 @@ export function SettingsModal(props: SettingsModalProps) {
 
   return (
     <div className="glossary-backdrop" onClick={onClose}>
-      <div className="settings-modal-card" onClick={e => e.stopPropagation()}>
+      <div ref={dialogRef} tabIndex={-1} role="dialog" aria-modal="true" aria-label={t(lang, 'settings.title')} className="settings-modal-card" onClick={e => e.stopPropagation()}>
         <div className="glossary-header">
           <div className="glossary-title-wrap">
             <h2 className="glossary-title">⚙️ {t(lang, 'settings.title')}</h2>
