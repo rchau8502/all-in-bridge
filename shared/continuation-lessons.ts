@@ -34,8 +34,8 @@ export const COURSE_MODULES = [
         "叫牌是对话，不只是点力阶梯。每次先问：我还有没有有用的新信息？我的手牌说完了吗？搭档上一声允许我停吗？如果搭档要求回应，“没什么精彩的可说”不等于可以Pass，仍须经济而真实地补充描述。"
       ],
       [
-        "After an uncontested 1♥ or 1♠ opening by partner, an unpassed responder uses our semi-forcing 1NT with about 5–12 points. It catches the non-game-forcing hands that have not already been described by an economical one-level new suit or a simple raise. It is a waiting message, not a promise of balance or no fit.",
-        "搭档无干扰开叫1♥或1♠，应叫者未Pass过时，本课用约5–12点的半逼叫1NT过渡。它容纳尚未通过经济一阶新花或简单加叫表达的各种非逼局牌，是等待继续说话的消息，不保证均型，也不保证没有配合。"
+        "After an uncontested 1♥ or 1♠ opening by partner, an unpassed responder uses semi-forcing 1NT with about 5–12 points. It catches the non-game-forcing hands that have not already been described by an economical one-level new suit or a simple raise. It is a waiting message, not a promise of balance or no fit.",
+        "搭档无干扰开叫1♥或1♠，应叫者未Pass过时，可用约5–12点的半逼叫1NT过渡。它容纳尚未通过经济一阶新花或简单加叫表达的各种非逼局牌，是等待继续说话的消息，不保证均型，也不保证没有配合。"
       ],
       [
         "Its range is wide: a weak hand, an 11-point hand with three-card support, or a shapely hand with a void and a long suit can all start here. A two-over-one response would promise 13+ and force game, so these hands cannot use that route just to show a suit. With four spades over 1♥, or a minimum hand that can directly support the major, show that information first rather than putting every non-GF hand into 1NT mechanically.",
@@ -46,12 +46,12 @@ export const COURSE_MODULES = [
         "把1NT读成：“我暂时不承诺成局，但话可能还没说完，请帮我留一点说话空间。”开叫者有第二套、高花第六张，或额外实力时，通常继续描述。续叫不一定因为强，低限非均型也有牌型信息要说。"
       ],
       [
-        "Why only SEMI-forcing? A genuinely flat minimum, normally 12–13 and 5-3-3-2, may have no second suit, no sixth major and no extra strength. It can pass 1NT under our agreement. Example: ♠AK974 / ♥Q83 / ♦K62 / ♣85 is 12 points and has nothing new to add. This narrow permission is not a general instruction to pass whenever 1NT sounds weak.",
-        "为什么只叫半逼叫？真正平弱的低限，通常12–13点、5-3-3-2，可能没有第二套、没有高花第六张，也没有额外实力。这时按约定可以Pass在1NT。例如♠AK974 / ♥Q83 / ♦K62 / ♣85是12点，确实没有新话。这个很窄的停叫许可，不是听到1NT像弱牌就随便不叫。"
+        "Why only SEMI-forcing? A genuinely flat minimum, normally 12–13 and 5-3-3-2, may have no second suit, no sixth major and no extra strength. It can pass 1NT. Example: ♠AK974 / ♥Q83 / ♦K62 / ♣85 is 12 points and has nothing new to add. This narrow permission is not a general instruction to pass whenever 1NT sounds weak.",
+        "为什么只叫半逼叫？真正平弱的低限，通常12–13点、5-3-3-2，可能没有第二套、没有高花第六张，也没有额外实力。这时可以停在1NT。例如♠AK974 / ♥Q83 / ♦K62 / ♣85是12点，确实没有新话。这个很窄的停叫许可，不是听到1NT像弱牌就随便不叫。"
       ],
       [
-        "Three-card limit raise: with 10–12 and exactly three-card major support, start 1NT. After opener rebids, jump back to 3M: “My description is complete: I have invitational strength and three trumps; now you decide.” In our basic agreement a DIRECT 3M invitation instead requires four+ support. This keeps the two messages distinct without using artificial raises.",
-        "三张支持的限制性邀局：10–12点、恰好三张高花支持时，先1NT。开叫者再叫后跳回3高花：“我说完了：我有邀请实力、三张将牌，现在你决定。”本基础约定直接3高花邀局则需要四张以上支持，不用人工加叫也能把两条消息区分开。"
+        "Three-card limit raise: with 10–12 and exactly three-card major support, start 1NT. After opener rebids, jump back to 3M: “My description is complete: I have invitational strength and three trumps; now you decide.” A direct 3M invitation in the basic method requires four or more trumps. This keeps the two messages distinct without using artificial raises.",
+        "三张支持的限制性邀局：10–12点、恰好三张高花支持时，先1NT。开叫者再叫后跳回3高花：“我说完了：我有邀请实力、三张将牌，现在你决定。”基础篇的直接3高花邀局需要四张以上支持，不用人工加叫也能把两条消息区分开。"
       ],
       [
         "A long-suit example over 1♠ is ♠— / ♥Q84 / ♦K73 / ♣KJ97642: 9 points, seven clubs and a spade void. 1NT leaves room to describe the clubs after opener continues; it does not announce a balanced hand. Since this is semi-forcing, a truly flat minimum opener may still pass: the agreement does not guarantee another turn in every case.",
@@ -1284,8 +1284,8 @@ export const COURSE_MODULES = [
     ],
     "notes": [
       [
-        "Recall why we prefer the 1NT strong hand to declare: dummy’s honors would be exposed, while declarer’s remain hidden and are often better placed against the opening lead. This lesson uses a transfer to control who first names the major, rather than repeating the four-card inquiry from Stayman.",
-        "回顾让1NT强手做庄的原因：摊成明手会暴露大牌，留在庄家手中则能隐藏大牌，并常可保护它们免受首攻穿攻。本课用转移控制谁先报高花，与上一课询问四张高花的方法不同。"
+        "Recall why we prefer the 1NT strong hand to declare: dummy’s honors would be exposed, while declarer’s remain hidden and are often better placed against the opening lead. A transfer controls who first names the major, rather than repeating the four-card inquiry from Stayman.",
+        "回顾让1NT强手做庄的原因：摊成明手会暴露大牌，留在庄家手中则能隐藏大牌，并常可保护它们免受首攻穿攻。转移叫可以控制谁先报高花，与上一课询问四张高花的方法不同。"
       ],
       [
         "After 1NT, 2♦ transfers to hearts and 2♥ transfers to spades. Opener normally completes the transfer even with only two cards. It asks for a bid, not whether there is already a fit.",
@@ -1616,12 +1616,12 @@ export const COURSE_MODULES = [
         "1NT后有六张高花与成局实力，4♦转移到4♥，4♥转移到4♠。均型开叫至少两张，配合已知。开叫完成转移，应叫者可Pass定约。"
       ],
       [
-        "The course uses Texas with game-only values (roughly 10–12) or with enough strength to insist on a slam investigation (roughly 16+). With intermediate slam interest, use Jacoby first, then jump to 4 of the major: a different message from Texas then Pass. Evaluate controls and fit, not points alone.",
-        "本课德克萨斯用于只想成局的实力，约10–12点，或足以坚持探索满贯的强牌，约16点以上。介于两者的满贯兴趣，可先雅各比转移再跳到高花4阶，与德克萨斯后Pass传达不同信息。还要评估控制与配合，不能只数点。"
+        "Use Texas with game-only values (roughly 10–12) or with enough strength to insist on a slam investigation (roughly 16+). With intermediate slam interest, use Jacoby first, then jump to 4 of the major: a different message from Texas then Pass. Evaluate controls and fit, not points alone.",
+        "德克萨斯转移适用于只想成局的实力，约10–12点，或足以坚持探索满贯的强牌，约16点以上。介于两者的满贯兴趣，可先雅各比转移再跳到高花4阶，与德克萨斯后Pass传达不同信息。还要评估控制与配合，不能只数点。"
       ],
       [
-        "Texas may remain available after some low-level interference, but only while the agreed transfer calls still exist. After high interference, or without six cards, do not blindly use it. After completing Texas, a later 4NT in an agreed major fit is a keycard inquiry in this course.",
-        "某些低阶干扰后仍可保留德克萨斯，但必须还有约定叫品的空间。高阶干扰后，或没有六张时，不能机械使用。德克萨斯完成后，高花配合已定，本课后续4NT按关键张问叫处理。"
+        "Texas may remain available after some low-level interference, but only while the agreed transfer calls still exist. After high interference, or without six cards, do not blindly use it. After completing Texas, a later 4NT in an agreed major fit asks for keycards.",
+        "某些低阶干扰后仍可保留德克萨斯，但必须还有约定叫品的空间。高阶干扰后，或没有六张时，不能机械使用。德克萨斯完成后，高花配合已定，后续4NT询问关键张。"
       ]
     ],
     "rows": [
@@ -1877,8 +1877,8 @@ export const COURSE_MODULES = [
     ],
     "source": "Class8-major",
     "focus": [
-      "Use the course’s Bergen agreement to distinguish support length and strength.",
-      "按本课伯根约定，区分支持长度与点力。"
+      "Use Bergen raises to show trump support and strength.",
+      "用伯根加叫说明将牌支持张数和点力。"
     ],
     "notes": [
       [
@@ -1886,8 +1886,8 @@ export const COURSE_MODULES = [
         "进阶约定切换：基础篇的自然3高花是邀请。从本课开始，伯根把直接3高花改为弱牌，用人工3♦表示四张限制性邀局。两种含义不能在同一套约定里混用。"
       ],
       [
-        "After an uncontested major opening by an unpassed responder, our simple raise to 2M shows exactly three-card support and 6–9 points. With four or more, use Bergen: 3♣ = 7–9 constructive; 3♦ = 10–12 limit raise; direct 3M = weak, about 0–6. These artificial minor bids promise support, not that minor.",
-        "无干扰、应叫者未Pass过时，本课简单加到2高花表示恰好三张支持、6–9点。四张以上用伯根：3♣为7–9点建设性支持；3♦为10–12点限制性邀局；直接3高花为弱牌，约0–6点。这些人工低花叫品表示高花支持，不是低花长套。"
+        "After an uncontested major opening by an unpassed responder, a simple raise to 2M shows exactly three-card support and 6–9 points. With four or more, use Bergen: 3♣ = 7–9 constructive; 3♦ = 10–12 limit raise; direct 3M = weak, about 0–6. These artificial minor bids promise support, not that minor.",
+        "无干扰、应叫者未Pass过时，简单加到2高花表示恰好三张支持、6–9点。四张以上用伯根：3♣为7–9点建设性支持；3♦为10–12点限制性邀局；直接3高花为弱牌，约0–6点。这些人工低花叫品表示高花支持，不是低花长套。"
       ],
       [
         "After constructive 3♣, opener’s minimum signs off in 3M, while a suitable 16+ hand considers 4M. After limit 3♦, 12–13 usually declines in 3M and a suitable 14+ accepts. These are teaching ranges: shortness, texture and vulnerability still matter. Nine trumps give room to compete, not a guarantee of safety.",
@@ -2160,8 +2160,8 @@ export const COURSE_MODULES = [
     ],
     "notes": [
       [
-        "Jacoby 2NT after a major opening is game forcing with 13+ and four-card support. Opener’s three-level new suit shows shortness. Without shortness, the course uses 4M for 12–13, 3NT for 14–15, and 3M for 16+ with slam interest. These ranges are our agreement, not a universal version.",
-        "高花开叫后的雅各比2NT：13点以上、四张支持，逼局。开叫三阶新花表示单缺。无短套时，本课约定4高花为12–13点，3NT为14–15点，3高花为16点以上并有满贯兴趣。这是本课程约定，不是所有体系都一样。"
+        "Jacoby 2NT after a major opening is game forcing with 13+ and four-card support. Opener’s three-level new suit shows shortness. Without shortness, bid 4M with 12–13, 3NT with 14–15, or 3M with 16+ and slam interest.",
+        "高花开叫后的雅各比2NT：13点以上、四张支持，逼局。开叫三阶新花表示单缺。无短套时，12–13点叫4高花，14–15点叫3NT，16点以上且有满贯兴趣叫3高花。"
       ],
       [
         "A splinter shows game-going support, four+ trumps, about 12–15 points, and a singleton or void in the jumped suit. Revalue working honors outside the short suit. Use an agreed double-jump route such as 1♠–4♣; a natural strong jump shift has a different meaning.",
@@ -2203,8 +2203,8 @@ export const COURSE_MODULES = [
           "无短套：4高花／3NT／3高花"
         ],
         [
-          "12–13 / 14–15 / 16+ under our agreement",
-          "本课12–13／14–15／16点以上"
+          "12–13 / 14–15 / 16+",
+          "12–13／14–15／16点以上"
         ]
       ],
       [
@@ -2289,8 +2289,8 @@ export const COURSE_MODULES = [
         "seat": "S",
         "bid": "4S",
         "note": [
-          "Minimum 12–13 and no shortness: choose 4♠ under our agreement.",
-          "12–13点低限、无短套，按约定选择4♠。"
+          "Minimum 12–13 and no shortness: choose 4♠.",
+          "12–13点低限、无短套，选择4♠。"
         ],
         "learn": true
       },
@@ -2456,8 +2456,8 @@ export const COURSE_MODULES = [
         "普通再叫表已在上一课统一讲过。这里重点是背景：未逼局时，1♦—1♠—2♥通常约需17点以上，因为回方块要到三阶；二盖一已逼局时，报更高第二套可以只说明牌型，不再要求同样的额外实力。"
       ],
       [
-        "In this deal responder has 8, not a bare minimum: 17+ opposite 8 is enough to commit to game. Our direct 3♦ support is game forcing. A genuinely weak responder needs an agreed braking route, such as an artificial 2NT, rather than treating every return to the first suit as non-forcing.",
-        "本副应叫者有8点，不是勉强应叫的最低限：17点以上加8点，已够承诺成局。本课直接支持3♦按逼局处理。真正弱牌应叫者需要另行约定的刹车路线，例如人工2NT，不能把所有回第一套都当成不逼叫。"
+        "In this deal responder has 8, not a bare minimum: 17+ opposite 8 is enough to commit to game. A direct raise to 3♦ is game forcing. A genuinely weak responder needs an agreed braking route, such as an artificial 2NT, rather than treating every return to the first suit as non-forcing.",
+        "本副应叫者有8点，不是勉强应叫的最低限：17点以上加8点，已够承诺成局。直接加叫3♦逼局。真正弱牌应叫者需要另行约定的刹车路线，例如人工2NT，不能把所有回第一套都当成不逼叫。"
       ]
     ],
     "rows": [
@@ -2769,16 +2769,16 @@ export const COURSE_MODULES = [
     ],
     "notes": [
       [
-        "The course uses 8–16 and a good five-card suit for a one-level overcall; a non-jump two-level overcall usually needs about 11–16 and an especially sound suit. Stronger suit hands around 17+ may double first then name the suit. A jump overcall is weak and preemptive.",
-        "本课一阶争叫用8–16点与好五张套；二阶不跳争叫通常约11–16点，套质要求更严。约17点以上的强花色牌可先加倍再报花色，跳争叫是弱牌阻击。"
+        "A one-level overcall shows 8–16 points and a good five-card suit; a non-jump two-level overcall usually needs about 11–16 and an especially sound suit. Stronger suit hands around 17+ may double first then name the suit. A jump overcall is weak and preemptive.",
+        "一阶争叫需要8–16点与好五张套；二阶不跳争叫通常约11–16点，套质要求更严。约17点以上的强花色牌可先加倍再报花色，跳争叫是弱牌阻击。"
       ],
       [
         "A direct 1NT overcall is 15–18 balanced with a stopper in the opened suit. Systems are on here: Stayman and transfers. A stopper such as A, Kx or Qxx slows the opponents, but is not a guarantee against every layout.",
         "直接争叫1NT是15–18均型，且开叫花色有止张。这里体系开启，可用斯台曼与转移。A、Kx、Qxx等可减缓对手攻击，但并不保证对每种分布都绝对安全。"
       ],
       [
-        "We use non-forcing constructive advances: a simple new suit is normally natural, constructive and non-forcing; cue-bidding the enemy suit is the main forcing strength-showing tool. Simple raises show 6–10 with support; jump raises are preemptive with extra trumps. A cue-bid can show good 10+ with a fit or 14+ without one.",
-        "本课采用非逼叫建设性进叫：简单新花通常自然、有建设性但不逼叫；扣叫对方花色是主要的逼叫示强工具。简单加叫6–10点并有支持；跳加叫凭额外将牌阻击。扣叫可表示好10点以上有配合，或14点以上无配合。"
+        "A simple new suit after partner’s overcall is normally natural, constructive and non-forcing. Cue-bidding the enemy suit is the main forcing strength-showing tool. Simple raises show 6–10 with support; jump raises are preemptive with extra trumps. A cue-bid can show good 10+ with a fit or 14+ without one.",
+        "搭档争叫后，简单新花通常自然、有建设性但不逼叫；扣叫对方花色是主要的逼叫示强工具。简单加叫6–10点并有支持；跳加叫凭额外将牌阻击。扣叫可表示好10点以上有配合，或14点以上无配合。"
       ],
       [
         "NT advances require stoppers: roughly 9–12 for 1NT, 13–15 for a jump 2NT. Against a two-level overcall, a non-jump 2NT can instead be roughly 9–12. Always read the auction. Vulnerable undertricks cost more: undoubled 50 versus 100 each; doubled down two is 300 nonvulnerable versus 500 vulnerable.",
@@ -3401,8 +3401,8 @@ export const COURSE_MODULES = [
         "搭档开低花，对手争叫1♥后，加倍表示四张黑桃、约6点以上，直接1♠表示五张以上、约8点以上。对手争叫1♠后，加倍通常表示四张红桃，直接2♥需要五张以上、约10点以上。阶数不同，不能把一阶最低条件直接搬到二阶。"
       ],
       [
-        "Our strong free-bid method makes a natural new suit forcing for a round when strong enough. A weaker long suit can start with a negative double and later name its suit non-forcing. Other negative-double uses include two unbid suits or a balanced hand without a stopper; the exact major-length message is tied to the auction.",
-        "本课采用强自由应叫：达到条件的自然新花逼叫一轮。较弱的长套可先负加倍，之后报花色作为非逼叫。其他负加倍用途包括未叫双套或无止张的均型；高花恰好四张的信息必须结合具体进程。"
+        "A natural new suit that qualifies as a strong free bid forces for one round. A weaker long suit can start with a negative double and later name its suit non-forcing. Other negative-double uses include two unbid suits or a balanced hand without a stopper; the exact major-length message is tied to the auction.",
+        "达到强自由叫条件的自然新花逼叫一轮。较弱的长套可先负加倍，之后报花色作为非逼叫。其他负加倍用途包括未叫双套或无止张的均型；高花恰好四张的信息必须结合具体进程。"
       ],
       [
         "With a major fit after interference: simple raise roughly 7–9, jump raise weak with extra support, cue-bid their suit about 10+ with good support. We no longer use the quiet-auction Bergen jumps automatically. An opponent’s overcall means responder is not simply maintaining an uncontested auction; contribute useful information.",
@@ -3702,8 +3702,8 @@ export const COURSE_MODULES = [
         "1♣—Pass—1♥—（1♠）后，开叫者加倍是支持性加倍，表示恰好三张红桃，不是惩罚或普通技术性加倍。四张支持直接加叫，三张优先加倍；应叫花色遭加倍时，支持性再加倍传递同样长度信息。"
       ],
       [
-        "After 1M–(X), our course switches Bergen and semi-forcing 1NT off. 1NT becomes a good raise: about 9–11 with three trumps or 7–10 with four. 2NT shows a limit raise or better with four+ support, about 11+ total points; direct raises can be weaker and preemptive.",
-        "1高花—（X）后，本课关闭伯根与半逼叫1NT。1NT改为好支持：三张将牌约9–11点，四张将牌约7–10点。2NT表示四张以上支持、限制性邀局或更强，约11点以上总点；直接加叫则可以更弱、带阻击性。"
+        "After 1M–(X), Bergen raises and semi-forcing 1NT are off. 1NT becomes a good raise: about 9–11 with three trumps or 7–10 with four. 2NT shows a limit raise or better with four+ support, about 11+ total points; direct raises can be weaker and preemptive.",
+        "1高花—（X）后，停用伯根加叫与半逼叫1NT。1NT改为好支持：三张将牌约9–11点，四张将牌约7–10点。2NT表示四张以上支持、限制性邀局或更强，约11点以上总点；直接加叫则可以更弱、带阻击性。"
       ],
       [
         "After 1m–(X), a one-level new suit is 6+ and forcing one round; 1NT is 8–11 without a good minor fit; 2NT is a limit raise or better with five+ support. Redouble, about 11+, usually denies an immediate fit and prepares to penalize. A jump new suit is weak, not an uncontested GF.",
@@ -4003,8 +4003,8 @@ export const COURSE_MODULES = [
         "基础篇已讲清二盖一逼局。本课从这个承诺出发，学习人工第四花色询问，以及不同到达路线如何表达满贯兴趣，不再重讲开叫和应叫的基本范围。"
       ],
       [
-        "After three natural suits, the fourth suit is an artificial forcing inquiry in our course, often looking for three-card support or a NT stopper. Example: 1♥–1♠–2♣–2♦. It need not promise diamonds. Our fourth-suit treatment commits to game; the one-level 1♣–1♦–1♥–1♠ case is explicitly artificial here and must be agreed, since other pairs play it naturally.",
-        "三门花色自然报过后，第四花色在本课是人工逼叫询问，常为寻找三张支持或无将止张。例如1♥—1♠—2♣—2♦，不必保证方块。本课第四花色按逼局处理；一阶1♣—1♦—1♥—1♠在这里也明确约定人工，其他搭档可能按自然，不能混用。"
+        "After three natural suits, the fourth suit is an artificial forcing inquiry, often looking for three-card support or a NT stopper. Example: 1♥–1♠–2♣–2♦. It need not promise diamonds. Fourth-suit forcing commits to game; the one-level 1♣–1♦–1♥–1♠ case is explicitly artificial here and must be agreed, since other pairs play it naturally.",
+        "三门花色自然报过后，第四花色是人工逼叫询问，常为寻找三张支持或无将止张。例如1♥—1♠—2♣—2♦，不必保证方块。第四花色逼局；一阶1♣—1♦—1♥—1♠在这里也明确约定人工，其他搭档可能按自然，不能混用。"
       ],
       [
         "Without a GF, returning to partner’s suit at 2 is usually a preference to play; 2NT or a jump in a known suit invites. Within a GF, the same economical support may keep slam exploration alive. Fast arrival to the agreed game says minimum GF strength and no slam interest; slow support keeps room for more information.",
@@ -4033,7 +4033,7 @@ export const COURSE_MODULES = [
         ],
         [
           "Artificial inquiry, GF by agreement",
-          "人工询问，按本课约定逼局"
+          "人工询问，逼局"
         ]
       ],
       [
@@ -4655,12 +4655,12 @@ export const COURSE_MODULES = [
     ],
     "notes": [
       [
-        "With a fit agreed and game forced, a control bid shows an ace, king, singleton or void in a side suit. Show the cheapest control; skipping an available control suit denies it under our agreement. If neither hand controls a side suit, stop in game rather than asking keycards and discovering the problem too late.",
-        "配合已定、已逼局时，控制扣叫表示边花A、K、单张或缺门。本课从最经济控制叫起，越过可叫花色表示没有该控制。双方都缺某边花控制，应停成局，而不是先问关键张再发现来不及。"
+        "With a fit agreed and game forced, a control bid shows an ace, king, singleton or void in a side suit. Show the cheapest control; skipping an available control suit denies that control. If neither hand controls a side suit, stop in game rather than asking keycards and discovering the problem too late.",
+        "配合已定、已逼局时，控制扣叫表示边花A、K、单张或缺门。从最经济的控制叫起，越过可叫花色表示没有该控制。双方都缺某边花控制，应停成局，而不是先问关键张再发现来不及。"
       ],
       [
-        "With a trump suit agreed, 4NT asks for five keycards: four aces plus the trump king. Our 1430 replies are 5♣ = 1 or 4; 5♦ = 0 or 3; 5♥ = 2 without the trump queen; 5♠ = 2 with it. Use strength and auction context to resolve the alternatives.",
-        "将牌花色已定时，4NT询问五张关键张：四个A加将牌K。本课1430回答：5♣为1或4；5♦为0或3；5♥为2且无将牌Q；5♠为2且有将牌Q。结合实力与进程判定是哪一档。"
+        "With a trump suit agreed, 4NT asks for five keycards: four aces plus the trump king. The 1430 replies are 5♣ = 1 or 4; 5♦ = 0 or 3; 5♥ = 2 without the trump queen; 5♠ = 2 with it. Use strength and auction context to resolve the alternatives.",
+        "将牌花色已定时，4NT询问五张关键张：四个A加将牌K。1430回答：5♣为1或4；5♦为0或3；5♥为2且无将牌Q；5♠为2且有将牌Q。结合实力与进程判定是哪一档。"
       ],
       [
         "After 5♣ or 5♦, the cheapest non-trump suit can ask for the trump queen: returning to trumps denies it; another response shows the queen and may show a side king. After keycards are secure, 5NT asks specific kings, not their count. The exact queen-ask replies and escape to 5NT require agreement and enough bidding space; never use them as universal automatic calls.",
@@ -5057,7 +5057,7 @@ export const COURSE_MODULES = [
         "每声叫品读三件事：实力范围、长度或牌型、逼叫状态。未封顶就要搭档继续；逼叫一轮与逼局的停止条件不同。有限邀请可以拒绝，但若已经逼局，仍不能停在局以下。"
       ],
       [
-        "Without interference, an unpassed responder’s cheapest two-level new suit over a one-level suit opening shows 13+ and forces to game. Our basic examples use at least four cards in the new suit; 1♠–2♥ requires five hearts.",
+        "Without interference, an unpassed responder’s cheapest two-level new suit over a one-level suit opening shows 13+ and forces to game. Show at least four cards in the new suit; 1♠–2♥ requires five hearts.",
         "无干扰、应叫者未Pass过时，对一阶花色开叫作最经济二阶新花应叫，表示13点以上并逼局。基础例子新花至少四张，1♠—2♥需要五张红桃。"
       ],
       [
@@ -5367,8 +5367,8 @@ export const COURSE_MODULES = [
     ],
     "notes": [
       [
-        "We normally look for a major fit or a suitable 3NT before choosing a minor game, because a minor game needs 11 tricks. But when you really have long minor support, show it. In an uncontested auction by an unpassed responder, 1♣–2♣ and 1♦–2♦ are our inverted minor raises: 11+ points and at least five cards in partner’s minor, normally without a four-card major that should be shown first.",
-        "我们通常先找高花配合或合适的3NT，而不优先打低花成局，因为低花成局需要11墩。但真的拿到低花长支持，也应该表达。无干扰、应叫者未Pass过时，本课1♣—2♣和1♦—2♦为低花反加叫：11点以上、搭档低花至少五张，通常没有应该先报的四张高花。"
+        "We normally look for a major fit or a suitable 3NT before choosing a minor game, because a minor game needs 11 tricks. But when you really have long minor support, show it. In an uncontested auction by an unpassed responder, 1♣–2♣ and 1♦–2♦ are inverted minor raises: 11+ points and at least five cards in partner’s minor, normally without a four-card major that should be shown first.",
+        "我们通常先找高花配合或合适的3NT，而不优先打低花成局，因为低花成局需要11墩。但真的拿到低花长支持，也应该表达。无干扰、应叫者未Pass过时，1♣—2♣和1♦—2♦为低花反加叫：11点以上、搭档低花至少五张，通常没有应该先报的四张高花。"
       ],
       [
         "11+ gives a minimum but no upper limit. Responder may have 11–12, 14, or much more, so opener MUST reply: this raise is forcing for at least one round. It is not automatically a game force, because 11 opposite a minimum opening may still be short. This is an explicitly agreed exception to the natural “higher shows stronger” shortcut.",
@@ -5379,8 +5379,8 @@ export const COURSE_MODULES = [
         "低花配合确立后，开叫者优先展示边花挡张，寻找3NT。A、Kx、Qxx等有助于挡住对手连拿该花色，但仍要看组合与首攻位置。这个进程中的新边花继续叫是展示挡张，不是保证四张高花，并按约定仍逼叫一轮；尽量经济地描述有效信息。"
       ],
       [
-        "Opener’s stopper bid answers the first force; now check the status of EVERY continuation. A new, uncapped stopper-showing bid keeps the conversation forcing. A responder with 11–12 can later limit the hand with 2NT when the remaining stoppers are covered, or 3 of the minor if 3NT is unsuitable; these natural limited continuations are non-forcing in our agreement. With enough combined strength and all side suits protected, choose 3NT.",
-        "开叫者报挡张，履行了第一轮逼叫；之后每一声仍要重新判断状态。新花展示挡张且实力未封顶，就继续逼叫。应叫者若只有11–12点，可在其余挡张齐备时用2NT限定实力，或3NT不合适时回3低花；本课这些自然有限继续叫不逼叫。实力足且边花挡张齐全时，选择3NT。"
+        "Opener’s stopper bid answers the first force; now check the status of EVERY continuation. A new, uncapped stopper-showing bid keeps the conversation forcing. A responder with 11–12 can later limit the hand with 2NT when the remaining stoppers are covered, or 3 of the minor if 3NT is unsuitable; these natural limited continuations are non-forcing. With enough combined strength and all side suits protected, choose 3NT.",
+        "开叫者报挡张，履行了第一轮逼叫；之后每一声仍要重新判断状态。新花展示挡张且实力未封顶，就继续逼叫。应叫者若只有11–12点，可在其余挡张齐备时用2NT限定实力，或3NT不合适时回3低花；这些自然有限续叫不逼叫。实力足且边花挡张齐全时，选择3NT。"
       ],
       [
         "Example contrast: 1♣–2♣–2♦–2NT can limit responder to 11–12, letting a minimum opener pass. In our table deal responder actually holds 14, so the partnership continues showing stoppers and reaches 3NT. Before every pass, ask: has partner capped the hand, and has any earlier force ended?",

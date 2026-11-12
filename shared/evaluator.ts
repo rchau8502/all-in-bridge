@@ -315,8 +315,8 @@ export function evaluateHand(hand: Card[]): HandEvaluation {
       recommendedBid: '1D',
       ruleId: 'open_1d_equal_44',
       explanation: {
-        en: `No 5-card major, 4-4 in minors. Our course agreement: with equal 4-card minors, open 1♦.`,
-        zh: `无 5 张高花，低花各 4 张（4-4）。本课约定：双 4 张低花开叫 1♦。`,
+        en: `With no five-card major and four cards in each minor, open 1♦.`,
+        zh: `没有五张高花，两门低花各四张，开叫1♦。`,
       },
     };
   }
@@ -331,8 +331,8 @@ export function evaluateHand(hand: Card[]): HandEvaluation {
     recommendedBid: '1C',
     ruleId: 'open_1c_equal_33',
     explanation: {
-      en: `No 5-card major, 3-3 in minors (4-4-3-3 or 4-3-3-3). Our course agreement: with 3-3 in minors, open 1♣.`,
-      zh: `无 5 张高花，低花各 3 张。本课约定：双 3 张低花开叫 1♣。`,
+      en: `With no five-card major and three cards in each minor, open 1♣.`,
+      zh: `没有五张高花，两门低花各三张，开叫1♣。`,
     },
   };
 }
@@ -596,8 +596,8 @@ export function evaluateResponse(hand: Card[], partnerBid: PartnerOpeningBid): R
     `本手${hcp}大牌点、${suitLengths.C}张梅花：对1♦先叫2♣，自然二盖一逼局。搭档在局以下不能不叫；不能套用有限的1NT，强牌也不宜过早用3NT封局，以免漏贯。`);
   // CCBA permits four-card minor support in a genuinely game-forcing raise.
   if (hcp >= 16 && support >= 4) return makeResponse(`2${minor}`, 'resp_minor_strong_support',
-    `${hcp} HCP and four-card minor support: a strong inverted raise. In the CCBA game-forcing branch four-card support is sufficient; this is not the ordinary 11+ invitational raise, which needs five. Keep describing stoppers and possible slam strength.`,
-    `本手${hcp}大牌点、四张低花支持：强牌先反加叫逼叫。按CCBA，逼局实力的反加叫可仅有四张支持；这与普通11点以上邀请范围需五张支持不同。继续交流挡张与满贯可能，不能错放进有限1NT。`, 0, support);
+    `With ${hcp} HCP and four-card minor support, make a game-forcing inverted raise. The usual 11+ inverted raise requires five-card support with invitational strength. Keep describing stoppers and possible slam strength.`,
+    `本手${hcp}大牌点、四张低花支持，先用反加叫逼局。普通11点以上的反加叫若只有邀请实力，需要五张支持。继续交流挡张和满贯可能。`, 0, support);
   if (support >= 5 && hcp <= 10) return makeResponse(`3${minor}`, 'resp_minor_weak_raise',
     `${hcp} HCP and ${support}-card support: a weak preemptive raise to three, not an invitation.`,
     `本手${hcp}大牌点、${support}张支持：弱牌跳加叫三阶，阻击性，不是邀请。`, 0, support);

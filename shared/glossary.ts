@@ -178,8 +178,8 @@ export const ACBL_GLOSSARY: RawGlossaryTerm[] = [
     term: { en: 'Four on the Floor', zh: '4张套先叫低阶 (Four on the Floor)' },
     category: 'bidding',
     definition: {
-      en: 'ACBL Mnemonic: When partner opens a minor and Responder holds exactly 4 hearts and 4 spades, bid hearts (the suit lowest in rank) at the 1-level first.',
-      zh: 'ACBL经典口诀：当同伴开叫低花、而应叫人同时持有4张红心与4张黑桃时，在1阶优先叫出阶数更低的红心（1♥），留出叫黑桃的探索空间。',
+      en: 'When partner opens a minor and Responder holds exactly 4 hearts and 4 spades, bid hearts (the suit lowest in rank) at the 1-level first.',
+      zh: '当同伴开叫低花、而应叫人同时持有4张红心与4张黑桃时，在1阶优先叫出阶数更低的红心（1♥），留出叫黑桃的探索空间。',
     },
     mnemonic: {
       en: 'With two 4-card majors, bid "Four on the floor" (the lower ranking suit, Hearts, first).',
@@ -214,8 +214,8 @@ export const ACBL_GLOSSARY: RawGlossaryTerm[] = [
     term: { en: 'High Five', zh: '5张套先叫高阶 (High Five)' },
     category: 'bidding',
     definition: {
-      en: 'ACBL Mnemonic: If a player holds two 5-card suits, bid the higher-ranking suit first (e.g. 5♠ and 5♥ -> bid 1♠ first; 5♦ and 5♣ -> bid 1♦ first).',
-      zh: 'ACBL经典口诀：当手握两套5张以上的花色时，优先叫出级别更高的花色（如黑桃与红心皆为5张先叫1♠；方块与梅花皆为5张先叫1♦）。',
+      en: 'If a player holds two 5-card suits, bid the higher-ranking suit first (e.g. 5♠ and 5♥ -> bid 1♠ first; 5♦ and 5♣ -> bid 1♦ first).',
+      zh: '当手握两套5张以上的花色时，优先叫出级别更高的花色（如黑桃与红心皆为5张先叫1♠；方块与梅花皆为5张先叫1♦）。',
     },
     mnemonic: {
       en: 'With two 5-card suits, give your partner a "High Five" (bid the higher ranking suit first).',
@@ -312,7 +312,7 @@ export const ACBL_GLOSSARY: RawGlossaryTerm[] = [
     term: { en: 'Overcall', zh: '争叫' },
     category: 'bidding',
     definition: {
-      en: 'A bid made by one of the Opener’s opponents after the auction has already opened. Use our course agreement for strength, suit quality and bidding level.',
+      en: 'A bid made by one of the opener’s opponents after the opening bid.',
       zh: '在敌方开叫之后，由防家做出的首次竞争性出价。用于抢夺定约、指引防守首攻或干扰敌方叫牌通道。',
     },
     mnemonic: {

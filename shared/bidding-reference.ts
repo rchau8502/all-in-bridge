@@ -29,8 +29,8 @@ export const REFERENCE_SECTIONS: ReferenceSection[] = [
       "en": "Opening bids"
     },
     "context": {
-      "zh": "未有人开叫。一阶采用五张高花、强无将；弱二、三阶阻击与强2♣按CCBA标准。",
-      "en": "No previous opening. Five-card majors and a strong notrump; CCBA weak twos, three-level preempts and strong 2♣."
+      "zh": "未有人开叫。一阶开叫采用五张高花和强无将，也可选择弱二、三阶阻击或强2♣。",
+      "en": "No previous opening. One-level openings use five-card majors and a strong notrump. Other options include weak twos, three-level preempts and strong 2♣."
     },
     "pages": [
       3,
@@ -173,8 +173,8 @@ export const REFERENCE_SECTIONS: ReferenceSection[] = [
       "en": "Advancing partner’s overcall"
     },
     "context": {
-      "zh": "本课NFC：简单新花建设性但不逼叫，强牌用扣叫保留空间。",
-      "en": "Course NFC agreement: simple new suits are constructive, not forcing; cue-bid with forcing strength."
+      "zh": "非逼叫建设性进叫（NFC）：简单新花建设性但不逼叫，强牌用扣叫保留空间。",
+      "en": "Non-forcing constructive advances (NFC): simple new suits are constructive, not forcing; cue-bid with forcing strength."
     },
     "pages": [
       7,
@@ -204,8 +204,8 @@ export const REFERENCE_SECTIONS: ReferenceSection[] = [
       "en": "After an overcall of our opening"
     },
     "context": {
-      "zh": "你是应叫者。对手争叫后，二盖一不自动逼局；采用本课强自由叫体系。",
-      "en": "You are responder. After an overcall, 2/1 is not automatically GF; use the course’s strong free-bid agreement."
+      "zh": "你是应叫者。对手争叫后，二盖一不自动逼局。达到强自由叫的条件时，自然新花逼叫一轮。",
+      "en": "You are responder. After an overcall, a two-over-one response is not automatically game forcing. A natural new suit that qualifies as a strong free bid forces for one round."
     },
     "pages": [
       9,
@@ -809,8 +809,8 @@ export const REFERENCE_ROWS: ReferenceRow[] = [
       "en": "Opener prioritizes side-suit stoppers to investigate 3NT."
     },
     "note": {
-      "zh": "网站基础篇补充。不是自动逼局；后续新花挡张按约定逼叫，有限2NT或3m才可停。",
-      "en": "Foundation supplement on the website. Not automatically GF; new stopper bids force, while limited 2NT or 3m can be passed."
+      "zh": "不是自动逼局；后续新花挡张按约定逼叫，有限2NT或3m才可停。",
+      "en": "Not automatically GF; new stopper bids force, while limited 2NT or 3m can be passed."
     },
     "pages": [],
     "lessonId": "inverted-minor-raises"
@@ -1028,8 +1028,8 @@ export const REFERENCE_ROWS: ReferenceRow[] = [
       "en": "The narrow semi-forcing exception"
     },
     "requirements": {
-      "zh": "网站约定：真正平弱12–13点、5332，无第二套、无第六张",
-      "en": "Website: genuinely flat 12–13, 5332, no second suit or sixth major"
+      "zh": "真正平弱12–13点、5332，无第二套、无第六张",
+      "en": "Genuinely flat 12–13, 5332, no second suit or sixth major"
     },
     "status": "NF",
     "next": {
@@ -1116,8 +1116,8 @@ export const REFERENCE_ROWS: ReferenceRow[] = [
       "en": "Jacoby: minimum game"
     },
     "requirements": {
-      "zh": "网站约定12–13点，无单缺",
-      "en": "Website agreement: 12–13, no shortness"
+      "zh": "12–13点，无单缺",
+      "en": "12–13, no shortness"
     },
     "status": "NF",
     "next": {
@@ -1145,8 +1145,8 @@ export const REFERENCE_ROWS: ReferenceRow[] = [
       "en": "Jacoby: intermediate range"
     },
     "requirements": {
-      "zh": "网站约定14–15点，无单缺",
-      "en": "Website agreement: 14–15, no shortness"
+      "zh": "14–15点，无单缺",
+      "en": "14–15, no shortness"
     },
     "status": "GF",
     "next": {
@@ -1174,8 +1174,8 @@ export const REFERENCE_ROWS: ReferenceRow[] = [
       "en": "Jacoby: extras and room"
     },
     "requirements": {
-      "zh": "网站约定16点以上，无单缺，有满贯兴趣",
-      "en": "Website agreement: 16+, no shortness, slam interest"
+      "zh": "16点以上，无单缺，有满贯兴趣",
+      "en": "16+, no shortness, slam interest"
     },
     "status": "GF",
     "next": {
@@ -1577,8 +1577,8 @@ export const REFERENCE_ROWS: ReferenceRow[] = [
       "en": "Constructive support after a reverse"
     },
     "requirements": {
-      "zh": "本课8点左右或以上，三张方块支持",
-      "en": "Course example: about 8+ with three diamonds"
+      "zh": "约8点以上，三张方块支持",
+      "en": "About 8+ with three diamonds"
     },
     "status": "GF",
     "next": {
@@ -2393,8 +2393,8 @@ export const REFERENCE_ROWS: ReferenceRow[] = [
     },
     "status": "INV",
     "next": {
-      "zh": "按本课特定约定，邀请并让开叫者选择高花。",
-      "en": "An agreed invitational route asking opener to choose the major."
+      "zh": "邀请成局，请开叫者选择高花。",
+      "en": "Invites game and asks opener to choose the major."
     },
     "note": {
       "zh": "",
@@ -2529,8 +2529,8 @@ export const REFERENCE_ROWS: ReferenceRow[] = [
       "en": "Jacoby then game: slam invitation"
     },
     "requirements": {
-      "zh": "6张以上高花，中间档满贯兴趣；本课约定",
-      "en": "6+ major, intermediate slam interest; course agreement"
+      "zh": "6张以上高花，中间档满贯兴趣",
+      "en": "6+ major, intermediate slam interest"
     },
     "status": "NF",
     "next": {
@@ -2647,8 +2647,8 @@ export const REFERENCE_ROWS: ReferenceRow[] = [
     },
     "status": "NF",
     "next": {
-      "zh": "本课无将工具开启：搭档可用Stayman与转移。",
-      "en": "Systems on in this course: partner may use Stayman and transfers."
+      "zh": "搭档可以用斯台曼和转移叫。",
+      "en": "Partner may use Stayman and transfers."
     },
     "note": {
       "zh": "",
@@ -3520,8 +3520,8 @@ export const REFERENCE_ROWS: ReferenceRow[] = [
       "en": "Opener first describes unbid majors and values, then listens to responder’s clarification."
     },
     "note": {
-      "zh": "本课并非每次负加倍都严格同一牌型；阶数和后续约定是关键。",
-      "en": "Not every negative double has the same shape; level and follow-up agreements matter."
+      "zh": "负加倍所表示的牌型取决于叫牌阶数和后续进程。",
+      "en": "The shape shown by a negative double depends on the level and subsequent auction."
     },
     "pages": [
       9,
@@ -3785,8 +3785,8 @@ export const REFERENCE_ROWS: ReferenceRow[] = [
       "en": "Opener’s support redouble"
     },
     "requirements": {
-      "zh": "恰好3张应叫花色支持，本课约定",
-      "en": "Exactly three-card support, course agreement"
+      "zh": "恰好3张应叫花色支持",
+      "en": "Exactly three-card support"
     },
     "status": "F1",
     "next": {
@@ -4038,8 +4038,8 @@ export const REFERENCE_ROWS: ReferenceRow[] = [
     },
     "status": "F1",
     "next": {
-      "zh": "本课问具体K，不是简单数K个数；先确保不会失控越过安全定约。",
-      "en": "Ask for specific kings in this course, not a king count; preserve a safe stopping level."
+      "zh": "询问具体哪门边花有K，先确认有安全的停叫阶数。",
+      "en": "Ask which side-suit kings partner holds. Preserve a safe stopping level."
     },
     "note": {
       "zh": "",

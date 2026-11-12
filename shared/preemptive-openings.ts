@@ -26,8 +26,8 @@ export const PREEMPTIVE_OPENINGS: CourseModule = {
       "第二层意思是建设性描述：“我点力有限，但牌型很好；搭档，如果你很厉害，可以努力进局。”搭档应结合支持、控制、有用的大牌与实际赢墩判断，不能把弱开叫当成永远不准进局，也不能只机械相加点数。"
     ],
     [
-      "Our CCBA standard: in first, second or third seat, 2♦, 2♥ and 2♠ are weak, 6–10 high-card points with six or more cards in the suit; extra length can justify somewhat fewer points. In fourth seat, use 9–12 and a good six-card or longer suit. After three passes there is little reason to preempt opponents who have already declined to open.",
-      "本课按CCBA文档：第一、第二、第三家开2♦、2♥或2♠为弱二，6–10大牌点、六张以上套；套更长时点力可酌情降低。第四家则是9–12点、六张以上好套。三家都已Pass时，对手已经放弃开叫，不再以抢占他们空间为主要目的。"
+      "In first, second or third seat, 2♦, 2♥ and 2♠ are weak, 6–10 high-card points with six or more cards in the suit; extra length can justify somewhat fewer points. In fourth seat, use 9–12 and a good six-card or longer suit. After three passes there is little reason to preempt opponents who have already declined to open.",
+      "第一、第二、第三家开2♦、2♥或2♠为弱二，6–10大牌点、六张以上套；套更长时点力可酌情降低。第四家则是9–12点、六张以上好套。三家都已Pass时，对手已经放弃开叫，不再以抢占他们空间为主要目的。"
     ],
     [
       "A three-level suit opening — 3♣, 3♦, 3♥ or 3♠ — is preemptive: 5–10 high-card points, normally seven cards, subject to the rule of two and three. Estimate your own playing tricks conservatively: allow at most about two down when vulnerable or three down when not vulnerable. This is a risk guideline, not permission to ignore suit quality or the auction.",
