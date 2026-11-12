@@ -1,5 +1,5 @@
 import { ACBL_CHAPTERS, getChapterForLesson } from '../../../shared/chapters.js';
-import { useEffect, useMemo, useRef, useState } from 'react';
+import { useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
 import { useApp } from '../App.js';
 import { t, bidLabelL, seatLabel, type Lang } from '../i18n.js';
 import { CardView, Avatar } from '../components/ui.js';
@@ -226,6 +226,7 @@ export function SimTable(props: {
   onPlay: (c: Card) => void;
   hint: string | null;
   stepKey: string;
+  bidding?: boolean;
   /** Content floated on the centre felt itself (e.g. the auction bidding
    *  box — a real table keeps the bidding box ON the table, and the centre
    *  grid cell is elastic, so a tall box scrolls inside instead of pushing
@@ -378,7 +379,7 @@ export function SimTable(props: {
   // Narrow screens (<721px) get scale 0 = the flowing mobile layout.
   const feltRef = useRef<HTMLDivElement>(null);
   const [fit, setFit] = useState({ scale: 0, w: STAGE_W, compact: false });
-  useEffect(() => {
+  useLayoutEffect(() => {
     const el = feltRef.current;
     if (!el) return;
     const update = () => {
@@ -388,7 +389,7 @@ export function SimTable(props: {
       // drop to the flowing layout too, where the East/West hands poked out
       // of their columns and the Next bar was pushed off-screen. Scaling a
       // short box down still shows the whole table.
-      if (r.width < 721 || r.height < 340) {
+      if (window.matchMedia('(max-width: 720px)').matches) {
         setFit({ scale: 0, w: STAGE_W, compact: false });
         return;
       }
@@ -412,7 +413,7 @@ export function SimTable(props: {
   }, [sigs.join('|')]);
 
   return (
-    <div className="sim-felt" ref={feltRef}>
+    <div className={`sim-felt${props.bidding ? ' is-bidding' : ''}`} ref={feltRef}>
       <div
         className={`sim-stage${fit.scale > 0 ? ' scaled' : ''}${fit.compact ? ' compact' : ''}`}
         style={fit.scale > 0 ? { width: fit.w, height: STAGE_H, transform: `translate(-50%, -50%) scale(${fit.scale})` } : undefined}
@@ -548,7 +549,9 @@ export function SimTable(props: {
             {props.dummySeat === s.seat && (
               <div className="sim-badge">{lang === 'zh' ? '明手' : 'Dummy'}</div>
             )}
-            {s.badge && <div className="sim-badge duo-badge">{s.badge}</div>}
+            {(s.badge || props.bidding) && (
+              <div className={`sim-badge duo-badge${s.badge ? '' : ' empty-bid-badge'}`} aria-hidden={!s.badge || undefined}>{s.badge || '–'}</div>
+            )}
           </div>
           );
         })}
@@ -952,6 +955,14 @@ export function Tutorial() {
   // Paused at a scripted bid/play (not the learner's turn): offer a Next tap
   // so every card and bid is revealed one at a time.
   const awaitingTap = !pending && !done && (step?.kind === 'auction' || step?.kind === 'play');
+  const feedbackLine = feedback && (
+    <div key={fbNonce} className={`tut-feedback${fbMood ? ` ${fbMood}` : ''}`} role="status">
+      {fbMood && (
+        <Avatar id={characterId} className={`coach-avatar mini${fbMood === 'good' ? ' react-happy' : ''}`} />
+      )}
+      <span>{feedback}</span>
+    </div>
+  );
   /** The tail of a decided hand: play it out in one tap instead of a dozen. */
   const stepRunout = step?.kind === 'play' && step.runout === true;
   const tapNext = stepRunout ? (
@@ -1033,11 +1044,12 @@ export function Tutorial() {
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, [leadReview, recap, step, awaitingTap, done, lessonIdx, lessons.length, trackFirst, trackLast]);
 
+  const auctionEntries = recap?.lines ?? auctionView?.entries;
   const lastBidBySeat = useMemo(() => {
     const m = new Map<Seat, Bid>();
-    for (const e of auctionView?.entries ?? []) m.set(e.seat, e.bid);
+    for (const e of auctionEntries ?? []) m.set(e.seat, e.bid);
     return m;
-  }, [auctionView]);
+  }, [auctionEntries]);
 
   // Per-bid explainer caption: what the latest bid SAID and why (the
   // auction counterpart of the post-trick review).
@@ -1077,7 +1089,7 @@ export function Tutorial() {
   // The table (with the hand) is shown for every teaching step — info,
   // auction and play alike. Text steps used to REPLACE the table, which is
   // why the hand vanished exactly when the coach had something to say.
-  const showTable = step?.kind === 'info' || step?.kind === 'auction' || step?.kind === 'play';
+  const showTable = !!recap || step?.kind === 'info' || step?.kind === 'auction' || step?.kind === 'play';
   const captionOpen = step?.kind === 'auction' && !!lastEntry && !!captionNote
     // While it is the learner's turn to bid, the bidding box owns the centre
     // felt — the caption for the previous bid has already been read (its
@@ -1244,7 +1256,7 @@ export function Tutorial() {
         )}
         {showTable && (
         <div className="tut-stage-wrap">
-        {step?.kind === 'info' ? (
+        {step?.kind === 'info' && !recap ? (
           <SimTable
             lang={lang}
             boardNo={trackPosition}
@@ -1271,8 +1283,9 @@ export function Tutorial() {
             overlaySlot={tutorialOverlay}
             trickStatic
           />
-        ) : step?.kind === 'auction' && auctionView ? (
+        ) : auctionEntries ? (
           <SimTable
+            bidding
             lang={lang}
             boardNo={trackPosition}
             dealer={lesson.dealer}
@@ -1282,7 +1295,7 @@ export function Tutorial() {
               seat: s,
               count: 13,
               badge: lastBidBySeat.has(s) ? bidLabelL(lang, lastBidBySeat.get(s)!) : undefined,
-              active: auctionView.turn === s,
+              active: auctionView?.turn === s,
             }))}
             trick={[]}
             hand={sortHand(lesson.hands.S, null, suitOrder)}
@@ -1295,7 +1308,7 @@ export function Tutorial() {
             onPlay={() => {}}
             hint={null}
             stepKey={stepKey}
-            centreExtra={
+            centreExtra={!recap && (
               /* The bidding box is ONE unified panel on the centre felt: the
                * per-bid explanation (caption) and the running auction trail
                * live INSIDE it, so the centre never holds both this panel and
@@ -1311,7 +1324,7 @@ export function Tutorial() {
                 )}
                 {pending && pending.kind === 'bid' ? (
                   <>
-                    <div className="sim-hint">🫵 {pending.hint}</div>
+                    {fbMood === 'bad' ? feedbackLine : <div className="sim-hint">🫵 {pending.hint}</div>}
                     <button className="btn ghost" disabled={!runner.canGoBack()} title={t(lang, 'tut.backStepHint')} onClick={doBack}>← {t(lang, 'tut.backStep')}</button>
                     <div className="bid-rows">
                       <div className="bid-row">
@@ -1344,7 +1357,7 @@ export function Tutorial() {
                 ) : (
                   <>
                     <div className="sim-trail">
-                      {auctionView.entries.map((e, i) => (
+                      {auctionEntries.map((e, i) => (
                         <span key={i} className="trail-bid">
                           {seatLabel(lang, e.seat)} {bidLabelL(lang, e.bid)}
                         </span>
@@ -1353,8 +1366,9 @@ export function Tutorial() {
                     {awaitingTap && !captionOpen && <div className="tut-tap-row">{tapNext}</div>}
                   </>
                 )}
+                {!pending && feedbackLine}
               </div>
-            }
+            )}
           />
         ) : step?.kind === 'play' && playView && trickNo !== null ? (
           <SimTable
@@ -1433,14 +1447,7 @@ export function Tutorial() {
         {step?.kind === 'play' && awaitingTap && !leadReview && !stepRunout && (
           <div className="tut-tap-row">{tapNext}</div>
         )}
-        {feedback && (
-          <div key={fbNonce} className={`tut-feedback${fbMood ? ` ${fbMood}` : ''}`}>
-            {fbMood && (
-              <Avatar id={characterId} className={`coach-avatar mini${fbMood === 'good' ? ' react-happy' : ''}`} />
-            )}
-            <span>{feedback}</span>
-          </div>
-        )}
+        {step?.kind !== 'auction' && feedbackLine}
       </div>
     </div>
   );

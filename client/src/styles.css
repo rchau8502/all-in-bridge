@@ -1450,9 +1450,9 @@ select.input { appearance: auto; }
  * table). The centre grid cell is elastic: a tall box scrolls inside the
  * felt instead of pushing the South hand row past the table's bottom edge. */
 .sim-bidbox.on-felt {
-  width: auto;
-  max-width: min(460px, 94%);
-  max-height: 100%;
+  box-sizing: border-box;
+  width: min(460px, 94%);
+  height: 100%;
   overflow-y: auto; overscroll-behavior: contain;
   background: rgba(8, 16, 38, 0.55);
   backdrop-filter: blur(5px);
@@ -1460,6 +1460,29 @@ select.input { appearance: auto; }
   border-radius: 14px;
   padding: 10px 12px;
   box-shadow: 0 10px 26px rgba(2, 12, 30, 0.45);
+}
+.sim-bidbox.on-felt > * { flex-shrink: 0; }
+.sim-bidbox.on-felt .tut-feedback { margin: 0; padding: 0; font-size: 13px; animation: none; }
+.sim-bidbox.on-felt .tut-feedback .coach-avatar { width: 24px; height: 24px; animation: none; }
+.empty-bid-badge { visibility: hidden; }
+@media (max-width: 720px) {
+  .app.scene-fixed .tutorial {
+    width: 100%; left: auto; margin-left: 0; padding-inline: 0;
+    overflow: hidden auto;
+  }
+  .tut-header-center { max-width: 100%; flex-wrap: wrap; }
+  .app.scene-fixed .tutorial .sim-felt.is-bidding { height: 500px; min-height: 500px; }
+  .sim-felt.is-bidding .sim-stage { grid-template-columns: minmax(0, 1fr) minmax(0, 1.25fr) minmax(0, 1fr); }
+  .sim-felt.is-bidding .sim-center { z-index: 12; }
+  .sim-felt.is-bidding .sim-bidbox.on-felt {
+    position: absolute;
+    top: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    width: min(460px, calc(100vw - 48px));
+  }
+  .sim-felt.is-bidding .sim-caption { flex-wrap: wrap; }
+  .sim-felt.is-bidding .sim-caption-text { flex-basis: 100%; }
 }
 .tut-tap-row { display: flex; justify-content: center; margin-top: 10px; }
 .tut-tap-next { min-height: 44px; animation: fade-in 0.25s backwards; }
