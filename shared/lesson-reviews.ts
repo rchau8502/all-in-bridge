@@ -278,34 +278,22 @@ const REVIEWS = {
   ],
   "minor-responses": [
     [
-      "May I pass?",
-      "能否不叫？",
-      "Uncapped hand-showing bids force a reply; check one-round versus game force",
-      "没上限的描述性叫品一定逼叫；区分逼叫一轮与逼局"
+      "Shape",
+      "牌型",
+      "A one-level major response shows at least four cards in that suit",
+      "一阶高花应叫表示这门花色至少四张"
     ],
     [
-      "Reply",
-      "应叫",
-      "One-over-one: 6+, four cards, forcing one round",
-      "一盖一：6点以上、四张，逼叫一轮"
+      "Strength",
+      "实力",
+      "Respond with about 6 points or more. Combined strength helps decide how high to bid",
+      "约6点以上通常应叫，联手实力决定能叫多高"
     ],
     [
-      "Support",
-      "支持",
-      "Opener normally needs four to raise a major response",
-      "开叫者通常凭四张加叫高花应叫"
-    ],
-    [
-      "Invitation",
-      "邀请",
-      "Partner accepts with extra strength",
-      "搭档凭额外实力接受"
-    ],
-    [
-      "Game force",
-      "逼局",
-      "Cannot stop below game, still choose strain",
-      "不能停局以下，仍可选择定约"
+      "Major fit",
+      "高花配合",
+      "After a minor opening, look for a fit in hearts or spades first",
+      "搭档开叫低花后，先找红桃或黑桃配合"
     ]
   ],
   "full-hand": [

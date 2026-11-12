@@ -763,15 +763,8 @@ export function Tutorial() {
   const leadReviewedRef = useRef(false);
   const reviewedRef = useRef(0);
 
-  // Auction recap: when an auction step ends, replay the WHOLE conversation
-  // as a translated transcript (every bid + its explainer) plus the contract
-  // it added up to. Entries are snapshotted while on the step; a transition
-  // effect below opens the card when the step changes away from 'auction'.
   interface RecapLine { seat: Seat; bid: Bid; note?: string }
   const [recap, setRecap] = useState<{ lines: RecapLine[]; contract: Lesson['contract'] } | null>(null);
-  const auctionSnapRef = useRef<{ stepKey: string; lessonId: string; lang: Lang; lines: RecapLine[] } | null>(null);
-  const recapShownForRef = useRef('');
-  const prevKindRef = useRef<string | null>(null);
 
   const lesson = lessons[lessonIdx]!;
   /** The chair the learner sits in: South when declaring, but West/East in
@@ -814,6 +807,7 @@ export function Tutorial() {
     reviewedRef.current = 0;
     setLeadReview(false);
     leadReviewedRef.current = false;
+    setRecap(null);
   }, [runner]);
 
   const startLesson = (i: number) => {
@@ -846,9 +840,6 @@ export function Tutorial() {
     setRecap(null);
     setFeedback('');
     setFbMood(null);
-    auctionSnapRef.current = null;
-    recapShownForRef.current = '';
-    prevKindRef.current = runner.currentStep()?.kind ?? null;
     lastPlayRef.current = null;
     refresh();
   };
@@ -867,6 +858,12 @@ export function Tutorial() {
         const speakerChar = seatChars[last.seat];
         const line = bidToVoiceLine(last.bid);
         if (line) void audio.playVoice(speakerChar, lang, line);
+      } else if (runner.currentStep() !== step && newLen > 0) {
+        // Open the recap in the same update as the step change so the next
+        // lesson card does not briefly appear underneath it.
+        const script = lesson.steps.flatMap(s => s.kind === 'auction' ? s.script : []);
+        const lines = runner.auction.entries.map((entry, i) => ({ ...entry, note: script[i]?.note }));
+        setRecap({ lines, contract: lesson.contract });
       }
     } else if (step?.kind === 'play' && step.runout === true) {
       // Bookkeeping time: run the rest of the hand in one go.
@@ -1050,28 +1047,6 @@ export function Tutorial() {
   const captionNote = step && step.kind === 'auction' && auctionView && auctionView.entries.length > 0
     ? (lesson.steps.flatMap(s => s.kind === 'auction' ? s.script : [])[auctionView.entries.length - 1]?.note ?? null)
     : null;
-
-  // Snapshot the running auction (entries map 1:1 to script actions).
-  if (step?.kind === 'auction' && auctionView) {
-    auctionSnapRef.current = {
-      stepKey, lessonId: lesson.id, lang,
-      lines: auctionView.entries.map((e, i) => ({ seat: e.seat, bid: e.bid, note: lesson.steps.flatMap(s => s.kind === 'auction' ? s.script : [])[i]?.note })),
-    };
-  }
-  // Leaving an auction step → open the recap (once per auction, and only if
-  // the snapshot belongs to THIS lesson + language).
-  useEffect(() => {
-    const kind = step?.kind ?? 'done';
-    if (prevKindRef.current === 'auction' && kind !== 'auction') {
-      const snap = auctionSnapRef.current;
-      if (snap && snap.lines.length > 0 && snap.lessonId === lesson.id && snap.lang === lang
-        && recapShownForRef.current !== snap.stepKey) {
-        recapShownForRef.current = snap.stepKey;
-        setRecap({ lines: snap.lines, contract: lesson.contract });
-      }
-    }
-    prevKindRef.current = kind;
-  }, [step, lesson, lang]);
 
   // Lessons past the auction introduce the dummy (明手): declarer's partner,
   // whose cards lie face-up on the table for the declarer to play.
@@ -1267,7 +1242,7 @@ export function Tutorial() {
         )}
         {showTable && (
         <div className="tut-stage-wrap">
-        {step?.kind === 'info' && (
+        {step?.kind === 'info' ? (
           <SimTable
             lang={lang}
             boardNo={trackPosition}
@@ -1294,8 +1269,7 @@ export function Tutorial() {
             overlaySlot={tutorialOverlay}
             trickStatic
           />
-        )}
-        {step?.kind === 'auction' && auctionView && (
+        ) : step?.kind === 'auction' && auctionView ? (
           <SimTable
             lang={lang}
             boardNo={trackPosition}
@@ -1326,7 +1300,7 @@ export function Tutorial() {
                * a separate floating overlay at the same time. */
               <div className="sim-bidbox on-felt">
                 {captionOpen && lastEntry && (
-                  <div className="sim-caption" key={auctionView!.entries.length}>
+                  <div className="sim-caption">
                     <span className="sim-caption-tag">{seatLabel(lang, lastEntry.seat)} · {bidLabelL(lang, lastEntry.bid)}</span>
                     <span className="sim-caption-text">{captionNote}</span>
                     <button className="btn ghost" disabled={!runner.canGoBack()} title={t(lang, 'tut.backStepHint')} onClick={doBack}>← {t(lang, 'tut.backStep')}</button>
@@ -1380,9 +1354,7 @@ export function Tutorial() {
               </div>
             }
           />
-        )}
-
-        {step?.kind === 'play' && playView && trickNo !== null && (
+        ) : step?.kind === 'play' && playView && trickNo !== null ? (
           <SimTable
             lang={lang}
             boardNo={trackPosition}
@@ -1420,7 +1392,7 @@ export function Tutorial() {
             targetTricks={lesson.id === 'tricks' ? null : 6 + lesson.contract.level}
             overlaySlot={tutorialOverlay}
           />
-        )}
+        ) : null}
 
         {/* tutorial overlay now rendered inside SimTable via overlaySlot —
             floated over the centre felt, never over the North/South hands */}

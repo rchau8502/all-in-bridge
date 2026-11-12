@@ -1138,7 +1138,6 @@ select.input { appearance: auto; }
   gap: 10px;
   align-items: baseline;
   box-shadow: 0 10px 30px rgba(2, 24, 48, 0.25);
-  animation: pop-in 0.25s ease-out;
   text-align: left;
 }
 .recap-card { display: flex; flex-direction: column; gap: 8px; align-items: stretch; }
@@ -1446,7 +1445,6 @@ select.input { appearance: auto; }
 .sim-me .hand .card:first-child { margin-left: 0; }
 .sim-me .hand .card:last-child { margin-right: 0; }
 .sim-trail { display: flex; flex-wrap: wrap; gap: 6px; justify-content: center; max-width: 430px; }
-.sim-trail .trail-bid { animation: fade-in 0.3s backwards; }
 .sim-bidbox { width: 100%; display: flex; flex-direction: column; gap: 8px; align-items: center; }
 /* Bidding box floated ON the centre felt (like a real bidding box on the
  * table). The centre grid cell is elastic: a tall box scrolls inside the
