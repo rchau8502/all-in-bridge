@@ -15,8 +15,8 @@ describe('ACBL Chapters Module', () => {
   it('keeps advanced agreements out of the foundation lessons', () => {
     const basic = LESSONS.filter(l => getChapterForLesson(l.id)?.track === 'basic');
     const advanced = LESSONS.filter(l => getChapterForLesson(l.id)?.track === 'advanced');
-    expect(basic).toHaveLength(26);
-    expect(advanced).toHaveLength(10);
+    expect(basic).toHaveLength(25);
+    expect(advanced).toHaveLength(11);
     const advancedTerms = /Bergen|Smolen|Texas|negative doubles?|cue.bid|keycards?|fast arrival|slow arrival|fourth.suit|checkback|Walsh|伯根|斯莫伦|德克萨斯|负加倍|扣叫|关键张|速达|缓达|第四花色|重询|沃尔什/i;
     for (const lesson of basic) {
       const text = [lesson.title, lesson.focus, ...lesson.steps.flatMap(s => {
@@ -30,8 +30,8 @@ describe('ACBL Chapters Module', () => {
     expect(LESSONS.some(l => l.id === 'opener-rebids')).toBe(false);
     expect(LESSONS.some(l => l.id === 'mini-splinters')).toBe(false);
     expect(basic.findIndex(l => l.id === 'notrump-responses')).toBe(basic.findIndex(l => l.id === 'stayman-fit') - 1);
-    expect(getChapterForLesson('inverted-minor-raises')?.id).toBe('ch3');
-    expect(basic.findIndex(l => l.id === 'inverted-minor-raises')).toBe(basic.findIndex(l => l.id === 'minor-responses') + 1);
+    expect(getChapterForLesson('inverted-minor-raises')?.track).toBe('advanced');
+    expect(basic.findIndex(l => l.id === 'full-hand')).toBe(basic.findIndex(l => l.id === 'minor-responses') + 1);
   });
 
   it('migrates index-only bookmarks and preserves saved lesson identities', () => {

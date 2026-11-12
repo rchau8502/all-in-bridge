@@ -1083,7 +1083,8 @@ export function Tutorial() {
     // felt — the caption for the previous bid has already been read (its
     // "next" tap led here), so don't fight the box for the same space.
     && !(pending && pending.kind === 'bid');
-  const overlayOpen = !!recap || step?.kind === 'info' || (leadReview && step?.kind === 'play');
+  const runoutReady = stepRunout && awaitingTap && !leadReview && !recap;
+  const overlayOpen = !!recap || step?.kind === 'info' || (leadReview && step?.kind === 'play') || runoutReady;
 
   // The tutorial overlay (coach text / recap / post-trick review) is floated
   // over the centre felt — NEVER over the North/South hands. Auction content
@@ -1094,6 +1095,7 @@ export function Tutorial() {
   // a little onto the East/West seats, which is fine.
   const tutorialOverlay = overlayOpen ? (
     <div className="tut-overlay">
+      {runoutReady && tapNext}
       {recap && (
         <div className="sim-review recap-card">
           <div className="sim-review-label">{t(lang, 'tut.recapTitle')}</div>
@@ -1428,7 +1430,7 @@ export function Tutorial() {
             </button>
           </div>
         )}
-        {step?.kind === 'play' && awaitingTap && !leadReview && (
+        {step?.kind === 'play' && awaitingTap && !leadReview && !stepRunout && (
           <div className="tut-tap-row">{tapNext}</div>
         )}
         {feedback && (

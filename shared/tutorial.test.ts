@@ -36,15 +36,21 @@ describe('all lessons', () => {
     }
   });
 
-  it('the modest full-hand lesson makes nine tricks without wasting the remaining trumps', () => {
+  it('the invitation lesson reaches 4H and runs out ten tricks', () => {
     const lesson = LESSONS.find(l => l.id === 'full-hand')!;
+    const calls = lesson.steps.flatMap(s => s.kind === 'auction' ? s.script : [])
+      .map(a => 'expected' in a ? a.expected : a.bid).filter(b => b !== 'P');
+    expect(calls).toEqual(['1C', '1H', '2H', '3H', '4H']);
+    const play = lesson.steps.filter(s => s.kind === 'play');
+    expect(play).toHaveLength(1);
+    expect(play[0]?.runout).toBe(true);
     const r = walkLesson(lesson);
     const result = r.getResult();
     expect(result).not.toBeNull();
-    expect(result!.tricksTaken).toBe(9);
+    expect(result!.tricksTaken).toBe(10);
     expect(result!.made).toBe(true);
-    // 2H +1: 60 contract + 30 overtrick + 50 partscore bonus = 140
-    expect(result!.total).toBe(140);
+    // 4H: 120 trick points plus the 300 non-vulnerable game bonus.
+    expect(result!.total).toBe(420);
   });
 
   it('lesson ids are unique', () => {
@@ -118,7 +124,7 @@ describe('hands match the story the script tells', () => {
     expect(suitLen('bidding', 'N', 'S')).toBe(3);
     for (const id of ['minor-responses', 'full-hand']) {
       expect(hcpOf(id, 'N')).toBe(13);
-      expect(hcpOf(id, 'S')).toBe(8);
+      expect(hcpOf(id, 'S')).toBe(id === 'full-hand' ? 11 : 8);
       expect(suitLen(id, 'N', 'C')).toBe(4);
       expect(suitLen(id, 'N', 'H')).toBe(4);
       expect(suitLen(id, 'S', 'H')).toBe(5);
@@ -306,7 +312,7 @@ describe('chinese lessons', () => {
     expect(zh[10]!.title).toBe('定约：一份承诺');
     expect(zh[11]!.title).toBe('叫牌就是说话');
     expect(zh.find(l => l.id === 'minor-responses')!.title).toBe('对低花开叫的应叫');
-    expect(zh.find(l=>l.id==='full-hand')!.title).toBe('加叫，然后打牌');
+    expect(zh.find(l=>l.id==='full-hand')!.title).toBe('邀请成局');
     expect(zh.find(l=>l.id==='conversation')!.title).toBe('开叫者再叫：牌型与实力');
     expect(zh.find(l=>l.id==='reverse-bids')!.title).toBe('逆叫：为什么需要额外实力');
     expect(zh.find(l=>l.id==='two-over-one-basics')!.title).toBe('二盖一：先确定成局');
@@ -317,9 +323,9 @@ describe('chinese lessons', () => {
       expect(z.steps.length).toBe(en.steps.length);
       expect(z.id).toBe(en.id);
     }
-    // The full-hand zh lesson scores the same 140.
+    // The Chinese invitation lesson scores the same 420.
     const r = walkLesson(zh.find(l => l.id === 'full-hand')!);
-    expect(r.getResult()!.total).toBe(140);
+    expect(r.getResult()!.total).toBe(420);
   });
 });
 
@@ -389,8 +395,11 @@ describe('lesson pacing and cash-out', () => {
       expect(lesson.focus, lesson.id).toBeTruthy();
       const playIndices = lesson.steps.flatMap((s, i) => s.kind === 'play' ? [i] : []);
       if (!playIndices.length) continue;
-      expect(lesson.openingLeadAnalysis, lesson.id).toBeTruthy();
       const first = playIndices[0]!;
+      const firstPlay = lesson.steps[first];
+      if (firstPlay?.kind === 'play' && !firstPlay.runout) {
+        expect(lesson.openingLeadAnalysis, lesson.id).toBeTruthy();
+      }
       const last = playIndices[playIndices.length - 1]!;
       expect(lesson.steps.slice(first, last).some(s => s.kind === 'info'), lesson.id).toBe(false);
     }

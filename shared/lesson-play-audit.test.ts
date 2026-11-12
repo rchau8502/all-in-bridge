@@ -34,7 +34,7 @@ describe('independent exact-solver review of tutorial play', () => {
       .flatMap(s => s.kind === 'play' ? s.script : []).map(a => [a.seat, 'expected' in a ? a.expected : a.card]);
     expect(plays('strategy').slice(28, 32)).toEqual([['N', '4C'], ['E', '3C'], ['S', 'QC'], ['W', '6C']]);
     expect(plays('defense-rules').slice(20, 24)).toEqual([['S', '2H'], ['W', 'TH'], ['N', 'QH'], ['E', '4H']]);
-    expect(plays('full-hand').slice(40, 44)).toEqual([['E', 'JS'], ['S', '8S'], ['W', 'AS'], ['N', '9H']]);
+    expect(plays('full-hand').slice(24, 28)).toEqual([['E', 'KS'], ['S', '7S'], ['W', 'QS'], ['N', '9H']]);
     expect(plays('scoring')).toEqual([['W', 'JD'], ['N', 'QD'], ['E', '4D'], ['S', '7D']]);
   });
 

@@ -7,7 +7,7 @@ export const BASIC_FORCING_STATUS: Record<string, ForcingStatus[]> = {
   bidding: ['NF', 'NF'],
   'preemptive-openings': ['NF', 'NF'],
   'minor-responses': ['NF', 'F1', 'NF'],
-  'full-hand': ['NF', 'F1', 'NF'],
+  'full-hand': ['NF', 'F1', 'NF', 'NF', 'NF'],
   conversation: ['NF', 'F1', 'NF'],
   scoring: ['NF', 'NF', 'NF'],
   overcall: ['NF', 'NF', 'NF'],

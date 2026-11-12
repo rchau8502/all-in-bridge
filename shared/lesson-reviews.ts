@@ -298,28 +298,22 @@ const REVIEWS = {
   ],
   "full-hand": [
     [
-      "Auction",
-      "叫牌",
-      "Strength sets level; fit sets strain",
-      "实力决定高度，配合决定方向"
+      "Invite",
+      "邀请",
+      "With 11 points and a heart fit, South invites game with 3♥",
+      "南家11点，找到红桃配合后用3♥邀请成局"
     ],
     [
-      "Play",
-      "打牌",
-      "Plan, draw trump, use entries, follow suit",
-      "计划、清将牌、进手、跟牌"
+      "Accept",
+      "接受邀请",
+      "North values useful honors and a short spade holding and bids 4♥",
+      "北家凭有用的大牌和黑桃双张，接受邀请叫到4♥"
     ],
     [
-      "Finish",
-      "完成",
-      "Cash proven winners; claim only certain remaining tricks",
-      "兑现已知赢墩，确定余墩才能摊牌"
-    ],
-    [
-      "Result",
-      "结果",
-      "2♥ +1: nine tricks, 140",
-      "2♥超一：九墩，140分"
+      "Loser plan",
+      "处理输墩",
+      "Ruff one spade in dummy. Four potential losers become three",
+      "用明手将吃一张黑桃，把四个潜在输墩减到三个"
     ]
   ],
   "conversation": [

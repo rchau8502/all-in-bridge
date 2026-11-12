@@ -4,7 +4,7 @@ import { BASIC_FORCING_STATUS } from './forcing-notes.js';
 import { getChapterForLesson } from './chapters.js';
 import { Auction, parseBid } from './bidding.js';
 
-describe('foundation minor raises and forcing status', () => {
+describe('raise placement and forcing status', () => {
   it('keeps basic notrump conventions in foundations and lets the strong opener declare', () => {
     for (const id of ['stayman-fit', 'jacoby-transfers']) {
       expect(getChapterForLesson(id)?.track).toBe('basic');
@@ -24,10 +24,9 @@ describe('foundation minor raises and forcing status', () => {
     expect(getChapterForLesson('stayman-smolen')?.track).toBe('advanced');
     expect(getChapterForLesson('texas-transfers')?.track).toBe('advanced');
   });
-  it('teaches inverted minors, Jacoby 2NT and splinters in foundations', () => {
-    for (const id of ['inverted-minor-raises', 'major-forcing-raises']) {
-      expect(getChapterForLesson(id)?.track).toBe('basic');
-    }
+  it('places inverted minors in advanced and keeps Jacoby 2NT and splinters in foundations', () => {
+    expect(getChapterForLesson('inverted-minor-raises')?.track).toBe('advanced');
+    expect(getChapterForLesson('major-forcing-raises')?.track).toBe('basic');
     expect(getChapterForLesson('bergen-raises')?.track).toBe('advanced');
   });
 

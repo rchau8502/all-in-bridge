@@ -53,8 +53,8 @@ export const ACBL_CHAPTERS: Chapter[] = [
       "zh": "基础三：叫牌是沟通"
     },
     "subtitle": {
-      "zh": "开叫、对低花应叫、反加叫与完整做牌",
-      "en": "Opening, minor responses, inverted raises and a complete hand"
+      "zh": "开叫、对低花应叫与邀请成局",
+      "en": "Opening, minor responses and inviting game"
     },
     "acblClasses": "Foundations",
     "lessonIds": [
@@ -62,7 +62,6 @@ export const ACBL_CHAPTERS: Chapter[] = [
       "bidding",
       "preemptive-openings",
       "minor-responses",
-      "inverted-minor-raises",
       "full-hand"
     ]
   },
@@ -127,15 +126,16 @@ export const ACBL_CHAPTERS: Chapter[] = [
     "id": "ch7",
     "track": "advanced",
     "title": {
-      "en": "Advanced 2: Bergen Raises",
-      "zh": "进阶二：伯根加叫"
+      "en": "Advanced 2: Raises",
+      "zh": "进阶二：加叫约定"
     },
     "subtitle": {
-      "en": "Four-card raises and three-card limit-raise routes",
-      "zh": "四张支持与三张限制性邀局路线"
+      "en": "Inverted minor raises and Bergen raises",
+      "zh": "低花反加叫与伯根加叫"
     },
     "acblClasses": "Advanced agreements",
     "lessonIds": [
+      "inverted-minor-raises",
       "bergen-raises"
     ]
   },

@@ -793,7 +793,7 @@ export const REFERENCE_ROWS: ReferenceRow[] = [
   {
     "id": "minor-inverted",
     "section": "minor-responses",
-    "level": "basic",
+    "level": "advanced",
     "sequence": "1♣ – 2♣ / 1♦ – 2♦",
     "title": {
       "zh": "低花反加叫",
@@ -818,7 +818,7 @@ export const REFERENCE_ROWS: ReferenceRow[] = [
   {
     "id": "minor-stoppers",
     "section": "minor-responses",
-    "level": "basic",
+    "level": "advanced",
     "sequence": "1♣ – 2♣ – 2♦ – 2♥",
     "title": {
       "zh": "反加叫后的挡张",
